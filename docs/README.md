@@ -10,6 +10,8 @@
 Yoko分支地址: https://github.com/yoko-murasame/ant-design-vue-jeecg
 
 * 流程功能文档
+* Jeecg组件扩展
+  * [JSearchSelectTagWithRoleCode](./前端/JSearchSelectTagWithRoleCode.md) 根据用户角色编码获取字典选项
 * Jeecg组件修改
   * [JSearchSelectTag](./前端/JSearchSelectTag.md)
 

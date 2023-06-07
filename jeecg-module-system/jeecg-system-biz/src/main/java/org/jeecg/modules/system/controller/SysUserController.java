@@ -123,7 +123,10 @@ public class SysUserController {
             return Result.ok(new ArrayList<>());
         }
         List<String> userIds = sysUserRoles.stream().map(SysUserRole::getUserId).collect(Collectors.toList());
-        List<SysUser> sysUsers = sysUserService.list(Wrappers.lambdaQuery(SysUser.class).in(SysUser::getId, userIds));
+        List<SysUser> sysUsers = sysUserService.list(Wrappers.lambdaQuery(SysUser.class)
+                .in(SysUser::getId, userIds)
+                .eq(SysUser::getDelFlag, 0)
+                .eq(SysUser::getStatus, 1));
         return Result.ok(sysUsers);
     }
 
