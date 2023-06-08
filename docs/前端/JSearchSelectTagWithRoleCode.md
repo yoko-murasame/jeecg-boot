@@ -1,11 +1,10 @@
 # JSearchSelectTagWithRoleCode
 
-搜索字典扩展组件: 根据用户角色code获取字典选项
+[Yoko分支地址](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
 
-路径: src/components/dict/JSearchSelectTag.vue
+组件说明: 搜索字典扩展组件, 根据用户角色code获取字典选项
 
-修改历史:
-* 2023-06-07: 新增
+组件路径: src/components/dict/JSearchSelectTag.vue
 
 使用示例:
 ```vue
@@ -24,3 +23,6 @@
 import JSearchSelectTagWithRoleCode from '@comp/dict/JSearchSelectTagWithRoleCode.vue';
 components: { JSearchSelectTagWithRoleCode }
 ```
+
+修改历史:
+* 2023-06-07: 新增
