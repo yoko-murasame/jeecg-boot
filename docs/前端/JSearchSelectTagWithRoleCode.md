@@ -1,6 +1,4 @@
-# JSearchSelectTagWithRoleCode
-
-[Yoko分支地址](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
+# [JSearchSelectTagWithRoleCode](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
 
 组件说明: 搜索字典扩展组件, 根据用户角色code获取字典选项
 

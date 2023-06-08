@@ -1,6 +1,4 @@
-# SysUserController
-
-[Yoko分支地址](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
+# [SysUserController](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
 
 组件说明: 官方SysUserController接口
 

@@ -1,6 +1,4 @@
-# JSearchSelectTag
-
-[Yoko分支地址](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
+# [JSearchSelectTag](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
 
 组件说明: 官方JSearchSelectTag组件
 

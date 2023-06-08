@@ -1,13 +1,11 @@
-**Yoko分支说明**
+**分支说明**
 
 * 记录Jeecg使用心得
 * 部分Jeecg组件优化
 * 个人封装的一些组件
-* 流程功能
 * 请勿用于商业用途
 
-## ant-design-vue-jeecg
-[Yoko分支地址](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
+## [ant-design-vue-jeecg](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
 
 * 流程功能文档
 * 个人封装组件
@@ -18,8 +16,7 @@
   * [JSearchSelectTag](./前端/JSearchSelectTag.md)
 
 
-## jeecg-boot
-[Yoko分支地址](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
+## [jeecg-boot](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
 
 * 流程功能文档
 * Jeecg接口修改
@@ -28,10 +25,8 @@
 ## 文档结构
 
 ```markdown
-# [组件名]
-
-[Yoko分支地址](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
-[Yoko分支地址](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
+# [组件名](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
+# [组件名](https://github.com/yoko-murasame/jeecg-boot/tree/yoko)
 
 组件说明: [描述]
 
