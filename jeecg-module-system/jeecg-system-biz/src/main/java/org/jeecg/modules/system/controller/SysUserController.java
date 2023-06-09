@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,7 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -106,7 +108,7 @@ public class SysUserController {
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
 		Result<IPage<SysUser>> result = new Result<IPage<SysUser>>();
 		QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(user, req.getParameterMap());
-        
+
         //update-begin-Author:wangshuai--Date:20211119--for:【vue3】通过部门id查询用户，通过code查询id
         //部门ID
         String departId = req.getParameter("departId");
@@ -302,6 +304,33 @@ public class SysUserController {
         return result;
     }
 
+
+    @Autowired
+    private ISysRoleService sysRoleService;
+
+    /**
+     * 根据角色编码获取用户列表
+     *
+     * @author Yoko
+     * @since 2023/6/7 15:10
+     * @param roleCode 角色编码
+     * @return org.jeecg.common.api.vo.Result<java.util.List < org.jeecg.modules.system.entity.SysUser>>
+     */
+    @RequestMapping(value = "/queryUsersByRoleCode", method = RequestMethod.GET)
+    public Result<List<SysUser>> queryAllPageList(String roleCode) {
+        SysRole role = sysRoleService.getOne(Wrappers.lambdaQuery(SysRole.class).eq(SysRole::getRoleCode, roleCode).last("limit 1"));
+        Assert.notNull(role, "未找到对应角色信息");
+        List<SysUserRole> sysUserRoles = sysUserRoleService.list(Wrappers.lambdaQuery(SysUserRole.class).eq(SysUserRole::getRoleId, role.getId()));
+        if (sysUserRoles.size() == 0) {
+            return Result.ok(new ArrayList<>());
+        }
+        List<String> userIds = sysUserRoles.stream().map(SysUserRole::getUserId).collect(Collectors.toList());
+        List<SysUser> sysUsers = sysUserService.list(Wrappers.lambdaQuery(SysUser.class)
+                .in(SysUser::getId, userIds)
+                .eq(SysUser::getDelFlag, 0)
+                .eq(SysUser::getStatus, 1));
+        return Result.ok(sysUsers);
+    }
 
     /**
 	  *  校验用户账号是否唯一<br>
@@ -895,7 +924,7 @@ public class SysUserController {
         }
         return result;
     }
-    
+
     /**
          *  查询当前用户的所有部门/当前部门编码
      * @return
@@ -918,12 +947,12 @@ public class SysUserController {
         return result;
     }
 
-    
+
 
 
 	/**
 	 * 用户注册接口
-	 * 
+	 *
 	 * @param jsonObject
 	 * @param user
 	 * @return
@@ -1070,7 +1099,7 @@ public class SysUserController {
 		result.setSuccess(true);
 		return result;
 	}
-	
+
 	/**
 	 * 用户更改密码
 	 */
@@ -1120,11 +1149,11 @@ public class SysUserController {
             return result;
         }
     }
-	
+
 
 	/**
 	 * 根据TOKEN获取用户的部分信息（返回的数据是可供表单设计器使用的数据）
-	 * 
+	 *
 	 * @return
 	 */
 	@GetMapping("/getUserSectionInfoByToken")
@@ -1135,7 +1164,7 @@ public class SysUserController {
 			if (oConvertUtils.isEmpty(token)) {
 				 username = JwtUtil.getUserNameByToken(request);
 			} else {
-				 username = JwtUtil.getUsername(token);				
+				 username = JwtUtil.getUsername(token);
 			}
 
 			log.debug(" ------ 通过令牌获取部分用户信息，当前用户： " + username);
@@ -1156,7 +1185,7 @@ public class SysUserController {
 			return Result.error(500, "查询失败:" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * 【APP端接口】获取用户列表  根据用户名和真实名 模糊匹配
 	 * @param keyword
@@ -1193,7 +1222,7 @@ public class SysUserController {
 			log.error(e.getMessage(), e);
 			return Result.error(500, "查询失败:" + e.getMessage());
 		}
-		
+
 	}
 
     /**
