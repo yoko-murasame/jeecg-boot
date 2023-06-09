@@ -1,8 +1,8 @@
-# [JSearchSelectTag](https://github.com/yoko-murasame/ant-design-vue-jeecg/tree/yoko)
+[返回](./)
 
 组件说明: 官方JSearchSelectTag组件
 
-组件路径: src/components/dict/JSearchSelectTag.vue
+组件路径: [src/components/dict/JSearchSelectTag.vue](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/src/components/dict/JSearchSelectTag.vue)
 
 使用示例:
 ```vue
