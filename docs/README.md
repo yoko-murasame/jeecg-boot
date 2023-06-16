@@ -11,13 +11,13 @@
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * 流程功能文档
 * 个人封装组件
-  * [禁用效果包裹组件](./ant-design-vue-jeecg/禁用效果包裹组件.md)
-* Jeecg组件扩展
+  * [DisableBlock 禁用效果包裹组件](./ant-design-vue-jeecg/禁用效果包裹组件.md)
   * [JSearchSelectTagWithRoleCode 根据用户角色编码获取字典选项](./ant-design-vue-jeecg/JSearchSelectTagWithRoleCode.md)
-* Jeecg组件修改
+* Jeecg组件
   * [JSearchSelectTag](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload.md](./ant-design-vue-jeecg/JUpload.md)
   * [JEditor.md](./ant-design-vue-jeecg/JEditor.md)
+  * [JImageUpload.md](./ant-design-vue-jeecg/JImageUpload.md)
 
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
