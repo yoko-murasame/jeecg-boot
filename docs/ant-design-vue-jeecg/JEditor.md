@@ -10,6 +10,7 @@
 ```vue
 <j-editor
     v-decorator="['xxx']"
+    :default-height="500"
     plugins="lists image link media table textcolor wordcount contextmenu fullscreen"
     toolbar="undo redo |  formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | lists link unlink image media table | removeformat | fullscreen"
     :trigger-change="true">
@@ -17,4 +18,4 @@
 ```
 
 修改历史:
-* 2023-06-16: Init Doc.
+* 2023-06-16: Init Doc. 添加默认高度参数.
