@@ -17,7 +17,7 @@
 * Jeecg组件修改
   * [JSearchSelectTag](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload.md](./ant-design-vue-jeecg/JUpload.md)
-  * [JEditor.md](./ant-design-vue-jeecg/JUpload.md)
+  * [JEditor.md](./ant-design-vue-jeecg/JEditor.md)
 
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
