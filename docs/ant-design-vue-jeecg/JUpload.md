@@ -1,6 +1,6 @@
-[返回](./)
+[返回](../)
 
-组件说明: 官方JUpload组件
+# JUpload
 
 组件路径: [src/components/jeecg/JUpload.vue](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/src/components/jeecg/JUpload.vue)
 

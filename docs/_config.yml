@@ -1,5 +1,5 @@
-title: Yoko Blog
-description: Jeecg Development Note.
+title: Jeecg Yoko's Branch
+#description: Jeecg Development Note.
 remote_theme: yoko-murasame/cayman-yoko
 plugins:
   - jekyll-remote-theme # add this line to the plugins list if you already have one

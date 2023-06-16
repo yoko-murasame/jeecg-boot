@@ -1,8 +1,10 @@
-[返回](./)
+[返回](../)
 
-组件说明: 官方SysUserController接口
+# SysUserController
 
-组件路径: [org.jeecg.modules.system.controller.SysUserController](https://github.com/yoko-murasame/jeecg-boot/blob/yoko/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysUserController.java)
+用户相关接口.
+
+组件路径: [org.jeecg.modules.system.controller.SysUserController](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysUserController.java)
 
 使用示例:
 ```js

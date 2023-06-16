@@ -1,6 +1,6 @@
-[返回](./)
+[返回](../)
 
-组件说明: 官方JSearchSelectTag组件
+# JSearchSelectTag
 
 组件路径: [src/components/dict/JSearchSelectTag.vue](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/src/components/dict/JSearchSelectTag.vue)
 
