@@ -30,11 +30,11 @@
     <select id="getSubDepIdsByOrgCodes" resultType="java.lang.String">
 		select id from sys_depart where del_flag = '0' and
         <foreach collection="orgCodes" item="item" index="index"  open="(" separator="or" close=")">
-            org_code LIKE CONCAT(#{item},'%')
+            org_code LIKE CONCAT(#{item}::text,'%')
         </foreach>
 	</select>
      <!--根据parent_id查询下级部门-->
-    <select id="queryTreeListByPid" parameterType="Object"  resultType="org.jeecg.modules.system.entity.SysDepart">
+    <select id="queryTreeListByPid" parameterType="String"  resultType="org.jeecg.modules.system.entity.SysDepart">
         SELECT * FROM  sys_depart where del_flag = '0'
         <choose>
             <when test="parentId != null and parentId != ''">

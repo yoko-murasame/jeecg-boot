@@ -7,7 +7,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /jeecg-boot
+    context-path: /main
   compression:
     enabled: true
     min-response-size: 1024
@@ -18,12 +18,14 @@ management:
     web:
       exposure:
         include: metrics,httptrace
+    # 性能监控开启：JVM、Tomcat、服务器等
+    enabled-by-default: true
 
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 1024MB
+      max-request-size: 1024MB
   mail:
     host: smtp.163.com
     username: jeecgos@163.com
@@ -38,7 +40,6 @@ spring:
   ## quartz定时任务,采用数据库方式
   quartz:
     job-store-type: jdbc
-    initialize-schema: embedded
     #定时任务启动开关，true-开  false-关
     auto-startup: true
     #延迟1秒启动定时任务
@@ -52,8 +53,10 @@ spring:
             instanceName: MyScheduler
             instanceId: AUTO
           jobStore:
+            useProperties: true
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
             misfireThreshold: 12000
@@ -63,12 +66,26 @@ spring:
             threadCount: 10
             threadPriority: 5
             threadsInheritContextClassLoaderOfInitializingThread: true
+    jdbc:
+      #第一次启动时建议清楚所有qrtz_表然后使用always配置建表
+      initialize-schema: EMBEDDED
   #json 时间戳统一转换
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   jpa:
     open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+  activiti:
+    check-process-definitions: false
+    #启用作业执行器
+    async-executor-activate: false
+    #启用异步执行器
+    job-executor-activate: false
   aop:
     proxy-target-class: true
   #配置freemarker
@@ -101,7 +118,7 @@ spring:
       stat-view-servlet:
         enabled: true
         loginUsername: admin
-        loginPassword: 123456
+        loginPassword: 123456@123456
         allow:
       web-stat-filter:
         enabled: true
@@ -129,12 +146,14 @@ spring:
         filters: stat,wall,slf4j
         # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      # 多数据源配置
+      primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-          username: root
-          password: root
-          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:postgresql://127.0.0.1:54321/postgres?stringtype=unspecified
+          username: postgres
+          password: 123456
+          driver-class-name: org.postgresql.Driver
           # 多数据源配置
           #multi-datasource1:
           #url: jdbc:mysql://localhost:3306/jeecg-boot2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
@@ -143,10 +162,17 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 0
+    database: 11
     host: 127.0.0.1
-    port: 6379
+    port: 63791
     password: ''
+    lettuce:
+      pool:
+        max-active: 8   #最大连接数据库连接数,设 0 为没有限制
+        max-idle: 8     #最大等待连接中的数量,设 0 为没有限制
+        max-wait: -1ms  #最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。
+        min-idle: 0     #最小等待连接中的数量,设 0 为没有限制
+      shutdown-timeout: 100ms
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -163,10 +189,13 @@ mybatis-plus:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 返回类型为Map,显示null对应的字段
     call-setters-on-nulls: true
+    map-underscore-to-camel-case: true
+  type-enums-package: org.jeecg.modules.**.enums
 #jeecg专用配置
 minidao:
   base-package: org.jeecg.modules.jmreport.*
 jeecg:
+  projectName: 'jeecg_yoko_branch'
   # 是否启用安全模式
   safeMode: false
   # 签名密钥串(前后端要一致，正式发布请自行修改)
@@ -177,7 +206,7 @@ jeecg:
   uploadType: local
   # 前端访问地址
   domainUrl:
-    pc: http://localhost:3100
+    pc: http://localhost:3300
     app: http://localhost:8051
   path:
     #文件上传根目录 设置
@@ -210,6 +239,8 @@ jeecg:
     mode: dev
     #数据字典是否进行saas数据隔离，自己看自己的字典
     saas: false
+    #必须校验方法
+    #verify_methods: remove,delete,save,add,update
   #xxl-job配置
   xxljob:
     enabled: false
@@ -233,7 +264,9 @@ cas:
 #Mybatis输出sql日志
 logging:
   level:
+    org.springframework.scheduling.quartz.LocalDataSourceJobStore: off
     org.jeecg.modules.system.mapper: info
+    org.jeecg.modules: debug
 #swagger
 knife4j:
   #开启增强配置
