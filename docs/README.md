@@ -10,6 +10,7 @@
 
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * 流程功能文档
+* [个性化配置文档](./ant-design-vue-jeecg/个性化配置文档.md)
 * 个人封装组件
   * [DisableBlock 禁用效果包裹组件](./ant-design-vue-jeecg/禁用效果包裹组件.md)
   * [JSearchSelectTagWithRoleCode 根据用户角色编码获取字典选项](./ant-design-vue-jeecg/JSearchSelectTagWithRoleCode.md)
@@ -25,5 +26,6 @@
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
 * 流程功能文档
+* 数据源默认改成PostgreSQL, [初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
 * Jeecg接口修改
   * [SysUserController 系统用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
