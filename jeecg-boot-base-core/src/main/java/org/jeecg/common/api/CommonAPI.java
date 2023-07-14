@@ -68,6 +68,7 @@ public interface CommonAPI {
      * @return
      */
     String translateDict(String code, String key);
+    String translateDictReverse(String code, String key);
 
     /**
      * 8查询数据权限

@@ -65,7 +65,7 @@ public interface ISysBaseAPI extends CommonAPI {
      */
     String getTemplateContent(String templateCode);
     //update-begin---author:taoyan ---date:20220705  for：支持自定义推送类型，邮件、钉钉、企业微信、系统消息-----------
-    
+
     /**
      * 6根据用户id查询用户信息
      * @param id
@@ -383,4 +383,6 @@ public interface ISysBaseAPI extends CommonAPI {
      * @param userId
      */
     void sendAppChatSocket(String userId);
+
+    String translateDictReverse(String code, String key);
 }

@@ -390,6 +390,9 @@ public interface ISysBaseAPI extends CommonAPI {
     @GetMapping("/sys/api/translateDict")
     String translateDict(@RequestParam("code") String code, @RequestParam("key") String key);
 
+    @Override
+    String translateDictReverse(String code, String key);
+
     /**
      * 42查询数据权限
      * @param component
@@ -441,7 +444,7 @@ public interface ISysBaseAPI extends CommonAPI {
      */
     @GetMapping("/sys/api/queryDepartsByOrgIds")
     List<JSONObject> queryDepartsByOrgIds(@RequestParam("ids") String ids);
-    
+
     /**
      * 40发送邮件消息
      * @param email

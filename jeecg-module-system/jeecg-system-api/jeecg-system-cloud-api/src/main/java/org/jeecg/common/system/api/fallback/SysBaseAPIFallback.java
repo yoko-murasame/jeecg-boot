@@ -239,6 +239,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public String translateDictReverse(String code, String key) {
+        return null;
+    }
+
+    @Override
     public List<SysPermissionDataRuleModel> queryPermissionDataRule(String component, String requestPath, String username) {
         return null;
     }
@@ -349,6 +354,6 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
 
     @Override
     public void sendAppChatSocket(String userId) {
-        
+
     }
 }

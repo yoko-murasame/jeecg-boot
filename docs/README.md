@@ -31,3 +31,4 @@
 * Jeecg接口修改
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
+  * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
