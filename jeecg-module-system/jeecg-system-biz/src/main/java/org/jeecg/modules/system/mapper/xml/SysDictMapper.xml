@@ -36,9 +36,16 @@
 
 	<!-- 通过字典code获取字典数据 -->
 	<select id="queryDictTextByKey" parameterType="String"  resultType="String">
-		   select s.item_text from sys_dict_item s 
+		   select s.item_text from sys_dict_item s
 		   where s.dict_id = (select id from sys_dict where dict_code = #{code})
 		   and s.item_value = #{key}
+	</select>
+
+	<!-- 通过字典code获取字典key -->
+	<select id="queryDictKeyByText" parameterType="String" resultType="String">
+		select s.item_value from sys_dict_item s
+		where s.dict_id = (select id from sys_dict where dict_code = #{code})
+		and s.item_text = #{key}
 	</select>
 
 	<!-- 通过字典code获取字典数据，可批量查询 -->
@@ -66,7 +73,7 @@
 	<select id="queryTableDictItemsByCode" parameterType="String"  resultType="org.jeecg.common.system.vo.DictModel">
 		   select ${text} as "text",${code} as "value" from ${table}
 	</select>
-	
+
 	<!--通过查询指定table的 text code 获取字典（指定查询条件）-->
 	<select id="queryTableDictItemsByCodeAndFilter" parameterType="String"  resultType="org.jeecg.common.system.vo.DictModel">
 		   select ${text} as "text",${code} as "value" from ${table}
@@ -74,7 +81,7 @@
 			where ${filterSql}
 		</if>
 	</select>
-	
+
 	<!--通过查询指定table的 text code key 获取字典值-->
 	<select id="queryTableDictTextByKey" parameterType="String" resultType="String">
 		   select ${text} as "text" from ${table} where ${code}= #{key}
@@ -101,27 +108,27 @@
 	<select id="duplicateCheckCountSql" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
 		SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal} and id &lt;&gt; #{dataId}
 	</select>
-	
+
 	<!-- 重复校验 sql语句 -->
 	<select id="duplicateCheckCountSqlNoDataId" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
 		SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal}
 	</select>
-		
+
 	<!-- 查询部门信息 作为字典数据 -->
 	<select id="queryAllDepartBackDictModel" resultType="org.jeecg.common.system.vo.DictModel">
 		select id as "value",depart_name as "text" from sys_depart where del_flag = '0'
 	</select>
-	
+
 		<!-- 查询用户信息 作为字典数据 -->
 	<select id="queryAllUserBackDictModel" resultType="org.jeecg.common.system.vo.DictModel">
 		select username as "value",realname as "text" from sys_user where del_flag = '0'
 	</select>
-	
+
 	<!--通过查询指定table的 text code 获取字典数据，且支持关键字查询
 	<select id="queryTableDictItems" parameterType="String"  resultType="org.jeecg.common.system.vo.DictModel">
 		select ${text} as "text",${code} as "value" from ${table} where ${text} like #{keyword}
 	</select> -->
-	
+
 	<!-- 根据表名、显示字段名、存储字段名、父ID查询树 -->
 	<select id="queryTreeList" parameterType="Object" resultType="org.jeecg.modules.system.model.TreeSelectModel">
 		select ${text} as "title",

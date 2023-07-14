@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.jeecg.modules.workflow.mapper.BpmCommonMapper">
+    <resultMap id="ActRuTaskDTO" type="org.jeecg.modules.workflow.entity.ActRuTaskDTO">
+        <result column="ID_" property="id" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME_" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="NAME_" property="name" jdbcType="VARCHAR"/>
+        <result column="ASSIGNEE_" property="assignee" jdbcType="VARCHAR"/>
+        <result column="OWNER_" property="owner" jdbcType="VARCHAR"/>
+        <result column="PROC_INST_ID_" property="procInstId" jdbcType="VARCHAR"/>
+        <result column="EXECUTION_ID_" property="executionId" jdbcType="VARCHAR"/>
+        <result column="NODE_TIMEOUT" property="nodeTimeout" jdbcType="INTEGER"/>
+        <result column="form_data_id" property="businessId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询超时任务 -->
+    <select id="getTimeoutTask" resultMap="ActRuTaskDTO">
+        SELECT RES.CREATE_TIME_,
+               RES.ID_,
+               RES.NAME_,
+               RES.ASSIGNEE_,
+               RES.OWNER_,
+               RES.PROC_INST_ID_,
+               RES.EXECUTION_ID_,
+               t.NODE_TIMEOUT
+        FROM ACT_RU_TASK RES
+                 LEFT JOIN EXT_ACT_PROCESS_NODE t ON t.PROCESS_NODE_CODE = RES.TASK_DEF_KEY_
+        WHERE t.NODE_TIMEOUT > 0
+          AND (RES.ASSIGNEE_ IS NOT NULL OR RES.ASSIGNEE_ != '')
+    </select>
+
+    <select id="getTimeoutTaskFixed" resultMap="ActRuTaskDTO">
+        SELECT RES.CREATE_TIME_,
+               RES.ID_,
+               RES.NAME_,
+               RES.ASSIGNEE_,
+               RES.OWNER_,
+               RES.PROC_INST_ID_,
+               RES.EXECUTION_ID_,
+               TMP.NODE_TIMEOUT
+        FROM ACT_RU_TASK RES
+                 LEFT JOIN (SELECT *
+                            FROM EXT_ACT_PROCESS_NODE A
+                                     LEFT JOIN EXT_ACT_PROCESS B ON A.PROCESS_ID = B.ID) TMP
+                           ON TMP.PROCESS_NODE_CODE = RES.TASK_DEF_KEY_ AND
+                              POSITION(TMP.PROCESS_KEY IN RES.PROC_DEF_ID_) = 1
+        WHERE TMP.NODE_TIMEOUT > 0
+          AND (RES.ASSIGNEE_ IS NOT NULL OR RES.ASSIGNEE_ != '')
+    </select>
+
+    <select id="getRunningTaskByBusinessIds" resultMap="ActRuTaskDTO">
+        SELECT RES.CREATE_TIME_,
+        RES.ID_,
+        RES.NAME_,
+        RES.ASSIGNEE_,
+        RES.OWNER_,
+        RES.PROC_INST_ID_,
+        RES.EXECUTION_ID_,
+        TMP.form_data_id
+        FROM ACT_RU_TASK RES
+        INNER JOIN (
+        SELECT process_inst_id, form_data_id
+        FROM ext_act_flow_data eafd
+        WHERE eafd.form_data_id in
+        --('1564081416180076546', '1564081081835327490', '1564079966905438209', '1564079675460030466', '1564081831797854210')
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        ) TMP ON TMP.process_inst_id = RES.proc_inst_id_
+        AND (RES.ASSIGNEE_ IS NOT NULL OR RES.ASSIGNEE_ != '')
+    </select>
+</mapper>

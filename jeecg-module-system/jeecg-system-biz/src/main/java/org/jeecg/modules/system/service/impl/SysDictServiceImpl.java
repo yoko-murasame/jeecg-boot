@@ -119,6 +119,11 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	}
 
 	@Override
+	public String queryDictKeyByText(String code, String key) {
+		return sysDictMapper.queryDictKeyByText(code, key);
+	}
+
+	@Override
 	public Map<String, List<DictModel>> queryManyDictByKeys(List<String> dictCodeList, List<String> keys) {
 		List<DictModelMany> list = sysDictMapper.queryManyDictByKeys(dictCodeList, keys);
 		Map<String, List<DictModel>> dictMap = new HashMap(5);
@@ -153,7 +158,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		log.debug("无缓存dictTableList的时候调用这里！");
 		return sysDictMapper.queryTableDictItemsByCodeAndFilter(table,text,code,filterSql);
 	}
-	
+
 	/**
 	 * 通过查询指定table的 text code 获取字典值text
 	 * dictTableCache采用redis缓存有效期10分钟
@@ -282,7 +287,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	public List<DictModel> queryAllUserBackDictModel() {
 		return baseMapper.queryAllUserBackDictModel();
 	}
-	
+
 //	@Override
 //	public List<DictModel> queryTableDictItems(String table, String text, String code, String keyword) {
 //		return baseMapper.queryTableDictItems(table, text, code, "%"+keyword+"%");

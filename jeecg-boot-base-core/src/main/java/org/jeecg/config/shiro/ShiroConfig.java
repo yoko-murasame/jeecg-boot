@@ -20,7 +20,6 @@ import org.jeecg.config.shiro.filters.CustomShiroFilterFactoryBean;
 import org.jeecg.config.shiro.filters.JwtFilter;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -75,6 +74,31 @@ public class ShiroConfig {
                 }
             }
         }
+
+        // 流程
+        filterChainDefinitionMap.put("/designer/**", "anon");
+        filterChainDefinitionMap.put("/act/**", "anon");
+        filterChainDefinitionMap.put("/act/task/traceImage", "anon");
+        filterChainDefinitionMap.put("/act/process/processPic", "anon");
+        filterChainDefinitionMap.put("/act/process/downProcessXml", "anon");
+        filterChainDefinitionMap.put("/act/process/resource", "anon");
+        filterChainDefinitionMap.put("/act/designer/**", "anon");
+        filterChainDefinitionMap.put("/service/editor/**", "anon");
+        filterChainDefinitionMap.put("/service/model/**", "anon");
+        filterChainDefinitionMap.put("/service/model/**/save", "anon");
+        filterChainDefinitionMap.put("/editor-app/**", "anon");
+        filterChainDefinitionMap.put("/diagram-viewer/**", "anon");
+        filterChainDefinitionMap.put("/modeler.html", "anon");
+        filterChainDefinitionMap.put("/plug-in/**", "anon");
+
+        // 表单设计器
+        filterChainDefinitionMap.put("/desform/index/**", "anon");
+        filterChainDefinitionMap.put("/desform/ext/**", "anon");
+        filterChainDefinitionMap.put("/desform/add/**", "anon");
+        filterChainDefinitionMap.put("/desform/view/**", "anon");
+        filterChainDefinitionMap.put("/desform/edit/**", "anon");
+        filterChainDefinitionMap.put("/desform/detail/**", "anon");
+
         // 配置不会被拦截的链接 顺序判断
         filterChainDefinitionMap.put("/sys/cas/client/validateLogin", "anon"); //cas验证登录
         filterChainDefinitionMap.put("/sys/randomImage/**", "anon"); //登录验证码接口排除
@@ -130,11 +154,11 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/jmreport/**", "anon");
         filterChainDefinitionMap.put("/**/*.js.map", "anon");
         filterChainDefinitionMap.put("/**/*.css.map", "anon");
-        
+
         //大屏模板例子
         filterChainDefinitionMap.put("/test/bigScreen/**", "anon");
         filterChainDefinitionMap.put("/bigscreen/template1/**", "anon");
-        filterChainDefinitionMap.put("/bigscreen/template1/**", "anon");
+        filterChainDefinitionMap.put("/bigscreen/**", "anon");
         //filterChainDefinitionMap.put("/test/jeecgDemo/rabbitMqClientTest/**", "anon"); //MQ测试
         //filterChainDefinitionMap.put("/test/jeecgDemo/html", "anon"); //模板页面
         //filterChainDefinitionMap.put("/test/jeecgDemo/redis/**", "anon"); //redis测试

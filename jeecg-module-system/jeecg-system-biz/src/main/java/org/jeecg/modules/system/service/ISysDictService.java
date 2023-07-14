@@ -77,7 +77,9 @@ public interface ISysDictService extends IService<SysDict> {
      */
     public String queryDictTextByKey(String code, String key);
 
-	/**
+    String queryDictKeyByText(String code, String key);
+
+    /**
 	 * 可通过多个字典code查询翻译文本
 	 * @param dictCodeList 多个字典code
 	 * @param keys 数据列表

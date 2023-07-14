@@ -25,7 +25,7 @@ import java.util.Map;
  * @since 2018-12-28
  */
 public interface SysDictMapper extends BaseMapper<SysDict> {
-	
+
 	/**
 	 * 重复检查SQL
      * @param duplicateCheckVo
@@ -104,6 +104,7 @@ public interface SysDictMapper extends BaseMapper<SysDict> {
      * @return
      */
 	public String queryDictTextByKey(@Param("code") String code,@Param("key") String key);
+	public String queryDictKeyByText(@Param("code") String code, @Param("key") String key);
 
 	/**
 	 * 可通过多个字典code查询翻译文本
@@ -152,13 +153,13 @@ public interface SysDictMapper extends BaseMapper<SysDict> {
 	 * @return
 	 */
 	public List<DictModel> queryAllDepartBackDictModel();
-	
+
 	/**
 	 * 查询所有用户  作为字典信息 username -->value,realname -->text
 	 * @return
 	 */
 	public List<DictModel> queryAllUserBackDictModel();
-	
+
 //	/**
 //	 * 通过关键字查询出字典表
 //	 * @param table

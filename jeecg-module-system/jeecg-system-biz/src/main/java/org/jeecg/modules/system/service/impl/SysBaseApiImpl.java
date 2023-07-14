@@ -53,7 +53,7 @@ import java.util.*;
 /**
  * @Description: 底层共通业务API，提供其他独立模块调用
  * @Author: scott
- * @Date:2019-4-20 
+ * @Date:2019-4-20
  * @Version:V1.0
  */
 @Slf4j
@@ -133,6 +133,11 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	@Override
 	public String translateDict(String code, String key) {
 		return sysDictService.queryDictTextByKey(code, key);
+	}
+
+	@Override
+	public String translateDictReverse(String code, String key) {
+		return sysDictService.queryDictKeyByText(code, key);
 	}
 
 	@Override

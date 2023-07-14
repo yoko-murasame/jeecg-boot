@@ -8,6 +8,13 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
+	<properties>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<activiti.version>5.22.0</activiti.version>
+	</properties>
+
 	<artifactId>jeecg-system-biz</artifactId>
 
 	<dependencies>
@@ -15,6 +22,24 @@
 			<groupId>org.jeecgframework.boot</groupId>
 			<artifactId>jeecg-system-local-api</artifactId>
 		</dependency>
+		<!-- hibernate 破解的依赖 -->
+		<!--<dependency>-->
+		<!--	<groupId>org.hibernate</groupId>-->
+		<!--	<artifactId>hibernate-core</artifactId>-->
+		<!--	<exclusions>-->
+		<!--		<exclusion>-->
+		<!--			<groupId>commons-collections</groupId>-->
+		<!--			<artifactId>commons-collections</artifactId>-->
+		<!--		</exclusion>-->
+		<!--	</exclusions>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+		<!--	<groupId>org.hibernate</groupId>-->
+		<!--	<artifactId>hibernate-common-ol</artifactId>-->
+		<!--	<version>5.4.74</version>-->
+		<!--	<scope>system</scope>-->
+		<!--	<systemPath>${project.basedir}/crack/hibernate-common-ol-5.4.74.jar</systemPath>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -24,21 +49,179 @@
 			<artifactId>hibernate-re</artifactId>
 		</dependency>
 
+		<!-- activiti -->
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-spring-boot-starter-basic</artifactId>
+			<version>${activiti.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.mybatis</groupId>
+					<artifactId>mybatis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-langs</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		<!--Jeecg流程依赖-加密部分-BEGIN-->
+		<!--<dependency>-->
+		<!--	<groupId>org.apache.commons</groupId>-->
+		<!--	<artifactId>commons-jexfm</artifactId>-->
+		<!--	<version>1.8.451</version>-->
+		<!--	<scope>system</scope>-->
+		<!--	<systemPath>${project.basedir}/crack/commons-jexfm-1.8.451.jar</systemPath>-->
+		<!--</dependency>-->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>jasper-ck</artifactId>
+			<version>6.2.09</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/crack/jasper-ck-6.2.09.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>conmons-des</artifactId>
+			<version>1.7.4</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/crack/conmons-des-1.7.4.jar</systemPath>
+		</dependency>
+		<!--Jeecg流程依赖-加密部分-END-->
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-explorer</artifactId>
+			<version>${activiti.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>vaadin</artifactId>
+					<groupId>com.vaadin</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>dcharts-widget</artifactId>
+					<groupId>org.vaadin.addons</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>activiti-simple-workflow</artifactId>
+					<groupId>org.activiti</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-io</groupId>
+					<artifactId>commons-io</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-diagram-rest</artifactId>
+			<version>${activiti.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-config</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-web</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-crypto</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-modeler</artifactId>
+			<version>${activiti.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-config</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-web</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-crypto</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-io</groupId>
+					<artifactId>commons-io</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.11.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<!--<version>9.0.39</version>-->
+			<scope>provided</scope>
+		</dependency>
+		<!-- activiti -->
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13</version>
+		</dependency>
+
 		<!-- 企业微信/钉钉 api -->
 		<dependency>
 			<groupId>org.jeecgframework</groupId>
 			<artifactId>jeewx-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 积木报表 -->
 		<dependency>
 			<groupId>org.jeecgframework.jimureport</groupId>
 			<artifactId>jimureport-spring-boot-starter</artifactId>
 		</dependency>
-		<!-- 积木报表 mongo redis 支持包 
+		<!-- 积木报表 mongo redis 支持包
 		<dependency>
 			<groupId>org.jeecgframework.jimureport</groupId>
 			<artifactId>jimureport-nosql-starter</artifactId>
 		</dependency>-->
 	</dependencies>
-	
+
 </project>

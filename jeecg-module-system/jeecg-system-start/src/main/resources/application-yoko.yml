@@ -226,6 +226,12 @@ jeecg:
     cluster-name: jeecg-ES
     cluster-nodes: 127.0.0.1:9200
     check-enabled: false
+  # 表单设计器配置
+  desform:
+    # 主题颜色（仅支持 16进制颜色代码）
+    theme-color: "#1890ff"
+    # 文件、图片上传方式，可选项：qiniu（七牛云）、system（跟随系统配置）
+    upload-type: system
   # 在线预览文件服务器地址配置
   file-view-domain: http://fileview.jeecg.com
   # minio文件上传
