@@ -393,7 +393,7 @@
 			<url>http://maven.jeecg.com:8090/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
     <!-- 环境 -->
     <profiles>
         <!-- 开发 -->

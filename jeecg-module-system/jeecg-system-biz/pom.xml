@@ -23,31 +23,33 @@
 			<artifactId>jeecg-system-local-api</artifactId>
 		</dependency>
 		<!-- hibernate 破解的依赖 -->
-		<!--<dependency>-->
-		<!--	<groupId>org.hibernate</groupId>-->
-		<!--	<artifactId>hibernate-core</artifactId>-->
-		<!--	<exclusions>-->
-		<!--		<exclusion>-->
-		<!--			<groupId>commons-collections</groupId>-->
-		<!--			<artifactId>commons-collections</artifactId>-->
-		<!--		</exclusion>-->
-		<!--	</exclusions>-->
-		<!--</dependency>-->
-		<!--<dependency>-->
-		<!--	<groupId>org.hibernate</groupId>-->
-		<!--	<artifactId>hibernate-common-ol</artifactId>-->
-		<!--	<version>5.4.74</version>-->
-		<!--	<scope>system</scope>-->
-		<!--	<systemPath>${project.basedir}/crack/hibernate-common-ol-5.4.74.jar</systemPath>-->
-		<!--</dependency>-->
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-common-ol</artifactId>
+			<version>5.4.74</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/crack/hibernate-common-ol-5.4.74.jar</systemPath>
+		</dependency>
+
+		<!--这新的online表单有点bug-->
+		<!--<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
 			<artifactId>hibernate-re</artifactId>
-		</dependency>
+		</dependency>-->
 
 		<!-- activiti -->
 		<dependency>
@@ -67,13 +69,13 @@
 			<version>2.7.1</version>
 		</dependency>
 		<!--Jeecg流程依赖-加密部分-BEGIN-->
-		<!--<dependency>-->
-		<!--	<groupId>org.apache.commons</groupId>-->
-		<!--	<artifactId>commons-jexfm</artifactId>-->
-		<!--	<version>1.8.451</version>-->
-		<!--	<scope>system</scope>-->
-		<!--	<systemPath>${project.basedir}/crack/commons-jexfm-1.8.451.jar</systemPath>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexfm</artifactId>
+			<version>1.8.45</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/crack/commons-jexfm-1.8.45.jar</systemPath>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>jasper-ck</artifactId>
@@ -222,6 +224,12 @@
 			<groupId>org.jeecgframework.jimureport</groupId>
 			<artifactId>jimureport-nosql-starter</artifactId>
 		</dependency>-->
+		<!-- 七牛云SDK -->
+		<dependency>
+			<groupId>com.qiniu</groupId>
+			<artifactId>qiniu-java-sdk</artifactId>
+			<version>${qiniu-java-sdk.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>

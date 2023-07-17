@@ -1,12 +1,8 @@
 package org.jeecg.config.sign.interceptor;
 
 
-import java.io.PrintWriter;
-import java.util.SortedMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.DateUtils;
@@ -15,9 +11,10 @@ import org.jeecg.config.sign.util.HttpUtils;
 import org.jeecg.config.sign.util.SignUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.alibaba.fastjson.JSON;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.util.SortedMap;
 
 /**
  * 签名拦截器
@@ -39,6 +36,12 @@ public class SignAuthInterceptor implements HandlerInterceptor {
         //对参数进行签名验证
         String headerSign = request.getHeader(CommonConstant.X_SIGN);
         String xTimestamp = request.getHeader(CommonConstant.X_TIMESTAMP);
+
+        // 旧的表单设计器都是null直接放行
+        if (null == headerSign && null == xTimestamp) {
+        	return true;
+        }
+
         //客户端时间
         Long clientTimestamp = Long.parseLong(xTimestamp);
 
