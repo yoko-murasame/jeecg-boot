@@ -4,11 +4,12 @@
 * 部分Jeecg组件优化
 * 个人封装的一些组件
 * 请勿用于商业用途
+* [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * [文档模板](./Template.md)
 
 ## [ant-design-vue-jeecg](https://github.com/yoko-murasame/ant-design-vue-jeecg)
 
-* [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
+* [Nginx配置示例](./ant-design-vue-jeecg/Nginx配置示例.md)
 * 流程功能文档
 * [个性化配置文档](./ant-design-vue-jeecg/个性化配置文档.md)
 * 个人封装组件
@@ -25,9 +26,9 @@
 
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
-* 流程功能文档
-* 数据源默认改成PostgreSQL, [初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
 * [分离式部署](./jeecg-boot-3.4.3last/分离式部署.md)
+* 数据源默认改成PostgreSQL, [初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
+* 流程功能文档
 * Jeecg接口修改
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
