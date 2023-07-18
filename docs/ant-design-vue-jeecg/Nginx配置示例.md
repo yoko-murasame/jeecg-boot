@@ -4,9 +4,9 @@
 
 [组件描述]
 
-组件路径: [后端路径](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/nginx)
+组件路径: [Nginx配置示例](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/nginx)
 
-使用示例:
+Nginx示例:
 ```nginx
 # 1.前端必须改代码，这个无法绕过，所有的PUT/DELETE请求，都要求改成POST；
 # 所有的PUT请求，要携带Header：X-HTTP-Method-Override: PUT
