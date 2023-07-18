@@ -28,7 +28,7 @@
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
 * [分离式部署](./jeecg-boot-3.4.3last/分离式部署.md)
-* 数据源默认改成PostgreSQL, [初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
+* [PostgreSQL数据库集成说明](./jeecg-boot-3.4.3last/PostgreSQL数据库集成说明.md)
 * 流程功能文档
 * Jeecg接口修改
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
