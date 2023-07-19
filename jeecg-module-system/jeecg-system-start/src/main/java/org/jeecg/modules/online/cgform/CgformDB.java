@@ -244,6 +244,12 @@ public class CgformDB {
                                 var17.setIsQuery(1);
                                 var17.setQueryMode("single");
                             }
+
+                            // 添加逻辑 可以筛选id
+                            if ("id".equals(var17.getDbFieldName())) {
+                                var17.setIsQuery(1);
+                                var17.setQueryMode("single");
+                            }
                         } while(1 != var17.getIsQuery());
 
                         if ("single".equals(var17.getQueryMode())) {
