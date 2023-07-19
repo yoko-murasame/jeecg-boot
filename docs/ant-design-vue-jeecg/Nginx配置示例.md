@@ -2,8 +2,6 @@
 
 # Nginx配置示例
 
-[组件描述]
-
 组件路径: [Nginx配置示例](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/nginx)
 
 Nginx示例:

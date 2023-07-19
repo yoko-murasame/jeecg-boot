@@ -4,7 +4,7 @@
 
 * 数据源默认改成PostgreSQL
 * 默认集成了PostGIS、zhparser分词
-* 分词版本Docker安装方式参考: https://github.com/yoko-murasame/docker-postgres-12-zhparser-postgis
+* 分词版本Docker安装方式参考[docker-postgres-12-zhparser-postgis](https://github.com/yoko-murasame/docker-postgres-12-zhparser-postgis)
 
 组件路径: 
 * [PG初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
@@ -120,7 +120,9 @@ SELECT to_tsvector('chinese', '人生苦短，爆炸吧，小宇宙，独断万�
 
 **性能优化**
 在线性能优选参数生成器：https://pgtune.leopard.in.ua/
+
 Github项目地址：https://github.com/le0pard/pgtune
+
 获取Linux服务器的性能配置，涉及以下指标
 ```shell
 # CPU逻辑核心数
