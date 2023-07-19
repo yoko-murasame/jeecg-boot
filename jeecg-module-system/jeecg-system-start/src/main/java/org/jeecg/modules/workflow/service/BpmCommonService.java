@@ -2,6 +2,8 @@ package org.jeecg.modules.workflow.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.*;
@@ -18,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.DateUtils;
@@ -36,6 +39,8 @@ import org.jeecg.modules.extbpm.process.service.IExtActBpmFileService;
 import org.jeecg.modules.extbpm.process.service.IExtActBpmLogService;
 import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
 import org.jeecg.modules.extbpm.process.service.IExtActProcessFormService;
+import org.jeecg.modules.online.desform.entity.DesignFormData;
+import org.jeecg.modules.online.desform.service.IDesignFormDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -84,6 +89,31 @@ public class BpmCommonService {
     private IExtActProcessFormService extActProcessFormService;
     @Resource
     private ExtActProcessService extActProcessService;
+    @Resource
+    private IDesignFormDataService designFormDataService;
+
+    /**
+     * 获取流程定义id
+     *
+     * @author Yoko
+     * @since 2023/7/19 11:16
+     * @param param
+     * 建议传入两个参数
+     * 1.relationCode
+     * 2.formTableName
+     * @return org.jeecg.common.api.vo.Result<?>
+     */
+    public Result<ExtActProcess> getExtActProcess(ExtActProcessForm param) {
+        QueryWrapper<ExtActProcessForm> qw = QueryGenerator.initQueryWrapper(param, new HashMap<>());
+        List<ExtActProcessForm> list = extActProcessFormService.list(qw);
+        if (list.size() > 1) {
+            throw new RuntimeException("存在多个匹配结果，请缩小范围！");
+        }
+        ExtActProcessForm extActProcessForm = list.get(0);
+        String processId = extActProcessForm.getProcessId();
+        ExtActProcess process = extActProcessService.getById(processId);
+        return Result.OK(process);
+    }
 
     /**
      * 发起流程接口
@@ -120,28 +150,40 @@ public class BpmCommonService {
             activitiException = null;
 
             ExtActProcessForm extActProcessForm;
-            Map<String, Object> map;
+            Map<String, Object> variables;
             try {
-                LambdaQueryWrapper<ExtActProcessForm> var21 = new LambdaQueryWrapper<ExtActProcessForm>();
-                var21.eq(ExtActProcessForm::getRelationCode, flowCode);
-                extActProcessForm = (ExtActProcessForm)this.extActProcessFormService.getOne(var21);
-                String var12 = extActProcessForm.getFormTableName();
-                map = this.extActProcessService.getDataById(var12, id);
-                map.put(org.jeecg.modules.extbpm.process.common.a.l, id);
-                map.put(org.jeecg.modules.extbpm.process.common.a.o, formUrl);
+                extActProcessForm = this.extActProcessFormService.getOne(Wrappers.lambdaQuery(ExtActProcessForm.class).eq(ExtActProcessForm::getRelationCode, flowCode));
+                String formTableName = extActProcessForm.getFormTableName();
+                // 流程变量 所有表中的数据
+                variables = this.extActProcessService.getDataById(formTableName, id);
+                // 流程变量 BPM_DATA_ID
+                variables.put(org.jeecg.modules.extbpm.process.common.a.l, id);
+                // 流程变量 BPM_FORM_CONTENT_URL
+                variables.put(org.jeecg.modules.extbpm.process.common.a.o, formUrl);
+                // 流程变量 BPM_FORM_CONTENT_URL_MOBILE
                 if (oConvertUtils.isNotEmpty(formUrlMobile)) {
-                    map.put(org.jeecg.modules.extbpm.process.common.a.p, formUrlMobile);
+                    variables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrlMobile);
                 } else {
-                    map.put(org.jeecg.modules.extbpm.process.common.a.p, formUrl);
+                    variables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrl);
+                }
+                //  BPM_DES_DATA_ID
+                // 先找是否存在设计器表单数据，找到直接注入
+                DesignFormData designFormData = designFormDataService.getOne(Wrappers.lambdaQuery(DesignFormData.class).eq(DesignFormData::getOnlineFormDataId, id));
+                if (null != designFormData) {
+                    // 流程变量 BPM_DES_DATA_ID
+                    variables.put(org.jeecg.modules.extbpm.process.common.a.n, designFormData.getId());
+                    // 流程变量 BPM_DES_FORM_CODE
+                    variables.put(org.jeecg.modules.extbpm.process.common.a.m, designFormData.getDesformCode());
                 }
 
-                map.put(org.jeecg.modules.extbpm.process.common.a.h, var12);
+                // 流程变量 BPM_FORM_KEY
+                variables.put(org.jeecg.modules.extbpm.process.common.a.h, formTableName);
             } catch (Exception var14) {
                 var14.printStackTrace();
                 throw new BpmException("获取流程信息异常");
             }
 
-            ProcessInstance processInstance = this.extActProcessService.startMutilProcess(username, id, map, extActProcessForm);
+            ProcessInstance processInstance = this.extActProcessService.startMutilProcess(username, id, variables, extActProcessForm);
             log.info("启动成功流程实例 ProcessInstance: {}", processInstance);
             result.setResult(processInstance.getProcessInstanceId());
         } catch (ActivitiException exception) {

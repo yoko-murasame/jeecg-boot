@@ -16,6 +16,8 @@ import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.modules.bpm.dto.ProcessHisDTO;
 import org.jeecg.modules.extbpm.process.entity.ExtActFlowData;
+import org.jeecg.modules.extbpm.process.entity.ExtActProcess;
+import org.jeecg.modules.extbpm.process.entity.ExtActProcessForm;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
@@ -212,6 +214,14 @@ public class BpmCommonController {
         String formUrlMobile = (String)param.get("formUrlMobile");
         String username = JwtUtil.getUserNameByToken(request);
         return this.bpmCommonService.startMutilProcess(flowCode, id, formUrl, formUrlMobile, username);
+    }
+
+    @ApiOperation(value = "获取ExtActProcess", notes = "获取ExtActProcess")
+    @GetMapping({"getExtActProcess"})
+    public Result<ExtActProcess> getExtActProcess(ExtActProcessForm param) {
+        Result<ExtActProcess> extActProcess = this.bpmCommonService.getExtActProcess(param);
+        extActProcess.getResult().setProcessXml(null);
+        return extActProcess;
     }
 
 }
