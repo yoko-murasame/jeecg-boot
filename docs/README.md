@@ -16,14 +16,14 @@
   * [CancelButton 防误触Modal取消按钮组件](./ant-design-vue-jeecg/CancelButton.md)
   * [DisableBlock 禁用效果包裹组件](./ant-design-vue-jeecg/禁用效果包裹组件.md)
   * [JSearchSelectTagWithRoleCode 根据用户角色编码获取字典选项](./ant-design-vue-jeecg/JSearchSelectTagWithRoleCode.md)
-* Jeecg表单组件
+* Jeecg组件
   * [JEditor 富文本表单组件](./ant-design-vue-jeecg/JEditor.md)
   * [JImageUpload 图片上传表单组件](./ant-design-vue-jeecg/JImageUpload.md)
   * [JSearchSelectTag 字典选择表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
-* Jeecg基础组件
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
-
+* 其他组件
+  * [V-Viewer](./ant-design-vue-jeecg/V-Viewer.md)
 
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
