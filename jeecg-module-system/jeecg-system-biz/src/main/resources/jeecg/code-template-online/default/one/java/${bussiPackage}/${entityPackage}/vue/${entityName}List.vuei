@@ -323,7 +323,8 @@
           deleteBatch: "/${entityPackage}/${entityName?uncap_first}/deleteBatch",
           exportXlsUrl: "/${entityPackage}/${entityName?uncap_first}/exportXls",
           importExcelUrl: "${entityPackage}/${entityName?uncap_first}/importExcel",
-          <#if bpm_flag>startProcess: '/act/process/extActProcess/startMutilProcess'</#if>
+          // <#if bpm_flag>startProcess: '/act/process/extActProcess/startMutilProcess'</#if>
+          <#if bpm_flag>startProcess: '/workflow/common/startMutilProcess'</#if>
         },
         <#if bpm_flag>
         //代码生成后需手动设置流程编码

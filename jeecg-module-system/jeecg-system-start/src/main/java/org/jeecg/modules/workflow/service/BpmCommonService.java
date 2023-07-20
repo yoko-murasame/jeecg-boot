@@ -147,6 +147,14 @@ public class BpmCommonService {
                 throw new BpmException("formUrl参数不能为空");
             }
 
+            // 预先校验一下ext_act_flow_data表中是否存在运行中的流程
+            List<ExtActFlowData> extActFlowDataList = extActFlowDataService.list(Wrappers.lambdaQuery(ExtActFlowData.class)
+                    .eq(ExtActFlowData::getFormDataId, id)
+                    .eq(ExtActFlowData::getBpmStatus, "2"));
+            if (extActFlowDataList.size() > 0) {
+                throw new BpmException("该表单已存在运行中的流程，请勿重复发起！");
+            }
+
             activitiException = null;
 
             ExtActProcessForm extActProcessForm;
