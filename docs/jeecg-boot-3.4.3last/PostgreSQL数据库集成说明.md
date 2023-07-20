@@ -85,14 +85,14 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --re
 
 ### 2）导入导出数据库
 
-2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/backup.sql)
+2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/backup.dump)
 ```shell
 # 进入容器执行备份
-docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.sql -d <数据库名称>
+docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
 # 复制备份到宿主机
-docker cp <容器>:/backup.sql /root/pgbackup/backup.sql
+docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 # 非Docker安装方式的备份导出示例
-# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.sql -d postgres
+# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
 ````
 
 2.2）导入数据库备份文件
@@ -101,7 +101,7 @@ docker cp <容器>:/backup.sql /root/pgbackup/backup.sql
 psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
 # 复制备份到新的容器
-docker cp /root/pgbackup/backup.sql <容器>:/backup.sql
+docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 docker exec -it <新容器> pg_restore --verbose -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
 ```
 
@@ -254,11 +254,11 @@ SELECT to_tsvector('chinese', '人生苦短，爆炸吧，小宇宙，独断万�
 ### 数据备份
 ```shell
 # 进入容器执行备份
-docker exec -it <容器> pg_dump -h localhost -p 5432 -U postgres -W -Fc -f /backup.sql -d <database>
+docker exec -it <容器> pg_dump -h localhost -p 5432 -U postgres -W -Fc -f /backup.dump -d <database>
 # 复制备份到宿主机
-docker cp <容器>:/backup.sql /root/pgbackup/backup.sql
+docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 # 复制备份到新的容器
-docker cp /root/pgbackup/backup.sql <容器>:/backup.sql
+docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 # 导入到数据库方式，注意需要先创建数据库
 psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
