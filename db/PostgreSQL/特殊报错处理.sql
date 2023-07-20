@@ -1,5 +1,6 @@
 -- 1.Mybatis模糊查询无法确定参数$1的数据类型: ERROR: could not determine data type of parameter $1
--- org.jeecg.modules.system.mapper.SysDepartMapper.getSubDepIdsByOrgCodes
+-- 这个问题主要是由于jdbc:postgresql://127.0.0.1:54321/postgres?stringtype=unspecified中指定了?stringtype=unspecified导致的
+-- 受影响的类: org.jeecg.modules.system.mapper.SysDepartMapper.getSubDepIdsByOrgCodes
 -- 将 CONCAT(#{item},'%') -> CONCAT(#{item}::text,'%')
 
 

@@ -67,7 +67,7 @@ spring:
             threadPriority: 5
             threadsInheritContextClassLoaderOfInitializingThread: true
     jdbc:
-      #第一次启动时建议清楚所有qrtz_表然后使用always配置建表
+      #第一次启动时建议清除所有qrtz_表然后使用always配置建表，第二次启动时建议使用never或embedded配置
       initialize-schema: EMBEDDED
   #json 时间戳统一转换
   jackson:
