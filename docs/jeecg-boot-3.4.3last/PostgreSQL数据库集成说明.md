@@ -102,7 +102,22 @@ psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
 # 复制备份到新的容器
 docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
-docker exec -it <新容器> pg_restore --verbose -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+# 可选参数
+# --data-only 只恢复数据，而不恢复表模式
+# --clean 创建数据库对象前先清理(删除)它们
+# --create 在恢复数据库之前先创建它。如果也声明了--clean， 那么在连接到数据库之前删除并重建目标数据库
+docker exec -it <新容器> pg_restore --verbose --clean --create -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+
+# 其他运维命令（关闭数据库链接、删除数据库等）
+psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
+# 查找数据库活动连接
+SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
+# 关闭数据库连接
+SELECT pg_terminate_backend(<pid>);
+# 删除数据库
+DROP DATABASE <数据库名称>;
+# 查看存在的数据库列表 \l
+SELECT datname FROM pg_database;
 ```
 
 ### 3）必须执行的脚本
