@@ -16,6 +16,7 @@
 <!--字典配置-->
 <a-form-item label="合同类型" :labelCol="labelCol" :wrapperCol="wrapperCol">
   <j-dict-select-tag
+      allowClear
       v-decorator="['contractType', {rules: [myRules.empty]}]"
       :trigger-change="true"
       dictCode="contract_type"
@@ -26,6 +27,7 @@
 <!--自定义列表配置-->
 <a-form-item label="会议纪要" :labelCol="labelColSingle" :wrapperCol="wrapperColSingle2">
 <j-dict-select-tag
+    allowClear
     v-decorator="['jsHyjy', validatorRules.jsHyjy]"
     :trigger-change="true"
     :options="[{value: '1', text: '有', title: '有'}, {value: '0', text: '无', title: '无'}]"
@@ -45,8 +47,6 @@
       type="checkbox" />
 </a-form-item>
 ```
-
-
 
 修改历史:
 * 2023-07-21: 单选组件改造，支持自定义options配置
