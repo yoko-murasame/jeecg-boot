@@ -19,7 +19,8 @@
 * Jeecg组件
   * [JEditor 富文本表单组件](./ant-design-vue-jeecg/JEditor.md)
   * [JImageUpload 图片上传表单组件](./ant-design-vue-jeecg/JImageUpload.md)
-  * [JSearchSelectTag 字典选择表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
+  * [JSearchSelectTag 字典搜索表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
+  * [JDictSelectTag 字典选择表单组件](./ant-design-vue-jeecg/JDictSelectTag.md)
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
 * 其他组件
