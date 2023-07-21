@@ -10,9 +10,12 @@
   biz-path="上传的路径"
   text="按钮名称"
   file-type="all|image|file"
-  accept=".jpg, .jpeg, .png, .gif, .bmp, .svg, .tiff, .webp"
+  accept=".jpg, .jpeg, .png, .gif, .bmp, .svg, .tiff, .webp, image/*"
   split-char=","
   custom-upload-action="自定义上传地址,留空则使用默认接口"
+  :do-compress="true"
+  :zip-percent="0.7"
+  :zip-enable-size="2"
   :disabled="false"
   :button-visible="true"
   :trigger-change="true"
@@ -26,3 +29,4 @@
 修改历史:
 * 2023-06-09: 上传按钮不展示&列表为空时,显示"暂无数据".
 * 2023-07-20: 添加多文件上传后自动拼接符号可配置（默认为,）、添加v-viewer插件支持
+* 2023-07-21: 添加图片压缩功能
