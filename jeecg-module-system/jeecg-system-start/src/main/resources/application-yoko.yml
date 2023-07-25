@@ -216,6 +216,13 @@ jeecg:
     webapp: /opt/webapp
   shiro:
     excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/category/**,/visual/**,/map/**,/jmreport/bigscreen2/**
+    thirdSystem:
+      - name: SysName1
+        key: xq2#29wq.Iooquerrt
+        urls: /third/xx/**
+      - name: SysName2
+        key: xq2#29wq.Iooqusqq
+        urls: /third/ps/**,/third/aaaa/**
   #阿里云oss存储和大鱼短信秘钥配置
   oss:
     accessKey: ??
