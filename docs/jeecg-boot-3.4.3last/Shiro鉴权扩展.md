@@ -15,14 +15,21 @@ jeecg:
     # 开放给第三方系统的接口简单鉴权配置,多个url用逗号分隔,name和key协商即可
     thirdSystem:
       - name: SysName1 # 由于放在header中鉴权的原因,不支持中文
-        key: xq2#29wq.Iooquerrt
+        key: 123456qwertss
         urls: /third/xx/**
       - name: SysName2
-        key: xq2#29wq.Iooqusqq
+        key: 123456qwertbb
         urls: /third/ps/**,/third/aaaa/**
 ```
 
-测试Controller:
+简单的接口鉴权，放入header中
+```http
+Request Headers: 
+    x-sys-name: SysName2
+    x-sys-key: 123456qwertbb
+```
+
+示例Controller:
 ```java
 @RestController
 @RequestMapping("/third/ps")
@@ -34,6 +41,13 @@ public class TestApi {
     }
 
 }
+```
+
+示例curl
+```shell
+curl -X "GET" "http://localhost:8100/main/third/ps/test?district=xxx" \
+-H 'x-sys-name: SysName2' \
+-H 'x-sys-key: 123456qwertbb'
 ```
 
 修改历史:

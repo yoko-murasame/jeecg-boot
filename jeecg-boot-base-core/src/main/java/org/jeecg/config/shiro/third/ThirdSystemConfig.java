@@ -35,8 +35,13 @@ public class ThirdSystemConfig implements InitializingBean {
     private ThirdSystemRealm thirdSystemRealm;
 
     public static final String THIRD_SYSTEM_FILTER = "THIRD_SYSTEM_FILTER";
-    public static final String THIRD_SYSTEM_NAME = "SYS_NAME";
-    public static final String THIRD_SYSTEM_KEY = "SYS_KEY";
+    /**
+     * header命名中，不允许_存在，因此sys_name这样的header是无法通过nginx传递的
+     * header传递中不区分大小写
+     * 一般X开头的header用以区分自定义header
+     */
+    public static final String THIRD_SYSTEM_NAME = "x-sys-name";
+    public static final String THIRD_SYSTEM_KEY = "x-sys-key";
 
     // 初始化方法
     public void init() {
