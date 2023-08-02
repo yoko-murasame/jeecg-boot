@@ -16,6 +16,7 @@
   * [CancelButton 防误触Modal取消按钮组件](./ant-design-vue-jeecg/CancelButton.md)
   * [DisableBlock 禁用效果包裹组件](./ant-design-vue-jeecg/禁用效果包裹组件.md)
   * [JSearchSelectTagWithRoleCode 根据用户角色编码获取字典选项](./ant-design-vue-jeecg/JSearchSelectTagWithRoleCode.md)
+  * [JS爬虫](./ant-design-vue-jeecg/JS爬虫.md)
 * Jeecg组件
   * [JDate 日期表单组件](./ant-design-vue-jeecg/JDate.md)
   * [JDictSelectTag 字典选择表单组件](./ant-design-vue-jeecg/JDictSelectTag.md)
