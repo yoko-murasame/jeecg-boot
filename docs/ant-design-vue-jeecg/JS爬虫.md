@@ -28,6 +28,89 @@ function testCrawler() {
 }
 ```
 
+**puppeteer使用初探**
+
+依赖：
+```shell
+yarn add puppeteer
+#yarn add puppeteer-core
+#支持webpack中的node环境
+yarn add node-polyfill-webpack-plugin
+```
+
+修改`vue.config.js`：
+```js
+module.exports = {
+  configureWebpack: {
+    plugins: [
+      new NodePolyfillPlugin()
+    ]
+  }
+}
+```
+
+添加`puppeteer.config.cjs`：
+```js
+const {join} = require('path');
+
+/**
+ * @type {import("puppeteer").Configuration}
+ */
+module.exports = {
+  cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
+};
+
+```
+
+测试：
+```vue
+<template>
+  <div>
+    <a-button type="primary" @click="testPuppeteer">测试Puppeteer</a-button>
+  </div>
+</template>
+<script>
+// import puppeteer from 'puppeteer'
+const puppeteer = require('puppeteer')
+export default {
+  methods: {
+    async testCrawler() {
+      const urls = ['https://sqfb.zjsq.net.cn:8089/nuxtsyq/new/MarkInfo?zh=70508440&zm=%E6%B3%BD%E9%9B%85%E6%B0%B4%E5%BA%93&day=1']
+
+      // Launch the browser and open a new blank page
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      // Navigate the page to a URL
+      await page.goto(urls[0]);
+
+      // Set screen size
+      await page.setViewport({ width: 1080, height: 1024 });
+
+      // Type into search box
+      await page.type('.search-box__input', 'automate beyond recorder');
+
+      // Wait and click on first result
+      const searchResultSelector = '.search-box__link';
+      await page.waitForSelector(searchResultSelector);
+      await page.click(searchResultSelector);
+
+      // Locate the full title with a unique string
+      const textSelector = await page.waitForSelector(
+          '#pane-ssgc > div.chartTable > div:nth-child(3) > div > div:nth-child(1) > span'
+      );
+      if (!textSelector) {
+        const fullTitle = await textSelector.evaluate(el => el.textContent.trim());
+        console.log('The title of this blog post is "%s".', fullTitle);
+      }
+
+      await browser.close();
+    },
+  }
+}
+</script>
+```
 
 修改历史:
 * 2023-08-02: 添加基于Cheerio的爬虫示例
+* 2021-08-07: puppeteer使用初探
