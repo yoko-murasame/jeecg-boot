@@ -31,7 +31,7 @@
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
 * [分离式部署](./jeecg-boot-3.4.3last/分离式部署.md)
-* [PostgreSQL数据库集成说明](./jeecg-boot-3.4.3last/PostgreSQL数据库集成说明.md)
+* [PostgreSQL数据库分词版集成说明](./jeecg-boot-3.4.3last/PostgreSQL数据库分词版集成说明.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
 * 流程功能文档
 * Jeecg接口修改

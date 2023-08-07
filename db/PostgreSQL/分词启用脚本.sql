@@ -1,5 +1,14 @@
--- 创建数据库
--- psql -d <database>;
+-- 进入容器
+docker exec -it <container> bash
+-- 连接psql
+psql -U postgres -h 127.0.0.1
+-- 如果需要创建数据库
+psql -d <database>;
+-- 查看数据库列表
+\l
+-- 选择进入数据库
+\c <database>
+-- 为数据库执行分词脚本，见下文
 
 -- 执行脚本 BEGIN --
 -- 创建分词扩展
@@ -12,6 +21,7 @@ ALTER TEXT SEARCH CONFIGURATION chinese
 -- 1.创建模式zhparser
 -- 2.创建分词函数
 -- 执行脚本 END --
+
 
 -- 测试
 SELECT to_tsvector('chinese', '人生苦短，乘早摸鱼，Good Morning~');

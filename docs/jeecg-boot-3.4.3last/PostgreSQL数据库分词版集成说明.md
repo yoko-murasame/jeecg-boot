@@ -1,6 +1,6 @@
 [返回](../)
 
-# PostgreSQL数据库集成说明
+# PostgreSQL数据库分词版集成说明
 
 * 数据源默认改成PostgreSQL
 * 默认集成了PostGIS、zhparser分词
