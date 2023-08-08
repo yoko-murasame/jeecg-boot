@@ -9,6 +9,10 @@
 组件路径: 
 * [PG初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
 
+修改历史:
+* 2023-07-18: 添加分词功能PostgreSQL、各类脚本。
+* 2023-07-20: 添加完整数据库部署教程。
+
 ## PostgreSQL分词版本数据库安装和导入完整步骤
 
 ### 1）安装
@@ -140,7 +144,7 @@ spring:
       initialize-schema: always # EMBEDDED
 ```
 
-## 扩展和归档
+## 扩展
 
 ### 性能优化
 在线性能优选参数生成器：https://pgtune.leopard.in.ua/
@@ -157,94 +161,32 @@ free -h
 lsblk -d -o name,rota
 ```
 
-### PostgreSQL分词版本安装说明(基于Docker)
-```shell
-# 先去把上面的仓库clone下来
-git clone https://github.com/yoko-murasame/docker-postgres-12-zhparser-postgis.git
-# 修改pg版本号 找到 ARG pg_version=12 改成12、13、14等版本号（目前测试过12、13）
-vim Dockfile
-# 执行构建
-docker build -t postgres-13-zhparser-postgis:1.0 .
-# 导出镜像
-docker save -o postgres-13-zhparser-postgis-v1 postgres-13-zhparser-postgis:1.0
-# 加载镜像
-docker load -i postgres-13-zhparser-postgis-v1
-# 首次启动
-docker run -d \
-  --name postgre-13 \
-	-e POSTGRES_PASSWORD=123456 \
-	-e PGDATA=/var/lib/postgresql/data/pgdata \
-	postgres-13-zhparser-postgis:1.0;
-# 复制data目录出来
-docker cp postgre-13:/var/lib/postgresql/data/pgdata /root/pgdata
-# 启动容器
-docker run -d \
-  --name postgre-13 \
-	-e POSTGRES_PASSWORD=123456 \
-	-e PGDATA=/var/lib/postgresql/data/pgdata \
-	-p 54321:5432 \
-	-v /root/pgdata:/var/lib/postgresql/data/pgdata \
-	postgres-13-zhparser-postgis:1.0;
-#############################################
-# 修改远程配置，修改 postgresql.conf
-#############################################
-- listen_addresses = 'localhost'
-+ listen_addresses = '*'
-#############################################
-# 如果是Windows的pgdata目录迁移到Linux的pgdata，下面的内存类型得修改
-#############################################
-dynamic_shared_memory_type = posix	# the default is the first option
-					# supported by the operating system:
-					#   posix
-					#   sysv
-					#   windows Windows版本的默认就是windows
-					#   mmap
-					# (change requires restart)
-#############################################
-# 修改 pg_hba.conf
-#############################################
-# "local" is for Unix domain socket connections only
-local   all             all                                     md5
-# IPv4 local connections:
-host    all             all             127.0.0.1/32            md5
-host    all             all             0.0.0.0/0            md5
-# IPv6 local connections:
-host    all             all             ::1/128                 md5
-host    all             all             ::/0                 md5
-# Allow replication connections from localhost, by a user with the
-# replication privilege. # 复制权限（可以不配置）
-local   replication     all                                     md5
-host    replication     all             127.0.0.1/32            md5
-host    replication     all             0.0.0.0/0            md5
-host    replication     all             ::1/128                 md5
-host    replication     all             ::/0                 md5
-# 其实最下面加一行这个就可以了
-host all all all md5
-#############################################
-# 重启数据库
-docker restart postgre-13
-# 防火墙
-firewall-cmd --zone=public --add-port=54321/tcp --permanent
-firewall-cmd --zone=public --remove-port=8080/tcp --permanent
-firewall-cmd --reload
-firewall-cmd --list-ports
-```
-
 ### 分词功能
 ```sql
--- 创建数据库
+-- 进入容器
+docker exec -it <container> bash
+-- 连接psql
+psql -U postgres -h 127.0.0.1
+-- 如果需要创建数据库
 psql -d <database>;
+-- 查看数据库列表
+\l
+-- 选择进入数据库
+\c <database>
+-- 为数据库执行分词脚本，见下文
+
+-- 执行脚本 BEGIN --
 -- 创建分词扩展
 CREATE EXTENSION zhparser;
 CREATE TEXT SEARCH CONFIGURATION chinese (PARSER = zhparser);
 ALTER TEXT SEARCH CONFIGURATION chinese
-ADD MAPPING FOR a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
-WITH simple;
-
--- 如果不是默认的postgres库，还需要以下步骤（建议使用navicat迁移）
+    ADD MAPPING FOR a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
+        WITH simple;
 -- 新创建的库会自动执行下面的步骤，等待一会儿就行
--- 1.复制postgres库的模式zhparser
--- 2.复制postgres库的所有分词函数
+-- 1.创建模式zhparser
+-- 2.创建分词函数
+-- 执行脚本 END --
+
 
 -- 测试
 SELECT to_tsvector('chinese', '人生苦短，乘早摸鱼，Good Morning~');
@@ -364,6 +306,84 @@ SET PGPASSWORD=%PASSWORD%
 
 ```
 
-修改历史:
-* 2023-07-18: 添加分词功能PostgreSQL、各类脚本。
-* 2023-07-20: 添加完整数据库部署教程。
+## 归档
+
+### PostgreSQL分词版本安装说明(基于Docker)
+```shell
+# 先去把上面的仓库clone下来
+git clone https://github.com/yoko-murasame/docker-postgres-12-zhparser-postgis.git
+# 修改pg版本号 找到 ARG pg_version=12 改成12、13、14等版本号（目前测试过12、13）
+vim Dockfile
+# 执行构建
+docker build -t postgres-13-zhparser-postgis:1.0 .
+# 导出镜像
+docker save -o postgres-13-zhparser-postgis-v1 postgres-13-zhparser-postgis:1.0
+# 加载镜像
+docker load -i postgres-13-zhparser-postgis-v1
+# 首次启动
+docker run -d \
+  --name postgre-13 \
+	-e POSTGRES_PASSWORD=123456 \
+	-e PGDATA=/var/lib/postgresql/data/pgdata \
+	postgres-13-zhparser-postgis:1.0;
+# 复制data目录出来
+docker cp postgre-13:/var/lib/postgresql/data/pgdata /root/pgdata
+# 启动容器
+docker run -d \
+  --name postgre-13 \
+	-e POSTGRES_PASSWORD=123456 \
+	-e PGDATA=/var/lib/postgresql/data/pgdata \
+	-p 54321:5432 \
+	-v /root/pgdata:/var/lib/postgresql/data/pgdata \
+	postgres-13-zhparser-postgis:1.0;
+#############################################
+# 修改远程配置，修改 postgresql.conf
+#############################################
+- listen_addresses = 'localhost'
++ listen_addresses = '*'
+#############################################
+# 如果是Windows的pgdata目录迁移到Linux的pgdata，下面的内存类型得修改
+#############################################
+dynamic_shared_memory_type = posix	# the default is the first option
+					# supported by the operating system:
+					#   posix
+					#   sysv
+					#   windows Windows版本的默认就是windows
+					#   mmap
+					# (change requires restart)
+#############################################
+# 修改 pg_hba.conf
+#############################################
+# "local" is for Unix domain socket connections only
+local   all             all                                     md5
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+host    all             all             0.0.0.0/0            md5
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+host    all             all             ::/0                 md5
+# Allow replication connections from localhost, by a user with the
+# replication privilege. # 复制权限（可以不配置）
+local   replication     all                                     md5
+host    replication     all             127.0.0.1/32            md5
+host    replication     all             0.0.0.0/0            md5
+host    replication     all             ::1/128                 md5
+host    replication     all             ::/0                 md5
+# 其实最下面加一行这个就可以了
+host all all all md5
+#############################################
+# 重启数据库
+docker restart postgre-13
+# 防火墙
+firewall-cmd --zone=public --add-port=54321/tcp --permanent
+firewall-cmd --zone=public --remove-port=8080/tcp --permanent
+firewall-cmd --reload
+firewall-cmd --list-ports
+```
+
+### 特殊问题记录
+
+1）[使用EasyConnect后，用navicat可以访问数据库，但是用Idea跑项目连接超时怎么办](https://blog.csdn.net/qq_32447361/article/details/121862199)
+
+解决：添加jvm参数`-Djava.net.preferIPv4Stack=true`
+![2023-08-08_16-03-25.png](./assets/2023-08-08_16-03-25.png)
