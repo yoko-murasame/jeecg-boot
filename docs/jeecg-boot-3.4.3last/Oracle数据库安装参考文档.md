@@ -89,14 +89,14 @@ linux/unix os: `exp 'username/"password"@devdb'` --1个双引号扩密码，1个
 -- 完整导出命令，用户名即对应数据库，特殊密码需要用双引号扩起来，服务名一般为orcl、xe
 -- exp 'username/"password@password"@127.0.0.1:15211/服务名' full=y file=export.dmp log=export.log
 # 容器内的备份命令
-docker exec -it <容器名> exp 'username/"password@password"@127.0.0.1:1521/服务名' full=y file=export.dmp log=export.log \&&
+docker exec -it <容器名> exp 'username/"password@password"@127.0.0.1:1521/服务名' full=y file=export.dmp log=export.log \ &&
 docker cp <容器名>:/export.dmp ./ && docker exec -it <容器名> rm /export.dmp
 
 
 -- 完整导入命令，用户名即对应数据库，特殊密码需要用双引号扩起来，服务名一般为orcl、xe
 -- imp 'username/"password@password"@127.0.0.1:15211/服务名' full=y file=export.dmp log=import.log
 # 容器内的导入命令
-docker cp ./export.dmp <容器名>:/export.dmp && rm ./export.dmp \&&
+docker cp ./export.dmp <容器名>:/export.dmp && rm ./export.dmp \ &&
 docker exec -it <容器名> imp 'username/"password@password"@127.0.0.1:1521/服务名' full=y file=export.dmp log=export.log && rm /export.dmp
 ```
 
@@ -126,6 +126,56 @@ docker exec -it <容器名> imp 'username/"password@password"@127.0.0.1:1521/服
    ```
 
 ## 归档
+
+### 11g备份导入到12c
+
+要将 Oracle 11g 中编码为 `AMERICAN_AMERICA.ZHS16GBK` 的备份文件导入到 Oracle 12c 中编码为 `AL32UTF8` 的数据库，可以按照以下步骤进行操作：
+
+1. 在 Oracle 12c 数据库中创建一个新的目标用户（schema），用于导入数据。
+
+2. 确保 Oracle 12c 数据库的字符集编码已设置为 `AL32UTF8`。可以通过查询 `NLS_DATABASE_PARAMETERS` 视图来验证。
+
+3. 在 Oracle 12c 数据库中创建一个目录对象，用于存储导入文件。可以使用 `CREATE DIRECTORY` 语句创建目录对象，指定一个合适的目录路径。
+
+4. 将备份文件（`.dmp`）复制到 Oracle 12c 服务器上，并确保该文件可以被 Oracle 12c 用户访问。
+
+5. 在 Oracle 12c 数据库中使用 `IMPDP` 工具执行导入操作。以下是一个示例命令：
+
+```sql
+impdp username/password@service_name directory=directory_name dumpfile=backup_file.dmp logfile=import.log remap_schema=source_user:target_user
+```
+
+其中：
+- `username/password` 是 Oracle 12c 数据库的用户名和密码。
+- `service_name` 是 Oracle 12c 数据库的服务名。
+- `directory_name` 是步骤 3 中创建的目录对象的名称。
+- `backup_file.dmp` 是备份文件的名称。
+- `import.log` 是导入过程的日志文件名称。
+- `source_user` 是备份文件中的源用户（schema）名称。
+- `target_user` 是步骤 1 中创建的目标用户（schema）名称。
+
+请根据实际情况替换上述命令中的参数，并确保正确设置了用户名、密码、服务名、目录对象和文件名等信息。
+
+执行导入命令后，Oracle 12c 数据库将开始导入操作，并将数据转换为目标编码 `AL32UTF8`。
+
+请注意，导入过程可能需要一些时间，具体取决于备份文件的大小和服务器性能。在导入过程中，可以查看导入日志文件以获取进度和错误信息。
+
+在执行任何数据库操作之前，请务必备份数据库以防止数据丢失。
+
+### 查询数据库编码
+
+```sql
+-- 查看数据库编码
+SELECT value
+FROM nls_database_parameters
+WHERE parameter = 'NLS_CHARACTERSET';
+
+-- 查看会话编码
+SELECT value
+FROM nls_session_parameters
+WHERE parameter = 'NLS_CHARACTERSET';
+
+```
 
 ### 迁移dbf文件目录（磁盘满的时候）
 
