@@ -26,7 +26,8 @@
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
 * 其他组件
-  * [V-Viewer](./ant-design-vue-jeecg/V-Viewer.md)
+  * [v-viewer 图片预览插件](./ant-design-vue-jeecg/V-Viewer.md)
+  * [vue-aliplayer-v2 阿里云播放器插件](./ant-design-vue-jeecg/vue-aliplayer-v2.md)
 
 ## [jeecg-boot-3.4.3last](https://github.com/yoko-murasame/jeecg-boot)
 
@@ -39,3 +40,7 @@
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
+
+## 扩展模块
+
+* [暗黑作画禁书目录-分词查询示例模块](./external/暗黑作画禁书目录.md)
