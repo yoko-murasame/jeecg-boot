@@ -29,6 +29,10 @@ public class TaskEntity {
     @ApiModelProperty(value = "流程定义ID")
     private String procDefId;
 
+    @TableField("proc_def_name")
+    @ApiModelProperty(value = "流程定义Name")
+    private String procDefName;
+
     @TableField("name_")
     @ApiModelProperty(value = "名称")
     private String name;
@@ -84,5 +88,17 @@ public class TaskEntity {
     @TableField("form_key_")
     @ApiModelProperty(value = "表单键")
     private String formKey;
+
+    @TableField("form_data_id")
+    @ApiModelProperty(value = "业务主键")
+    private String formDataId;
+
+    @TableField("oa_todo_id")
+    @ApiModelProperty(value = "oa代办id")
+    private String oaDodoId;
+
+    @TableField("bpm_biz_title")
+    @ApiModelProperty(value = "业务标题")
+    private String bpmBizTitle;
 
 }

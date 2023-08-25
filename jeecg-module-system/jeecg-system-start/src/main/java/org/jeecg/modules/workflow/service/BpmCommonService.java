@@ -3,6 +3,7 @@ package org.jeecg.modules.workflow.service;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ import org.jeecg.modules.workflow.entity.TaskDTO;
 import org.jeecg.modules.workflow.entity.TaskEntity;
 import org.jeecg.modules.workflow.entity.TaskQueryVO;
 import org.jeecg.modules.workflow.mapper.BpmCommonMapper;
+import org.jeecg.modules.workflow.mapper.TaskEntityMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -95,6 +97,15 @@ public class BpmCommonService {
     private IDesignFormDataService designFormDataService;
     @Resource
     private BpmCommonMapper bpmCommonMapper;
+    @Resource
+    private TaskEntityMapper taskEntityMapper;
+
+    /**
+     * 获取我的代办详细信息
+     */
+    public <E extends IPage<TaskEntity>> E taskPage(E page, QueryWrapper<TaskEntity> queryWrapper) {
+        return taskEntityMapper.taskPage(page, queryWrapper);
+    }
 
     /**
      * 获取流程定义id
