@@ -3,6 +3,8 @@ package org.jeecg.modules.workflow.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.workflow.entity.ActRuTaskDTO;
+import org.jeecg.modules.workflow.entity.TaskEntity;
+import org.jeecg.modules.workflow.entity.TaskQueryVO;
 
 import java.util.List;
 
@@ -33,4 +35,8 @@ public interface BpmCommonMapper extends BaseMapper<Object> {
      */
     List<ActRuTaskDTO> getRunningTaskByBusinessIds(@Param("ids") List<String> ids);
 
+    /**
+     * 查询所有代办
+     */
+    List<TaskEntity> taskDTOAllList(@Param("vo") TaskQueryVO taskQueryVO);
 }

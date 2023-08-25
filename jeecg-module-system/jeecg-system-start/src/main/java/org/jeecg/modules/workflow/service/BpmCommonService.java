@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.*;
-import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -42,6 +41,9 @@ import org.jeecg.modules.extbpm.process.service.IExtActProcessFormService;
 import org.jeecg.modules.online.desform.entity.DesignFormData;
 import org.jeecg.modules.online.desform.service.IDesignFormDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
+import org.jeecg.modules.workflow.entity.TaskEntity;
+import org.jeecg.modules.workflow.entity.TaskQueryVO;
+import org.jeecg.modules.workflow.mapper.BpmCommonMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -91,6 +93,8 @@ public class BpmCommonService {
     private ExtActProcessService extActProcessService;
     @Resource
     private IDesignFormDataService designFormDataService;
+    @Resource
+    private BpmCommonMapper bpmCommonMapper;
 
     /**
      * 获取流程定义id
@@ -151,7 +155,7 @@ public class BpmCommonService {
             List<ExtActFlowData> extActFlowDataList = extActFlowDataService.list(Wrappers.lambdaQuery(ExtActFlowData.class)
                     .eq(ExtActFlowData::getFormDataId, id)
                     .eq(ExtActFlowData::getBpmStatus, "2"));
-            if (extActFlowDataList.size() > 0) {
+            if (!extActFlowDataList.isEmpty()) {
                 throw new BpmException("该表单已存在运行中的流程，请勿重复发起！");
             }
 
@@ -212,8 +216,8 @@ public class BpmCommonService {
             result.error500(msg);
             throwable = exception.getCause();
             if (throwable != null) {
-                if (((Throwable)throwable).getCause() != null && ((Throwable)throwable).getCause() instanceof BpmException) {
-                    result.error500("启动流程失败:" + ((Throwable)throwable).getCause().getMessage());
+                if (throwable.getCause() != null && throwable.getCause() instanceof BpmException) {
+                    result.error500("启动流程失败:" + throwable.getCause().getMessage());
                 }
             }
             exception.printStackTrace();
@@ -252,179 +256,183 @@ public class BpmCommonService {
         }
     }
 
+    public List<TaskEntity> taskDTOAllList(TaskQueryVO taskQueryVO) {
+        List<TaskEntity> tasks = bpmCommonMapper.taskDTOAllList(taskQueryVO);
+        return tasks;
+    }
+
     /**
      * 扩展我的任务待办列表，带上业务表单id
      *
-     * @param var1
-     * @param var2
-     * @param var3
+     * @param nativeQuery
+     * @param usernames
+     * @param request
      * @return java.util.List<org.jeecg.modules.workflow.entity.TaskDTO>
      * @author Yoko
      * @since 2022/7/21 11:22
      */
-    private List<TaskDTO> taskDTOList(boolean var1, String var2, HttpServletRequest var3) throws Exception {
-        ArrayList var4 = new ArrayList();
-        Integer var5 = oConvertUtils.getInt(var3.getParameter("pageNo"), 1);
-        Integer var6 = oConvertUtils.getInt(var3.getParameter("pageSize"), 10);
-        Integer var7 = (var5 - 1) * var6;
-        Integer var8 = var5 * var6 - 1;
-        ArrayList var9 = new ArrayList();
-        String var15;
-        String var18;
-        String var26;
-        if (var1) {
-            String var11 = var3.getParameter("userName");
-            StringBuilder var12 = new StringBuilder("");
-            if (StringUtils.hasText(var11)) {
-                List var13 = this.runtimeService.createProcessInstanceQuery().variableValueEquals(APPLY_USER_ID,
-                        var11).list();
-                if (var13 != null && var13.size() > 0) {
-                    for (int var14 = 0; var14 < var13.size(); ++var14) {
-                        if (var14 == 0) {
-                            var12.append("'" + ((ProcessInstance) var13.get(var14)).getProcessInstanceId() + "'");
+    private List<TaskDTO> taskDTOList(boolean nativeQuery, String usernames, HttpServletRequest request) throws Exception {
+        List<TaskDTO> result = new ArrayList<>();
+        int pageNo = oConvertUtils.getInt(request.getParameter("pageNo"), 1);
+        int pageSize = oConvertUtils.getInt(request.getParameter("pageSize"), 10);
+        int pageStart = (pageNo - 1) * pageSize;
+        int pageEnd = pageNo * pageSize - 1;
+        List<Task> tasks = new ArrayList<>();
+        if (nativeQuery) {
+            String userName = request.getParameter("userName");
+            StringBuilder stringBuilder = new StringBuilder();
+            if (StringUtils.hasText(userName)) {
+                List<ProcessInstance> processInstanceList = this.runtimeService.createProcessInstanceQuery().variableValueEquals(APPLY_USER_ID,
+                        userName).list();
+                if (processInstanceList != null && !processInstanceList.isEmpty()) {
+                    for (int i = 0; i < processInstanceList.size(); ++i) {
+                        if (i == 0) {
+                            stringBuilder.append("'").append(processInstanceList.get(i).getProcessInstanceId()).append("'");
                         } else {
-                            var12.append(",'" + ((ProcessInstance) var13.get(var14)).getProcessInstanceId() + "'");
+                            stringBuilder.append(",'").append(processInstanceList.get(i).getProcessInstanceId()).append("'");
                         }
                     }
                 }
             }
-
-            String var24 = var12.toString();
-            var26 = var3.getParameter("processDefinitionId");
-            var15 = var3.getParameter("processDefinitionName");
-            StringBuilder var16 = new StringBuilder("");
-            var16.append("select  * ").append("from (");
-            var16.append("(select distinct RES.* ");
-            var16.append(" from ACT_RU_TASK RES inner join ACT_RU_IDENTITYLINK I on I.TASK_ID_ = RES.ID_ ");
-            var16.append(" INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_ ");
-            var16.append("WHERE RES.ASSIGNEE_ is null and I.TYPE_ = 'candidate' ");
-            var16.append("\tand ( I.USER_ID_ = #{userid}  or I.GROUP_ID_ IN ( select g.GROUP_ID_ from " +
+            String procInstIds = stringBuilder.toString();
+            String processDefinitionId = request.getParameter("processDefinitionId");
+            String processDefinitionName = request.getParameter("processDefinitionName");
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("select  * ").append("from (");
+            sqlBuilder.append("(select distinct RES.* ");
+            sqlBuilder.append(" from ACT_RU_TASK RES inner join ACT_RU_IDENTITYLINK I on I.TASK_ID_ = RES.ID_ ");
+            sqlBuilder.append(" INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_ ");
+            sqlBuilder.append("WHERE RES.ASSIGNEE_ is null and I.TYPE_ = 'candidate' ");
+            sqlBuilder.append("\tand ( I.USER_ID_ = #{userid}  or I.GROUP_ID_ IN ( select g.GROUP_ID_ from " +
                     "ACT_ID_MEMBERSHIP g where g.USER_ID_ = #{userid}  ) ");
-            var16.append(" ) ").append(" and RES.SUSPENSION_STATE_ = 1 ");
-            if (StringUtils.hasText(var26)) {
-                var16.append("  AND RES.PROC_DEF_ID_ LIKE #{procDefId} ");
+            sqlBuilder.append(" ) ").append(" and RES.SUSPENSION_STATE_ = 1 ");
+            if (StringUtils.hasText(processDefinitionId)) {
+                sqlBuilder.append("  AND RES.PROC_DEF_ID_ LIKE #{procDefId} ");
             }
 
-            if (StringUtils.hasText(var15)) {
-                var16.append("  AND ARP.NAME_  LIKE #{procDefName} ");
+            if (StringUtils.hasText(processDefinitionName)) {
+                sqlBuilder.append("  AND ARP.NAME_  LIKE #{procDefName} ");
             }
 
-            if (StringUtils.hasText(var11)) {
-                if (StringUtils.hasText(var24)) {
-                    var16.append("  AND RES.PROC_INST_ID_ in (" + var24 + ") ");
+            if (StringUtils.hasText(userName)) {
+                if (StringUtils.hasText(procInstIds)) {
+                    sqlBuilder.append("  AND RES.PROC_INST_ID_ in (" + procInstIds + ") ");
                 } else {
-                    var16.append("  AND RES.PROC_INST_ID_ in ('-1') ");
+                    sqlBuilder.append("  AND RES.PROC_INST_ID_ in ('-1') ");
                 }
             }
 
-            var16.append(") union ");
-            var16.append("(select distinct RES.* ");
-            var16.append(" from ACT_RU_TASK RES ");
-            var16.append(" INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_ ");
-            var16.append("WHERE RES.ASSIGNEE_ = #{userid} ");
-            if (StringUtils.hasText(var26)) {
-                var16.append("  AND RES.PROC_DEF_ID_ LIKE #{procDefId} ");
+            sqlBuilder.append(") union ");
+            sqlBuilder.append("(select distinct RES.* ");
+            sqlBuilder.append(" from ACT_RU_TASK RES ");
+            sqlBuilder.append(" INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_ ");
+            sqlBuilder.append("WHERE RES.ASSIGNEE_ = #{userid} ");
+            if (StringUtils.hasText(processDefinitionId)) {
+                sqlBuilder.append("  AND RES.PROC_DEF_ID_ LIKE #{procDefId} ");
             }
 
-            if (StringUtils.hasText(var15)) {
-                var16.append("  AND ARP.NAME_  LIKE #{procDefName} ");
+            if (StringUtils.hasText(processDefinitionName)) {
+                sqlBuilder.append("  AND ARP.NAME_  LIKE #{procDefName} ");
             }
 
-            if (StringUtils.hasText(var11)) {
-                if (StringUtils.hasText(var24)) {
-                    var16.append("  AND RES.PROC_INST_ID_ in (" + var24 + ") ");
+            if (StringUtils.hasText(userName)) {
+                if (StringUtils.hasText(procInstIds)) {
+                    sqlBuilder.append("  AND RES.PROC_INST_ID_ in (" + procInstIds + ") ");
                 } else {
-                    var16.append("  AND RES.PROC_INST_ID_ in ('-1') ");
+                    sqlBuilder.append("  AND RES.PROC_INST_ID_ in ('-1') ");
                 }
             }
 
-            var16.append(" )) v ");
-            var16.append(" order by v.CREATE_TIME_ desc, v.PRIORITY_ desc ");
-            String var17 = CommonUtils.getDatabaseType();
-            var18 = org.jeecg.modules.bpm.util.b.a(var17, var16.toString(), var5, var6);
-            log.debug("我的任务:" + var18);
-            NativeTaskQuery var19 =
-                    (NativeTaskQuery) ((NativeTaskQuery) this.taskService.createNativeTaskQuery().sql(var18)).parameter("userid", var2);
-            if (StringUtils.hasText(var26)) {
-                var19.parameter("procDefId", "%" + var26 + "%");
+            sqlBuilder.append(" )) v ");
+            sqlBuilder.append(" order by v.CREATE_TIME_ desc, v.PRIORITY_ desc ");
+            String databaseType = CommonUtils.getDatabaseType();
+            String finalPageSql = org.jeecg.modules.bpm.util.b.a(databaseType, sqlBuilder.toString(), pageNo, pageSize);
+            log.debug("我的任务:" + finalPageSql);
+            NativeTaskQuery nativeTaskQuery =
+                    this.taskService.createNativeTaskQuery().sql(finalPageSql).parameter("userid", usernames);
+            if (StringUtils.hasText(processDefinitionId)) {
+                nativeTaskQuery.parameter("procDefId", "%" + processDefinitionId + "%");
             }
 
-            if (StringUtils.hasText(var15)) {
-                var19.parameter("procDefName", "%" + var15 + "%");
+            if (StringUtils.hasText(processDefinitionName)) {
+                nativeTaskQuery.parameter("procDefName", "%" + processDefinitionName + "%");
             }
-
-            List var20 = var19.list();
-            var9.addAll(var20);
+            List<Task> list = nativeTaskQuery.list();
+            tasks.addAll(list);
         } else {
-            TaskQuery var21 =
-                    (TaskQuery) ((TaskQuery) ((TaskQuery) ((TaskQuery) ((TaskQuery) this.taskService.createTaskQuery().taskCandidateGroupIn(Arrays.asList(var2.split(",")))).orderByTaskCreateTime()).desc()).orderByTaskPriority()).desc();
-            var21 = this.queryTask(var21, var3);
-            List var10 = var21.listPage(var7, var8);
-            var9.addAll(var10);
+            TaskQuery taskQuery =
+                    this.taskService.createTaskQuery().orderByTaskCreateTime().desc().orderByTaskPriority().desc();
+            // 将用户名查询分离
+            if (StringUtils.hasText(usernames)) {
+                taskQuery = taskQuery.taskCandidateGroupIn(Arrays.asList(usernames.split(",")));
+            }
+            taskQuery = this.queryTask(taskQuery, request);
+            List<Task> list = taskQuery.listPage(pageStart, pageEnd);
+            tasks.addAll(list);
         }
 
-        TaskDTO taskDTO;
-        for (Iterator var22 = var9.iterator(); var22.hasNext(); var4.add(taskDTO)) {
-            Task var23 = (Task) var22.next();
-            taskDTO = new TaskDTO();
-            var26 = var23.getAssignee() == null ? "" : var23.getAssignee();
-            if (StringUtils.hasText(var26)) {
-                LoginUser var27 = this.sysBaseAPI.getUserByName(var26);
+        // 填充业务信息
+        for (Task task : tasks) {
+            TaskDTO taskDTO = new TaskDTO();
+            String assignee = task.getAssignee() == null ? "" : task.getAssignee();
+            if (StringUtils.hasText(assignee)) {
+                LoginUser var27 = this.sysBaseAPI.getUserByName(assignee);
                 taskDTO.setTaskAssigneeName(var27 != null ? var27.getRealname() : "");
             }
 
-            var15 = ((HistoricProcessInstance) this.historyService.createHistoricProcessInstanceQuery().processInstanceId(var23.getProcessInstanceId()).singleResult()).getStartUserId();
-            if (StringUtils.hasText(var15)) {
-                LoginUser var28 = this.sysBaseAPI.getUserByName(var15);
-                taskDTO.setProcessApplyUserName(var28 != null ? var28.getRealname() : "");
+            String startUserId = this.historyService.createHistoricProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult().getStartUserId();
+            if (StringUtils.hasText(startUserId)) {
+                LoginUser loginUser = this.sysBaseAPI.getUserByName(startUserId);
+                taskDTO.setProcessApplyUserName(loginUser != null ? loginUser.getRealname() : "");
             }
 
-            String var29 = var23.getProcessInstanceId();
-            ProcessInstance var30 =
-                    (ProcessInstance) this.runtimeService.createProcessInstanceQuery().processInstanceId(var29).singleResult();
-            taskDTO.setId(var23.getId());
-            taskDTO.setTaskAssigneeId(var26);
-            taskDTO.setTaskBeginTime(var23.getCreateTime());
-            taskDTO.setTaskName(var23.getName());
-            taskDTO.setTaskId(var23.getTaskDefinitionKey());
-            taskDTO.setTaskEndTime(var23.getDueDate());
-            taskDTO.setProcessInstanceId(var23.getProcessInstanceId());
-            taskDTO.setProcessApplyUserId(var15);
-            taskDTO.setProcessDefinitionId(var30.getProcessDefinitionId());
-            taskDTO.setProcessDefinitionName(var30.getProcessDefinitionName());
+            String processInstanceId = task.getProcessInstanceId();
+            ProcessInstance processInstance =
+                    this.runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            taskDTO.setId(task.getId());
+            taskDTO.setTaskAssigneeId(assignee);
+            taskDTO.setTaskBeginTime(task.getCreateTime());
+            taskDTO.setTaskName(task.getName());
+            taskDTO.setTaskId(task.getTaskDefinitionKey());
+            taskDTO.setTaskEndTime(task.getDueDate());
+            taskDTO.setProcessInstanceId(task.getProcessInstanceId());
+            taskDTO.setProcessApplyUserId(startUserId);
+            taskDTO.setProcessDefinitionId(processInstance.getProcessDefinitionId());
+            taskDTO.setProcessDefinitionName(processInstance.getProcessDefinitionName());
             // 扩展实体返回数据，返回表单项id
-            Map<String, Object> variables = this.taskService.getVariables(var23.getId());
-            var18 = (String) variables.get("bpm_biz_title");
-            String businessId = (String) this.taskService.getVariable(var23.getId(), "BPM_DATA_ID");
+            Map<String, Object> variables = this.taskService.getVariables(task.getId());
+            String bpmBizTitle = (String) variables.get("bpm_biz_title");
+            String businessId = (String) this.taskService.getVariable(task.getId(), "BPM_DATA_ID");
             taskDTO.setBusinessId(businessId);
-            if (var18 != null) {
-                taskDTO.setBpmBizTitle(var18);
+            if (bpmBizTitle != null) {
+                taskDTO.setBpmBizTitle(bpmBizTitle);
             }
             taskDTO.setTaskUrge(false);
             if (StringUtils.hasText(taskDTO.getTaskAssigneeId()) && StringUtils.hasText(taskDTO.getProcessInstanceId()) && StringUtils.hasText(taskDTO.getId())) {
-                LambdaQueryWrapper<ExtActTaskNotification> var31 = new LambdaQueryWrapper();
-                var31.eq(ExtActTaskNotification::getProcInstId, taskDTO.getProcessInstanceId());
-                var31.eq(ExtActTaskNotification::getTaskId, taskDTO.getId());
-                var31.eq(ExtActTaskNotification::getTaskAssignee, taskDTO.getTaskAssigneeId());
-                Long var32 = this.extActTaskNotificationMapper.selectCount(var31);
-                if (var32 > 0) {
+                LambdaQueryWrapper<ExtActTaskNotification> lqw = Wrappers.lambdaQuery(ExtActTaskNotification.class);
+                lqw.eq(ExtActTaskNotification::getProcInstId, taskDTO.getProcessInstanceId());
+                lqw.eq(ExtActTaskNotification::getTaskId, taskDTO.getId());
+                lqw.eq(ExtActTaskNotification::getTaskAssignee, taskDTO.getTaskAssigneeId());
+                Long urgeCount = this.extActTaskNotificationMapper.selectCount(lqw);
+                if (urgeCount > 0) {
                     taskDTO.setTaskUrge(true);
                 }
             }
+            result.add(taskDTO);
         }
 
-        return var4;
+        return result;
     }
 
     private TaskQuery queryTask(TaskQuery taskQuery, HttpServletRequest request) {
         String processDefinitionId = request.getParameter("processDefinitionId");
         String processDefinitionName = request.getParameter("processDefinitionName");
         if (StringUtils.hasText(processDefinitionId)) {
-            taskQuery = (TaskQuery) taskQuery.processDefinitionId(processDefinitionId);
+            taskQuery = taskQuery.processDefinitionId(processDefinitionId);
         }
 
         if (StringUtils.hasText(processDefinitionName)) {
-            taskQuery = (TaskQuery) taskQuery.processDefinitionNameLike(processDefinitionName);
+            taskQuery = taskQuery.processDefinitionNameLike(processDefinitionName);
         }
 
         return taskQuery;
@@ -442,7 +450,7 @@ public class BpmCommonService {
     public Long countPriTodaoTask(String userid, HttpServletRequest request) {
         Long var3 = 0L;
         String var4 = request.getParameter("userName");
-        StringBuilder var5 = new StringBuilder("");
+        StringBuilder var5 = new StringBuilder();
         if (StringUtils.hasText(var4)) {
             List var6 =
                     this.runtimeService.createProcessInstanceQuery().variableValueEquals(APPLY_USER_ID, var4).list();
@@ -459,7 +467,7 @@ public class BpmCommonService {
 
         String var10 = var5.toString();
         String var11 = request.getParameter("processDefinitionId");
-        StringBuilder var8 = new StringBuilder("");
+        StringBuilder var8 = new StringBuilder();
         var8.append("select  count(*) ").append("from (");
         var8.append("(select distinct RES.* ").append("from ACT_RU_TASK RES inner join ACT_RU_IDENTITYLINK I on I" +
                 ".TASK_ID_ = RES.ID_ ");
@@ -495,9 +503,9 @@ public class BpmCommonService {
         }
 
         var8.append(" )) v ");
-        log.debug("我的任务count:" + var8.toString());
+        log.debug("我的任务count:" + var8);
         NativeTaskQuery var9 =
-                (NativeTaskQuery) ((NativeTaskQuery) this.taskService.createNativeTaskQuery().sql(var8.toString())).parameter("userid", userid);
+                this.taskService.createNativeTaskQuery().sql(var8.toString()).parameter("userid", userid);
         if (StringUtils.hasText(var11)) {
             var9.parameter("procDefId", "%" + var11 + "%");
         }
@@ -522,12 +530,12 @@ public class BpmCommonService {
                         id));
 
         try {
-            if (extActFlowData.size() > 0) {
+            if (!extActFlowData.isEmpty()) {
                 for (ExtActFlowData flowData : extActFlowData) {
                     String processInstId = flowData.getProcessInstId();
                     RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
                     ProcessInstance processInstance =
-                            (ProcessInstance) runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
+                            runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
                     if (null != processInstance) {
                         runtimeService.setVariable(processInstance.getProcessInstanceId(),
                                 org.jeecg.modules.extbpm.process.common.a.q,
@@ -541,7 +549,7 @@ public class BpmCommonService {
         } catch (Exception e) {}
 
         // 再完成jeecg里的流转数据
-        if (extActFlowData.size() > 0) {
+        if (!extActFlowData.isEmpty()) {
             // 新的逻辑：更新流转数据bpm状态值，然后更新业务数据表
             ExtActFlowData flowData = extActFlowData.get(0);
             flowData.setBpmStatus("3");
@@ -575,7 +583,7 @@ public class BpmCommonService {
         IExtActFlowDataService extActFlowDataService = SpringContextUtils.getBean(IExtActFlowDataService.class);
         ExtActProcessMapper extActProcessMapper = SpringContextUtils.getBean(ExtActProcessMapper.class);
         List<ExtActFlowData> extActFlowData = extActFlowDataService.list(lqr);
-        if (extActFlowData.size() > 0) {
+        if (!extActFlowData.isEmpty()) {
             for (ExtActFlowData flowData : extActFlowData) {
                 String processInstId = flowData.getProcessInstId();
                 RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
@@ -654,7 +662,7 @@ public class BpmCommonService {
         if (!flag) {
             historicTaskInstances =
                     (this.historyService.createHistoricTaskInstanceQuery().processInstanceId(procInstId)).list();
-            if (historicTaskInstances != null && historicTaskInstances.size() > 0) {
+            if (historicTaskInstances != null && !historicTaskInstances.isEmpty()) {
                 // 这里会有bug，需要先筛选出没有完成的任务
                 historicTaskInstances =
                         historicTaskInstances.stream().filter(e -> null == e.getEndTime()).collect(Collectors.toList());
