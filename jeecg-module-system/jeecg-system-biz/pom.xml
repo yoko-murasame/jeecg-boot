@@ -33,13 +33,15 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-common-ol</artifactId>
-			<version>5.4.74</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/crack/hibernate-common-ol-5.4.74.jar</systemPath>
-		</dependency>
+
+		<!--cracked-->
+		<!--<dependency>-->
+		<!--	<groupId>org.hibernate</groupId>-->
+		<!--	<artifactId>hibernate-common-ol</artifactId>-->
+		<!--	<version>5.4.74</version>-->
+		<!--	<scope>system</scope>-->
+		<!--	<systemPath>${project.basedir}/crack/hibernate-common-ol-5.4.74.jar</systemPath>-->
+		<!--</dependency>-->
 
 		<!--这新的online表单有点bug-->
 		<!--<dependency>

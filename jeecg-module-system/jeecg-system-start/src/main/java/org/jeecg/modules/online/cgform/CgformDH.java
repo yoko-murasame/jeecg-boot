@@ -5,8 +5,6 @@ package org.jeecg.modules.online.cgform;
 // (powered by FernFlower decompiler)
 //
 
-import org.jeecg.modules.online.cgform.d.f;
-import org.jeecg.modules.online.cgform.d.g;
 import org.jeecgframework.poi.util.MyX509TrustManager;
 
 import javax.net.ssl.KeyManager;
@@ -28,77 +26,77 @@ public class CgformDH {
     public CgformDH() {
     }
 
-    private static String e() {
-        String var0 = "ERROR";
+//    private static String e() {
+//        String var0 = "ERROR";
+//
+//        try {
+//            Object var1 = null;
+//
+//            try {
+//                String var3 = System.getProperty("user.dir") + File.separator + "config" + File.separator + g.e();
+//                BufferedInputStream var2 = new BufferedInputStream(new FileInputStream(var3));
+//                var1 = new PropertyResourceBundle(var2);
+//                var2.close();
+//            } catch (IOException var4) {
+//            }
+//
+//            if (var1 == null) {
+//                var1 = ResourceBundle.getBundle(g.d());
+//            }
+//
+//            var0 = ((ResourceBundle)var1).getString(g.g());
+//            byte[] var6 = g.a(g.i(), var0);
+//            var0 = new String(var6, "UTF-8");
+//            String[] var7 = var0.split("\\|");
+//            if (!var7[1].equals(c())) {
+//                System.err.println(g.h() + c());
+//                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
+//                // System.exit(0);
+//            }
+//        } catch (Exception var5) {
+//            System.err.println(g.h() + c());
+//            System.err.println(f.d("cXOssg0bPpUm6/yeK/bPE7U63FDMOQ95i6uJeH0gN9vcs4qeF82uHBdThVR7zOMPH4EKQ9Ctj/VxeSQSJ/bF3w==", "bpm13"));
+//           // System.exit(0);
+//        }
 
-        try {
-            Object var1 = null;
+//        return var0;
+//    }
 
-            try {
-                String var3 = System.getProperty("user.dir") + File.separator + "config" + File.separator + g.e();
-                BufferedInputStream var2 = new BufferedInputStream(new FileInputStream(var3));
-                var1 = new PropertyResourceBundle(var2);
-                var2.close();
-            } catch (IOException var4) {
-            }
+//    public static String a() {
+//        if ("".equals(b) || b == null) {
+//            String var0 = "";
+//            var0 = i() + f() + g();
+//            a = a(var0);
+//            String[] var1 = e().split("\\|");
+//            if (!var1[1].equals(a.toUpperCase())) {
+//                System.err.println(g.h() + a.toUpperCase());
+//                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
+//                // System.exit(0);
+//            }
+//
+//            b = a(a.toUpperCase() + h() + var1[0] + "_ " + var1[1] + "_ " + var1[2] + "20210922");
+//        }
+//
+//        return b.toUpperCase();
+//    }
 
-            if (var1 == null) {
-                var1 = ResourceBundle.getBundle(g.d());
-            }
-
-            var0 = ((ResourceBundle)var1).getString(g.g());
-            byte[] var6 = g.a(g.i(), var0);
-            var0 = new String(var6, "UTF-8");
-            String[] var7 = var0.split("\\|");
-            if (!var7[1].equals(c())) {
-                System.err.println(g.h() + c());
-                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
-                // System.exit(0);
-            }
-        } catch (Exception var5) {
-            System.err.println(g.h() + c());
-            System.err.println(f.d("cXOssg0bPpUm6/yeK/bPE7U63FDMOQ95i6uJeH0gN9vcs4qeF82uHBdThVR7zOMPH4EKQ9Ctj/VxeSQSJ/bF3w==", "bpm13"));
-           // System.exit(0);
-        }
-
-        return var0;
-    }
-
-    public static String a() {
-        if ("".equals(b) || b == null) {
-            String var0 = "";
-            var0 = i() + f() + g();
-            a = a(var0);
-            String[] var1 = e().split("\\|");
-            if (!var1[1].equals(a.toUpperCase())) {
-                System.err.println(g.h() + a.toUpperCase());
-                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
-                // System.exit(0);
-            }
-
-            b = a(a.toUpperCase() + h() + var1[0] + "_ " + var1[1] + "_ " + var1[2] + "20210922");
-        }
-
-        return b.toUpperCase();
-    }
-
-    public static String b() {
-        if ("".equals(c) || c == null) {
-            String var0 = "";
-            var0 = i() + f() + g();
-            a = a(var0);
-            String[] var1 = e().split("\\|");
-            if (!var1[1].equals(a.toUpperCase())) {
-                System.err.println(g.h() + a.toUpperCase());
-                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
-                // System.exit(0);
-            }
-
-            c = a(a.toUpperCase() + var1[0] + "_ " + var1[1] + "_ " + var1[2] + "Combating Piracy");
-        }
-
-        return c.toUpperCase();
-    }
+//    public static String b() {
+//        if ("".equals(c) || c == null) {
+//            String var0 = "";
+//            var0 = i() + f() + g();
+//            a = a(var0);
+//            String[] var1 = e().split("\\|");
+//            if (!var1[1].equals(a.toUpperCase())) {
+//                System.err.println(g.h() + a.toUpperCase());
+//                System.err.println(f.d("PT6fjZBhw1iUFkSPqBqOUKZQYx+dBuoP7V/7OVt4JbJwDAAPnQTMV/iPp+jlKEzDcxjwN+9hwyTZ4rWB++Rmy/nkYa9AfUIJ3lx2GlIEL6I=", "bpm56"));
+//                // System.exit(0);
+//            }
+//
+//            c = a(a.toUpperCase() + var1[0] + "_ " + var1[1] + "_ " + var1[2] + "Combating Piracy");
+//        }
+//
+//        return c.toUpperCase();
+//    }
 
     private static String a(String var0) {
         MessageDigest var1 = null;

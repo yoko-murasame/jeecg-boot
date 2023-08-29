@@ -16,6 +16,16 @@ public class PopupProperty extends CommonProperty {
 
 	private String orgFields;
 
+	public Boolean getPopupMulti() {
+		return popupMulti;
+	}
+
+	public void setPopupMulti(Boolean popupMulti) {
+		this.popupMulti = popupMulti;
+	}
+
+	private Boolean popupMulti;
+
 	public String getCode() {
 		return code;
 	}
@@ -72,3 +82,4 @@ public class PopupProperty extends CommonProperty {
 	}
 
 }
+

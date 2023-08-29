@@ -385,4 +385,11 @@ public interface ISysBaseAPI extends CommonAPI {
     void sendAppChatSocket(String userId);
 
     String translateDictReverse(String code, String key);
+
+    /**
+     * 12查询所有分类字典
+     * @return
+     */
+    public List<SysCategoryModel> queryAllDSysCategory();
+
 }
