@@ -124,9 +124,14 @@ public class BpmCommonService {
         if (list.size() > 1) {
             throw new RuntimeException("存在多个匹配结果，请缩小范围！");
         }
-        ExtActProcessForm extActProcessForm = list.get(0);
-        String processId = extActProcessForm.getProcessId();
-        ExtActProcess process = extActProcessService.getById(processId);
+        ExtActProcess process = null;
+        try {
+            ExtActProcessForm extActProcessForm = list.get(0);
+            String processId = extActProcessForm.getProcessId();
+            process = extActProcessService.getById(processId);
+        } catch (Exception e) {
+            throw new RuntimeException("请检查流程是否正确配置，online表单的请以 onl_ 开头，具体格式：onl_表名");
+        }
         return Result.OK(process);
     }
 

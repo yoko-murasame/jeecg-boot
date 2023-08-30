@@ -14,6 +14,7 @@ import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
+import org.jeecg.modules.online.cgform.d.c;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
 import org.jeecg.modules.online.cgform.mapper.OnlCgformFieldMapper;
@@ -537,112 +538,46 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         return a(this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId), isList, List, needList);
     }
 
-    /* JADX WARN: Removed duplicated region for block: B:47:0x00d0 A[SYNTHETIC] */
-    /* JADX WARN: Removed duplicated region for block: B:49:0x00b9 A[SYNTHETIC] */
-    /*
-        Code decompiled incorrectly, please refer to instructions dump.
-        To view partially-correct code enable 'Show inconsistent code' option in preferences
-    */
-    private List<OnlCgformField> a(List<String> r5, boolean r6, List<OnlCgformField> r7, List<String> r8) {
-        /*
-            r4 = this;
-            java.util.ArrayList r0 = new java.util.ArrayList
-            r1 = r0
-            r1.<init>()
-            r9 = r0
-            r0 = 1
-            r10 = r0
-            r0 = r5
-            if (r0 == 0) goto L23
-            r0 = r5
-            int r0 = r0.size()
-            if (r0 == 0) goto L23
-            r0 = r5
-            r1 = 0
-            java.lang.Object r0 = r0.get(r1)
-            if (r0 != 0) goto L26
-        L23:
-            r0 = 0
-            r10 = r0
-        L26:
-            r0 = r7
-            java.util.Iterator r0 = r0.iterator()
-            r11 = r0
-        L2e:
-            r0 = r11
-            boolean r0 = r0.hasNext()
-            if (r0 == 0) goto Ldd
-            r0 = r11
-            java.lang.Object r0 = r0.next()
-            org.jeecg.modules.online.cgform.entity.OnlCgformField r0 = (org.jeecg.modules.online.cgform.entity.OnlCgformField) r0
-            r12 = r0
-            r0 = r12
-            java.lang.String r0 = r0.getDbFieldName()
-            r13 = r0
-            r0 = r8
-            if (r0 == 0) goto L72
-            r0 = r8
-            r1 = r13
-            boolean r0 = r0.contains(r1)
-            if (r0 == 0) goto L72
-            r0 = r12
-            r1 = 1
-            java.lang.Integer r1 = java.lang.Integer.valueOf(r1)
-            r0.setIsQuery(r1)
-            r0 = r9
-            r1 = r12
-            boolean r0 = r0.add(r1)
-            goto L2e
-        L72:
-            r0 = r6
-            if (r0 == 0) goto La5
-            r0 = r12
-            java.lang.Integer r0 = r0.getIsShowList()
-            int r0 = r0.intValue()
-            r1 = 1
-            if (r0 == r1) goto Lb4
-            r0 = r12
-            java.lang.String r0 = r0.getMainTable()
-            boolean r0 = org.jeecg.modules.online.cgform.d.c.b(r0)
-            if (r0 == 0) goto L2e
-            r0 = r12
-            java.lang.String r0 = r0.getMainField()
-            boolean r0 = org.jeecg.modules.online.cgform.d.c.b(r0)
-            if (r0 == 0) goto L2e
-            r0 = r9
-            r1 = r12
-            boolean r0 = r0.add(r1)
-            goto L2e
-        La5:
-            r0 = r12
-            java.lang.Integer r0 = r0.getIsShowForm()
-            int r0 = r0.intValue()
-            r1 = 1
-            if (r0 == r1) goto Lb4
-            goto L2e
-        Lb4:
-            r0 = r10
-            if (r0 == 0) goto Ld0
-            r0 = r4
-            r1 = r13
-            r2 = r5
-            boolean r0 = r0.b(r1, r2)
-            if (r0 == 0) goto Lda
-            r0 = r9
-            r1 = r12
-            boolean r0 = r0.add(r1)
-            goto Lda
-        Ld0:
-            r0 = r9
-            r1 = r12
-            boolean r0 = r0.add(r1)
-        Lda:
-            goto L2e
-        Ldd:
-            r0 = r9
-            return r0
-        */
-        throw new UnsupportedOperationException("Method not decompiled: org.jeecg.modules.online.cgform.service.impl.d.a(java.util.List, boolean, java.util.List, java.util.List):java.util.List");
+    private List<OnlCgformField> a(List<String> var1, boolean var2, List<OnlCgformField> var3, List<String> var4) {
+        ArrayList var5 = new ArrayList();
+        boolean var6 = true;
+        if (var1 == null || var1.size() == 0 || var1.get(0) == null) {
+            var6 = false;
+        }
+
+        Iterator var7 = var3.iterator();
+
+        while(true) {
+            while(var7.hasNext()) {
+                OnlCgformField var8 = (OnlCgformField)var7.next();
+                String var9 = var8.getDbFieldName();
+                if (var4 != null && var4.contains(var9)) {
+                    var8.setIsQuery(1);
+                    var5.add(var8);
+                } else {
+                    if (var2) {
+                        if (var8.getIsShowList() != 1) {
+                            if (org.jeecg.modules.online.cgform.d.c.b(var8.getMainTable()) && c.b(var8.getMainField())) {
+                                var5.add(var8);
+                            }
+                            continue;
+                        }
+                    } else if (var8.getIsShowForm() != 1) {
+                        continue;
+                    }
+
+                    if (var6) {
+                        if (this.b(var9, var1)) {
+                            var5.add(var8);
+                        }
+                    } else {
+                        var5.add(var8);
+                    }
+                }
+            }
+
+            return var5;
+        }
     }
 
     private boolean b(String str, List<String> list) {
