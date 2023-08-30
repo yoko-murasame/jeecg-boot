@@ -1,14 +1,5 @@
 package org.jeecg.modules.online.config.b;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.sql.DataSource;
-
 import lombok.SneakyThrows;
 import org.hibernate.Session;
 import org.jeecg.common.util.SpringContextUtils;
@@ -17,6 +8,15 @@ import org.jeecg.modules.online.config.exception.DBException;
 import org.jeecg.modules.online.config.service.DbTableHandleI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /* compiled from: DbTableUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/config/b/d.class */
@@ -40,7 +40,7 @@ public class d {
             case -1620389036:
                 if (databaseType.equals("POSTGRESQL")) {
                     z = true;
-                    bVar = new org.jeecg.modules.online.config.service.a.c();
+                    bVar = new org.jeecg.modules.online.config.service.a.d();
                     break;
                 }
                 break;
@@ -186,8 +186,8 @@ public class d {
                 if ("ORACLE".equals(str2) || "DM".equals(str2)) {
                     username = username != null ? username.toUpperCase() : null;
                 }
-                metaData.getTables(connection2.getCatalog(), username, a2, strArr);
-                if ("SQLSERVER".equals(str2)) {
+                // metaData.getTables(connection2.getCatalog(), username, a2, strArr);
+                if ("SQLSERVER".equals(str2) || "POSTGRESQL".equals(str2)) {
                     tables = metaData.getTables(connection2.getCatalog(), null, a2, strArr);
                 } else {
                     tables = metaData.getTables(connection2.getCatalog(), username, a2, strArr);

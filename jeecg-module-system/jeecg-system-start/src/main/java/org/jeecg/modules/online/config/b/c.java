@@ -2,18 +2,6 @@ package org.jeecg.modules.online.config.b;
 
 import com.alibaba.druid.filter.config.ConfigTools;
 import freemarker.template.TemplateException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -29,6 +17,11 @@ import org.jeecg.modules.online.config.exception.DBException;
 import org.jeecg.modules.online.config.service.DbTableHandleI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.sql.*;
+import java.util.*;
 
 public class c {
     private static final Logger a = LoggerFactory.getLogger(c.class);
@@ -203,7 +196,7 @@ public class c {
         if ("ORACLE".equals(str3)) {
             username = username.toUpperCase();
         }
-        if ("SQLSERVER".equals(str3)) {
+        if ("SQLSERVER".equals(str3) || "POSTGRESQL".equals(str3)) {
             columns = metaData.getColumns(connection.getCatalog(), null, str2, "%");
         } else {
             columns = metaData.getColumns(connection.getCatalog(), username, str2, "%");
