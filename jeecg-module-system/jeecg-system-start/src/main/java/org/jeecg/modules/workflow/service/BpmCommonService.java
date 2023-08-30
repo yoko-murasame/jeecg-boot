@@ -130,7 +130,7 @@ public class BpmCommonService {
             String processId = extActProcessForm.getProcessId();
             process = extActProcessService.getById(processId);
         } catch (Exception e) {
-            throw new RuntimeException("请检查流程是否正确配置，online表单的请以 onl_ 开头，具体格式：onl_表名");
+            throw new RuntimeException("请检查流程是否正确配置，online表单的请以 onl_ 开头，具体格式：onl_表名!");
         }
         return Result.OK(process);
     }
