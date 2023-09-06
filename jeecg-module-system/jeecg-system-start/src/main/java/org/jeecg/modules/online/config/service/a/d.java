@@ -79,6 +79,8 @@ public class d implements DbTableHandleI {
             str = aVar.getColumnName() + " text ";
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
             throw new DBException("blob类型不可修改");
+        } else if (aVar.getColunmType().equalsIgnoreCase("tsvector")) {
+            throw new DBException("tsvector类型不可修改");
         }
         return str;
     }

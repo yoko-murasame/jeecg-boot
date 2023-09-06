@@ -155,6 +155,10 @@ public class c {
             }
             for (String str4 : c2.keySet()) {
                 if (!c3.containsKey(str4.toLowerCase()) && !a3.containsValue(str4.toLowerCase())) {
+                    // 排除向量字段，防止更新时删除
+                    if ("tsvector".equals(c2.get(str4).getRealDbType())) {
+                        continue;
+                    }
                     arrayList.add(str + b(str4));
                 }
             }
