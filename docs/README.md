@@ -38,9 +38,10 @@
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
 * 流程功能文档
 * Jeecg接口修改
+  * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
+  * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
-  * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
 
 ## 扩展模块
 
