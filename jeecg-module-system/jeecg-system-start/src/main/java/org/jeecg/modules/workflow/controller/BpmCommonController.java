@@ -2,6 +2,7 @@ package org.jeecg.modules.workflow.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
@@ -12,6 +13,7 @@ import org.activiti.engine.TaskService;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.modules.bpm.dto.ProcessHisDTO;
@@ -21,6 +23,7 @@ import org.jeecg.modules.extbpm.process.entity.ExtActProcessForm;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
+import org.jeecg.modules.workflow.entity.TaskEntity;
 import org.jeecg.modules.workflow.service.BpmCommonService;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -222,6 +225,18 @@ public class BpmCommonController {
         Result<ExtActProcess> extActProcess = this.bpmCommonService.getExtActProcess(param);
         extActProcess.getResult().setProcessXml(null);
         return extActProcess;
+    }
+
+    @ApiOperation("获取系统代办完整数据接口")
+    @RequestMapping(value = "taskPage", method = RequestMethod.GET)
+    public Result<?> taskPage(TaskEntity taskEntity,
+                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                              HttpServletRequest request) {
+        QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
+        Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskPage(page, queryWrapper);
+        return Result.OK(taskEntityPage);
     }
 
 }

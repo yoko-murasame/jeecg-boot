@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.jeecg.modules.workflow.mapper.TaskEntityMapper">
+    <select id="taskPage" resultType="org.jeecg.modules.workflow.entity.TaskEntity">
+        WITH task_view AS (select *
+                           from ((select distinct RES.*
+                                  from ACT_RU_TASK RES
+                                           inner join ACT_RU_IDENTITYLINK I on I.TASK_ID_ = RES.ID_
+                                           INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_
+                                  WHERE RES.ASSIGNEE_ is null
+                                    and I.TYPE_ = 'candidate'
+                                    and RES.SUSPENSION_STATE_ = 1)
+                                 union
+                                 (select distinct RES.*
+                                  from ACT_RU_TASK RES
+                                           INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_)) v
+                               ${ew.customSqlSegment}),
+             efd AS (select *
+                     from ext_act_flow_data),
+             arp As (select id_, name_
+                     from act_re_procdef),
+             arv AS (select proc_inst_id_, text_ from act_ru_variable where name_ = 'bpm_biz_title')
+        SELECT task_view.*, efd.form_data_id, efd.oa_todo_id, arv.text_ AS bpm_biz_title, arp.name_ AS proc_def_name
+        FROM task_view
+                 LEFT JOIN efd ON task_view.proc_inst_id_ = efd.process_inst_id
+                 LEFT JOIN arp ON task_view.proc_def_id_ = arp.id_
+                 LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
+    </select>
+</mapper>

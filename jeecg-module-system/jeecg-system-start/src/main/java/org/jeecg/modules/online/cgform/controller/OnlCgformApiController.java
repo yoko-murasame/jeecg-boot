@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -15,10 +16,12 @@ import org.jeecg.common.constant.enums.ModuleType;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.BrowserUtils;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.TokenUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.cgform.CgformDB;
+import org.jeecg.modules.online.cgform.CgformDC;
 import org.jeecg.modules.online.cgform.d.e;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
@@ -32,7 +35,9 @@ import org.jeecg.modules.online.cgform.service.IOnlineService;
 import org.jeecg.modules.online.config.b.d;
 import org.jeecg.modules.online.config.exception.BusinessException;
 import org.jeecg.modules.online.config.exception.DBException;
+import org.jeecgframework.poi.excel.ExcelExportUtil;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
+import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.params.ExcelExportEntity;
 import org.slf4j.Logger;
@@ -53,6 +58,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -431,7 +437,6 @@ public class OnlCgformApiController {
      * @param var2
      * @param var3
      */
-/*
     @OnlineAuth("exportXls")
     @PermissionData
     @GetMapping({"/exportXls/{code}"})
@@ -447,16 +452,17 @@ public class OnlCgformApiController {
             }
 
             ((Map)var7).put("pageSize", -521);
-            Map var9 = this.onlCgformFieldService.queryAutolistPage(var4.getTableName(), var4.getId(), (Map)var7, (List)null);
+            Map<String, Object> var9 = this.onlCgformFieldService.queryAutolistPage(var4.getTableName(), var4.getId(), (Map)var7, (List)null);
             List var10 = (List)var9.get("fieldList");
-            Object var11 = (List)var9.get("records");
+            List<Map<String, Object>> var11 = (List<Map<String, Object>>)var9.get("records");
             Object var12 = new ArrayList();
             String var13 = ((Map)var7).get("selections") == null ? null : ((Map)var7).get("selections").toString();
             List var14;
             if (CgformDC.b(var13)) {
                 var14 = Arrays.asList(var13.split(","));
-                var12 = ((List)var11).stream().filter((var1x) -> {
-                    return var14.contains(var1x.get("id"));
+                List finalVar1 = var14;
+                var12 = (var11).stream().filter((var1x) -> {
+                    return finalVar1.contains(var1x.get("id"));
                 }).collect(Collectors.toList());
             } else {
                 if (var11 == null) {
@@ -521,7 +527,6 @@ public class OnlCgformApiController {
 
         }
     }
-*/
 
     @OnlineAuth("importXls")
     @PostMapping({"/importXls/{code}"})

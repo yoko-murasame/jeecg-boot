@@ -1302,4 +1302,11 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		obj.put(WebsocketConst.MSG_USER_ID, userId);
 		webSocket.sendMessage(userId, obj.toJSONString());
 	}
+
+	@Override
+	public List<SysCategoryModel> queryAllDSysCategory() {
+		List<SysCategory> ls = categoryMapper.selectList(null);
+		List<SysCategoryModel> res = oConvertUtils.entityListToModelList(ls, SysCategoryModel.class);
+		return res;
+	}
 }
