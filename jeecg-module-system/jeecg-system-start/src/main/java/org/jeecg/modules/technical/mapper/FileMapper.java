@@ -1,5 +1,6 @@
 package org.jeecg.modules.technical.mapper;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import org.apache.ibatis.annotations.Result;
@@ -9,6 +10,11 @@ import org.jeecg.modules.technical.entity.File;
 
 import java.util.List;
 
+/**
+ * com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor是导致net.sf.jsqlparser.parser.ParseException的原因
+ * 主要是 List<String> 这个类型的字段会产生影响
+ */
+@InterceptorIgnore(tenantLine = "true")
 public interface FileMapper extends BaseMapper<File> {
 
     @Results(value = {
