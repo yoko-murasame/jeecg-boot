@@ -745,21 +745,32 @@ public class FolderServiceImpl implements FolderService {
             if (exist != null) {
                 project = new Project().setBusinessName(exist.getName()).setBusinessId(String.valueOf(exist.getId()));
             }
+            // 封装数据
+            Optional.ofNullable(project)
+                    .ifPresent(res -> res
+                            .setId(Optional.ofNullable(StringUtils.hasText(projectId) ? projectId : null)
+                                    .orElse(StringUtils.hasText(res.getId()) ? res.getId() : null))
+                            .setName(Optional.ofNullable(StringUtils.hasText(projectName) ? projectName : null)
+                                    .orElse(StringUtils.hasText(projectId) ? projectMapper.selectById(projectId).getName() :
+                                            StringUtils.hasText(res.getName()) ? res.getName() : null))
+                            .setBusinessId(StringUtils.hasText(businessId) ? businessId : res.getBusinessId())
+                            .setBusinessName(StringUtils.hasText(businessName) ? businessName : res.getBusinessName())
+                            // 处理标准业务名称封装
+                            .setBusinessName(StringUtils.hasText(res.getBusinessName()) ? res.getBusinessName() :
+                                    Optional.ofNullable(ConstantBusiness.of(businessId)).orElse(ConstantBusiness.EMPTY).name()));
+        } else {
+            // 常量数据
+            Optional.of(project)
+                    .ifPresent(res -> res
+                            .setId(res.getId())
+                            .setName(res.getName())
+                            .setBusinessId(res.getBusinessId())
+                            // 处理标准业务名称封装
+                            .setBusinessName(StringUtils.hasText(res.getBusinessName()) ? res.getBusinessName() :
+                                    Optional.ofNullable(ConstantBusiness.of(businessId)).orElse(ConstantBusiness.EMPTY).name()));
         }
 
-        // 封装数据
-        Optional.ofNullable(project)
-                .ifPresent(res -> res
-                        .setId(Optional.ofNullable(StringUtils.hasText(projectId) ? projectId : null)
-                                .orElse(StringUtils.hasText(res.getId()) ? res.getId() : null))
-                        .setName(Optional.ofNullable(StringUtils.hasText(projectName) ? projectName : null)
-                                .orElse(StringUtils.hasText(projectId) ? projectMapper.selectById(projectId).getName() :
-                                        StringUtils.hasText(res.getName()) ? res.getName() : null))
-                        .setBusinessId(StringUtils.hasText(businessId) ? businessId : res.getBusinessId())
-                        .setBusinessName(StringUtils.hasText(businessName) ? businessName : res.getBusinessName())
-                        // 处理标准业务名称封装
-                        .setBusinessName(StringUtils.hasText(res.getBusinessName()) ? res.getBusinessName() :
-                                Optional.ofNullable(ConstantBusiness.of(businessId)).orElse(ConstantBusiness.EMPTY).name()));
+
         return project;
     }
 
