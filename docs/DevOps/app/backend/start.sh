@@ -1,4 +1,3 @@
-# https://blog.51cto.com/u_15162401/5607960
 #!/bin/bash
 #启动 sh start.sh start
 #停止 sh start.sh stop
@@ -11,6 +10,8 @@ APP_NAME=main.jar
 APP_PROFILE=prod
 #端口
 APP_PORT=8123
+#额外jvm参数，这里手动指定load路径，加载分离后的依赖
+EXTERNAL_JVM="-Dloader.path=lib,config"
 
 #使用说明，用来提示输入参数
 usage() {
@@ -35,7 +36,7 @@ start() {
    if [ $? -eq "0" ]; then
      echo "${APP_NAME} is already running. pid=${pid} ."
    else
-     nohup java -jar -Dloader.path=lib,config -Dspring.profiles.active=${APP_PROFILE} -Dserver.port=${APP_PORT} ./${APP_NAME} > log.log 2>&1 &
+     nohup java -jar ${EXTERNAL_JVM} -Dspring.profiles.active=${APP_PROFILE} -Dserver.port=${APP_PORT} ./${APP_NAME} > log.log 2>&1 &
    fi
 }
 
