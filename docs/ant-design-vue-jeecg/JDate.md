@@ -25,8 +25,55 @@
       style="width:45%"
       placeholder="请选择结束时间"></j-date>
   <span style="width: 10px;">~</span>
+  <j-date
+      date-mode="date"
+      date-format="YYYY-MM-DD HH:mm:ss"
+      :show-time="true"
+      placeholder="请选择节点时间"
+      v-decorator="['stageTime', validatorRules.stageTime]"
+      :trigger-change="true"
+      style="width: 100%"/>
 </a-form-item>
 </a-col>
+<!--放一下a-date的使用示例-->
+<a-date-picker placeholder="请选择统计日期" v-model="queryParam.stageTime" valueFormat="YYYY-MM-DD" format="YYYY-MM-DD"/>
+<!--最完整的使用模式-可切换年月日、时间-->
+<a-date-picker
+    :mode="pickerMode"
+    value-format="YYYY-MM-DD HH:mm:ss"
+    format="YYYY-MM-DD HH:mm:ss"
+    :show-time="true"
+    :open="openPicker"
+    placeholder="请选择节点时间"
+    @change="onDateChange"
+    @openChange="e => openPicker = e"
+    @panelChange="onPanelChange"
+    ref="datePicker"
+    v-decorator="['stageTime', validatorRules.stageTime]"
+    style="width: 100%"/>
+<script>
+  export default {
+    data() {
+      return {
+        openPicker: false,
+        pickerMode: 'date'
+      }
+    },
+    methods: {
+      onDateChange(e) {
+        console.log(e)
+      },
+      onPanelChange(e, mode) {
+        console.log(e, mode)
+        // this.openPicker = false
+        // 修复切换年月后无法主动更新的问题
+        this.form.setFieldsValue({ stageTime: e.format(e._f) })
+        this.pickerMode = mode
+        // this.$nextTick(() => this.openPicker = true)
+      }
+    }
+  }
+</script>
 ```
 
 修改历史:
