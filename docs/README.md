@@ -37,14 +37,14 @@
 * [Oracle数据库安装参考文档](./jeecg-boot-3.4.3last/Oracle数据库安装参考文档.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
 * 流程功能文档
-* [Spring Boot Snippets](./jeecg-boot-3.4.3last/Spring Boot Snippets.md)
 * Jeecg接口修改
   * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
 
-## 扩展模块
+## 扩展
 
+* [Spring Boot Snippets](./jeecg-boot-3.4.3last/Spring Boot Snippets.md)
 * [暗黑作画禁书目录-分词查询示例模块](./external/暗黑作画禁书目录.md)
 * [知识库-通用文档管理模块](./external/知识库.md)

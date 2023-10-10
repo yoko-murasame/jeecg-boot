@@ -11,6 +11,41 @@ Spring Boot开发相关代码参考片段
   * 获取当前JVM内存信息
   * 格式化时间戳差值 x时 x分 x秒
 
+
+### 覆写mybatis plus page接口
+
+service
+
+```java
+class a{
+    <E extends IPage<SzProjectDesign>> E page(E page, @Param(Constants.WRAPPER) Wrapper<SzProjectDesign> queryWrapper);
+
+    @Override
+    public <E extends IPage<SzProjectDesign>> E page(E page, Wrapper<SzProjectDesign> queryWrapper) {
+        return this.baseMapper.selectPage(page, queryWrapper);
+    }
+
+    List<SzProjectDesign> list(Wrapper<SzProjectDesign> queryWrapper);
+
+    @Override
+    public List<SzProjectDesign> list(Wrapper<SzProjectDesign> queryWrapper){
+        return this.baseMapper.selectList(queryWrapper);
+    }
+}
+
+```
+
+mapper
+
+```java
+interface a {
+    <E extends IPage<SzProjectDesign>> E selectPage(E page, @Param(Constants.WRAPPER) Wrapper<SzProjectDesign> wrapper);
+
+    List<T> selectList(@Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
+}
+```
+
+
 ## 切面、手动事务
 
 ```java
