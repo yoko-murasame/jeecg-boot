@@ -11,6 +11,34 @@ Spring Boot开发相关代码参考片段
   * 获取当前JVM内存信息
   * 格式化时间戳差值 x时 x分 x秒
 
+### Java Reduce 示例
+
+**根据JSON路径，取出实际String值**
+
+```java
+class a {
+    void b() {
+        String jsonValue = (String) row.get(field);
+        if (StringUtils.isEmpty(jsonValue)) {
+            return;
+        }
+        // 路径例如：objA.objB.fieldC
+        String jsonPath = jsonPaths.get(idx);
+        String realValue = Arrays.stream(jsonPath.split(",")).reduce(jsonValue, (a, b) -> {
+            try {
+                JSONObject aJson = JSON.parseObject(a);
+                Object bJson = aJson.get(b);
+                return JSON.toJSONString(bJson);
+            } catch (Exception e) {
+                return a;
+            }
+        }, (a, b) -> a);
+        log.info("transferOssToLocal::jsonPath: {}, realValue: {}", jsonPath, realValue);
+    }
+}
+
+```
+
 
 ### 覆写mybatis plus page接口
 

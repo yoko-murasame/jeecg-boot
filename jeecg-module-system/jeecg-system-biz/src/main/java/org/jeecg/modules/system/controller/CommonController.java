@@ -1,6 +1,7 @@
 package org.jeecg.modules.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
@@ -13,13 +14,11 @@ import org.jeecg.modules.system.entity.SysUpload;
 import org.jeecg.modules.system.service.ISysUploadService;
 import org.jeecg.modules.system.service.impl.SysUploadServiceImpl;
 import org.jeecg.modules.system.util.UploadFileUtil;
+import org.jeecg.modules.system.vo.OssToLocalVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerMapping;
@@ -29,6 +28,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.List;
 
 /**
  * 系统统一上传接口
@@ -52,6 +52,13 @@ public class CommonController {
 
     @Resource
     private ISysUploadService uploadService;
+
+    @ApiOperation(value = "转换oss文件到本地", notes = "转换oss文件到本地")
+    @PostMapping(value = "/transferOssToLocal")
+    public Result<?> transferOssToLocal(@RequestBody List<OssToLocalVo> vos) throws IOException {
+        uploadService.transferOssToLocal(vos);
+        return Result.OK();
+    }
 
     /**
      * @Author 政辉
