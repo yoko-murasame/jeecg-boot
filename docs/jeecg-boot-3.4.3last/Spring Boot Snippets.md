@@ -22,18 +22,18 @@ class a {
         if (StringUtils.isEmpty(jsonValue)) {
             return;
         }
-        // 路径例如：objA.objB.fieldC
+        // 路径例如：objA,objB,fieldC
         String jsonPath = jsonPaths.get(idx);
         String realValue = Arrays.stream(jsonPath.split(",")).reduce(jsonValue, (a, b) -> {
             try {
                 JSONObject aJson = JSON.parseObject(a);
                 Object bJson = aJson.get(b);
-                return JSON.toJSONString(bJson);
+                return bJson.getClass().getTypeName().equals("java.lang.String") ? (String) bJson : JSON.toJSONString(bJson);
             } catch (Exception e) {
                 return a;
             }
         }, (a, b) -> a);
-        log.info("transferOssToLocal::jsonPath: {}, realValue: {}", jsonPath, realValue);
+        log.info("jsonPath: {}, realValue: {}", jsonPath, realValue);
     }
 }
 

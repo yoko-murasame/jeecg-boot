@@ -43,7 +43,11 @@ public class OssToLocalVo implements Serializable {
     @ApiModelProperty(value = "自定义 bucketName")
     private String bucketName;
 
+    @ApiModelProperty(value = "分隔符，默认为逗号")
+    private String splitChar = SPLIT_CHAR_DEFAULT;
+
     public static final String VARCHAR = "varchar";
     public static final String JSON_TYPE = "json";
+    public static final String SPLIT_CHAR_DEFAULT = ",";
 
 }

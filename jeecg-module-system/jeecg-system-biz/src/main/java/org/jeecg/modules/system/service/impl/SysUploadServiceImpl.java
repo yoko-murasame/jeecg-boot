@@ -50,8 +50,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.jeecg.modules.system.vo.OssToLocalVo.JSON_TYPE;
-import static org.jeecg.modules.system.vo.OssToLocalVo.VARCHAR;
+import static org.jeecg.modules.system.vo.OssToLocalVo.*;
 
 /**
  * 重新实现文件上传
@@ -358,9 +357,10 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
             Integer pageSize = vo.getPageSize();
             double limitBytes = vo.getLimitMb() * 1024 * 1024;
             String bizPath = this.generateBizPath(vo.getBizPath());
+            String splitChar = vo.getSplitChar();
 
             String listSql = String.format("SELECT %s FROM %s WHERE",
-                    String.join(",", idField, fields.stream().map(e -> e + "::text").collect(Collectors.joining(","))), tableName);
+                    String.join(SPLIT_CHAR_DEFAULT, idField, fields.stream().map(e -> e + "::text").collect(Collectors.joining(SPLIT_CHAR_DEFAULT))), tableName);
 
             // 根据fields拼接 where 模糊查询
             listSql += fields.stream().map(field -> String.format(" %s::text LIKE '%%http%%'", field)).reduce((a, b) -> a + " OR " + b).orElse(" 1 = 1");
@@ -400,7 +400,7 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                         String field = fields.get(idx);
                         String type = fieldTypes.get(idx);
                         String fieldValue = (String) row.get(field);
-                        if (StringUtils.isEmpty(fieldValue)) {
+                        if (StringUtils.isEmpty(fieldValue) || StringUtils.isEmpty(fieldValue.trim())) {
                             return;
                         }
                         String updateSql = null;
@@ -409,15 +409,15 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                         switch (type) {
                             case VARCHAR:
                                 // url可能是逗号分隔的数组
-                                transferredUrls = doTransfer(fieldValue, logs, finalOssClient, finalBucketName, costBytes, limitBytes, bizPath);
+                                transferredUrls = doTransfer(fieldValue, logs, finalOssClient, finalBucketName, costBytes, limitBytes, bizPath, splitChar);
                                 // 以字段为基准更新数据
                                 updateSql = String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
-                                        tableName, field, String.join(",", transferredUrls), idField, id);
+                                        tableName, field, String.join(splitChar, transferredUrls), idField, id);
                                 break;
                             case JSON_TYPE:
                                 // 取出实际字段值
                                 String jsonPath = jsonPaths.get(idx);
-                                String realValue = Arrays.stream(jsonPath.split(",")).reduce(fieldValue, (a, b) -> {
+                                String realValue = Arrays.stream(jsonPath.split(SPLIT_CHAR_DEFAULT)).reduce(fieldValue, (a, b) -> {
                                     try {
                                         JSONObject aJson = JSON.parseObject(a);
                                         Object bJson = aJson.get(b);
@@ -429,10 +429,10 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                                 String jsonMsg = String.format("transferOssToLocal::处理JSON数据::取值路径: %s，实际取值: %s", jsonPath, realValue);
                                 log.info(jsonMsg);
                                 logs.add(jsonMsg);
-                                List<String> transferredValues = doTransfer(realValue, logs, finalOssClient, finalBucketName, costBytes, limitBytes, bizPath);
+                                List<String> transferredValues = doTransfer(realValue, logs, finalOssClient, finalBucketName, costBytes, limitBytes, bizPath, splitChar);
                                 // 以字段为基准更新数据
                                 updateSql = String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
-                                        tableName, field, fieldValue.replace(realValue, String.join(",", transferredValues)), idField, id);
+                                        tableName, field, fieldValue.replace(realValue, String.join(splitChar, transferredValues)), idField, id);
                                 fieldValue = realValue;
                                 break;
                             default:
@@ -444,7 +444,7 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                         int update = jdbcTemplate.update(updateSql);
                         // 删除oss文件
                         if (update > 0 && vo.getDeleteSource()) {
-                            for (String objectName : fieldValue.split(",")) {
+                            for (String objectName : fieldValue.split(splitChar)) {
                                 finalOssClient.deleteObject(finalBucketName, objectName);
                             }
                         }
@@ -477,11 +477,11 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
         sysBaseAPI.sendSysAnnouncement(messageDTO);
     }
 
-    private List<String> doTransfer(String urls, List<String> logs, OSSClient finalOssClient, String finalBucketName, AtomicDouble costBytes, double limitBytes, String bizPath) {
+    private List<String> doTransfer(String urls, List<String> logs, OSSClient finalOssClient, String finalBucketName, AtomicDouble costBytes, double limitBytes, String bizPath, String splitChar) {
         if (StringUtils.isEmpty(urls)) {
             return Collections.emptyList();
         }
-        String[] urlArray = urls.split(",");
+        String[] urlArray = urls.split(splitChar);
         List<String> transferredUrls = new ArrayList<>(urlArray.length);
 
         for (String url : urlArray) {
