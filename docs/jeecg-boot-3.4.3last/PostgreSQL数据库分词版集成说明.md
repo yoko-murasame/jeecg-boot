@@ -89,7 +89,7 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --re
 
 ### 2）导入导出数据库
 
-2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/backup.dump)
+2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件，分为有分词版本和无分词版本，建议使用有分词版的。](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/)
 ```shell
 # 进入容器执行备份
 docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
@@ -101,6 +101,8 @@ docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 
 2.2）导入数据库备份文件
 ```shell
+# 选择有分词版数据库备份 backup-has-gis-and-text-parser.dump
+mv ./backup-has-gis-and-text-parser.dump /root/pgbackup/backup.dump
 # 导入到数据库注意需要先创建数据库
 psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
