@@ -74,7 +74,44 @@ interface a {
 ```
 
 
-## 切面、手动事务
+### mybatis plus 返回lambda动态列
+
+```java
+class a {
+    public List<PipenetworkWsAnalysis> queryAnalysisByCode(PipeAnalysisRequest request) {
+
+        LambdaQueryWrapper<PipenetworkWsAnalysis> wp = Wrappers.lambdaQuery(PipenetworkWsAnalysis.class);
+
+        // 根据参数动态返回列名
+        List<SFunction<PipenetworkWsAnalysis, Object>> funcList = new ArrayDeque<>(11);
+        funcList.addAll(Arrays.asList(
+                PipenetworkWsAnalysis::getIdOne,
+                PipenetworkWsAnalysis::getIdTwo,
+                PipenetworkWsAnalysis::getStartId,
+                PipenetworkWsAnalysis::getEndId,
+                PipenetworkWsAnalysis::getFinish,
+                PipenetworkWsAnalysis::getSmnodeidCombine,
+                PipenetworkWsAnalysis::getNodeIds,
+                PipenetworkWsAnalysis::getEdgeIds
+        ));
+
+        if (request.getReturnNodeDetail()) {
+            funcList.add(PipenetworkWsAnalysis::getNodeFeatures);
+        }
+        if (request.getReturnEdgeDetail()) {
+            funcList.add(PipenetworkWsAnalysis::getEdgeFeatures);
+        }
+        if (request.getReturnDetail()) {
+            funcList.add(PipenetworkWsAnalysis::getData);
+        }
+        wp.select(funcList.toArray(new SFunction[0]));
+
+        return this.list(wp);
+    }
+}
+```
+
+### 切面、手动事务
 
 ```java
 package org.jeecg.modules.onemap.project.aop;
