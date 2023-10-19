@@ -114,6 +114,13 @@ public class BpmCommonController {
         return Result.OK();
     }
 
+    @ApiOperation("取回Activity流程实例接口")
+    @GetMapping(value = "/callBackProcessInstance")
+    public Result<?> callBackProcess(@RequestParam(required = false) String processInstanceId) {
+        this.bpmCommonService.callBackProcessInstance(processInstanceId);
+        return Result.OK();
+    }
+
 
     @ApiOperation("直接完成流程")
     @GetMapping(value = "/finishProcess/{id}")

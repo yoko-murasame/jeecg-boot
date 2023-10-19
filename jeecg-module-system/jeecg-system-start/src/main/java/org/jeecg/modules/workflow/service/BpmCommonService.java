@@ -1131,4 +1131,19 @@ public class BpmCommonService {
         return result;
     }
 
+    public void callBackProcessInstance(String processInstId) {
+        RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
+        ProcessInstance processInstance =
+                (ProcessInstance) runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
+        if (null != processInstance) {
+            runtimeService.setVariable(processInstance.getProcessInstanceId(),
+                    org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.z);
+            try {
+                runtimeService.deleteProcessInstance(processInstId, "流程取回");
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        }
+    }
+
 }

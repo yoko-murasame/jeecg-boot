@@ -91,15 +91,30 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --re
 
 2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件，分为有分词版本和无分词版本，建议使用有分词版的。](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/)
 ```shell
-# 进入容器执行备份
+# 进入容器执行备份，-Fc表示导出为自定义格式
 docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
 # 复制备份到宿主机
 docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 # 非Docker安装方式的备份导出示例
 # pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
+
+# 单表导出示例
+# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
+# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
+# && docker cp postgre-13:/table_a.dump ./table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
+
+# 单表导入示例
+# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
+# docker cp ./table_a.dump postgre-13:/table_a.dump \
+# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
 ````
 
 2.2）导入数据库备份文件
+
+> **注意：导入分词版本备份，需要预先执行下一步骤的“必须执行的脚本”！！！**
+
 ```shell
 # 选择有分词版数据库备份 backup-has-gis-and-text-parser.dump
 mv ./backup-has-gis-and-text-parser.dump /root/pgbackup/backup.dump
@@ -112,21 +127,21 @@ docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 # --data-only 只恢复数据，而不恢复表模式
 # --clean 创建数据库对象前先清理(删除)它们
 # --create 在恢复数据库之前先创建它。如果也声明了--clean， 那么在连接到数据库之前删除并重建目标数据库
-docker exec -it <新容器> pg_restore --verbose --clean --create -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+docker exec -it <新容器> pg_restore --verbose -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
 
 # 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
 docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
 
 # 其他运维命令（关闭数据库链接、删除数据库等）
-psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
+# psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
 # 查找数据库活动连接
-SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
+# SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
 # 关闭数据库连接
-SELECT pg_terminate_backend(<pid>);
+# SELECT pg_terminate_backend(<pid>);
 # 删除数据库
-DROP DATABASE <数据库名称>;
+# DROP DATABASE <数据库名称>;
 # 查看存在的数据库列表 \l
-SELECT datname FROM pg_database;
+# SELECT datname FROM pg_database;
 ```
 
 ### 3）必须执行的脚本
