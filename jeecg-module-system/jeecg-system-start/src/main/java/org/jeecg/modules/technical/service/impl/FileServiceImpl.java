@@ -472,14 +472,16 @@ public class FileServiceImpl implements FileService {
         if (!name.endsWith(suffix)) {
             name = name + suffix;
         }
+        if (sourceName.equals(name)) {
+            return;
+        }
         //变更信息
-        List<String> changes = file.getChanges();
+        List<String> changes = new ArrayList<>(file.getChanges());
         changes.add("日期: " + LocalDateTime.now().format(dateTimeFormatter) + " 更名：from " + sourceName + " to " + name);
         boolean update = new LambdaUpdateChainWrapper<>(fileMapper)
                 .eq(File::getName, file.getName())
                 .eq(File::getType, file.getType())
                 .eq(File::getSuffix, file.getSuffix())
-                .eq(File::getProjectId, file.getProjectId())
                 .eq(File::getFolderId, file.getFolderId())// 同一个目录下的文件
                 .set(File::getName, name) // 更新所有版本的文件名
                 .set(File::getChanges, JSON.toJSONString(changes)) // 变更信息
@@ -500,6 +502,31 @@ public class FileServiceImpl implements FileService {
         Consumer<Folder> consumer = folder -> res.put(folder.getName(), this.findByFolder(folder.getId()));
         folders.forEach(consumer);
         return res;
+    }
+
+    @Override
+    @CacheEvict(allEntries = true)
+    @Transactional
+    public void reTags(String fileId, String tags) {
+        Assert.state(StringUtils.hasText(fileId) && StringUtils.hasText(tags), "参数错误");
+        File file = this.findOne(fileId);
+        Assert.notNull(file, "找不到该文件信息");
+        String sourceTags = file.getTags();
+        //变更信息
+        List<String> changes = new ArrayList<>(file.getChanges());
+        changes.add("日期: " + LocalDateTime.now().format(dateTimeFormatter) + " 变更标签：from " + sourceTags + " to " + tags);
+        boolean update = new LambdaUpdateChainWrapper<>(fileMapper)
+                .eq(File::getName, file.getName())
+                .eq(File::getType, file.getType())
+                .eq(File::getSuffix, file.getSuffix())
+                .eq(File::getFolderId, file.getFolderId())// 同一个目录下的文件
+                .set(File::getTags, tags) // 更新所有版本的标签
+                .set(File::getChanges, JSON.toJSONString(changes)) // 变更信息
+                .update();
+        folderService.refreshAllChild(file.getFolderId());// 刷新目录信息
+        if (update) {
+            log.info("文件标签修改成功");
+        }
     }
 
 }

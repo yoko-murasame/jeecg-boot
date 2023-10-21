@@ -95,15 +95,25 @@ public class FolderServiceImpl implements FolderService {
      * @description 根据文件名称模糊或者ID查询所在目录
      */
     @Override
-    public List<Map<String, Object>> findFolderIdsByFileName(String fileName, String fileId, String businessId, String projectId) {
+    public List<Map<String, Object>> findFolderIdsByFileName(String fileName, String fileId, String tags, String businessId, String projectId) {
 
-        List<File> files = new LambdaQueryChainWrapper<>(fileMapper)
+        LambdaQueryChainWrapper<File> wp = new LambdaQueryChainWrapper<>(fileMapper)
                 .eq(File::getEnabled, Enabled.ENABLED)
                 .eq(File::getCurrent, Current.TRUE)
                 .eq(StringUtils.hasText(businessId), File::getBusinessId, businessId)
                 .eq(StringUtils.hasText(projectId), File::getProjectId, projectId)
                 .eq(StringUtils.hasText(fileId), File::getId, fileId)
-                .like(StringUtils.hasText(fileName), File::getName, fileName).list();
+                .like(StringUtils.hasText(fileName), File::getName, fileName);
+
+        if (StringUtils.hasText(tags)) {
+            wp.and(wrapper -> {
+                Arrays.stream(tags.split(",")).forEach(
+                        tag -> wrapper.or().like(File::getTags, tag)
+                );
+            });
+        }
+
+        List<File> files = wp.list();
 
         List<Map<String, Object>> result = files.stream().map(file -> {
             Map<String, Object> res = new HashMap<>(2);

@@ -52,9 +52,10 @@ public class FolderController {
     @ApiOperation("根据文件名称模糊查询所在目录")
     public Result findFolderIdsByFileName(@RequestParam(required = false) String fileName,
                                           @RequestParam(required = false) String fileId,
+                                          @RequestParam(required = false) String tags,
                                           @RequestParam(required = false) String businessId,
                                           @RequestParam(required = false) String projectId) {
-        List<Map<String, Object>> folderIdsByFileName = folderService.findFolderIdsByFileName(fileName, fileId, businessId, projectId);
+        List<Map<String, Object>> folderIdsByFileName = folderService.findFolderIdsByFileName(fileName, fileId, tags, businessId, projectId);
         return Result.OK(folderIdsByFileName);
     }
 

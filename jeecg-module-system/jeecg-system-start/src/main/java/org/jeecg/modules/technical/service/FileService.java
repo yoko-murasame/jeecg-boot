@@ -53,4 +53,6 @@ public interface FileService {
     void rename(String fileId, String name);
 
     Map<String, List<File>> queryTreeLastNodeFilesByFolderTreeNames(Folder folderParams, List<String> folderTreeNames);
+
+    void reTags(String fileId, String tags);
 }

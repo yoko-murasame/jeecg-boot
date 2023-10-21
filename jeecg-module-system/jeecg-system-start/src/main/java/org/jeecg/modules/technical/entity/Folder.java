@@ -37,6 +37,8 @@ public class Folder extends JeecgEntity {
     private Integer childFolderSize;
     @TableField(value = "child_file_size")
     private Integer childFileSize;
+    @TableField(value = "tags")
+    private String tags;
     private Type type;
     private Enabled enabled = Enabled.ENABLED;
 

@@ -74,4 +74,7 @@ public class FileVo implements Serializable {
 
     @ApiModelProperty(value = "更新时间", hidden = true)
     private String updateTime;
+
+    @ApiModelProperty(value = "标签")
+    private String tags;
 }

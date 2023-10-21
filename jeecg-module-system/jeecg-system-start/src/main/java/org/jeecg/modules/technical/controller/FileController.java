@@ -142,6 +142,14 @@ public class FileController {
         return Result.OK();
     }
 
+    @PutMapping("/reTags")
+    @ApiOperation("更新文件标签")
+    public Result reTags(@RequestParam(required = true) @ApiParam("文件id") String fileId,
+                         @RequestParam(required = true) @ApiParam("新tags") String tags) {
+        fileService.reTags(fileId, tags);
+        return Result.OK();
+    }
+
     @GetMapping("/download/{fileId}")
     @ApiOperation("下载")
     public void download(@PathVariable @ApiParam("文件id，请结合<a target='_blank'>标签使用") String fileId,

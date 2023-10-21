@@ -21,7 +21,7 @@ public interface FolderService {
 
     List<Map<String, Object>> findFolderIdsByFolderName(String folderName, String folderId, String businessId, String projectId);
 
-    List<Map<String, Object>> findFolderIdsByFileName(String fileName, String fileId, String businessId, String projectId);
+    List<Map<String, Object>> findFolderIdsByFileName(String fileName, String fileId, String tags, String businessId, String projectId);
 
     Folder findOne(String id);
 

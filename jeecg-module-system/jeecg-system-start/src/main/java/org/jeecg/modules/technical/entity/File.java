@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.jeecg.common.system.base.entity.JeecgEntity;
-import org.jeecg.config.mybatis.ListTypeHandler;
 import org.jeecg.modules.system.entity.SysUpload;
 import org.jeecg.modules.technical.entity.enums.Current;
 import org.jeecg.modules.technical.entity.enums.Enabled;
@@ -55,11 +54,11 @@ public class File extends JeecgEntity {
     private String thumbnail; // 缩略图
     private String size; // 文件大小
     // 这里我换成了自己写的 ListTypeHandler 其实用默认的JSON处理也可以
-    @TableField(typeHandler = ListTypeHandler.class)
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private List<String> changes; // 变更
-    @TableField(typeHandler = ListTypeHandler.class)
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private List<String> comments; // 批注
-    @TableField(typeHandler = ListTypeHandler.class)
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private List<String> problems; // 问题
     @TableField(value = "upload_by")
     private String uploadBy; // 上传人，使用realname作值
@@ -68,4 +67,7 @@ public class File extends JeecgEntity {
     private String businessId;
     @TableField(value = "business_name")
     private String businessName;
+
+    @TableField(value = "tags")
+    private String tags;
 }

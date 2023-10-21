@@ -57,7 +57,8 @@ create table technical_folder
     child_file_size   integer,
     enabled           smallint default 1,
     business_id       varchar(36),
-    business_name     varchar(255)
+    business_name     varchar(255),
+    tags              varchar(255)
 );
 
 comment on column technical_folder.name is '目录名称';
@@ -84,9 +85,15 @@ comment on column technical_folder.business_id is '业务id（各类业务表单
 
 comment on column technical_folder.business_name is '业务名称';
 
+comment on column technical_folder.tags is '标签';
+
 alter table technical_folder
     owner to postgres;
 
+-- 增量SQL
+alter table technical_folder
+    add tags varchar(255);
+comment on column technical_folder.tags is '标签';
 
 
 -- 知识库 - 文件表
@@ -118,7 +125,8 @@ create table technical_file
     problems      text,
     upload_by     varchar(255),
     business_id   varchar(40),
-    business_name varchar(255)
+    business_name varchar(255),
+    tags          varchar(255)
 );
 
 comment on column technical_file.name is '文件名，相同时，版本号+1';
@@ -161,6 +169,12 @@ comment on column technical_file.business_id is '业务id';
 
 comment on column technical_file.business_name is '业务名称';
 
+comment on column technical_file.tags is '标签';
+
 alter table technical_file
     owner to postgres;
 
+-- 增量SQL
+alter table technical_file
+    add tags varchar(255);
+comment on column technical_file.tags is '标签';
