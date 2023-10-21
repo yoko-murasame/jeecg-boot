@@ -563,6 +563,10 @@ public class FolderServiceImpl implements FolderService {
             folder.setSortOrder(maxOrder);
             folderMapper.insert(folder);
         }
+
+        // 更新父目录的状态
+        this.refreshAllChild(folder.getParentId());
+
         return folder;
     }
 

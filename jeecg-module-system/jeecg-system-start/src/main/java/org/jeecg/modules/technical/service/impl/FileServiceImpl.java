@@ -408,7 +408,6 @@ public class FileServiceImpl implements FileService {
                     .eq(File::getName, file.getName())
                     .eq(File::getType, file.getType())
                     .eq(File::getSuffix, file.getSuffix())
-                    .eq(File::getProjectId, file.getProjectId())
                     .eq(File::getFolderId, file.getFolderId());
             int delete = this.fileMapper.delete(wrapper);
             if (delete > 0) {
@@ -443,7 +442,7 @@ public class FileServiceImpl implements FileService {
         List<File> files = new LambdaQueryChainWrapper<>(fileMapper)
                 .eq(File::getEnabled, Enabled.ENABLED)
                 .eq(File::getFolderId, folderId).list();
-        if (files.size() > 0) {
+        if (!files.isEmpty()) {
             files.forEach(file -> this.deleteAllVersion(file.getId()));
         }
     }
@@ -452,9 +451,10 @@ public class FileServiceImpl implements FileService {
     @Override
     public void deleteAllByFolder(String folderId, boolean logic) {
         List<File> files = new LambdaQueryChainWrapper<>(fileMapper)
-                .eq(File::getEnabled, Enabled.ENABLED)
+                .eq(logic, File::getEnabled, Enabled.ENABLED)
+                .eq(File::getCurrent, Current.TRUE)
                 .eq(File::getFolderId, folderId).list();
-        if (files.size() > 0) {
+        if (!files.isEmpty()) {
             files.forEach(file -> this.deleteAllVersion(file.getId(), logic));
         }
     }
