@@ -71,4 +71,5 @@ public interface FolderService {
 
     List<Folder> queryTreeLastNodeByFolderTreeNames(Folder folderParam, List<String> folderTreeNames);
 
+    List<String> findPath(String folderId);
 }

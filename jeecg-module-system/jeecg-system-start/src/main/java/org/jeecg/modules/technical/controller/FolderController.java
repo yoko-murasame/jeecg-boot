@@ -1,6 +1,5 @@
 package org.jeecg.modules.technical.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +11,7 @@ import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.entity.enums.Level;
 import org.jeecg.modules.technical.entity.enums.Type;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.vo.FolderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,27 +83,26 @@ public class FolderController {
     @RequestMapping(value = "/business/findRoot", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation(value = "查询根目录",
             notes = "第一次访问时，将自动初始化”默认分组“。")
-    public Result findRootBusiness(@ApiParam(value = "项目ID") @RequestParam(required = false) String projectId,
-                                   @ApiParam(value = "项目名") @RequestParam(required = false) String projectName,
-                                   @ApiParam(value = "业务ID") @RequestParam(required = false) String businessId,
-                                   @ApiParam(value = "业务名称") @RequestParam(required = false, defaultValue = "") String businessName,
-                                   @ApiParam(value = "类型") @RequestParam(required = false) Type type,
-                                   @RequestBody(required = false) Map<String, String> payload) {
-        List<String> subFolders = null;
-        JSONArray initialFolders = null;
-        if (payload != null) {
-            if (null != payload.get("initialFolders")) {
-                initialFolders = JSON.parseArray(payload.get("initialFolders"));
-            }
-            if (null != payload.get("subFolders")) {
-                subFolders = Arrays.asList(payload.get("subFolders").split(","));
-            }
-        }
+    public Result findRootBusiness(@RequestBody FolderRequest params) {
+
+        List<String> subFolders = params.getSubFolders();
+        JSONArray initialFolders = params.getInitialFolders();
+        Type type = params.getType();
+        String projectId = params.getProjectId();
+        String projectName = params.getProjectName();
+        String businessId = params.getBusinessId();
+        String businessName = params.getBusinessName();
+
         List<Folder> roots = folderService.findRoot(Folder.of().ofType(type).ofProject(projectId, projectName).ofBusiness(businessId, businessName),
                 initialFolders, subFolders);
-        // List<FolderVo> folderVos = new ArrayList<>();
-        // BeanUtil.copyProperties(roots, folderVos);
         return Result.OK(roots);
+    }
+
+    @GetMapping("/findPath/{id}")
+    @ApiOperation("获取目录的树路径")
+    public Result<?> findPath(@PathVariable(value = "id") String id) {
+        List<String> ids = folderService.findPath(id);
+        return Result.OK(ids);
     }
 
     @GetMapping("/business/saveRoot")

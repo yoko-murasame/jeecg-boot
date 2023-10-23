@@ -848,6 +848,24 @@ public class FolderServiceImpl implements FolderService {
         return res;
     }
 
+    @Override
+    public List<String> findPath(String folderId) {
+
+        LambdaQueryWrapper<Folder> commonWp = Wrappers.lambdaQuery(Folder.class)
+                .eq(Folder::getEnabled, Enabled.ENABLED);
+        // begin end
+        LambdaQueryWrapper<Folder> endWp = commonWp.clone();
+        LambdaQueryWrapper<Folder> beginWp = commonWp.clone();
+        endWp.eq(Folder::getId, folderId);
+        beginWp.eq(Folder::getParentId, "");
+
+        String endWpstr = endWp.getCustomSqlSegment().replaceAll("ew", "endWp");
+        String beginWpstr = beginWp.getCustomSqlSegment().replaceAll("ew", "beginWp");
+        List<Folder> result = folderMapper.queryTreeListByFolderNames(endWp, beginWp, endWpstr, beginWpstr);
+
+        return result.stream().map(Folder::getId).collect(Collectors.toList());
+    }
+
     /**
      * @param projectId
      * @param projectName

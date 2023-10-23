@@ -476,8 +476,13 @@ public class FileServiceImpl implements FileService {
             return;
         }
         //变更信息
-        List<String> changes = new ArrayList<>(file.getChanges());
-        changes.add("日期: " + LocalDateTime.now().format(dateTimeFormatter) + " 更名：from " + sourceName + " to " + name);
+        List<String> changes;
+        if (null != file.getChanges()) {
+            changes = new ArrayList<>(file.getChanges());
+        } else {
+            changes = new ArrayList<>();
+        }
+        changes.add("日期：" + LocalDateTime.now().format(dateTimeFormatter) + " 变更名称，原名称：" + sourceName + "，新名称：" + name);
         boolean update = new LambdaUpdateChainWrapper<>(fileMapper)
                 .eq(File::getName, file.getName())
                 .eq(File::getType, file.getType())
@@ -513,8 +518,13 @@ public class FileServiceImpl implements FileService {
         Assert.notNull(file, "找不到该文件信息");
         String sourceTags = file.getTags();
         //变更信息
-        List<String> changes = new ArrayList<>(file.getChanges());
-        changes.add("日期: " + LocalDateTime.now().format(dateTimeFormatter) + " 变更标签：from " + sourceTags + " to " + tags);
+        List<String> changes;
+        if (null != file.getChanges()) {
+            changes = new ArrayList<>(file.getChanges());
+        } else {
+            changes = new ArrayList<>();
+        }
+        changes.add("日期：" + LocalDateTime.now().format(dateTimeFormatter) + " 变更标签，原标签：" + sourceTags + "，新标签：" + tags);
         boolean update = new LambdaUpdateChainWrapper<>(fileMapper)
                 .eq(File::getName, file.getName())
                 .eq(File::getType, file.getType())
