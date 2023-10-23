@@ -22,6 +22,7 @@ import org.jeecg.modules.technical.entity.enums.Type;
 import org.jeecg.modules.technical.mapper.FileMapper;
 import org.jeecg.modules.technical.service.FileService;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.vo.FileRequest;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -285,6 +286,22 @@ public class FileServiceImpl implements FileService {
                 .eq(File::getCurrent, Current.TRUE)
                 .orderByDesc(File::getUpdateTime).list();
         return files;
+    }
+
+    @Override
+    public List<File> findByParams(FileRequest fileRequest) {
+        String folderId = fileRequest.getFolderId();
+        Assert.state(StringUtils.hasText(folderId), "folderId不能为空");
+        Folder folder = folderService.findOne(folderId);
+        Assert.notNull(folder, "该目录不存在或已禁用");
+        LambdaQueryChainWrapper<File> wp = new LambdaQueryChainWrapper<>(fileMapper).eq(File::getEnabled, Enabled.ENABLED)
+                .eq(File::getFolderId, folder.getId())
+                .eq(File::getCurrent, Current.TRUE)
+                .orderByDesc(File::getUpdateTime);
+        if (StringUtils.hasText(fileRequest.getId())) {
+            wp.in(File::getId, Arrays.asList(fileRequest.getId().split(",")));
+        }
+        return wp.list();
     }
 
     @Override

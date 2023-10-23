@@ -12,6 +12,7 @@ import org.jeecg.modules.technical.entity.File;
 import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.service.FileService;
+import org.jeecg.modules.technical.vo.FileRequest;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,19 +78,13 @@ public class FileController {
     public Result upload(@RequestParam(required = true) @ApiParam("文件，支持多个") List<MultipartFile> multipartFiles,
                          @RequestParam(required = true) @ApiParam("关联目录id") String folderId) throws Exception {
         List<File> files = fileService.upload(multipartFiles, folderId);
-        // List<FileVo> fileVos = new ArrayList<>();
-        // BeanUtil.copyProperties(files, fileVos, true);
-        // return Result.OK(fileVos);
         return Result.OK(files);
     }
 
-    @GetMapping("files")
+    @PostMapping("files")
     @ApiOperation("按目录查询")
-    public Result files(@RequestParam(required = true) @ApiParam("关联目录id") String folderId) {
-        List<File> files = fileService.findByFolder(folderId);
-        // List<FileVo> fileVos = new ArrayList<>();
-        // BeanUtil.copyProperties(files, fileVos, true);
-        // return Result.OK(fileVos);
+    public Result files(@RequestBody FileRequest request) {
+        List<File> files = fileService.findByParams(request);
         return Result.OK(files);
     }
 
@@ -97,9 +92,6 @@ public class FileController {
     @ApiOperation("查询历史版本")
     public Result history(@RequestParam(required = true) @ApiParam("文件id") String fileId) {
         List<File> files = fileService.findAllVersion(fileId);
-        // List<FileVo> fileVos = new ArrayList<>();
-        // BeanUtil.copyProperties(files, fileVos, true);
-        // return Result.OK(fileVos);
         return Result.OK(files);
     }
 

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.jeecg.modules.technical.entity.File;
 import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.enums.Enabled;
+import org.jeecg.modules.technical.vo.FileRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public interface FileService {
     void changeStatus(String id, Enabled enabled);
 
     List<File> findByFolder(String folderId);
+
+    List<File> findByParams(FileRequest fileRequest);
 
     Page<File> findPageByFolder(String folderId, int page, int pageSize);
 
