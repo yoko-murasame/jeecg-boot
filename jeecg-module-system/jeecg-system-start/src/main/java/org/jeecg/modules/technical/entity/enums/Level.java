@@ -15,7 +15,8 @@ public enum Level {
     SECOND("二级", "2", 2),
     THIRD("三级", "3", 3),
     FOURTH("四级", "4", 4),
-    FIFTH("五级", "5", 5);
+    FIFTH("五级", "5", 5),
+    SIXTH("六级", "6", 6);
 
     private String name;
     private String codeStr;
@@ -34,13 +35,15 @@ public enum Level {
                 return FOURTH;
             case FOURTH:
                 return FIFTH;
+            case FIFTH:
+                return SIXTH;
             default:
                 return null;
         }
     }
 
     public static Level max() {
-        return FIFTH;
+        return SIXTH;
     }
 
     public static Level min() {
