@@ -97,4 +97,25 @@ public class FormatUtil {
         return sb.toString();
     }
 
+    /**
+     * 提取文件名
+     *
+     * @author Yoko
+     * @since 2023/10/24 10:41
+     * @param str 输入：branch/unsorted/202310/高清大图01_1697715592396.jpg，输出：高清大图01.jpg
+     * @return java.lang.String
+     */
+    public static String extractFileName(String str) {
+        int lastSlashIndex = str.lastIndexOf("/");
+        if (lastSlashIndex != -1 && lastSlashIndex < str.length() - 1) {
+            String substring = str.substring(lastSlashIndex + 1);
+            int underscoreIndex = substring.lastIndexOf("_");
+            int dotIndex = substring.lastIndexOf(".");
+            if (underscoreIndex != -1 && dotIndex != -1 && underscoreIndex < dotIndex) {
+                return substring.substring(0, underscoreIndex) + substring.substring(dotIndex);
+            }
+        }
+        return str;
+    }
+
 }

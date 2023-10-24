@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.CommonUtils;
+import org.jeecg.common.util.yoko.FormatUtil;
 import org.jeecg.modules.system.entity.SysUpload;
 import org.jeecg.modules.system.service.ISysUploadService;
 import org.jeecg.modules.system.util.DbUtil;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -300,6 +302,15 @@ public class FileServiceImpl implements FileService {
                 .orderByDesc(File::getUpdateTime);
         if (StringUtils.hasText(fileRequest.getId())) {
             wp.in(File::getId, Arrays.asList(fileRequest.getId().split(",")));
+        }
+        if (!CollectionUtils.isEmpty(fileRequest.getIds())) {
+            wp.in(File::getId, fileRequest.getIds());
+        }
+        if (StringUtils.hasText(fileRequest.getName())) {
+            wp.in(File::getName, Arrays.stream(fileRequest.getName().split(",")).map(FormatUtil::extractFileName).collect(Collectors.toList()));
+        }
+        if (!CollectionUtils.isEmpty(fileRequest.getNames())) {
+            wp.in(File::getName, fileRequest.getNames().stream().map(FormatUtil::extractFileName).collect(Collectors.toList()));
         }
         return wp.list();
     }
