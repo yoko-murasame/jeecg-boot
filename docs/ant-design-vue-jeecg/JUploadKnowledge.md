@@ -11,6 +11,7 @@
 * 自动上传文件至对应知识库目录
 * 打标签功能
 * 支持管理包含的、新上传的知识库文件
+* 支持文件去重，业务表中上传同样的文件将自动覆盖，仅保存一份
 * todo 支持知识库回选
 * 组件的示例使用可以参考这个模块: [SakugaContentForm.vue](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/src/views/sakuga/modules/SakugaContentForm.vue)
 
