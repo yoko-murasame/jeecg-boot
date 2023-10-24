@@ -450,14 +450,19 @@ public class FileServiceImpl implements FileService {
         Assert.hasText(fileId, "文件id不能为空");
         File file = this.findOne(fileId);
         Assert.notNull(file, "找不到该文件信息");
-        boolean update = new LambdaUpdateChainWrapper<>(fileMapper)
-                .eq(File::getName, file.getName())
-                .eq(File::getType, file.getType())
-                .eq(File::getSuffix, file.getSuffix())
-                .eq(File::getProjectId, file.getProjectId())
-                .eq(File::getFolderId, file.getFolderId())//同一个目录下的文件
-                .set(File::getEnabled, Enabled.DISABLED)
-                .update();
+        // 如果删除当前版本，就删了所有，否则只删除对应版本号
+        LambdaUpdateChainWrapper<File> wp = new LambdaUpdateChainWrapper<>(fileMapper);
+        if (file.getCurrent().equals(Current.TRUE)) {
+            wp.eq(File::getName, file.getName())
+                    .eq(File::getType, file.getType())
+                    .eq(File::getSuffix, file.getSuffix())
+                    .eq(File::getProjectId, file.getProjectId())
+                    .eq(File::getFolderId, file.getFolderId());// 同一个目录下的文件
+        } else {
+            wp.eq(File::getVersion, file.getVersion());
+        }
+
+        boolean update = wp.set(File::getEnabled, Enabled.DISABLED).update();
         folderService.refreshAllChild(file.getFolderId());// 刷新目录信息
         if (update) {
             log.info("所有版本删除成功");
