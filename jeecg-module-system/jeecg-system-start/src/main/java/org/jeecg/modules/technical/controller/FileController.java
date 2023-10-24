@@ -145,11 +145,13 @@ public class FileController {
     @GetMapping("/download/{fileId}")
     @ApiOperation("下载")
     public void download(@PathVariable @ApiParam("文件id，请结合<a target='_blank'>标签使用") String fileId,
+                         @RequestParam(required = false) String forceDownload,
                          HttpServletResponse response, HttpServletRequest request) throws Exception {
         File file = fileService.findOne(fileId);
         Assert.notNull(file, "文件不存在");
         String url = file.getOssFile().getUrl();
         Assert.state(StringUtils.hasText(url), "文件外链不存在");
+        request.setAttribute("forceDownload", forceDownload);
         // 处理文件中文字符
         url = getDownloadUrl(url);
         if (url.contains("http")) {
@@ -190,6 +192,7 @@ public class FileController {
             if (!file.exists()) {
                 throw new RuntimeException("文件不存在..路径: " + imgPath);
             }
+            Object forceDownload = request.getAttribute("forceDownload");
             // 视频流输出
             if (imgPath.contains(".mp4")) {
                 // 获取从那个字节开始读取文件
@@ -228,9 +231,11 @@ public class FileController {
                 }
                 response.flushBuffer();
             } else {
-                // response.setContentType("application/force-download");// 设置强制下载不打开
-                // response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(
-                //         StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+                if (StringUtils.hasText((String) forceDownload)) {
+                    response.setContentType("application/force-download");// 设置强制下载不打开
+                    response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(
+                            StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+                }
                 inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
                 outputStream = response.getOutputStream();
                 byte[] buf = new byte[1024];
