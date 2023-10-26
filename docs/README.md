@@ -24,7 +24,7 @@
   * [JImageUpload 图片上传表单组件](./ant-design-vue-jeecg/JImageUpload.md)
   * [JSearchSelectTag 字典搜索表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
-  * [JUploadKnowledge 文件上传表单组件-知识库扩展版本](./ant-design-vue-jeecg/JUpload.md)
+  * [JUploadKnowledge 文件上传表单组件-知识库扩展版本](./ant-design-vue-jeecg/JUploadKnowledge.md)
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
 * 其他组件
   * [v-viewer 图片预览插件](./ant-design-vue-jeecg/V-Viewer.md)
