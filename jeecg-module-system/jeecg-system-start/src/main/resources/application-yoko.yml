@@ -54,7 +54,9 @@ spring:
             instanceId: AUTO
           jobStore:
             useProperties: true
-            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
+            # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
             # driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
