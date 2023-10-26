@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package org.jeecg.modules.online.cgform.b;
+package org.jeecg.modules.online.cgform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,21 +26,21 @@ import java.util.List;
 
 @RestController("onlCgformFieldController")
 @RequestMapping({"/online/cgform/field"})
-public class c {
-    private static final Logger a = LoggerFactory.getLogger(c.class);
+public class OnlCgformFieldController {
+    private static final Logger a = LoggerFactory.getLogger(OnlCgformFieldController.class);
     @Autowired
     private IOnlCgformHeadService onlCgformHeadService;
     @Autowired
     private IOnlCgformFieldService onlCgformFieldService;
 
-    public c() {
+    public OnlCgformFieldController() {
     }
 
     @GetMapping({"/listByHeadCode"})
     public Result<?> a(@RequestParam("headCode") String var1) {
-        LambdaQueryWrapper<OnlCgformHead> var2 = new LambdaQueryWrapper<>();
-        var2.eq(OnlCgformHead::getTableName, var1);
-        OnlCgformHead var3 = (OnlCgformHead)this.onlCgformHeadService.getOne(var2);
+        LambdaQueryWrapper<OnlCgformHead> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OnlCgformHead::getTableName, var1);
+        OnlCgformHead var3 = (OnlCgformHead)this.onlCgformHeadService.getOne(wrapper);
         return var3 == null ? Result.error("不存在的code") : this.b(var3.getId());
     }
 

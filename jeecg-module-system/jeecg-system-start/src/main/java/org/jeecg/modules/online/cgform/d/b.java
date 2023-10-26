@@ -3,29 +3,6 @@ package org.jeecg.modules.online.cgform.d;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.exception.JeecgBootException;
@@ -36,29 +13,13 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
-import org.jeecg.common.util.CommonUtils;
-import org.jeecg.common.util.DateUtils;
-import org.jeecg.common.util.SpringContextUtils;
-import org.jeecg.common.util.UUIDGenerator;
+import org.jeecg.common.util.*;
 import org.jeecg.common.util.jsonschema.BaseColumn;
 import org.jeecg.common.util.jsonschema.CommonProperty;
 import org.jeecg.common.util.jsonschema.JsonSchemaDescrip;
 import org.jeecg.common.util.jsonschema.JsonschemaUtil;
-import org.jeecg.common.util.jsonschema.validate.DictProperty;
-import org.jeecg.common.util.jsonschema.validate.HiddenProperty;
-import org.jeecg.common.util.jsonschema.validate.LinkDownProperty;
-import org.jeecg.common.util.jsonschema.validate.NumberProperty;
-import org.jeecg.common.util.jsonschema.validate.PopupProperty;
-import org.jeecg.common.util.jsonschema.validate.StringProperty;
-import org.jeecg.common.util.jsonschema.validate.SwitchProperty;
-import org.jeecg.common.util.jsonschema.validate.TreeSelectProperty;
-import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
-import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJava;
-import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJs;
-import org.jeecg.modules.online.cgform.entity.OnlCgformField;
-import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
-import org.jeecg.modules.online.cgform.entity.OnlCgformIndex;
+import org.jeecg.common.util.jsonschema.validate.*;
+import org.jeecg.modules.online.cgform.entity.*;
 import org.jeecg.modules.online.cgform.enums.CgformConstant;
 import org.jeecg.modules.online.cgform.enums.CgformValidPatternEnum;
 import org.jeecg.modules.online.cgform.mapper.OnlCgformHeadMapper;
@@ -67,6 +28,19 @@ import org.jeecg.modules.online.config.exception.DBException;
 import org.jeecgframework.poi.excel.entity.params.ExcelExportEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /* compiled from: CgformUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/b.class */
@@ -241,7 +215,7 @@ public class b {
         return a(list, map, list2, (List<SysPermissionDataRuleModel>) null);
     }
 
-    public static String a(List<OnlCgformField> list, Map<String, Object> map, List<String> list2, List<SysPermissionDataRuleModel> list3) {
+    public static String a(List<OnlCgformField> list, Map<String, Object> map, List<String> needList, List<SysPermissionDataRuleModel> list3) {
         String str;
         StringBuffer stringBuffer = new StringBuffer();
         String str2 = "";
@@ -266,7 +240,7 @@ public class b {
             } else if (ruleMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
                 a(str2, (SysPermissionDataRuleModel) ruleMap.get(dbFieldName), dbFieldName, dbType, stringBuffer);
             }
-            if (list2 != null && list2.contains(dbFieldName)) {
+            if (needList != null && needList.contains(dbFieldName)) {
                 onlCgformField.setIsQuery(1);
                 onlCgformField.setQueryMode(sC);
             }
@@ -825,6 +799,20 @@ public class b {
             if (null == dbFieldName) {
                 ay.info("--------online修改表单数据遇见空名称的字段------->>" + onlCgformField.getId());
             } else {
+                // 直接处理空字符串到null
+                if (!org.springframework.util.StringUtils.hasText(jSONObject.getString(dbFieldName))) {
+                    jSONObject.put(dbFieldName, null);
+                }
+                // update_by update_time sys_org_code跳过
+                if (st.equalsIgnoreCase(dbFieldName) || su.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
+                    // a(onlCgformField, loginUser, jSONObject, su, st, sx);
+                    String orgCode = jSONObject.getString(sx);
+                    if (!org.springframework.util.StringUtils.hasText(orgCode)) {
+                        a(onlCgformField, loginUser, jSONObject, sx);
+                    } else {
+                        continue;
+                    }
+                }
                 a(onlCgformField, loginUser, jSONObject, sw, sv);
                 if (a2.contains(dbFieldName) && jSONObject.get(dbFieldName) != null && !"".equals(jSONObject.getString(dbFieldName))) {
                     stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
@@ -836,7 +824,13 @@ public class b {
                     }
                     if (!oConvertUtils.isNotEmpty(onlCgformField.getMainTable()) || !oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
                         stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                    } else {
+                        // 无论是不是外键，都更新字段
+                        stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
                     }
+                } else {
+                    // 无论是不是表单显示字段，都更新
+                    stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
                 }
             }
         }
@@ -872,7 +866,9 @@ public class b {
         if (!z2) {
             stringBuffer.append(",id");
         }
-        stringBuffer.append(sb + f(str) + sf + sc + str2 + sk + sz + str3 + sz);
+        // 原版本时依赖主键查询，如果想要多对多（一个字段存储了多个附表id），就必须换成模糊查询
+        // stringBuffer.append(sb + f(str) + sf + sc + str2 + sk + sz + str3 + sz);
+        stringBuffer.append(sb + f(str) + sf + sc + str2 + " like " + sz + "%" + str3 + "%" + sz);
         return stringBuffer.toString();
     }
 

@@ -55,9 +55,9 @@ import java.util.Map.Entry;
 @RequestMapping({"/desform/data"})
 public class JexfmAD {
     private static final Logger b = LoggerFactory.getLogger(JexfmAD.class);
-    private ISysBaseAPI c;
-    private IDesignFormDataService d;
-    private IDesignFormService e;
+    private ISysBaseAPI sysBaseAPI;
+    private IDesignFormDataService designFormDataService;
+    private IDesignFormService designFormService;
     @Value("${jeecg.path.upload}")
     private String upLoadPath;
     @Value("${jeecg.uploadType}")
@@ -65,9 +65,9 @@ public class JexfmAD {
 
     @Autowired
     public JexfmAD(ISysBaseAPI var1, IDesignFormDataService var2, IDesignFormService var3) {
-        this.c = var1;
-        this.d = var2;
-        this.e = var3;
+        this.sysBaseAPI = var1;
+        this.designFormDataService = var2;
+        this.designFormService = var3;
     }
 
     @GetMapping({"/list"})
@@ -75,29 +75,29 @@ public class JexfmAD {
         String var7 = JwtUtil.getUserNameByToken(var6);
         QueryWrapper var8 = QueryGenerator.initQueryWrapper(var1, var6.getParameterMap());
         var8.orderByDesc("create_time");
-        return this.d.queryPage(var4, var2, var3, var8, var5, var7);
+        return this.designFormDataService.queryPage(var4, var2, var3, var8, var5, var7);
     }
 
     @PostMapping({"/add"})
     public Result a(@RequestBody DesignFormData var1) {
-        return this.d.addOne(var1);
+        return this.designFormDataService.addOne(var1);
     }
 
     @PutMapping({"/edit"})
     public Result b(@RequestBody DesignFormData var1) {
-        return this.d.editOne(var1);
+        return this.designFormDataService.editOne(var1);
     }
 
     @DeleteMapping({"/delete"})
     public Result a(@RequestParam(name = "id") String var1, HttpServletRequest var2) {
-        return this.d.deleteOne(var1, TokenUtils.getTokenByRequest(var2));
+        return this.designFormDataService.deleteOne(var1, TokenUtils.getTokenByRequest(var2));
     }
 
     @DeleteMapping({"/deleteBatch"})
     public Result<DesignFormData> b(@RequestParam(name = "ids") String var1, HttpServletRequest var2) {
         Result var3 = new Result();
         if (var1 != null && !"".equals(var1.trim())) {
-            this.d.deleteBatchMain(Arrays.asList(var1.split(",")), TokenUtils.getTokenByRequest(var2));
+            this.designFormDataService.deleteBatchMain(Arrays.asList(var1.split(",")), TokenUtils.getTokenByRequest(var2));
             var3.success("删除成功!");
         } else {
             var3.error500("参数不识别！");
@@ -109,7 +109,7 @@ public class JexfmAD {
     @GetMapping({"/queryById"})
     public Result<DesignFormData> a(@RequestParam(name = "id",required = true) String var1) {
         Result var2 = new Result();
-        DesignFormData var3 = (DesignFormData)this.d.getById(var1);
+        DesignFormData var3 = (DesignFormData)this.designFormDataService.getById(var1);
         if (var3 == null) {
             var2.error500("未找到对应数据");
         } else {
@@ -123,7 +123,7 @@ public class JexfmAD {
     @GetMapping({"/queryDesignFormDataByMainId"})
     public Result<List<DesignFormData>> b(@RequestParam(name = "id",required = true) String var1) {
         Result var2 = new Result();
-        List var3 = this.d.selectByMainId(var1);
+        List var3 = this.designFormDataService.selectByMainId(var1);
         var2.setResult(var3);
         var2.setSuccess(true);
         return var2;
@@ -131,7 +131,7 @@ public class JexfmAD {
 
     @GetMapping({"/exportXls/{desformCode}"})
     public void a(DesignFormData var1, @PathVariable("desformCode") String var2, @RequestParam(name = "pageNo",defaultValue = "1") Integer var3, @RequestParam(name = "selectionIds",required = false) String var4, @RequestParam(name = "pageSize",defaultValue = "10") Integer var5, @RequestParam(name = "superQuery",required = false,defaultValue = "{}") String var6, HttpServletRequest var7, HttpServletResponse var8) throws Exception {
-        DesignForm var9 = this.e.getByCode(var2);
+        DesignForm var9 = this.designFormService.getByCode(var2);
         if (var9 != null) {
             String var10 = var9.getDesformName();
             DesformWidgetList var11 = org.jeecg.modules.online.desform.b.e.e(var9);
@@ -145,7 +145,7 @@ public class JexfmAD {
 
             String var13 = JwtUtil.getUserNameByToken(var7);
             var5 = -521;
-            Result var14 = this.d.queryPage(var2, var3, var5, var12, var6, var13);
+            Result var14 = this.designFormDataService.queryPage(var2, var3, var5, var12, var6, var13);
             Object var15 = new ArrayList();
             if (var14.getResult() != null) {
                 var15 = ((IPage)var14.getResult()).getRecords();
@@ -232,7 +232,7 @@ public class JexfmAD {
         long var4 = System.currentTimeMillis();
 
         try {
-            DesignForm var6 = this.e.getByCode(var1);
+            DesignForm var6 = this.designFormService.getByCode(var1);
             if (var6 == null) {
                 return Result.error("无法导入不存在的表单");
             } else {
@@ -256,7 +256,7 @@ public class JexfmAD {
                     if (var17 != null) {
                         org.jeecg.modules.online.desform.b.d var18 = new org.jeecg.modules.online.desform.b.d(var10, var17, var9);
                         b.info("[表单设计器导入] 实际数据：" + JSON.toJSONString(var18.b));
-                        this.d.saveBatchByImport(var6, var18.b, var3);
+                        this.designFormDataService.saveBatchByImport(var6, var18.b, var3);
                     } else {
                         b.error("识别模版数据错误");
                     }
@@ -284,7 +284,7 @@ public class JexfmAD {
                     if (MyStringUtil.isNotBlank(var10)) {
                         List var11 = (List)var3.get(var10);
                         if (var11 == null) {
-                            var11 = this.c.queryDictItemsByCode(var10);
+                            var11 = this.sysBaseAPI.queryDictItemsByCode(var10);
                             var3.put(var10, var11);
                         }
 

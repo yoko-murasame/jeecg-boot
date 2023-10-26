@@ -1597,6 +1597,8 @@ public class CgformDB {
                 if (var5 != null && var5 instanceof String) {
                     String var7 = var5.toString();
                     if (var7.startsWith("[") && var7.endsWith("]")) {
+                        // todo 这里图片上传后 多个列表url解析出现问题 数据格式
+                        //  [{type=img, name=echarts.png, status=done, uid=vc-upload-1693186298043-5, url=http://cdn.kcz66.com/%E5%A4%B4%E5%83%8F.jpg}]
                         var5 = JSONArray.parseArray(var7);
                     }
                 }

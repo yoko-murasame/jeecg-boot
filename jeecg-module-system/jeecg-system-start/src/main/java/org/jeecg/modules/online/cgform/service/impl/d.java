@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /* compiled from: OnlCgformFieldServiceImpl.java */
 @Service("onlCgformFieldServiceImpl")
@@ -224,7 +226,51 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public void saveFormData(List<OnlCgformField> fieldList, String tbname, JSONObject json) {
-        ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tbname, fieldList, json));
+
+        // 优先删除同主键的数据，防止特殊情况的一对多报错（一个字段存了多个外键）
+        String id = json.getString("id");
+        if (StringUtils.isNotEmpty(id)) {
+            // 如果是删除重复id的逻辑，每次主表保存后，这个子数据关联的其他字段还是会不见，因此如果存在这个数据 拒绝保存
+            if (this.baseMapper.queryCountBySql("select count(*) from " + tbname + " where id = '" + id + "'") > 0) {
+                // 找到外键字段 如果存在多个外键怎么办？已支持
+                List<OnlCgformField> exists = fieldList.stream().filter(e -> StringUtils.isNotEmpty(e.getMainTable()) && StringUtils.isNotEmpty(e.getMainField())).collect(Collectors.toList());
+                if (!exists.isEmpty()) {
+                    Map<String, Object> sourceData = this.baseMapper.queryFormData("select * from " + tbname + " where id = '" + id + "'");
+
+                    // 处理所有外键字段
+                    for (OnlCgformField exist : exists) {
+                        // 先获取原先的数据
+                        String sourceValue = (String) sourceData.get(exist.getDbFieldName());
+
+                        // 当前的外键数据
+                        String currentValue = json.getString(exist.getDbFieldName());
+
+                        if (StringUtils.isNotEmpty(sourceValue)) {
+                            // 判断关联的主表id是否有多个逗号
+                            List<String> arr = Arrays.asList(sourceValue.split(","));
+                            if (arr.size() > 1) {
+                                if (!arr.contains(currentValue)) {
+                                    arr.add(currentValue);
+                                }
+                                json.put(exist.getDbFieldName(), String.join(",", arr));
+                            }
+                        }
+                    }
+
+                    // 删除原先的数据
+                    this.baseMapper.deleteAutoList("delete from " + tbname + " where id = '" + id + "'");
+                    a.warn("重复id的数据，存在外键，已扩展外键字段，表名：{}，id={}，JSON={}", tbname, id, json.toJSONString());
+                } else {
+                    // 找不到外键字段，就跳过这个数据的保存
+                    a.warn("重复id的数据，不存在外键，不允许保存，表名：{}，id={}，JSON={}", tbname, id, json.toJSONString());
+                    return;
+                }
+            }
+        }
+
+        // 保存数据
+        Map<String, Object> sql = org.jeecg.modules.online.cgform.d.b.a(tbname, fieldList, json);
+        ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(sql);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
@@ -342,6 +388,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             }
             String stringBuffer2 = stringBuffer.toString();
             String str2 = "DELETE FROM " + org.jeecg.modules.online.cgform.d.b.f(tbname) + " where " + linkField + " in(" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + ")";
+            // str2 += " OR " + linkField + " like '%" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + "%'";
             a.debug("--删除sql-->" + str2);
             this.onlCgformFieldMapper.deleteAutoList(str2);
         }
