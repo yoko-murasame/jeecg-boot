@@ -49,15 +49,32 @@ spring:
     properties:
       org:
         quartz:
+          # 配置自定义的dataSource示例，这里用了Druid的数据连接池
+          # dataSource:
+          #   quartzDataSource:
+          #     # provider: hikaricp
+          #     # 自定义数据源找这个接口的实现：org.quartz.utils.ConnectionProvider
+          #     connectionProvider:
+          #       class: com.alibaba.druid.support.quartz.DruidQuartzConnectionProvider
+          #     # 自定义数据源的配置，参考：https://github.com/alibaba/druid/issues/2186
+          #     url: ${spring.datasource.dynamic.datasource.master.url}
+          #     username: ${spring.datasource.dynamic.datasource.master.username}
+          #     password: ${spring.datasource.dynamic.datasource.master.password}
+          #     validationQuery: SELECT 1
           scheduler:
             instanceName: MyScheduler
             instanceId: AUTO
           jobStore:
+            # 如果使用下面这个类，在高版本Spring Boot（2.6.x）中，需要配置dataSource，低版本不需要（2.3.x）
+            # class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            # 配置自定义的dataSource，参考：https://github.com/alibaba/druid/issues/2186
+            # dataSource: quartzDataSource
             useProperties: true
-            # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
-            # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-            # driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # 定时任务配置重启失效问题：https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
+            # 上述问题实际上应该是由多数据源引起的，需要使用primary指定主数据源，当然换成JobStoreTX也可以解决
+            # 下面这个类，在高版本Spring Boot中，会自动加载Datasource的配置，所以不需要配置dataSource
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            # 更换quartz数据库方言，默认：org.quartz.impl.jdbcjobstore.StdJDBCDelegate
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
