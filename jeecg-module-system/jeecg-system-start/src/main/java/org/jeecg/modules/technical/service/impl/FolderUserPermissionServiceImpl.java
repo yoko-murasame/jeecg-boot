@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.jeecg.modules.system.util.ShiroUtil;
+import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.FolderUserPermission;
 import org.jeecg.modules.technical.entity.enums.PermissionType;
+import org.jeecg.modules.technical.mapper.FolderMapper;
 import org.jeecg.modules.technical.mapper.FolderUserPermissionMapper;
 import org.jeecg.modules.technical.service.FolderUserPermissionService;
 import org.jeecg.modules.technical.vo.FolderUserPermissionRequest;
@@ -24,6 +26,8 @@ public class FolderUserPermissionServiceImpl extends ServiceImpl<FolderUserPermi
 
     @Resource
     private FolderUserPermissionMapper permissionMapper;
+    @Resource
+    private FolderMapper folderMapper;
 
     /**
      * 保存个人目录权限
@@ -126,6 +130,13 @@ public class FolderUserPermissionServiceImpl extends ServiceImpl<FolderUserPermi
                 return permission;
             }).collect(Collectors.toList());
             this.saveBatch(newPermission);
+        }
+
+        // 往上级查找父级
+        Folder target = folderMapper.selectById(folderId);
+        if (StringUtils.hasText(target.getParentId())) {
+            params.setFolderId(target.getParentId());
+            this.savePermission(params);
         }
     }
 
