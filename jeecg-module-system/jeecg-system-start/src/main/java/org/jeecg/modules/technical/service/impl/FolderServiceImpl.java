@@ -17,6 +17,7 @@ import org.jeecg.modules.technical.sample.entity.Project;
 import org.jeecg.modules.technical.sample.mapper.ProjectMapper;
 import org.jeecg.modules.technical.service.FileService;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.service.FolderUserPermissionService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -51,6 +53,9 @@ public class FolderServiceImpl implements FolderService {
     @Autowired
     @Lazy
     private FolderService folderService;
+
+    @Resource
+    private FolderUserPermissionService permissionService;
 
     @Override
     public Folder findOne(String id) {
@@ -563,15 +568,17 @@ public class FolderServiceImpl implements FolderService {
             List<Map<String, Object>> maxOrderObj = folderMapper.selectMaps(baseQr.clone()
                     .orderByAsc("folder_order")
                     .select("max(folder_order)+1 as folder_order"));
-            Integer maxOrder;
+            int maxOrder;
             try {
-                maxOrder = (null != maxOrderObj && maxOrderObj.size() > 0) ? Integer.parseInt(maxOrderObj.get(0).get("folder_order") + "") : 0;
+                maxOrder = (null != maxOrderObj && !maxOrderObj.isEmpty()) ? Integer.parseInt(maxOrderObj.get(0).get("folder_order") + "") : 0;
             } catch (Exception e) {
                 log.info("该层级下无任何目录，初始化order=0。");
                 maxOrder = 0;
             }
             folder.setSortOrder(maxOrder);
             folderMapper.insert(folder);
+            // 添加权限
+            permissionService.savePersonalPermission(Collections.singletonList(folder.getId()), null);
         }
 
         // 更新父目录的状态
@@ -606,6 +613,8 @@ public class FolderServiceImpl implements FolderService {
         }
         int i = folderMapper.deleteById(id);
         if (i > 0) {
+            // 删除权限
+            permissionService.removePermission(Collections.singletonList(id));
             // 删除成功后，父目录的子目录树--
             this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
             // 删除相关文件，真实删除
@@ -642,6 +651,8 @@ public class FolderServiceImpl implements FolderService {
         if (!update) {
             throw new RuntimeException("目录" + enabled.getCnName() + "失败");
         }
+        // 删除权限
+        permissionService.removePermission(Collections.singletonList(id));
         if (enabled == Enabled.DISABLED) {
             // 删除成功后，父目录的子目录树--
             this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
@@ -709,6 +720,8 @@ public class FolderServiceImpl implements FolderService {
         folders.forEach(fd -> {
             int i = folderMapper.deleteById(fd.getId());
             if (i > 0) {
+                // 删除权限
+                permissionService.removePermission(Collections.singletonList(fd.getId()));
                 // 删除相关文件，真实删除
                 fileService.deleteAllByFolder(fd.getId(), false);
                 // 递归找到所有子树，并删除
