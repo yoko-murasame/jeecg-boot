@@ -1,4 +1,4 @@
--- 新增的附件管理表
+---------------- 新增的附件管理表 --------------------
 drop table if exists sys_upload;
 
 create table sys_upload
@@ -36,7 +36,7 @@ alter table sys_upload
 
 
 
--- 知识库 - 目录表
+---------------- 知识库 - 目录表 --------------------
 drop table if exists technical_folder;
 
 create table technical_folder
@@ -96,7 +96,8 @@ alter table technical_folder
 comment on column technical_folder.tags is '标签';
 
 
--- 知识库 - 文件表
+
+---------------- 知识库 - 文件表 --------------------
 drop table if exists technical_file;
 
 create table technical_file
@@ -178,3 +179,22 @@ alter table technical_file
 alter table technical_file
     add tags varchar(255);
 comment on column technical_file.tags is '标签';
+
+
+
+---------------- 知识库 - 目录-用户权限表 --------------------
+create table public.technical_folder_user_permission
+(
+    id varchar(36) not null
+        constraint technical_folder_user_permission_pkey
+            primary key,
+    folder_id varchar(36),
+    username varchar(255),
+    data_permission_type varchar(36)
+);
+
+comment on table public.technical_folder_user_permission is '目录-用户权限表';
+comment on column public.technical_folder_user_permission.id is '主键';
+comment on column public.technical_folder_user_permission.folder_id is '目录id';
+comment on column public.technical_folder_user_permission.username is '用户名';
+comment on column public.technical_folder_user_permission.data_permission_type is '数据权限类型';
