@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ public class FolderUserPermissionController {
     @ApiOperation("保存权限数据")
     @RequestMapping(value = "savePermission", method = {RequestMethod.POST})
     public Result<?> savePermission(@RequestBody FolderUserPermissionRequest params) {
+        permissionService.removePermission(Collections.singletonList(params.getFolderId()));
         permissionService.savePermission(params);
         return Result.OK();
     }

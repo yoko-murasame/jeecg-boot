@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import org.jeecg.common.system.base.entity.JeecgEntity;
 import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.entity.enums.Level;
+import org.jeecg.modules.technical.entity.enums.PermissionType;
 import org.jeecg.modules.technical.entity.enums.Type;
 
 @Data
@@ -22,7 +23,7 @@ public class Folder extends JeecgEntity {
     private String name;
     private Level level;
     @TableField(value = "folder_order")// oder是数据库关键字，需要改
-    private Integer sortOrder;
+    private Integer folderOrder;
     @TableField(value = "parent_id")
     private String parentId;
     @TableField(value = "project_id")
@@ -41,6 +42,11 @@ public class Folder extends JeecgEntity {
     private String tags;
     private Type type;
     private Enabled enabled = Enabled.ENABLED;
+
+    @TableField(exist = false)
+    private String username;
+    @TableField(exist = false)
+    private PermissionType dataPermissionType;
 
     @TableField(exist = false)
     private String folderTreeNames;

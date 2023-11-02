@@ -143,6 +143,7 @@ public class FolderController {
 
     @GetMapping("/findOne")
     @ApiOperation("查询目录")
+    @Deprecated
     public Result findOne(@ApiParam(value = "目录id") @RequestParam String folderId) {
         Folder folder = folderService.refreshAllChild(folderId);
         // FolderVo vo = new FolderVo();

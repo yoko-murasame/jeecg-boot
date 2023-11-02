@@ -7,20 +7,10 @@ import org.jeecg.common.system.vo.LoginUser;
 @Slf4j
 public class ShiroUtil {
 
-    private static LoginUser loginUser;
-
-    static {
-        try {
-            loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        } catch (Exception e) {
-            log.debug("ShiroUtil无法获取用户信息");
-        }
-    }
-
     public static String getLoginUsername() {
         String username = null;
         try {
-            username = loginUser.getUsername();
+            username = ((LoginUser) SecurityUtils.getSubject().getPrincipal()).getUsername();
         } catch (Exception e) {
             log.debug("ShiroUtil无法获取用户信息");
         }
@@ -30,7 +20,7 @@ public class ShiroUtil {
     public static String getLoginRealname() {
         String realname = null;
         try {
-            realname = loginUser.getRealname();
+            realname = ((LoginUser) SecurityUtils.getSubject().getPrincipal()).getRealname();
         } catch (Exception e) {
             log.debug("ShiroUtil无法获取用户信息");
         }
@@ -40,7 +30,7 @@ public class ShiroUtil {
     public static String getLoginUserId() {
         String userid = null;
         try {
-            userid = loginUser.getId();
+            userid = ((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId();
         } catch (Exception e) {
             log.debug("ShiroUtil无法获取用户信息");
         }
@@ -50,7 +40,7 @@ public class ShiroUtil {
     public static String getLoginAvatar() {
         String avatar = null;
         try {
-            avatar = loginUser.getAvatar();
+            avatar = ((LoginUser) SecurityUtils.getSubject().getPrincipal()).getAvatar();
         } catch (Exception e) {
             log.debug("ShiroUtil无法获取用户信息");
         }

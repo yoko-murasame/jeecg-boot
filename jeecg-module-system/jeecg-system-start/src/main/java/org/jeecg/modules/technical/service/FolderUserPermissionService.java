@@ -19,4 +19,6 @@ public interface FolderUserPermissionService extends IService<FolderUserPermissi
     void savePermission(FolderUserPermissionRequest params);
 
     List<FolderUserPermission> queryPermission(FolderUserPermissionRequest params);
+
+    List<FolderUserPermission> queryPermission(List<String> folderIds);
 }

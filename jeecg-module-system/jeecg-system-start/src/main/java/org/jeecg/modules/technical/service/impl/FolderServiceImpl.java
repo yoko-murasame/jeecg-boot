@@ -8,8 +8,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.modules.system.service.ISysPermissionService;
+import org.jeecg.modules.system.util.ShiroUtil;
 import org.jeecg.modules.technical.entity.File;
 import org.jeecg.modules.technical.entity.Folder;
+import org.jeecg.modules.technical.entity.FolderUserPermission;
 import org.jeecg.modules.technical.entity.enums.*;
 import org.jeecg.modules.technical.mapper.FileMapper;
 import org.jeecg.modules.technical.mapper.FolderMapper;
@@ -56,6 +59,9 @@ public class FolderServiceImpl implements FolderService {
 
     @Resource
     private FolderUserPermissionService permissionService;
+
+    @Resource
+    private ISysPermissionService sysPermissionService;
 
     @Override
     public Folder findOne(String id) {
@@ -210,12 +216,12 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    @Cacheable
+    // @Cacheable
     public List<Folder> findByLevel(Folder folderParam) {
         Assert.state(folderParam.getLevel() != null, "level不能为空");
         Project existProject = folderService.existProject(folderParam);
         Assert.notNull(existProject, "关联项目不存在");
-        LambdaQueryWrapper<Folder> qr = new LambdaQueryWrapper<Folder>()
+        LambdaQueryWrapper<Folder> qr = Wrappers.lambdaQuery(Folder.class)
                 .eq(Folder::getEnabled, Enabled.ENABLED)
                 .eq(Folder::getLevel, folderParam.getLevel())
                 .eq(null != folderParam.getType(), Folder::getType, folderParam.getType())
@@ -224,9 +230,17 @@ public class FolderServiceImpl implements FolderService {
                 .eq(StringUtils.hasText(existProject.getBusinessId()), Folder::getBusinessId, existProject.getBusinessId())
                 .eq(StringUtils.hasText(existProject.getBusinessName()), Folder::getBusinessName, existProject.getBusinessName())
                 .eq(StringUtils.hasText(folderParam.getParentId()), Folder::getParentId, folderParam.getParentId())
-                .orderByAsc(Folder::getLevel, Folder::getSortOrder);
-        List<Folder> folders = folderMapper.selectList(qr);
-        return folders;
+                .orderByAsc(Folder::getLevel, Folder::getFolderOrder);
+        // 区分全部列表和权限列表
+        if (sysPermissionService.hasButtonPermission(ShiroUtil.getLoginUsername(), PermissionType.FULL.getPerm())) {
+            return folderMapper.selectList(qr);
+        }
+        // 查询权限列表
+        LambdaQueryWrapper<FolderUserPermission> permWp = Wrappers.lambdaQuery(FolderUserPermission.class)
+                .eq(FolderUserPermission::getUsername, ShiroUtil.getLoginUsername());
+        String permWpStr = permWp.getCustomSqlSegment().replaceAll("ew", "permWp");
+        String fdWpStr = qr.getCustomSqlSegment().replaceAll("ew", "fdWp");
+        return folderMapper.selectAuthList(qr, permWp, fdWpStr, permWpStr);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -291,24 +305,25 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    @Cacheable
+    // @Cacheable
     public List<Folder> findRoot(Folder folderParam) {
         return this.findRoot(folderParam, null, null);
     }
 
     @Override
-    @Cacheable
+    // @Cacheable
     public synchronized List<Folder> findRoot(Folder folderParam, JSONArray jsonFolders, List<String> subFolders) {
         List<Folder> folders = this.findByLevel(folderParam.ofLevel(Level.ROOT));
         // 初始化默认文件夹
         try {
-            if (null == folders || folders.size() == 0) {
+            // 查询是否有全部目录查看权限，有的话，才能初始化目录
+            if ((null == folders || folders.isEmpty()) && sysPermissionService.hasButtonPermission(ShiroUtil.getLoginUsername(), PermissionType.FULL.getPerm())) {
                 folders = new ArrayList<>();
-                if (null != jsonFolders && jsonFolders.size() > 0) {
+                if (null != jsonFolders && !jsonFolders.isEmpty()) {
                     this.initialJsonSubFolders(folderParam, jsonFolders, null, folders);
                     // 再刷新父节点
                     folders.forEach(folderService::refreshAllChild);
-                } else if (null != subFolders && subFolders.size() > 0) {
+                } else if (null != subFolders && !subFolders.isEmpty()) {
                     folders = this.initialStringSubFolder(folderParam, subFolders);
                 } else {
                     Folder initFolder = new Folder()
@@ -332,14 +347,24 @@ public class FolderServiceImpl implements FolderService {
 
     // 查询子节点，parentId不能为空
     @Override
-    @Cacheable(key = "'childList#'+#parentId")
+    // @Cacheable(key = "'childList#'+#parentId")
     public List<Folder> findChild(String parentId) {
         Assert.state(StringUtils.hasText(parentId), "parentId不能为空");
-        QueryWrapper<Folder> qr = new QueryWrapper<Folder>().eq("parent_id", parentId).eq("enabled", Enabled.ENABLED);
-        // 排序
-        qr.orderByAsc("level", "folder_order");
-        List<Folder> folders = folderMapper.selectList(qr);
-        return folders;
+        LambdaQueryWrapper<Folder> qr = Wrappers.lambdaQuery(Folder.class)
+                .eq(Folder::getParentId, parentId)
+                .eq(Folder::getEnabled, Enabled.ENABLED)
+                .orderByAsc(Folder::getLevel, Folder::getFolderOrder);
+
+        // 区分全部列表和权限列表
+        if (sysPermissionService.hasButtonPermission(ShiroUtil.getLoginUsername(), PermissionType.FULL.getPerm())) {
+            return folderMapper.selectList(qr);
+        }
+        // 查询权限列表
+        LambdaQueryWrapper<FolderUserPermission> permWp = Wrappers.lambdaQuery(FolderUserPermission.class)
+                .eq(FolderUserPermission::getUsername, ShiroUtil.getLoginUsername());
+        String permWpStr = permWp.getCustomSqlSegment().replaceAll("ew", "permWp");
+        String fdWpStr = qr.getCustomSqlSegment().replaceAll("ew", "fdWp");
+        return folderMapper.selectAuthList(qr, permWp, fdWpStr, permWpStr);
     }
 
     @Transactional
@@ -353,8 +378,8 @@ public class FolderServiceImpl implements FolderService {
         Assert.state(source.getParentId().equals(target.getParentId()), "仅支持同级目录移动");
 
         // 找到两个目录中间的
-        final int maxOrder = source.getSortOrder() > target.getSortOrder() ? source.getSortOrder() : target.getSortOrder();
-        final int minOrder = source.getSortOrder() < target.getSortOrder() ? source.getSortOrder() : target.getSortOrder();
+        final int maxOrder = source.getFolderOrder() > target.getFolderOrder() ? source.getFolderOrder() : target.getFolderOrder();
+        final int minOrder = source.getFolderOrder() < target.getFolderOrder() ? source.getFolderOrder() : target.getFolderOrder();
         List<Folder> folders = new LambdaQueryChainWrapper<>(folderMapper)
                 .eq(Folder::getEnabled, Enabled.ENABLED)
                 .and(wrapper -> {
@@ -364,27 +389,27 @@ public class FolderServiceImpl implements FolderService {
                                 .eq(Folder::getType, source.getType());
                     }
                 })
-                .between(Folder::getSortOrder, minOrder, maxOrder)
-                .orderByAsc(Folder::getSortOrder).list();
+                .between(Folder::getFolderOrder, minOrder, maxOrder)
+                .orderByAsc(Folder::getFolderOrder).list();
         Assert.state(folders.size() > 0, "待移动列表为空");
-        if (source.getSortOrder() > target.getSortOrder()) { // 上移动：max换成min，剩余下移1位（+1）
+        if (source.getFolderOrder() > target.getFolderOrder()) { // 上移动：max换成min，剩余下移1位（+1）
             folders.forEach(folder -> {
-                Integer order = folder.getSortOrder();
-                folder.setSortOrder(order == maxOrder ? minOrder : order + 1);
+                Integer order = folder.getFolderOrder();
+                folder.setFolderOrder(order == maxOrder ? minOrder : order + 1);
                 boolean update = new LambdaUpdateChainWrapper<>(folderMapper)
                         .eq(Folder::getId, folder.getId())
-                        .set(Folder::getSortOrder, folder.getSortOrder()).update();
+                        .set(Folder::getFolderOrder, folder.getFolderOrder()).update();
                 if (!update) {
                     throw new RuntimeException("目录移动失败，更新目录时顺序时发生错误");
                 }
             });
         } else { // 下移动
             folders.forEach(folder -> {
-                Integer order = folder.getSortOrder();
-                folder.setSortOrder(order == minOrder ? maxOrder : order - 1);
+                Integer order = folder.getFolderOrder();
+                folder.setFolderOrder(order == minOrder ? maxOrder : order - 1);
                 boolean update = new LambdaUpdateChainWrapper<>(folderMapper)
                         .eq(Folder::getId, folder.getId())
-                        .set(Folder::getSortOrder, folder.getSortOrder()).update();
+                        .set(Folder::getFolderOrder, folder.getFolderOrder()).update();
                 if (!update) {
                     throw new RuntimeException("目录移动失败，更新目录时顺序发生错误");
                 }
@@ -400,7 +425,7 @@ public class FolderServiceImpl implements FolderService {
                                 .eq(Folder::getType, source.getType());
                     }
                 })
-                .orderByAsc(Folder::getSortOrder).list();
+                .orderByAsc(Folder::getFolderOrder).list();
 
         return newFolders;
     }
@@ -432,11 +457,11 @@ public class FolderServiceImpl implements FolderService {
 
             Folder maxOrderFolder = new LambdaQueryChainWrapper<>(folderMapper)
                     .eq(Folder::getParentId, target.getId())
-                    .select(Folder::getSortOrder)
-                    .orderByDesc(Folder::getSortOrder)
+                    .select(Folder::getFolderOrder)
+                    .orderByDesc(Folder::getFolderOrder)
                     .last("limit 1").one();
             AtomicReference<Integer> maxOrder =
-                    null == maxOrderFolder ? new AtomicReference<>(-1) : new AtomicReference<>(maxOrderFolder.getSortOrder());
+                    null == maxOrderFolder ? new AtomicReference<>(-1) : new AtomicReference<>(maxOrderFolder.getFolderOrder());
 
             // 更新被移动的目录信息
             sources.forEach(folder -> {
@@ -448,7 +473,7 @@ public class FolderServiceImpl implements FolderService {
                 folder.setParentId(newParentId);
                 Integer order = maxOrder.get();
                 maxOrder.set(++order);
-                folder.setSortOrder(order);
+                folder.setFolderOrder(order);
                 folder.setLevel(newLevel);
                 folderMapper.updateById(folder);
             });
@@ -464,11 +489,11 @@ public class FolderServiceImpl implements FolderService {
                     .eq(Folder::getLevel, Level.ROOT)
                     .eq(Folder::getProjectId, tempFolder.getProjectId())
                     .eq(Folder::getType, tempFolder.getType())
-                    .select(Folder::getSortOrder)
-                    .orderByDesc(Folder::getSortOrder)
+                    .select(Folder::getFolderOrder)
+                    .orderByDesc(Folder::getFolderOrder)
                     .last("limit 1").one();
             AtomicReference<Integer> maxOrder =
-                    null == maxOrderFolder ? new AtomicReference<>(-1) : new AtomicReference<>(maxOrderFolder.getSortOrder());
+                    null == maxOrderFolder ? new AtomicReference<>(-1) : new AtomicReference<>(maxOrderFolder.getFolderOrder());
             sources.forEach(folder -> {
                 // 源目录的父目录的子目录数操作--
                 if (StringUtils.hasText(folder.getParentId())) {
@@ -478,7 +503,7 @@ public class FolderServiceImpl implements FolderService {
                 folder.setParentId("");
                 Integer order = maxOrder.get();
                 maxOrder.set(++order);
-                folder.setSortOrder(order);
+                folder.setFolderOrder(order);
                 folder.setLevel(Level.ROOT);
                 folderMapper.updateById(folder);
             });
@@ -575,7 +600,7 @@ public class FolderServiceImpl implements FolderService {
                 log.info("该层级下无任何目录，初始化order=0。");
                 maxOrder = 0;
             }
-            folder.setSortOrder(maxOrder);
+            folder.setFolderOrder(maxOrder);
             folderMapper.insert(folder);
             // 添加权限
             permissionService.savePersonalPermission(Collections.singletonList(folder.getId()), null);

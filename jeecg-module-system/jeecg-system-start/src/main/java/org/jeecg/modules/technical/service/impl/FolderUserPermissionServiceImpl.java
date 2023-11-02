@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -163,6 +164,16 @@ public class FolderUserPermissionServiceImpl extends ServiceImpl<FolderUserPermi
         if (superUsernames != null && !superUsernames.isEmpty()) {
             wp.in(FolderUserPermission::getUsername, superUsernames);
         }
+        return this.list(wp);
+    }
+
+    @Override
+    public List<FolderUserPermission> queryPermission(List<String> folderIds) {
+        if (folderIds == null || folderIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<FolderUserPermission> wp = Wrappers.lambdaQuery(FolderUserPermission.class);
+        wp.in(FolderUserPermission::getFolderId, folderIds).eq(FolderUserPermission::getUsername, ShiroUtil.getLoginUsername());
         return this.list(wp);
     }
 

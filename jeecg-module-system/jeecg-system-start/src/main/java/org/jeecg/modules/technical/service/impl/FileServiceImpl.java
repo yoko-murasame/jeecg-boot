@@ -3,26 +3,28 @@ package org.jeecg.modules.technical.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.yoko.FormatUtil;
 import org.jeecg.modules.system.entity.SysUpload;
+import org.jeecg.modules.system.service.ISysPermissionService;
 import org.jeecg.modules.system.service.ISysUploadService;
 import org.jeecg.modules.system.util.DbUtil;
 import org.jeecg.modules.system.util.ShiroUtil;
 import org.jeecg.modules.system.util.UploadFileUtil;
 import org.jeecg.modules.technical.entity.File;
 import org.jeecg.modules.technical.entity.Folder;
-import org.jeecg.modules.technical.entity.enums.Current;
-import org.jeecg.modules.technical.entity.enums.Enabled;
-import org.jeecg.modules.technical.entity.enums.Suffix;
-import org.jeecg.modules.technical.entity.enums.Type;
+import org.jeecg.modules.technical.entity.FolderUserPermission;
+import org.jeecg.modules.technical.entity.enums.*;
 import org.jeecg.modules.technical.mapper.FileMapper;
 import org.jeecg.modules.technical.service.FileService;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.service.FolderUserPermissionService;
 import org.jeecg.modules.technical.vo.FileRequest;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -46,7 +49,7 @@ import java.util.stream.Collectors;
 @Service("TechnicalFileService")
 @Slf4j
 @CacheConfig(cacheNames = "TechnicalFileServiceImpl")
-public class FileServiceImpl implements FileService {
+public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements FileService {
 
     @Autowired
     private FileMapper fileMapper;
@@ -58,6 +61,12 @@ public class FileServiceImpl implements FileService {
     // private org.jeecg.modules.bimface.service.FileService bimfaceFileService;
     @Autowired
     private ISysUploadService uploadService;
+
+    @Resource
+    private ISysPermissionService sysPermissionService;
+
+    @Resource
+    private FolderUserPermissionService permissionService;
 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -296,7 +305,8 @@ public class FileServiceImpl implements FileService {
         Assert.state(StringUtils.hasText(folderId), "folderId不能为空");
         Folder folder = folderService.findOne(folderId);
         Assert.notNull(folder, "该目录不存在或已禁用");
-        LambdaQueryChainWrapper<File> wp = new LambdaQueryChainWrapper<>(fileMapper).eq(File::getEnabled, Enabled.ENABLED)
+        LambdaQueryWrapper<File> wp = Wrappers.lambdaQuery(File.class)
+                .eq(File::getEnabled, Enabled.ENABLED)
                 .eq(File::getFolderId, folder.getId())
                 .eq(File::getCurrent, Current.TRUE)
                 .orderByDesc(File::getUpdateTime);
@@ -312,7 +322,17 @@ public class FileServiceImpl implements FileService {
         if (!CollectionUtils.isEmpty(fileRequest.getNames())) {
             wp.in(File::getName, fileRequest.getNames().stream().map(FormatUtil::extractFileName).collect(Collectors.toList()));
         }
-        return wp.list();
+        // 区分全部列表和权限列表
+        if (sysPermissionService.hasButtonPermission(ShiroUtil.getLoginUsername(), PermissionType.FULL.getPerm())) {
+            return this.list(wp);
+        }
+        // 查询权限
+        FolderUserPermission folderUserPermission = permissionService.queryPermission(Collections.singletonList(folderId)).get(0);
+        // 如果个人的就仅看自己
+        if (folderUserPermission == null || folderUserPermission.getDataPermissionType().equals(PermissionType.PERSONAL)) {
+            wp.eq(File::getCreateBy, ShiroUtil.getLoginUsername());
+        }
+        return this.list(wp);
     }
 
     @Override
