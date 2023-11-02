@@ -2,6 +2,7 @@ package org.jeecg.modules.technical.controller;
 
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.modules.technical.entity.FolderUserPermission;
 import org.jeecg.modules.technical.service.FolderUserPermissionService;
 import org.jeecg.modules.technical.vo.FolderUserPermissionRequest;
@@ -24,7 +25,7 @@ public class FolderUserPermissionController {
     @Resource
     private FolderUserPermissionService permissionService;
 
-
+    @AutoLog(value = "目录-用户权限表-保存个人目录权限")
     @ApiOperation("保存权限数据")
     @RequestMapping(value = "savePermission", method = {RequestMethod.POST})
     public Result<?> savePermission(@RequestBody FolderUserPermissionRequest params) {

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.technical.entity.File;
@@ -72,9 +73,9 @@ public class FileController {
         return Result.OK(folders);
     }
 
-
+    @AutoLog(value = "知识库文件上传")
     @PostMapping("upload")
-    @ApiOperation("图纸/文档上传")
+    @ApiOperation("知识库文件上传")
     public Result upload(@RequestParam(required = true) @ApiParam("文件，支持多个") List<MultipartFile> multipartFiles,
                          @RequestParam(required = true) @ApiParam("关联目录id") String folderId) throws Exception {
         List<File> files = fileService.upload(multipartFiles, folderId);
@@ -95,6 +96,7 @@ public class FileController {
         return Result.OK(files);
     }
 
+    @AutoLog(value = "恢复历史版本")
     @GetMapping("reVersion")
     @ApiOperation("恢复历史版本")
     public Result reVersion(@RequestParam(required = true) @ApiParam("文件id") String fileId) {
@@ -102,6 +104,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "删除文件所有版本")
     @DeleteMapping("{fileId}")
     @ApiOperation("删除文件所有版本")
     public Result deleteAllVersion(@PathVariable(value = "fileId") @ApiParam("文件id") String fileId) {
@@ -109,6 +112,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "删除文件单个版本")
     @DeleteMapping("/version/{fileId}")
     @ApiOperation("删除文件单个版本")
     public Result delete(@PathVariable(value = "fileId") @ApiParam("文件id") String fileId) {
@@ -116,6 +120,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "删除多个文件")
     @DeleteMapping("/deleteAll")
     @ApiOperation("删除多个文件")
     public Result deleteAll(@RequestParam(required = true) @ApiParam("文件id列表") List<String> fileIds) {
@@ -126,6 +131,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "删除文件")
     @PutMapping("/rename")
     @ApiOperation("更新文件名")
     public Result rename(@RequestParam(required = true) @ApiParam("文件id") String fileId,
@@ -134,6 +140,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "更新文件标签")
     @PutMapping("/reTags")
     @ApiOperation("更新文件标签")
     public Result reTags(@RequestParam(required = true) @ApiParam("文件id") String fileId,
@@ -142,6 +149,7 @@ public class FileController {
         return Result.OK();
     }
 
+    @AutoLog(value = "更新文件描述")
     @GetMapping("/download/{fileId}")
     @ApiOperation("下载")
     public void download(@PathVariable @ApiParam("文件id，请结合<a target='_blank'>标签使用") String fileId,

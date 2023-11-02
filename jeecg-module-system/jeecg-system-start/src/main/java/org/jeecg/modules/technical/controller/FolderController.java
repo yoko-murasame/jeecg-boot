@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.entity.enums.Level;
@@ -61,6 +62,7 @@ public class FolderController {
 
     @DeleteMapping("/business/all/{businessId}")
     @ApiOperation("删除businessId关联的所有目录（真实删除）")
+    @AutoLog(value = "删除businessId关联的所有目录（真实删除）")
     public Result disableBusinessAll(@ApiParam(value = "目录id") @PathVariable String businessId) {
         folderService.deleteByBusinessId(businessId);
         return Result.OK();
@@ -68,6 +70,7 @@ public class FolderController {
 
     @DeleteMapping("/business/all/deleteBatch")
     @ApiOperation("删除businessId(批量)关联的所有目录（真实删除）")
+    @AutoLog(value = "删除businessId(批量)关联的所有目录（真实删除）")
     public Result disableBusinessAllBatch(@RequestParam(name="ids") String ids) {
         folderService.deleteByBusinessIds(Arrays.asList(ids.split(",")));
         return Result.OK();
@@ -75,6 +78,7 @@ public class FolderController {
 
     @DeleteMapping("/business/{id}")
     @ApiOperation("删除目录（真实删除）")
+    @AutoLog(value = "删除目录（真实删除）")
     public Result disableBusiness(@ApiParam(value = "目录id") @PathVariable String id) {
         folderService.delete(id, false);
         return Result.OK();
@@ -105,6 +109,7 @@ public class FolderController {
         return Result.OK(ids);
     }
 
+    @AutoLog(value = "创建/更新根目录（业务id关联）")
     @GetMapping("/business/saveRoot")
     @ApiOperation(value = "创建/更新根目录（业务id关联）",
             notes = "1.目前仅开放3级目录(根除外) 2.不同类型的根目录将限制不通格式的文件，超出格式限制时将给出错误提示 3.更新时仅建议更新目录名，需要操作目录的请使用目录移动/排序接口")
@@ -154,6 +159,7 @@ public class FolderController {
         return Result.OK(roots);
     }
 
+    @AutoLog(value = "创建/更新根目录")
     @GetMapping("/saveRoot")
     @ApiOperation(value = "创建/更新根目录",
             notes = "1.目前仅开放3级目录(根除外) 2.不同类型的根目录将限制不通格式的文件，超出格式限制时将给出错误提示 3.更新时仅建议更新目录名，需要操作目录的请使用目录移动/排序接口")
@@ -168,6 +174,7 @@ public class FolderController {
         return Result.OK(save);
     }
 
+    @AutoLog(value = "创建/更新子目录")
     @GetMapping("/saveChild")
     @ApiOperation(value = "创建/更新子目录",
             notes = "1.类型自动继承父目录 2.更新时仅建议更新目录名，需要操作目录的请使用目录移动/排序接口")
@@ -180,6 +187,7 @@ public class FolderController {
         return Result.OK(saved);
     }
 
+    @AutoLog(value = "目录排序")
     @GetMapping("/reOrder")
     @ApiOperation(value = "目录排序",
             notes = "仅支持同一父目录下的同层目录间的拖动排序")
@@ -191,6 +199,7 @@ public class FolderController {
         return Result.OK(folders);
     }
 
+    @AutoLog(value = "目录移动")
     @PostMapping("/moveFolder")
     @ApiOperation(value = "目录移动",
             notes = "目标目录id->填空字符串表示移动到根目录")
@@ -202,6 +211,7 @@ public class FolderController {
         return Result.OK(folders);
     }
 
+    @AutoLog(value = "删除目录（逻辑删除）")
     @DeleteMapping("/{id}")
     @ApiOperation("删除目录（逻辑删除）")
     public Result disable(@ApiParam(value = "目录id") @PathVariable String id) {
