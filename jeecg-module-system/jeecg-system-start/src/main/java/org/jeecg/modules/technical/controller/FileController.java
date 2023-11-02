@@ -73,7 +73,6 @@ public class FileController {
         return Result.OK(folders);
     }
 
-    @AutoLog(value = "知识库文件上传")
     @PostMapping("upload")
     @ApiOperation("知识库文件上传")
     public Result upload(@RequestParam(required = true) @ApiParam("文件，支持多个") List<MultipartFile> multipartFiles,
