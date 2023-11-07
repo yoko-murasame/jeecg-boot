@@ -226,6 +226,15 @@ public class BpmCommonController {
         return this.bpmCommonService.startMutilProcess(flowCode, id, formUrl, formUrlMobile, username);
     }
 
+    @ApiOperation(value = "任务委派", notes = "任务委派")
+    @RequestMapping(value = "/taskEntrust", method = {RequestMethod.POST, RequestMethod.PUT})
+    public Result<?> taskEntrust(@RequestBody JSONObject param, HttpServletRequest request) {
+        String taskId = param.getString("taskId");
+        String taskAssignee = param.getString("taskAssignee");
+        this.bpmCommonService.taskEntrust(taskId, taskAssignee, request);
+        return Result.OK();
+    }
+
     @ApiOperation(value = "获取ExtActProcess", notes = "获取ExtActProcess")
     @GetMapping({"getExtActProcess"})
     public Result<ExtActProcess> getExtActProcess(ExtActProcessForm param) {
