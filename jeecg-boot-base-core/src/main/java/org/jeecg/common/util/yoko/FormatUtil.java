@@ -1,5 +1,10 @@
 package org.jeecg.common.util.yoko;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * 各种格式化输出方法
  *
@@ -11,10 +16,10 @@ public class FormatUtil {
     /**
      * 格式化 XGB XMB XKB
      *
-     * @author Yoko
-     * @since 2023/10/9 9:36
      * @param bytes
      * @return java.lang.String
+     * @author Yoko
+     * @since 2023/10/9 9:36
      */
     public static String formatByteSize(long bytes) {
         if (bytes == 0) {
@@ -54,9 +59,9 @@ public class FormatUtil {
     /**
      * 获取当前JVM内存信息
      *
+     * @return java.lang.String
      * @author Yoko
      * @since 2023/10/9 9:37
-     * @return java.lang.String
      */
     public static String getCurrentMemoryInfo() {
         // 获取初始内存信息
@@ -73,10 +78,10 @@ public class FormatUtil {
     /**
      * 格式化时间戳差值 x时 x分 x秒
      *
-     * @author Yoko
-     * @since 2023/10/9 9:38
      * @param duration 时间戳差值
      * @return java.lang.String
+     * @author Yoko
+     * @since 2023/10/9 9:38
      */
     public static String formatTimeDuration(long duration) {
         long hours = duration / 3600;
@@ -100,10 +105,10 @@ public class FormatUtil {
     /**
      * 提取文件名
      *
-     * @author Yoko
-     * @since 2023/10/24 10:41
      * @param str 输入：branch/unsorted/202310/高清大图01_1697715592396.jpg，输出：高清大图01.jpg
      * @return java.lang.String
+     * @author Yoko
+     * @since 2023/10/24 10:41
      */
     public static String extractFileName(String str) {
         int lastSlashIndex = str.lastIndexOf("/");
@@ -118,4 +123,68 @@ public class FormatUtil {
         return str;
     }
 
+    /**
+     * 格式化日期 yyyy-MM-dd
+     *
+     * @param dateStrList 日期字符串列表
+     * @param split       分隔符
+     * @return java.util.List<java.util.Date>
+     * @author Yoko
+     * @since 2023/11/8 10:24
+     */
+    public static List<Date> toStanderDate(List<String> dateStrList, String split) throws Exception {
+        List<Date> result = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (String dateStr : dateStrList) {
+            String[] splitArr = dateStr.split(split);
+            if (splitArr.length == 3) {
+                String year = splitArr[0];
+                String month = splitArr[1];
+                String day = splitArr[2];
+                if (month.length() == 1) {
+                    month = "0" + month;
+                }
+                if (day.length() == 1) {
+                    day = "0" + day;
+                }
+                // 转换成Date
+                result.add(sdf.parse(year + "-" + month + "-" + day));
+            } else {
+                throw new Exception("日期格式不正确：" + dateStr);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 格式化日期 yyyy-MM-dd
+     *
+     * @param dateStrList 日期字符串列表
+     * @param split       分隔符
+     * @return java.util.List<java.lang.String>
+     * @author Yoko
+     * @since 2023/11/8 10:25
+     */
+    public static List<String> toStanderDateStr(List<String> dateStrList, String split) throws Exception {
+        List<String> result = new ArrayList<>();
+        for (String dateStr : dateStrList) {
+            // 排除split的正则异常
+            String[] splitArr = dateStr.split(split);
+            if (splitArr.length == 3) {
+                String year = splitArr[0];
+                String month = splitArr[1];
+                String day = splitArr[2];
+                if (month.length() == 1) {
+                    month = "0" + month;
+                }
+                if (day.length() == 1) {
+                    day = "0" + day;
+                }
+                result.add(year + "-" + month + "-" + day);
+            } else {
+                throw new Exception("日期格式不正确：" + dateStr);
+            }
+        }
+        return result;
+    }
 }
