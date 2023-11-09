@@ -35,8 +35,8 @@ public class JexfmAE {
     @Autowired
     @Lazy
     private IDesignFormDataService designFormDataService;
-    @Value("${jeecg.desform.theme-color}")
-    private String desformThemeColor;
+//    @Value("${jeecg.desform.theme-color}")
+//    private String desformThemeColor;
     @Value("${jeecg.desform.upload-type}")
     private String desformUploadType;
 
@@ -117,7 +117,7 @@ public class JexfmAE {
         try {
             var1 = this.designFormService.queryFormViewByCode(var3, var4, var5, true, var1);
             var1.addObject("action", "reuse".equals(var2) ? "add" : var2);
-            var1.addObject("themeColor", this.desformThemeColor);
+//            var1.addObject("themeColor", this.desformThemeColor);
             var1.addObject("uploadType", this.desformUploadType);
             var1.addObject("baseURL", this.a(var6));
             var1.addObject("qiniuConfig", k.getConfig().toJSONString());

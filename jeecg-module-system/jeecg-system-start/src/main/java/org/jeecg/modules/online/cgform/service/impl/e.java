@@ -7,43 +7,16 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import freemarker.template.TemplateException;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.hibernate.HibernateException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.enums.CgformEnum;
-import org.jeecg.common.util.MyClassLoader;
-import org.jeecg.common.util.RestUtil;
-import org.jeecg.common.util.SpringContextUtils;
-import org.jeecg.common.util.UUIDGenerator;
-import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.common.util.*;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
 import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaInter;
 import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaListInter;
-import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
-import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJava;
-import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJs;
-import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceSql;
-import org.jeecg.modules.online.cgform.entity.OnlCgformField;
-import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
-import org.jeecg.modules.online.cgform.entity.OnlCgformIndex;
-import org.jeecg.modules.online.cgform.mapper.OnlCgformButtonMapper;
-import org.jeecg.modules.online.cgform.mapper.OnlCgformEnhanceJavaMapper;
-import org.jeecg.modules.online.cgform.mapper.OnlCgformEnhanceJsMapper;
-import org.jeecg.modules.online.cgform.mapper.OnlCgformEnhanceSqlMapper;
-import org.jeecg.modules.online.cgform.mapper.OnlCgformHeadMapper;
+import org.jeecg.modules.online.cgform.entity.*;
+import org.jeecg.modules.online.cgform.mapper.*;
 import org.jeecg.modules.online.cgform.model.OnlGenerateModel;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
@@ -65,6 +38,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /* compiled from: OnlCgformHeadServiceImpl.java */
 @Service("onlCgformHeadServiceImpl")
@@ -745,7 +725,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead == null) {
             throw new DBException("数据库主表ID[" + code + "]不存在");
         }
-        Map<String, Object> queryFormData = this.fieldService.queryFormData(this.fieldService.queryFormFields(code, true), onlCgformHead.getTableName(), id);
+        Map<String, Object> queryFormData = this.fieldService.queryFormData(this.fieldService.queryFormFields(code, false), onlCgformHead.getTableName(), id);
         if (onlCgformHead.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {

@@ -6,6 +6,25 @@
 
 使用示例:
 ```vue
+<!--标签模式-->
+<j-search-select-tag
+    v-model="queryParam.tags"
+    placeholder="请输入标签"
+    dict="technical_file,tags,tags"
+    :async="true"
+    :pageSize="50"
+    mode="tags"
+/>
+<!--多选模式-->
+<j-search-select-tag
+    keep-input
+    v-model="queryParam.tags"
+    placeholder="请输入标签"
+    dict="technical_file,tags,tags"
+    :async="true"
+    :pageSize="50"
+    mode="multiple"
+/>
 <!--keep-input参数表示未命中时也保留值-->
 <j-search-select-tag
   keep-input

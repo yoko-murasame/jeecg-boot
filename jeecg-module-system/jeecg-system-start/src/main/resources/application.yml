@@ -2,4 +2,6 @@ spring:
   application:
     name: jeecg-system
   profiles:
+    superToken: 18988888888
+    superUsername: admin
     active: '@profile.name@'

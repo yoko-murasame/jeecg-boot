@@ -1,4 +1,4 @@
-package org.jeecg.modules.online.cgform.b;
+package org.jeecg.modules.online.cgform.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping({"/online/cgform/button"})
 @RestController("onlCgformButtonController")
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/b/b.class */
-public class b {
-    private static final Logger a = LoggerFactory.getLogger(b.class);
+public class OnlCgformButtonController {
+    private static final Logger a = LoggerFactory.getLogger(org.jeecg.modules.online.cgform.controller.OnlCgformButtonController.class);
     @Autowired
     private IOnlCgformButtonService onlCgformButtonService;
 

@@ -21,6 +21,7 @@ import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.DateUtils;
@@ -1131,4 +1132,37 @@ public class BpmCommonService {
         return result;
     }
 
+    public void callBackProcessInstance(String processInstId) {
+        RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
+        ProcessInstance processInstance =
+                (ProcessInstance) runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
+        if (null != processInstance) {
+            runtimeService.setVariable(processInstance.getProcessInstanceId(),
+                    org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.z);
+            try {
+                runtimeService.deleteProcessInstance(processInstId, "流程取回");
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 委派节点
+     *
+     * @author Yoko
+     * @since 2023/11/7 16:19
+     * @param taskId 任务id
+     * @param taskAssignee 指定处理人
+     */
+    public void taskEntrust(String taskId, String taskAssignee, HttpServletRequest request) {
+        Task task = (this.taskService.createTaskQuery().taskId(taskId)).active().singleResult();
+        // 签收状态需要签收一下
+        if (!StringUtils.hasText(task.getAssignee())) {
+            String username = JwtUtil.getUserNameByToken(request);
+            taskService.claim(taskId, username);
+        }
+        // 委托
+        taskService.delegateTask(task.getId(), taskAssignee);
+    }
 }

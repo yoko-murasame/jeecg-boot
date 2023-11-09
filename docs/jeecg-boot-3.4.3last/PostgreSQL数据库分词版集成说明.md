@@ -89,18 +89,35 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --re
 
 ### 2）导入导出数据库
 
-2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/backup.dump)
+2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件，分为有分词版本和无分词版本，建议使用有分词版的。](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/)
 ```shell
-# 进入容器执行备份
+# 进入容器执行备份，-Fc表示导出为自定义格式
 docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
 # 复制备份到宿主机
 docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 # 非Docker安装方式的备份导出示例
 # pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
+
+# 单表导出示例
+# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
+# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
+# && docker cp postgre-13:/table_a.dump ./table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
+
+# 单表导入示例
+# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
+# docker cp ./table_a.dump postgre-13:/table_a.dump \
+# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
 ````
 
 2.2）导入数据库备份文件
+
+> **注意：导入分词版本备份，需要预先执行下一步骤的“必须执行的脚本”！！！**
+
 ```shell
+# 选择有分词版数据库备份 backup-has-gis-and-text-parser.dump
+mv ./backup-has-gis-and-text-parser.dump /root/pgbackup/backup.dump
 # 导入到数据库注意需要先创建数据库
 psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
@@ -110,18 +127,21 @@ docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 # --data-only 只恢复数据，而不恢复表模式
 # --clean 创建数据库对象前先清理(删除)它们
 # --create 在恢复数据库之前先创建它。如果也声明了--clean， 那么在连接到数据库之前删除并重建目标数据库
-docker exec -it <新容器> pg_restore --verbose --clean --create -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+docker exec -it <新容器> pg_restore --verbose -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+
+# 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
+docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
 
 # 其他运维命令（关闭数据库链接、删除数据库等）
-psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
+# psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
 # 查找数据库活动连接
-SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
+# SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
 # 关闭数据库连接
-SELECT pg_terminate_backend(<pid>);
+# SELECT pg_terminate_backend(<pid>);
 # 删除数据库
-DROP DATABASE <数据库名称>;
+# DROP DATABASE <数据库名称>;
 # 查看存在的数据库列表 \l
-SELECT datname FROM pg_database;
+# SELECT datname FROM pg_database;
 ```
 
 ### 3）必须执行的脚本
@@ -161,207 +181,7 @@ free -h
 lsblk -d -o name,rota
 ```
 
-### 分词功能
-```sql
--- 进入容器
-docker exec -it <container> bash
--- 连接psql
-psql -U postgres -h 127.0.0.1
--- 如果需要创建数据库
-psql -d <database>;
--- 查看数据库列表
-\l
--- 选择进入数据库
-\c <database>
--- 为数据库执行分词脚本，见下文
-
--- 执行脚本 BEGIN --
--- 创建分词扩展
-CREATE EXTENSION zhparser;
-CREATE TEXT SEARCH CONFIGURATION chinese (PARSER = zhparser);
-ALTER TEXT SEARCH CONFIGURATION chinese
-    ADD MAPPING FOR a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
-        WITH simple;
--- 新创建的库会自动执行下面的步骤，等待一会儿就行
--- 1.创建模式zhparser
--- 2.创建分词函数
--- 执行脚本 END --
-
-
--- 测试
-SELECT to_tsvector('chinese', '人生苦短，乘早摸鱼，Good Morning~');
-                      to_tsvector
---------------------------------------------------------
-'good':8 'morning':9 '乘':4 '人生':1 '摸':6 '早':5 '短':3 '苦':2 '鱼':7
-
--- 添加自定义词典
-insert into zhparser.zhprs_custom_word values ('摸鱼');
-insert into zhparser.zhprs_custom_word values ('荒天帝');
-insert into zhparser.zhprs_custom_word values ('独断万古');
-insert into zhparser.zhprs_custom_word values ('人生苦短');
--- 词典生效
-select sync_zhprs_custom_word();
-
--- test
-SELECT * FROM ts_parse('zhparser', '人生苦短，爆炸吧，小宇宙，独断万古荒天帝，摸鱼ing，Good Morning~');
-SELECT to_tsquery('chinese', '荒天帝石昊');
-SELECT to_tsvector('chinese', '人生苦短，爆炸吧，小宇宙，独断万古荒天帝，摸鱼ing，Good Morning~');
-```
-
-### 容器启动脚本
-
-**多容器启动脚本**
-```shell
-#!/bin/bash
-
-# 配置容器和镜像名称
-container_names=("redis-test" "mysql-test")
-image_names=("redis" "mysql")
-
-# 创建容器命令数组
-create_container_cmds=("docker run -d --name ${container_names[0]} ${image_names[0]}"
-                      "docker run -d --name ${container_names[1]} ${image_names[1]}")
-
-# 启动容器函数
-start_container() {
-    local container_name="$1"
-    echo "启动 $container_name 容器..."
-    docker start "$container_name"
-    echo "$container_name 容器已启动。"
-}
-
-# 停止容器函数
-stop_container() {
-    local container_name="$1"
-    echo "停止 $container_name 容器..."
-    docker stop "$container_name"
-    echo "$container_name 容器已停止。"
-}
-
-# 重启容器函数
-restart_container() {
-    local container_name="$1"
-    echo "重启 $container_name 容器..."
-    docker restart "$container_name"
-    echo "$container_name 容器已重启。"
-}
-
-# 检查容器状态
-container_status() {
-    local container_name="$1"
-    docker inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null
-}
-
-# 根据用户输入的参数调用相应的功能
-if [ "$1" == "start" ]; then
-    # 启动容器
-    for ((i=0; i<${#container_names[@]}; i++)); do
-        container_name="${container_names[i]}"
-        image_name="${image_names[i]}"
-        create_container_cmd="${create_container_cmds[i]}"
-        
-        if [ -z "$(container_status "$container_name")" ]; then
-            echo "创建 $container_name 容器..."
-            eval "$create_container_cmd"
-            echo "$container_name 容器已创建并启动。"
-        elif [ "$(container_status "$container_name")" == "exited" ]; then
-            start_container "$container_name"
-        elif [ "$(container_status "$container_name")" == "running" ]; then
-            echo "$container_name 容器已经在运行中。"
-        fi
-    done
-elif [ "$1" == "stop" ]; then
-    # 停止容器
-    for container_name in "${container_names[@]}"; do
-        if [ -n "$(container_status "$container_name")" ] && [ "$(container_status "$container_name")" == "running" ]; then
-            stop_container "$container_name"
-        else
-            echo "$container_name 容器未运行。"
-        fi
-    done
-elif [ "$1" == "restart" ]; then
-    # 重启容器
-    for container_name in "${container_names[@]}"; do
-        if [ -n "$(container_status "$container_name")" ] && [ "$(container_status "$container_name")" == "running" ]; then
-            restart_container "$container_name"
-        else
-            echo "$container_name 容器未运行，无法重启。"
-        fi
-    done
-else
-    echo "无效的参数。请使用 'start'、'stop' 或 'restart'。"
-fi
-
-```
-
-**单容器启动脚本**
-```shell
-#!/bin/bash
-
-# 配置容器和镜像名称
-container_name="redis-test"
-image_name="redis"
-
-# 创建容器命令
-create_container_cmd="docker run -d --name $container_name $image_name"
-
-# 启动容器函数
-start_container() {
-    echo "启动 $container_name 容器..."
-    docker start "$container_name"
-    echo "$container_name 容器已启动。"
-}
-
-# 停止容器函数
-stop_container() {
-    echo "停止 $container_name 容器..."
-    docker stop "$container_name"
-    echo "$container_name 容器已停止。"
-}
-
-# 重启容器函数
-restart_container() {
-    echo "重启 $container_name 容器..."
-    docker restart "$container_name"
-    echo "$container_name 容器已重启。"
-}
-
-# 检查容器状态
-container_status=$(docker inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null)
-
-# 根据用户输入的参数调用相应的功能
-if [ "$1" == "start" ]; then
-    # 启动容器
-    if [ -z "$container_status" ]; then
-        echo "创建 $container_name 容器..."
-        eval "$create_container_cmd"
-        echo "$container_name 容器已创建并启动。"
-    elif [ "$container_status" == "exited" ]; then
-        start_container
-    elif [ "$container_status" == "running" ]; then
-        echo "$container_name 容器已经在运行中。"
-    fi
-elif [ "$1" == "stop" ]; then
-    # 停止容器
-    if [ -n "$container_status" ] && [ "$container_status" == "running" ]; then
-        stop_container
-    else
-        echo "$container_name 容器未运行。"
-    fi
-elif [ "$1" == "restart" ]; then
-    # 重启容器
-    if [ -n "$container_status" ] && [ "$container_status" == "running" ]; then
-        restart_container
-    else
-        echo "$container_name 容器未运行，无法重启。"
-    fi
-else
-    echo "无效的参数。请使用 'start'、'stop' 或 'restart'。"
-fi
-
-```
-
-### 数据备份
+### 数据备份和还原
 ```shell
 # 进入容器执行备份
 docker exec -it <容器> pg_dump -h localhost -p 5432 -U postgres -W -Fc -f /backup.dump -d <database>
@@ -373,8 +193,12 @@ docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 psql -U <用户名> -h <主机名> -p <端口号>
 CREATE DATABASE <目标数据库名称>;
 docker exec -it <新容器> pg_restore --verbose -U postgres -W -d <目标数据库名称> <容器内备份文件路径>
-# 通过psql方式同理 docker exec -it <新容器> psql --verbose -U <用户名> -d <目标数据库名称> -f <容器内备份文件路径>
+# 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：
+docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
+# 也可以-f指定
+docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> -f <容器内备份文件路径>
 ```
+
 
 ### Linux备份脚本
 ```shell
@@ -532,6 +356,53 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent
 firewall-cmd --zone=public --remove-port=8080/tcp --permanent
 firewall-cmd --reload
 firewall-cmd --list-ports
+```
+
+### 分词功能
+```sql
+-- 进入容器
+docker exec -it <container> bash
+-- 连接psql
+psql -U postgres -h 127.0.0.1
+-- 如果需要创建数据库
+psql -d <database>;
+-- 查看数据库列表
+\l
+-- 选择进入数据库
+\c <database>
+-- 为数据库执行分词脚本，见下文
+
+-- 执行脚本 BEGIN --
+-- 创建分词扩展
+CREATE EXTENSION zhparser;
+CREATE TEXT SEARCH CONFIGURATION chinese (PARSER = zhparser);
+ALTER TEXT SEARCH CONFIGURATION chinese
+    ADD MAPPING FOR a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
+        WITH simple;
+-- 新创建的库会自动执行下面的步骤，等待一会儿就行
+-- 1.创建模式zhparser
+-- 2.创建分词函数
+-- 执行脚本 END --
+
+
+-- 测试
+SELECT to_tsvector('chinese', '人生苦短，乘早摸鱼，Good Morning~');
+                      to_tsvector
+--------------------------------------------------------
+'good':8 'morning':9 '乘':4 '人生':1 '摸':6 '早':5 '短':3 '苦':2 '鱼':7
+
+-- 添加自定义词典
+insert into zhparser.zhprs_custom_word values ('摸鱼');
+insert into zhparser.zhprs_custom_word values ('荒天帝');
+insert into zhparser.zhprs_custom_word values ('独断万古');
+insert into zhparser.zhprs_custom_word values ('人生苦短');
+-- 词典生效
+select sync_zhprs_custom_word();
+
+-- test
+SELECT * FROM ts_parse('zhparser', '人生苦短，爆炸吧，小宇宙，独断万古荒天帝，摸鱼ing，Good Morning~');
+SELECT to_tsquery('chinese', '荒天帝石昊');
+SELECT to_tsvector('chinese', '人生苦短，爆炸吧，小宇宙，独断万古荒天帝，摸鱼ing，Good Morning~');
 ```
 
 ### 特殊问题记录

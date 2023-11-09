@@ -114,6 +114,13 @@ public class BpmCommonController {
         return Result.OK();
     }
 
+    @ApiOperation("取回Activity流程实例接口")
+    @GetMapping(value = "/callBackProcessInstance")
+    public Result<?> callBackProcess(@RequestParam(required = false) String processInstanceId) {
+        this.bpmCommonService.callBackProcessInstance(processInstanceId);
+        return Result.OK();
+    }
+
 
     @ApiOperation("直接完成流程")
     @GetMapping(value = "/finishProcess/{id}")
@@ -217,6 +224,15 @@ public class BpmCommonController {
         String formUrlMobile = (String)param.get("formUrlMobile");
         String username = JwtUtil.getUserNameByToken(request);
         return this.bpmCommonService.startMutilProcess(flowCode, id, formUrl, formUrlMobile, username);
+    }
+
+    @ApiOperation(value = "任务委派", notes = "任务委派")
+    @RequestMapping(value = "/taskEntrust", method = {RequestMethod.POST, RequestMethod.PUT})
+    public Result<?> taskEntrust(@RequestBody JSONObject param, HttpServletRequest request) {
+        String taskId = param.getString("taskId");
+        String taskAssignee = param.getString("taskAssignee");
+        this.bpmCommonService.taskEntrust(taskId, taskAssignee, request);
+        return Result.OK();
     }
 
     @ApiOperation(value = "获取ExtActProcess", notes = "获取ExtActProcess")

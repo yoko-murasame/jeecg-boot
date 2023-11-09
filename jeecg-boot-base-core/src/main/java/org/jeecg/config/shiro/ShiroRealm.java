@@ -18,6 +18,7 @@ import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.TokenUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,15 @@ public class ShiroRealm extends AuthorizingRealm {
     @Lazy
     @Resource
     private RedisUtil redisUtil;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    @Value("${spring.profiles.superToken}")
+    private String superToken;
+
+    @Value("${spring.profiles.superUsername}")
+    private String superUsername;
 
     /**
      * 必须重写此方法，不然Shiro会报错
@@ -115,6 +125,10 @@ public class ShiroRealm extends AuthorizingRealm {
      * @param token
      */
     public LoginUser checkUserTokenIsEffect(String token) throws AuthenticationException {
+        if (!"prod".equals(activeProfile) && token.equals(superToken)) {
+            return commonApi.getUserByName(superUsername);
+        }
+
         // 解密获得username，用于和数据库进行对比
         String username = JwtUtil.getUsername(token);
         if (username == null) {

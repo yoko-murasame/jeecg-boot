@@ -19,6 +19,8 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.TokenUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
+import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
 import org.jeecg.modules.online.desform.constant.DesformConstant;
 import org.jeecg.modules.online.desform.entity.DesignForm;
 import org.jeecg.modules.online.desform.entity.DesignFormData;
@@ -46,6 +48,8 @@ public class JexfmAC {
     private IDesignFormDataService designFormDataService;
     @Autowired
     private IDesignFormAuthService designFormAuthService;
+    @Autowired
+    private IOnlCgformHeadService cgformHeadService;
     static String[] a = null;
 
     public JexfmAC() {
@@ -127,31 +131,31 @@ public class JexfmAC {
 
     @PostMapping({"/add"})
     public Result<DesignForm> a(@RequestBody DesignFormPage var1, HttpServletRequest var2) {
-        Result var3 = new Result();
+        Result result = new Result();
 
         try {
-            DesignForm var4 = new DesignForm();
-            BeanUtils.copyProperties(var1, var4);
+            DesignForm designForm = new DesignForm();
+            BeanUtils.copyProperties(var1, designForm);
             String var5 = TokenUtils.getTokenByRequest(var2);
             String var6 = JwtUtil.getUsername(var5);
-            var4.setCreateBy(var6);
-            this.designFormService.saveMain(var4);
-            if (DesformConstant.IS_MOBILE_VIEW_Y.equals(var4.getIzMobileView())) {
-                String var7 = var4.getDesformCode();
-                if (DesformConstant.DESFORM_TYPE_SV.equals(var4.getDesformType())) {
-                    var7 = var4.getParentCode();
+            designForm.setCreateBy(var6);
+            this.designFormService.saveMain(designForm);
+            if (DesformConstant.IS_MOBILE_VIEW_Y.equals(designForm.getIzMobileView())) {
+                String var7 = designForm.getDesformCode();
+                if (DesformConstant.DESFORM_TYPE_SV.equals(designForm.getDesformType())) {
+                    var7 = designForm.getParentCode();
                 }
 
-                this.designFormService.updateDefMobileViewStatus(var7, var4.getDesformCode());
+                this.designFormService.updateDefMobileViewStatus(var7, designForm.getDesformCode());
             }
-
-            var3.success("添加成功！");
+            result.setResult(designForm);
+            result.success("添加成功！");
         } catch (Exception var8) {
             b.error(var8.getMessage(), var8);
-            var3.error500("操作失败");
+            result.error500("操作失败");
         }
 
-        return var3;
+        return result;
     }
 
     @PutMapping({"/edit"})
@@ -165,6 +169,15 @@ public class JexfmAC {
         } else {
             String var5 = var4.getDesformCode();
             this.designFormService.updateById(var3);
+            // 修改对应online数据
+            OnlCgformHead cgformHead= cgformHeadService.getOne(new LambdaQueryWrapper<OnlCgformHead>()
+                    .eq(OnlCgformHead::getTableName, var4.getDesformCode()));
+            if(cgformHead!=null){
+                cgformHead.setIsDesForm("Y");
+                cgformHead.setDesFormCode(var1.getCgformCode());
+                cgformHeadService.updateById(cgformHead);
+            }
+
             if (DesformConstant.IS_MOBILE_VIEW_Y.equals(var3.getIzMobileView())) {
                 String var6 = var4.getDesformCode();
                 if (DesformConstant.DESFORM_TYPE_SV.equals(var4.getDesformType())) {
@@ -233,9 +246,9 @@ public class JexfmAC {
     }
 
     @GetMapping({"/queryByCode"})
-    public Result<DesignForm> c(@RequestParam(name = "desformCode",required = true) String var1) {
+    public Result<DesignForm> c(@RequestParam(name = "desformCode",required = true) String desformCode) {
         Result var2 = new Result();
-        DesignForm var3 = this.designFormService.getByCode(var1);
+        DesignForm var3 = this.designFormService.getByCode(desformCode);
         if (var3 == null) {
             var2.error500("未找到对应实体");
         } else {

@@ -24,6 +24,7 @@
   * [JImageUpload 图片上传表单组件](./ant-design-vue-jeecg/JImageUpload.md)
   * [JSearchSelectTag 字典搜索表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
+  * [JUploadKnowledge 文件上传表单组件-知识库扩展版本](./ant-design-vue-jeecg/JUploadKnowledge.md)
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
 * 其他组件
   * [v-viewer 图片预览插件](./ant-design-vue-jeecg/V-Viewer.md)
@@ -38,10 +39,14 @@
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
 * 流程功能文档
 * Jeecg接口修改
+  * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
+  * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
-  * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
 
-## 扩展模块
+## 扩展
 
+* [Spring Boot Snippets](./jeecg-boot-3.4.3last/Spring Boot Snippets.md)
+* [Linux DevOps](./jeecg-boot-3.4.3last/Linux DevOps.md)
 * [暗黑作画禁书目录-分词查询示例模块](./external/暗黑作画禁书目录.md)
+* [知识库-通用文档管理模块](./external/知识库.md)

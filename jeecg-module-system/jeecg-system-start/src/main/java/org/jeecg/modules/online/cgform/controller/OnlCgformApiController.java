@@ -20,6 +20,8 @@ import org.jeecg.common.util.BrowserUtils;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.TokenUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.extbpm.process.entity.ExtActProcessForm;
+import org.jeecg.modules.extbpm.process.service.IExtActProcessFormService;
 import org.jeecg.modules.online.cgform.CgformDB;
 import org.jeecg.modules.online.cgform.CgformDC;
 import org.jeecg.modules.online.cgform.d.e;
@@ -46,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.support.incrementer.OracleSequenceMaxValueIncrementer;
 import org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -78,6 +81,10 @@ public class OnlCgformApiController {
     private ISysBaseAPI sysBaseAPI;
     @Autowired
     private IOnlineService onlineService;
+    @Autowired
+    private IExtActProcessFormService extActProcessFormService;
+
+
     @Value("${jeecg.path.upload}")
     private String upLoadPath;
     @Value("${jeecg.uploadType}")
@@ -115,19 +122,28 @@ public class OnlCgformApiController {
     @OnlineAuth("getColumns")
     @GetMapping({"/getColumns/{code}"})
     public Result<OnlComplexModel> a(@PathVariable("code") String var1) {
-        Result var2 = new Result();
-        OnlCgformHead var3 = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
-        if (var3 == null) {
-            var2.error500("实体不存在");
-            return var2;
+        Result result = new Result();
+        OnlCgformHead onlCgformHead = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
+        if (onlCgformHead == null) {
+            result.error500("实体不存在");
+            return result;
         } else {
-            LoginUser var4 = (LoginUser)SecurityUtils.getSubject().getPrincipal();
-            OnlComplexModel var5 = this.onlineService.queryOnlineConfig(var3, var4.getUsername());
-            var5.setIsDesForm(var3.getIsDesForm());
-            var5.setDesFormCode(var3.getDesFormCode());
-            var2.setResult(var5);
-            var2.setOnlTable(var3.getTableName());
-            return var2;
+            LoginUser loginUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
+            OnlComplexModel onlComplexModel = this.onlineService.queryOnlineConfig(onlCgformHead, loginUser.getUsername());
+            onlComplexModel.setIsDesForm(onlCgformHead.getIsDesForm());
+            onlComplexModel.setDesFormCode(onlCgformHead.getDesFormCode());
+            //查询流程配置
+            ExtActProcessForm extActProcessForm= extActProcessFormService.getOne(new LambdaQueryWrapper<ExtActProcessForm>()
+                    .eq(ExtActProcessForm::getFormTableName,onlCgformHead.getTableName()));
+            if(extActProcessForm!=null){
+                onlComplexModel.setBpmCirculate(extActProcessForm.getCirculate());
+            }else {
+                onlComplexModel.setBpmCirculate(false);
+            }
+
+            result.setResult(onlComplexModel);
+            result.setOnlTable(onlCgformHead.getTableName());
+            return result;
         }
     }
 
@@ -149,7 +165,13 @@ public class OnlCgformApiController {
             try {
                 String var5 = var4.getTableName();
                 Map var6 = CgformDB.a(var2);
-                Map var7 = this.onlCgformFieldService.queryAutolistPage(var5, var1, var6, (List)null);
+                List<String> needLists = null;
+                String needList = var2.getParameter("needList");
+                if (StringUtils.hasText(needList)) {
+                    String[] arr = needList.split(",");
+                    needLists = Arrays.asList(arr);
+                }
+                Map var7 = this.onlCgformFieldService.queryAutolistPage(var5, var1, var6, needLists);
                 this.a(var4, var7);
                 var3.setResult(var7);
             } catch (Exception var8) {
@@ -279,14 +301,14 @@ public class OnlCgformApiController {
     )
     @OnlineAuth("form")
     @PostMapping({"/form/{code}"})
-    public Result<String> a(@PathVariable("code") String var1, @RequestBody JSONObject var2, HttpServletRequest var3) {
+    public Result<String> a(@PathVariable("code") String code, @RequestBody JSONObject var2, HttpServletRequest var3) {
         Result var4 = new Result();
 
         try {
             String var5 = CgformDB.a();
             var2.put("id", var5);
             String var6 = TokenUtils.getTokenByRequest(var3);
-            String var7 = this.onlCgformHeadService.saveManyFormData(var1, var2, var6);
+            String var7 = this.onlCgformHeadService.saveManyFormData(code, var2, var6);
             var4.setSuccess(true);
             var4.setResult(var5);
             var4.setOnlTable(var7);
@@ -311,6 +333,8 @@ public class OnlCgformApiController {
             String var3 = this.onlCgformHeadService.editManyFormData(var1, var2);
             Result var4 = Result.ok("修改成功！");
             var4.setOnlTable(var3);
+            String id = var2.getString("id");
+            var4.setResult(id);
             return var4;
         } catch (Exception var5) {
             a.error("OnlCgformApiController.formEdit()发生异常：" + var5.getMessage(), var5);

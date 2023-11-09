@@ -52,7 +52,9 @@ spring:
             instanceName: MyScheduler
             instanceId: AUTO
           jobStore:
-            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
+            # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
             driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
             tablePrefix: QRTZ_
             isClustered: true
@@ -128,6 +130,8 @@ spring:
         filters: stat,wall,slf4j
         # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      # 多数据源配置
+      primary: master
       datasource:
         master:
           url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
@@ -191,6 +195,7 @@ jeecg:
     secretKey: ??
     endpoint: oss-cn-beijing.aliyuncs.com
     bucketName: jeecgdev
+    staticDomain: https://static.jeecg.com
   # ElasticSearch 6设置
   elasticsearch:
     cluster-name: jeecg-ES

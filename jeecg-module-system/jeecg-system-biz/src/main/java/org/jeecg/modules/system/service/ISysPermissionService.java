@@ -20,14 +20,14 @@ public interface ISysPermissionService extends IService<SysPermission> {
      * 切换vue3菜单
      */
 	public void switchVue3Menu();
-	
+
     /**
      * 通过父id查询菜单
      * @param parentId 父id
      * @return
      */
 	public List<TreeModel> queryListByParentId(String parentId);
-	
+
 	/**
      * 真实删除
      * @param id 菜单id
@@ -61,15 +61,15 @@ public interface ISysPermissionService extends IService<SysPermission> {
      * @return
      */
 	public List<SysPermission> queryByUser(String username);
-	
+
 	/**
 	 * 根据permissionId删除其关联的SysPermissionDataRule表中的数据
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
 	public void deletePermRuleByPermId(String id);
-	
+
 	/**
 	  * 查询出带有特殊符号的菜单地址的集合
 	 * @return
@@ -92,7 +92,9 @@ public interface ISysPermissionService extends IService<SysPermission> {
 	 */
 	public boolean hasPermission(String username, String url);
 
-	/**
+    boolean hasButtonPermission(String username, String perms);
+
+    /**
 	 * 查询部门权限数据
 	 * @param departId
 	 * @return

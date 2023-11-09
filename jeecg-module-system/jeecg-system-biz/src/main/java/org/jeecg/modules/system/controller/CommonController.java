@@ -1,5 +1,7 @@
 package org.jeecg.modules.system.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
@@ -8,26 +10,28 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.filter.FileTypeFilter;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.system.entity.SysUpload;
+import org.jeecg.modules.system.service.ISysUploadService;
+import org.jeecg.modules.system.service.impl.SysUploadServiceImpl;
+import org.jeecg.modules.system.util.UploadFileUtil;
+import org.jeecg.modules.system.vo.OssToLocalVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.List;
 
 /**
- * <p>
- * 用户表 前端控制器
- * </p>
+ * 系统统一上传接口
  *
  * @Author scott
  * @since 2018-12-20
@@ -46,6 +50,16 @@ public class CommonController {
     @Value(value="${jeecg.uploadType}")
     private String uploadType;
 
+    @Resource
+    private ISysUploadService uploadService;
+
+    @ApiOperation(value = "转换oss文件到本地", notes = "转换oss文件到本地")
+    @PostMapping(value = "/transferOssToLocal")
+    public Result<?> transferOssToLocal(@RequestBody List<OssToLocalVo> vos) throws IOException {
+        uploadService.transferOssToLocal(vos);
+        return Result.OK();
+    }
+
     /**
      * @Author 政辉
      * @return
@@ -62,8 +76,8 @@ public class CommonController {
      * @return
      */
     @PostMapping(value = "/upload")
-    public Result<?> upload(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Result<?> result = new Result<>();
+    public Result<String> upload(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Result<String> result = Result.OK();
         String savePath = "";
         String bizPath = request.getParameter("biz");
 
@@ -77,6 +91,34 @@ public class CommonController {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         // 获取上传文件对象
         MultipartFile file = multipartRequest.getFile("file");
+
+        // 扩展，使用服务，只要不绕过基本就和service统一
+        String useOld = request.getParameter("useOld");
+        if (!"true".equals(useOld)) {
+            SysUpload upload = this.uploadService.upload(file, bizPath);
+            result.setResult(upload.getUrl());
+            result.setMessage(upload.getUrl());
+            return result;
+        }
+
+        // 为原先的上传，扩展md5检测
+        SysUpload sysUpload = null;
+        String forceUpload = request.getParameter("forceUpload");
+        if (!"true".equals(forceUpload) && file != null) {
+            String md5 = UploadFileUtil.calcMD5(file.getInputStream());
+            sysUpload = uploadService.queryByMd5(md5);
+            if (sysUpload != null) {
+                result.setResult(sysUpload.getUrl());
+                result.setMessage(sysUpload.getUrl());
+                log.info("文件已存在,无需重复上传:{},md5:{}", file.getOriginalFilename(), md5);
+                return result;
+            }
+            sysUpload = new SysUpload();
+            sysUpload.setFileName(file.getOriginalFilename());
+            sysUpload.setId(IdWorker.getIdStr());
+            sysUpload.setMd5(md5);
+        }
+
         if(oConvertUtils.isEmpty(bizPath)){
             if(CommonConstant.UPLOAD_TYPE_OSS.equals(uploadType)){
                 //未指定目录，则用阿里云默认目录 upload
@@ -114,6 +156,9 @@ public class CommonController {
         if(oConvertUtils.isNotEmpty(savePath)){
             result.setMessage(savePath);
             result.setSuccess(true);
+            // 存储文件信息
+            sysUpload.setUrl(savePath);
+            uploadService.saveOrUpdate(sysUpload);
         }else {
             result.setMessage("上传失败！");
             result.setSuccess(false);
@@ -126,6 +171,8 @@ public class CommonController {
      * @param mf 文件
      * @param bizPath  自定义路径
      * @return
+     * @deprecated 原版方法不使用了，统一到service层处理
+     * @see SysUploadServiceImpl#uploadLocal(InputStream, String, String)
      */
     private String uploadLocal(MultipartFile mf,String bizPath){
         try {
@@ -139,7 +186,7 @@ public class CommonController {
             // 获取文件名
             String orgName = mf.getOriginalFilename();
             orgName = CommonUtils.getFileName(orgName);
-            if(orgName.indexOf(SymbolConstant.SPOT)!=-1){
+            if(orgName.contains(SymbolConstant.SPOT)){
                 fileName = orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.lastIndexOf("."));
             }else{
                 fileName = orgName+ "_" + System.currentTimeMillis();

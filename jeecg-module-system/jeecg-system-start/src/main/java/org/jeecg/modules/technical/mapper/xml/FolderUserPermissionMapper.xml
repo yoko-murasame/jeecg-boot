@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.technical.mapper.FolderUserPermissionMapper">
+  <resultMap id="BaseResultMap" type="org.jeecg.modules.technical.entity.FolderUserPermission">
+    <!--@mbg.generated-->
+    <!--@Table technical_folder_user_permission-->
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="folder_id" jdbcType="VARCHAR" property="folderId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="data_permission_type" jdbcType="VARCHAR" property="dataPermissionType" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, folder_id, username, data_permission_type
+  </sql>
+</mapper>
