@@ -69,10 +69,14 @@ public class TaskEntity {
 
     @TableField("create_time_")
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @TableField("due_date_")
     @ApiModelProperty(value = "截止日期")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dueDate;
 
     @TableField("category_")
@@ -136,7 +140,7 @@ public class TaskEntity {
     @ApiModelProperty(value = "开始时间")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private String taskBeginTime;
+    private Date taskBeginTime;
 
     @TableField("task_end_time")
     @ApiModelProperty(value = "开始时间")
