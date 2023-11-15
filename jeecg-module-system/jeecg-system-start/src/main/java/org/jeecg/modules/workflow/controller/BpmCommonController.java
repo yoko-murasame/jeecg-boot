@@ -282,6 +282,27 @@ public class BpmCommonController {
         return Result.OK(taskEntityPage);
     }
 
+    @ApiOperation("我发起的流程列表")
+    @RequestMapping(value = "myApplyProcessList/v2", method = RequestMethod.GET)
+    public Result<?> myApplyProcessListV2(org.jeecg.modules.workflow.entity.ProcessHisDTO dto,
+                                          @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                          @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                          HttpServletRequest request) {
+        return Result.OK(this.bpmCommonService.myApplyProcessListV2(dto, pageNo, pageSize, request));
+    }
+
+    @ApiOperation("我的抄送流程列表")
+    @RequestMapping(value = "taskAllCcHistoryList/v2", method = RequestMethod.GET)
+    public Result<?> taskAllCcHistoryListV2(TaskEntity taskEntity,
+                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                            HttpServletRequest request) {
+        QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
+        Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskAllCcHistoryListV2(page, queryWrapper, JwtUtil.getUserNameByToken(request));
+        return Result.OK(taskEntityPage);
+    }
+
     @ApiOperation("任务催办")
     @PostMapping(value = "/taskNotification")
     public Result<?> taskNotification(@RequestBody ExtActTaskNotification extActTaskNotification) {

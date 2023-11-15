@@ -204,6 +204,45 @@ public class BpmCommonService {
         return taskEntityMapper.taskHistoryListV2(page, queryWrapper, userName);
     }
 
+
+    /**
+     * 我发起的流程列表
+     */
+    public Page<org.jeecg.modules.workflow.entity.ProcessHisDTO> myApplyProcessListV2(Page<org.jeecg.modules.workflow.entity.ProcessHisDTO> page, QueryWrapper<org.jeecg.modules.workflow.entity.ProcessHisDTO> queryWrapper) {
+        return taskEntityMapper.myApplyProcessListV2(page, queryWrapper);
+    }
+
+    /**
+     * 我发起的流程列表
+     */
+    public Page<org.jeecg.modules.workflow.entity.ProcessHisDTO> myApplyProcessListV2(org.jeecg.modules.workflow.entity.ProcessHisDTO dto,
+                                                                                      Integer pageNo,
+                                                                                      Integer pageSize,
+                                                                                      HttpServletRequest request) {
+        dto.setStartUserId(JwtUtil.getUserNameByToken(request));
+        String finishedStateQuery = dto.getFinishedStateQuery();
+        dto.setFinishedStateQuery(null);
+        QueryWrapper<org.jeecg.modules.workflow.entity.ProcessHisDTO> queryWrapper = QueryGenerator.initQueryWrapper(dto, request.getParameterMap());
+        // 是否完成
+        if (StringUtils.hasText(finishedStateQuery)) {
+            if (org.jeecg.modules.workflow.entity.ProcessHisDTO.isFinished.equals(finishedStateQuery)) {
+                queryWrapper.isNotNull("end_time");
+            } else if (org.jeecg.modules.workflow.entity.ProcessHisDTO.isUnfinished.equals(finishedStateQuery)) {
+                queryWrapper.isNull("end_time");
+            }
+        }
+        Page<org.jeecg.modules.workflow.entity.ProcessHisDTO> page = new Page<org.jeecg.modules.workflow.entity.ProcessHisDTO>(pageNo, pageSize);
+        return this.myApplyProcessListV2(page, queryWrapper);
+    }
+
+    /**
+     * 我的抄送流程列表
+     */
+    public Page<TaskEntity> taskAllCcHistoryListV2(Page<TaskEntity> page, QueryWrapper<TaskEntity> queryWrapper, String userName) {
+        return taskEntityMapper.taskAllCcHistoryListV2(page, queryWrapper, userName);
+    }
+
+
     /**
      * 获取流程定义id
      *
