@@ -20,6 +20,7 @@ import org.jeecg.modules.bpm.dto.ProcessHisDTO;
 import org.jeecg.modules.extbpm.process.entity.ExtActFlowData;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcess;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcessForm;
+import org.jeecg.modules.extbpm.process.entity.ExtActTaskNotification;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
@@ -131,6 +132,7 @@ public class BpmCommonController {
 
     @ApiOperation("获取我的待办列表")
     @GetMapping({"/myTaskList"})
+    @Deprecated
     public Result<IPage<TaskDTO>> myTaskList(HttpServletRequest request) {
         log.debug("------------进入myTaskList---------------");
         long start = System.currentTimeMillis();
@@ -245,6 +247,7 @@ public class BpmCommonController {
 
     @ApiOperation("获取系统代办完整数据接口")
     @RequestMapping(value = "taskPage", method = RequestMethod.GET)
+    @Deprecated
     public Result<?> taskPage(TaskEntity taskEntity,
                               @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
@@ -253,6 +256,58 @@ public class BpmCommonController {
         Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
         Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskPage(page, queryWrapper);
         return Result.OK(taskEntityPage);
+    }
+
+    @ApiOperation("获取我的待办列表-全条件版本")
+    @RequestMapping(value = "myTaskList/v2", method = RequestMethod.GET)
+    public Result<?> myTaskListV2(TaskEntity taskEntity,
+                                  @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                  @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                  HttpServletRequest request) {
+        QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
+        Page<TaskEntity> taskEntityPage = this.bpmCommonService.myTaskListV2(page, queryWrapper, JwtUtil.getUserNameByToken(request));
+        return Result.OK(taskEntityPage);
+    }
+
+    @ApiOperation("获取历史代办-全条件版本")
+    @RequestMapping(value = "taskHistoryList/v2", method = RequestMethod.GET)
+    public Result<?> taskHistoryList(TaskEntity taskEntity,
+                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                     HttpServletRequest request) {
+        QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
+        Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskHistoryListV2(page, queryWrapper, JwtUtil.getUserNameByToken(request));
+        return Result.OK(taskEntityPage);
+    }
+
+    @ApiOperation("我发起的流程列表")
+    @RequestMapping(value = "myApplyProcessList/v2", method = RequestMethod.GET)
+    public Result<?> myApplyProcessListV2(org.jeecg.modules.workflow.entity.ProcessHisDTO dto,
+                                          @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                          @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                          HttpServletRequest request) {
+        return Result.OK(this.bpmCommonService.myApplyProcessListV2(dto, pageNo, pageSize, request));
+    }
+
+    @ApiOperation("我的抄送流程列表")
+    @RequestMapping(value = "taskAllCcHistoryList/v2", method = RequestMethod.GET)
+    public Result<?> taskAllCcHistoryListV2(TaskEntity taskEntity,
+                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                            HttpServletRequest request) {
+        QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
+        Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskAllCcHistoryListV2(page, queryWrapper, JwtUtil.getUserNameByToken(request));
+        return Result.OK(taskEntityPage);
+    }
+
+    @ApiOperation("任务催办")
+    @PostMapping(value = "/taskNotification")
+    public Result<?> taskNotification(@RequestBody ExtActTaskNotification extActTaskNotification) {
+        this.bpmCommonService.taskNotification(extActTaskNotification);
+        return Result.OK("催办成功", "催办成功");
     }
 
 }

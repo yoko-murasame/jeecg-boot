@@ -26,4 +26,212 @@
                  LEFT JOIN arp ON task_view.proc_def_id_ = arp.id_
                  LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
     </select>
+
+    <select id="myTaskListV2" resultType="org.jeecg.modules.workflow.entity.TaskEntity">
+        WITH task_view AS (select *
+        from ((select distinct RES.*, ARP.NAME_ as proc_def_name
+               from ACT_RU_TASK RES
+                        inner join ACT_RU_IDENTITYLINK I on I.TASK_ID_ = RES.ID_
+                        INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_
+        WHERE RES.ASSIGNEE_ is null
+          and I.TYPE_ = 'candidate'
+          and RES.SUSPENSION_STATE_ = 1
+        <if test="username != null and username != ''">
+            and (I.USER_ID_ = #{username} or
+                 I.GROUP_ID_ IN (select g.GROUP_ID_ from ACT_ID_MEMBERSHIP g where g.USER_ID_ = #{username}))
+        </if>
+        )
+        union
+        (select distinct RES.*, ARP.NAME_ as proc_def_name
+        from ACT_RU_TASK RES
+            INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_
+        <if test="username != null and username != ''">
+            and RES.ASSIGNEE_ = #{username}
+        </if>
+        )) v),
+            efd AS (select *
+                    from ext_act_flow_data),
+            arv AS (select proc_inst_id_, text_ from act_ru_variable where name_ = 'bpm_biz_title'),
+            sys_user AS (SELECT username, realname
+                         FROM sys_user),
+            hi_procinst AS (SELECT *
+                            FROM act_hi_procinst),
+            urge AS (SELECT COUNT(*) AS urge_num, task_id
+                     FROM ext_act_task_notification a,
+                          task_view b
+                     WHERE a.proc_inst_id = b.proc_inst_id_
+                       AND a.task_id = b.id_
+                       AND a.task_assignee = b.assignee_
+                     group by task_id),
+            result AS (SELECT task_view.*,
+                              task_view.create_time_                          AS create_time,
+                              efd.form_data_id,
+                              efd.oa_todo_id,
+                              task_view.assignee_                             AS task_assignee_id,
+                              u1.realname                                     AS task_assignee_name,
+                              hip.start_user_id_                              AS process_apply_user_id,
+                              hip.start_user_id_                              AS user_name,
+                              u2.realname                                     AS process_apply_user_name,
+                              task_view.id_                                   AS id,
+                              task_view.create_time_                          AS task_begin_time,
+                              task_view.name_                                 AS task_name,
+                              task_view.task_def_key_                         AS task_id,
+                              task_view.due_date_                             AS task_end_time,
+                              task_view.proc_inst_id_                         AS process_instance_id,
+                              task_view.proc_def_id_                          AS process_definition_id,
+                              task_view.proc_def_name                         AS process_definition_name,
+                              arv.text_                                       AS bpm_biz_title,
+                              efd.form_data_id                                AS business_id,
+                              efd.bpm_status                                  AS bpm_status,
+                              CASE WHEN urge_num > 0 THEN true ELSE false END AS task_urge
+                       FROM task_view
+                                LEFT JOIN efd ON task_view.proc_inst_id_ = efd.process_inst_id
+                                LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
+                                LEFT JOIN sys_user u1 ON task_view.assignee_ = u1.username
+                                LEFT JOIN hi_procinst hip ON task_view.proc_inst_id_ = hip.proc_inst_id_
+                                LEFT JOIN sys_user u2 ON u2.username = hip.start_user_id_
+                                LEFT JOIN urge ON urge.task_id = task_view.id_)
+        SELECT *
+        FROM result ${ew.customSqlSegment}
+    </select>
+
+    <select id="taskHistoryListV2" resultType="org.jeecg.modules.workflow.entity.TaskEntity">
+        WITH task_view AS (
+        select distinct RES.*, ARP.NAME_ as proc_def_name
+        from ACT_HI_TASKINST RES
+                 INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_
+        WHERE DURATION_ > 0
+        <if test="username != null and username != ''">
+            and RES.ASSIGNEE_ = #{username}
+        </if>
+        ),
+            efd AS (select *
+                    from ext_act_flow_data),
+            arv AS (select proc_inst_id_, text_ from act_hi_varinst where name_ = 'bpm_biz_title'),
+            sys_user AS (SELECT username, realname
+                         FROM sys_user),
+            hi_procinst AS (SELECT *
+                            FROM act_hi_procinst),
+            result AS (SELECT task_view.*,
+                              task_view.start_time_   AS create_time,
+                              efd.form_data_id,
+                              efd.oa_todo_id,
+                              task_view.assignee_     AS task_assignee_id,
+                              u1.realname             AS task_assignee_name,
+                              hip.start_user_id_      AS process_apply_user_id,
+                              hip.start_user_id_      AS user_name,
+                              u2.realname             AS process_apply_user_name,
+                              task_view.id_           AS id,
+                              task_view.start_time_   AS task_begin_time,
+                              task_view.name_         AS task_name,
+                              task_view.task_def_key_ AS task_id,
+                              task_view.end_time_     AS task_end_time,
+                              task_view.duration_     AS task_due_time,
+                              task_view.proc_inst_id_ AS process_instance_id,
+                              task_view.proc_def_id_  AS process_definition_id,
+                              task_view.proc_def_name AS process_definition_name,
+                              arv.text_               AS bpm_biz_title,
+                              efd.form_data_id        AS business_id,
+                              efd.bpm_status          AS bpm_status
+                       FROM task_view
+                                LEFT JOIN efd ON task_view.proc_inst_id_ = efd.process_inst_id
+                                LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
+                                LEFT JOIN sys_user u1 ON task_view.assignee_ = u1.username
+                                LEFT JOIN hi_procinst hip ON task_view.proc_inst_id_ = hip.proc_inst_id_
+                                LEFT JOIN sys_user u2 ON u2.username = hip.start_user_id_)
+        SELECT *
+        FROM result ${ew.customSqlSegment}
+    </select>
+    
+    <select id="myApplyProcessListV2" resultType="org.jeecg.modules.workflow.entity.ProcessHisDTO">
+        WITH his_procinst AS (select distinct RES.*, ARP.NAME_ as proc_def_name
+                              from act_hi_procinst RES
+                                       INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_),
+             efd AS (select *
+                     from ext_act_flow_data),
+             arv AS (select proc_inst_id_, text_ from act_hi_varinst where name_ = 'bpm_biz_title'),
+             status AS (select proc_inst_id_, text_ from act_hi_varinst where name_ = 'bpm_status'),
+             sys_user AS (SELECT username, realname
+                          FROM sys_user),
+             result AS (SELECT his_procinst.id_                                       AS id,
+                               his_procinst.name_                                     AS name,
+                               his_procinst.proc_inst_id_                             AS process_instance_id,
+                               his_procinst.proc_def_id_                              AS process_definition_id,
+                               his_procinst.proc_def_name                             AS process_definition_name,
+                               his_procinst.start_time_                               AS create_time,
+                               his_procinst.start_time_                               AS start_time,
+                               his_procinst.end_time_                                 AS end_time,
+                               his_procinst.duration_                                 AS task_due_time,
+                               ''                                                     AS assignee,
+                               ''                                                     AS assignee_name,
+                               CASE
+                                   WHEN his_procinst.delete_reason_ IS NOT NULL
+                                       THEN replace(his_procinst.delete_reason_, '发起人', '')
+                                   WHEN his_procinst.end_time_ IS NOT NULL
+                                       THEN '已完成' END                              AS delete_reason,
+                               his_procinst.start_user_id_                            AS start_user_id,
+                               u1.realname                                            AS start_user_name,
+                               arv.text_                                              AS bpm_biz_title,
+                               COALESCE(efd.bpm_status, status.text_)                 AS bpm_status,
+                               COALESCE(efd.form_data_id, his_procinst.business_key_) AS business_id
+                        FROM his_procinst
+                                 LEFT JOIN efd ON his_procinst.proc_inst_id_ = efd.process_inst_id
+                                 LEFT JOIN arv ON his_procinst.proc_inst_id_ = arv.proc_inst_id_
+                                 LEFT JOIN status ON his_procinst.proc_inst_id_ = status.proc_inst_id_
+                                 LEFT JOIN sys_user u1 ON his_procinst.start_user_id_ = u1.username)
+        SELECT *
+        FROM result ${ew.customSqlSegment}
+    </select>
+
+    <select id="taskAllCcHistoryListV2" resultType="org.jeecg.modules.workflow.entity.TaskEntity">
+        WITH task_view AS (
+        select distinct RES.*, ARP.NAME_ as proc_def_name
+        from ACT_HI_TASKINST RES
+                 INNER JOIN ACT_RE_PROCDEF ARP ON ARP.ID_ = RES.PROC_DEF_ID_
+                 INNER JOIN ext_act_task_cc cc
+                            ON cc.task_id = RES.id_
+                                AND cc.proc_inst_id = RES.proc_inst_id_
+                                AND cc.execution_id = RES.execution_id_
+        WHERE DURATION_ > 0
+        <if test="username != null and username != ''">
+            and cc.cc_user_name = #{username}
+        </if>
+        ),
+            efd AS (select *
+                    from ext_act_flow_data),
+            arv AS (select proc_inst_id_, text_ from act_hi_varinst where name_ = 'bpm_biz_title'),
+            sys_user AS (SELECT username, realname
+                         FROM sys_user),
+            hi_procinst AS (SELECT *
+                            FROM act_hi_procinst),
+            result AS (SELECT task_view.*,
+                              task_view.start_time_   AS create_time,
+                              efd.form_data_id,
+                              efd.oa_todo_id,
+                              task_view.assignee_     AS task_assignee_id,
+                              u1.realname             AS task_assignee_name,
+                              hip.start_user_id_      AS process_apply_user_id,
+                              hip.start_user_id_      AS user_name,
+                              u2.realname             AS process_apply_user_name,
+                              task_view.id_           AS id,
+                              task_view.start_time_   AS task_begin_time,
+                              task_view.name_         AS task_name,
+                              task_view.task_def_key_ AS task_id,
+                              task_view.end_time_     AS task_end_time,
+                              task_view.duration_     AS task_due_time,
+                              task_view.proc_inst_id_ AS process_instance_id,
+                              task_view.proc_def_id_  AS process_definition_id,
+                              task_view.proc_def_name AS process_definition_name,
+                              arv.text_               AS bpm_biz_title,
+                              efd.form_data_id        AS business_id,
+                              efd.bpm_status          AS bpm_status
+                       FROM task_view
+                                LEFT JOIN efd ON task_view.proc_inst_id_ = efd.process_inst_id
+                                LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
+                                LEFT JOIN sys_user u1 ON task_view.assignee_ = u1.username
+                                LEFT JOIN hi_procinst hip ON task_view.proc_inst_id_ = hip.proc_inst_id_
+                                LEFT JOIN sys_user u2 ON u2.username = hip.start_user_id_)
+        SELECT *
+        FROM result ${ew.customSqlSegment}
+    </select>
 </mapper>

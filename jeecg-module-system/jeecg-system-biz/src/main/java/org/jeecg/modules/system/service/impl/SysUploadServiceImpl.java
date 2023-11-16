@@ -478,7 +478,7 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
     }
 
     private List<String> doTransfer(String urls, List<String> logs, OSSClient finalOssClient, String finalBucketName, AtomicDouble costBytes, double limitBytes, String bizPath, String splitChar) {
-        if (StringUtils.isEmpty(urls)) {
+        if (!StringUtils.hasText(urls)) {
             return Collections.emptyList();
         }
         String[] urlArray = urls.split(splitChar);
@@ -486,6 +486,8 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
 
         for (String url : urlArray) {
             if (!url.contains("http")) {
+                // 保持一致的顺序
+                transferredUrls.add(url);
                 continue;
             }
             String fileName = url.substring(url.lastIndexOf("/") + 1).replaceAll("_\\d*?\\.", ".");
@@ -521,6 +523,9 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                     log.info(saveMsg);
                     logs.add(saveMsg);
                     transferredUrls.add(savePath);
+                } else {
+                    // 保持一致的顺序
+                    transferredUrls.add(url);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

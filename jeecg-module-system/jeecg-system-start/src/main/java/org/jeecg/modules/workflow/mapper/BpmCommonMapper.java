@@ -38,5 +38,6 @@ public interface BpmCommonMapper extends BaseMapper<Object> {
     /**
      * 查询所有代办
      */
+    @Deprecated
     List<TaskEntity> taskDTOAllList(@Param("vo") TaskQueryVO taskQueryVO);
 }
