@@ -43,9 +43,9 @@ public class CommonUtils {
 
     /**
      * 文件名 正则字符串
-     * 文件名支持的字符串：字母数字中文.-_()（） 除此之外的字符将被删除
+     * 文件名支持的字符串：字母数字中文.。-_()（）[]【】—，、“”’‘； 除此之外的字符将被删除
      */
-    private static String FILE_NAME_REGEX = "[^A-Za-z\\.\\(\\)\\-（）\\_0-9\\u4e00-\\u9fa5]";
+    private static String FILE_NAME_REGEX = "[^A-Za-z\\.。\\(\\)\\-（）\\[\\]【】—，、“”’‘；\\_0-9\\u4e00-\\u9fa5]";
 
     public static String uploadOnlineImage(byte[] data,String basePath,String bizPath,String uploadType){
         String dbPath = null;

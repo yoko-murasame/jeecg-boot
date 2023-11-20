@@ -1,8 +1,5 @@
 # Jeecg Yoko's Branch
 
-* 记录Jeecg使用心得
-* 部分Jeecg组件优化
-* 个人封装的一些组件
 * 请勿用于商业用途
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * [文档模板](./Template.md)
@@ -10,7 +7,6 @@
 ## [ant-design-vue-jeecg](https://github.com/yoko-murasame/ant-design-vue-jeecg)
 
 * [Nginx配置示例](./ant-design-vue-jeecg/Nginx配置示例.md)
-* 流程功能文档
 * [个性化配置文档](./ant-design-vue-jeecg/个性化配置文档.md)
 * 个人封装组件
   * [CancelButton 防误触Modal取消按钮组件](./ant-design-vue-jeecg/CancelButton.md)
@@ -37,7 +33,6 @@
 * [PostgreSQL分词功能开发步骤](./jeecg-boot-3.4.3last/PostgreSQL分词功能开发步骤.md)
 * [Oracle数据库安装参考文档](./jeecg-boot-3.4.3last/Oracle数据库安装参考文档.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
-* 流程功能文档
 * Jeecg接口修改
   * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
