@@ -1,5 +1,7 @@
 package org.jeecg.modules.system.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,8 @@ import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.CommonUtils;
+import org.jeecg.common.util.RestUtil;
+import org.jeecg.common.util.TokenUtils;
 import org.jeecg.common.util.filter.FileTypeFilter;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.system.entity.SysUpload;
@@ -16,6 +20,10 @@ import org.jeecg.modules.system.service.impl.SysUploadServiceImpl;
 import org.jeecg.modules.system.util.UploadFileUtil;
 import org.jeecg.modules.system.vo.OssToLocalVo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +36,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -274,11 +286,13 @@ public class CommonController {
             if(!file.exists()){
                 response.setStatus(404);
                 throw new RuntimeException("文件["+imgPath+"]不存在..");
+                // response.flushBuffer();
+                // return;
             }
             // 设置强制下载不打开
             response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes("UTF-8"),"iso-8859-1"));
-            inputStream = new BufferedInputStream(new FileInputStream(filePath));
+            response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1));
+            inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
             outputStream = response.getOutputStream();
             byte[] buf = new byte[1024];
             int len;
@@ -388,6 +402,56 @@ public class CommonController {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         return new AntPathMatcher().extractPathWithinPattern(bestMatchPattern, path);
+    }
+
+    /**
+     * 中转HTTP请求，解决跨域问题
+     *
+     * @param url 必填：请求地址
+     * @return
+     */
+    @RequestMapping("/transitRESTful")
+    public Result transitRESTful(@RequestParam("url") String url, HttpServletRequest request) {
+        try {
+            ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(request);
+            // 中转请求method、body
+            HttpMethod method = httpRequest.getMethod();
+            JSONObject params;
+            try {
+                params = JSON.parseObject(JSON.toJSONString(httpRequest.getBody()));
+            } catch (Exception e) {
+                params = new JSONObject();
+            }
+            // 中转请求问号参数
+            JSONObject variables = JSON.parseObject(JSON.toJSONString(request.getParameterMap()));
+            variables.remove("url");
+            // 在 headers 里传递Token
+            String token = TokenUtils.getTokenByRequest(request);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Access-Token", token);
+            // 发送请求
+            String httpURL = URLDecoder.decode(url, "UTF-8");
+            ResponseEntity<String> response = RestUtil.request(httpURL, method, headers, variables, params,
+                    String.class);
+            // 封装返回结果
+            Result<Object> result = new Result<>();
+            int statusCode = response.getStatusCodeValue();
+            result.setCode(statusCode);
+            result.setSuccess(statusCode == 200);
+            String responseBody = response.getBody();
+            try {
+                // 尝试将返回结果转为JSON
+                Object json = JSON.parse(responseBody);
+                result.setResult(json);
+            } catch (Exception e) {
+                // 转成JSON失败，直接返回原始数据
+                result.setResult(responseBody);
+            }
+            return result;
+        } catch (Exception e) {
+            log.debug("中转HTTP请求失败", e);
+            return Result.error(e.getMessage());
+        }
     }
 
 }

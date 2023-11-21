@@ -40,6 +40,8 @@ public class UploadFileUtil {
             while ((len = stream.read(buf)) > 0) {
                 digest.update(buf, 0, len);
             }
+            // 重置流指针，防止其他操作异常
+            stream.reset();
             return toHexString(digest.digest());
         } catch (IOException e) {
             e.printStackTrace();
