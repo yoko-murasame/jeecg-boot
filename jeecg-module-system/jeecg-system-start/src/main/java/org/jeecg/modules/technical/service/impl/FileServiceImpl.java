@@ -451,15 +451,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         } else {
             Assert.hasText(fileId, "文件id不能为空");
             File file = this.findOne(fileId);
-            Assert.notNull(file, "找不到该文件信息");
-            LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<File>()
-                    .eq(File::getName, file.getName())
-                    .eq(File::getType, file.getType())
-                    .eq(File::getSuffix, file.getSuffix())
-                    .eq(File::getFolderId, file.getFolderId());
-            int delete = this.fileMapper.delete(wrapper);
-            if (delete > 0) {
-                log.info("所有版本删除成功,id: " + fileId);
+            if (null != file) {
+                LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<File>()
+                        .eq(File::getName, file.getName())
+                        .eq(File::getType, file.getType())
+                        .eq(File::getSuffix, file.getSuffix())
+                        .eq(File::getFolderId, file.getFolderId());
+                int delete = this.fileMapper.delete(wrapper);
+                if (delete > 0) {
+                    log.info("所有版本删除成功,id: " + fileId);
+                }
             }
         }
     }
@@ -476,7 +477,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             wp.eq(File::getName, file.getName())
                     .eq(File::getType, file.getType())
                     .eq(File::getSuffix, file.getSuffix())
-                    .eq(File::getProjectId, file.getProjectId())
                     .eq(File::getFolderId, file.getFolderId());// 同一个目录下的文件
         } else {
             wp.eq(File::getVersion, file.getVersion());

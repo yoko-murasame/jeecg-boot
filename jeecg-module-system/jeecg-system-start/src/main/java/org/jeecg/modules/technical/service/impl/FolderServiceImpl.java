@@ -795,7 +795,8 @@ public class FolderServiceImpl implements FolderService {
                     .and(StringUtils.isEmpty(projectId) && StringUtils.hasText(projectName), ew ->
                             ew.like(Project::getName, projectName).or().like(Project::getName, projectName)));
             if (exist != null) {
-                project = new Project().setBusinessName(exist.getName()).setBusinessId(String.valueOf(exist.getId()));
+                project = new Project().setBusinessName(exist.getName()).setBusinessId(String.valueOf(exist.getId()))
+                        .setId(exist.getId()).setName(exist.getName());
             }
             // 封装数据
             Optional.ofNullable(project)
