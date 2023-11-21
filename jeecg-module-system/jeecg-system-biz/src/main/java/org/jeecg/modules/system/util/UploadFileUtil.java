@@ -40,8 +40,6 @@ public class UploadFileUtil {
             while ((len = stream.read(buf)) > 0) {
                 digest.update(buf, 0, len);
             }
-            // 重置流指针，防止其他操作异常
-            stream.reset();
             return toHexString(digest.digest());
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,6 +47,33 @@ public class UploadFileUtil {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return "";
+        }
+    }
+
+    // 输入流取MD5
+    public static String calcMD5(InputStream stream, boolean reset) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = stream.read(buf)) > 0) {
+                digest.update(buf, 0, len);
+            }
+            return toHexString(digest.digest());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "";
+        } finally {
+            if (reset) {
+                try {
+                    stream.reset();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
