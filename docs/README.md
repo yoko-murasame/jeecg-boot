@@ -45,5 +45,6 @@
 * [APIJSON](./external/APIJSON.md)
 * [Spring Boot Snippets](./jeecg-boot-3.4.3last/Spring Boot Snippets.md)
 * [Linux DevOps](./jeecg-boot-3.4.3last/Linux DevOps.md)
+* [mybatis-plus-generator-ui](./external/mybatis-plus-generator-ui.md)
 * [暗黑作画禁书目录-分词查询示例模块](./external/暗黑作画禁书目录.md)
 * [知识库-通用文档管理模块](./external/知识库.md)
