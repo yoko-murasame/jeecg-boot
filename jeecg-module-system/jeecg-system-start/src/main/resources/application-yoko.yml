@@ -292,6 +292,8 @@ jeecg:
     password:
     type: STANDALONE
     enabled: true
+  # 默认查询构造器的文本匹配模式: LIKE,EQ,LEFT_LIKE,RIGHT_LIKE
+  queryRule: LIKE
 #cas单点登录
 cas:
   prefixUrl: http://cas.example.org:8443/cas
