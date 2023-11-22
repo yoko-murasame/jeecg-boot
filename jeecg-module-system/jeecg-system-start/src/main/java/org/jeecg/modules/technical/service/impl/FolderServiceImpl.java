@@ -195,7 +195,7 @@ public class FolderServiceImpl implements FolderService {
             return null;
         }
 
-        Long parentSelfFileCount = new LambdaQueryChainWrapper<>(fileMapper)
+        long parentSelfFileCount = new LambdaQueryChainWrapper<>(fileMapper)
                 .eq(File::getFolderId, folder.getId())
                 .eq(File::getCurrent, Current.TRUE)
                 .eq(File::getEnabled, Enabled.ENABLED).count();
@@ -203,7 +203,7 @@ public class FolderServiceImpl implements FolderService {
         List<Folder> childFolders = new LambdaQueryChainWrapper<>(folderMapper)
                 .eq(Folder::getParentId, folder.getId())
                 .eq(Folder::getEnabled, Enabled.ENABLED).list();
-        Integer childFileSize = childFolders.stream().map(f -> Optional.of(f.getChildFileSize()).orElse(0)).reduce(0, (pre, cur) -> pre + cur);
+        int childFileSize = childFolders.stream().map(f -> Optional.of(f.getChildFileSize()).orElse(0)).reduce(0, Integer::sum);
 
         folder.setChildFileSize(Math.toIntExact(parentSelfFileCount + childFileSize));
         folder.setChildFolderSize(childFolders.size());
@@ -385,7 +385,8 @@ public class FolderServiceImpl implements FolderService {
                 .and(wrapper -> {
                     wrapper.eq(Folder::getParentId, source.getParentId());
                     if (source.getLevel() == Level.ROOT) {
-                        wrapper.eq(Folder::getProjectId, source.getProjectId())
+                        wrapper.eq(StringUtils.hasText(source.getProjectId()), Folder::getProjectId, source.getProjectId())
+                                .eq(StringUtils.hasText(source.getBusinessId()), Folder::getBusinessId, source.getBusinessId())
                                 .eq(Folder::getType, source.getType());
                     }
                 })
@@ -421,7 +422,8 @@ public class FolderServiceImpl implements FolderService {
                 .and(wrapper -> {
                     wrapper.eq(Folder::getParentId, source.getParentId());
                     if (source.getLevel() == Level.ROOT) {
-                        wrapper.eq(Folder::getProjectId, source.getProjectId())
+                        wrapper.eq(StringUtils.hasText(source.getProjectId()), Folder::getProjectId, source.getProjectId())
+                                .eq(StringUtils.hasText(source.getBusinessId()), Folder::getBusinessId, source.getBusinessId())
                                 .eq(Folder::getType, source.getType());
                     }
                 })
@@ -487,7 +489,8 @@ public class FolderServiceImpl implements FolderService {
             Folder maxOrderFolder = new LambdaQueryChainWrapper<>(folderMapper)
                     .eq(Folder::getParentId, "")
                     .eq(Folder::getLevel, Level.ROOT)
-                    .eq(Folder::getProjectId, tempFolder.getProjectId())
+                    .eq(StringUtils.hasText(tempFolder.getProjectId()), Folder::getProjectId, tempFolder.getProjectId())
+                    .eq(StringUtils.hasText(tempFolder.getBusinessId()), Folder::getBusinessId, tempFolder.getBusinessId())
                     .eq(Folder::getType, tempFolder.getType())
                     .select(Folder::getFolderOrder)
                     .orderByDesc(Folder::getFolderOrder)
