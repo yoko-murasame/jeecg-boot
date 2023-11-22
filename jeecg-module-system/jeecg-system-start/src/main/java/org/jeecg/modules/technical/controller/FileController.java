@@ -148,7 +148,7 @@ public class FileController {
         return Result.OK();
     }
 
-    @AutoLog(value = "更新文件描述")
+    @AutoLog(value = "预览、下载文件")
     @GetMapping("/download/{fileId}")
     @ApiOperation("下载")
     public void download(@PathVariable @ApiParam("文件id，请结合<a target='_blank'>标签使用") String fileId,
@@ -204,39 +204,46 @@ public class FileController {
             if (imgPath.contains(".mp4")) {
                 // 获取从那个字节开始读取文件
                 String rangeString = request.getHeader("Range");
-                RandomAccessFile targetFile = new RandomAccessFile(file, "r");
-                long fileLength = targetFile.length();
-                // 播放
-                if (rangeString != null) {
-                    long range = Long.parseLong(rangeString.substring(rangeString.indexOf("=") + 1,
-                            rangeString.indexOf("-")));
-                    // 设置内容类型
-                    response.setHeader("Content-Type", "video/mp4");
-                    // 设置此次相应返回的数据长度
-                    response.setHeader("Content-Length", String.valueOf(fileLength - range));
-                    // 设置此次相应返回的数据范围
-                    response.setHeader("Content-Range", "bytes " + range + "-" + (fileLength - 1) + "/" + fileLength);
-                    // 返回码需要为206，而不是200
-                    response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                    // 设定文件读取开始位置（以字节为单位）
-                    targetFile.seek(range);
-                } else {// 下载
-                    // 设置响应头，把文件名字设置好
-                    response.addHeader("Content-Disposition",
-                            "attachment;fileName=" + new String(file.getName().getBytes(
-                                    StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-                    // 设置文件长度
-                    response.setHeader("Content-Length", String.valueOf(fileLength));
-                    // 解决编码问题
-                    response.setHeader("Content-Type", "application/octet-stream");
+                try (RandomAccessFile targetFile = new RandomAccessFile(file, "r")) {
+                    long fileLength = targetFile.length();
+                    // 播放
+                    if (rangeString != null) {
+                        long range = Long.parseLong(rangeString.substring(rangeString.indexOf("=") + 1,
+                                rangeString.indexOf("-")));
+                        // 设置内容类型
+                        response.setHeader("Content-Type", "video/mp4");
+                        // 设置此次相应返回的数据长度
+                        response.setHeader("Content-Length", String.valueOf(fileLength - range));
+                        // 设置此次相应返回的数据范围
+                        response.setHeader("Content-Range", "bytes " + range + "-" + (fileLength - 1) + "/" + fileLength);
+                        // 返回码需要为206，而不是200
+                        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                        // 设定文件读取开始位置（以字节为单位）
+                        targetFile.seek(range);
+                        outputStream = response.getOutputStream();
+                        byte[] cache = new byte[8 * 1024 * 1024 * 20];
+                        int flag;
+                        while ((flag = targetFile.read(cache)) != -1) {
+                            outputStream.write(cache, 0, flag);
+                        }
+                    } else {// 下载
+                        // 设置响应头，把文件名字设置好
+                        response.addHeader("Content-Disposition",
+                                "attachment;fileName=" + new String(file.getName().getBytes(
+                                        StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+                        // 设置文件长度
+                        response.setHeader("Content-Length", String.valueOf(fileLength));
+                        // 解决编码问题
+                        response.setHeader("Content-Type", "application/octet-stream");
+                        inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
+                        outputStream = response.getOutputStream();
+                        byte[] buf = new byte[1024];
+                        int len;
+                        while ((len = inputStream.read(buf)) != -1) {
+                            outputStream.write(buf, 0, len);
+                        }
+                    }
                 }
-                outputStream = response.getOutputStream();
-                byte[] cache = new byte[1024 * 300];
-                int flag;
-                while ((flag = targetFile.read(cache)) != -1) {
-                    outputStream.write(cache, 0, flag);
-                }
-                response.flushBuffer();
             } else {
                 if (StringUtils.hasText((String) forceDownload)) {
                     response.setContentType("application/force-download");// 设置强制下载不打开
@@ -247,11 +254,11 @@ public class FileController {
                 outputStream = response.getOutputStream();
                 byte[] buf = new byte[1024];
                 int len;
-                while ((len = inputStream.read(buf)) > 0) {
+                while ((len = inputStream.read(buf)) != -1) {
                     outputStream.write(buf, 0, len);
                 }
-                response.flushBuffer();
             }
+            response.flushBuffer();
         } catch (RuntimeException e) {
             response.setStatus(404);
             response.setCharacterEncoding("utf-8");
@@ -266,18 +273,20 @@ public class FileController {
             writer.close();
             log.error(e.getMessage());
         } catch (IOException e) {
-            response.setStatus(404);
-            response.setCharacterEncoding("utf-8");
-            response.setContentType("application/json; charset=utf-8");
-            PrintWriter writer = null;
-            try {
-                writer = response.getWriter();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            writer.write(JSON.toJSONString(Result.error("预览文件失败" + e.getMessage())));
-            writer.close();
-            log.error("预览文件失败" + e.getMessage());
+            log.warn("预览文件异常" + e.getMessage());
+            // response.setStatus(404);
+            // response.setCharacterEncoding("utf-8");
+            // response.setContentType("application/json; charset=utf-8");
+            // PrintWriter writer = null;
+            // try {
+            //     log.error("预览文件失败" + e.getMessage());
+            //     response.getOutputStream().print(JSON.toJSONString(Result.error("预览文件失败" + e.getMessage())));
+            //     writer.write(JSON.toJSONString(Result.error("预览文件失败" + e.getMessage())));
+            //     writer.close();
+            // } catch (IOException ex) {
+            //     log.error(ex.getMessage());
+            //     throw new RuntimeException(ex);
+            // }
             // e.printStackTrace();
         } finally {
             if (inputStream != null) {
