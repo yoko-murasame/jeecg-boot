@@ -116,7 +116,7 @@ docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
 > **注意：导入分词版本备份，需要预先执行下一步骤的“必须执行的脚本”！！！**
 
 ```shell
-# 选择有分词版数据库备份 backup-has-gis-and-text-parser.dump
+# 选择有分词版数据库备份 db/PostgreSQL/带GIS、带分词DUMP/backup-has-gis-and-text-parser.dump
 mv ./backup-has-gis-and-text-parser.dump /root/pgbackup/backup.dump
 # 导入到数据库注意需要先创建数据库
 psql -U <用户名> -h <主机名> -p <端口号>

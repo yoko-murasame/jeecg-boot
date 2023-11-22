@@ -218,7 +218,7 @@ public class DemoSQLConfig extends APIJSONSQLConfig {
 			return "apijson";  //TODO 改成你自己的，TiDB 可以当成 MySQL 使用， 默认密码为空字符串 ""
 		}
 		if (isPostgreSQL()) {
-			return "dsjy@123";  //TODO 改成你自己的
+			return "yoko@123";  //TODO 改成你自己的
 		}
 		if (isSQLServer()) {
 			return "apijson@123";  //TODO 改成你自己的
