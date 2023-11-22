@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -362,8 +361,10 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
     @Override // org.jeecg.modules.online.cgreport.service.IOnlCgreportHeadService
     public Map<String, Object> queryColumnInfo(String code, boolean queryDict) {
         HashMap hashMap = new HashMap();
-        LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper();
-        ((QueryWrapper) ((QueryWrapper) queryWrapper.eq("cgrhead_id", code)).eq("is_show", 1)).orderByAsc("order_num");
+        LambdaQueryWrapper<OnlCgreportItem> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OnlCgreportItem::getCgrheadId, code)
+                .eq(OnlCgreportItem::getIsShow, 1)
+                .orderByAsc(OnlCgreportItem::getOrderNum);
         List<OnlCgreportItem> list = this.onlCgreportItemService.list(queryWrapper);
         JSONArray jSONArray = new JSONArray();
         JSONArray jSONArray2 = new JSONArray();

@@ -2,13 +2,6 @@ package org.jeecg.modules.online.cgreport.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
@@ -19,6 +12,16 @@ import org.jeecg.modules.online.config.b.d;
 import org.jeecg.modules.online.config.exception.DBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /* compiled from: CgReportQueryParamUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgreport/util/a.class */
@@ -191,8 +194,8 @@ public class a {
                         }
                     }
                 } else {
-                    String str4 = map.get(fieldName).toString();
-                    if (str4 != null) {
+                    String str4 = Optional.ofNullable(map.get(fieldName)).orElse("").toString();
+                    if (StringUtils.hasText(str4)) {
                         boolean z = ("Long".equals(fieldType) || "Integer".equals(fieldType)) ? false : true;
                         if ("ORACLE".equals(str3)) {
                             if (fieldType.toLowerCase().equals("datetime")) {
