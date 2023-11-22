@@ -29,14 +29,14 @@
 		<knife4j-spring-boot-starter.version>3.0.3</knife4j-spring-boot-starter.version>
 		<knife4j-spring-ui.version>2.0.9</knife4j-spring-ui.version>
 		<!-- 数据库驱动 -->
-		<postgresql.version>42.2.25</postgresql.version>
+		<postgresql.version>42.2.27</postgresql.version>
 		<ojdbc6.version>11.2.0.3</ojdbc6.version>
 		<sqljdbc4.version>4.0</sqljdbc4.version>
-		<mysql-connector-java.version>8.0.27</mysql-connector-java.version>
-		<hutool.version>5.3.8</hutool.version>
+		<mysql-connector-java.version>8.0.28</mysql-connector-java.version>
+		<hutool.version>5.8.23</hutool.version>
 
 		<!-- 持久层 -->
-		<mybatis-plus.version>3.5.1</mybatis-plus.version>
+		<mybatis-plus.version>3.5.4.1</mybatis-plus.version>
 		<dynamic-datasource-spring-boot-starter.version>3.2.0</dynamic-datasource-spring-boot-starter.version>
 		<druid.version>1.1.22</druid.version>
 		<minidao.version>1.9.0</minidao.version>
