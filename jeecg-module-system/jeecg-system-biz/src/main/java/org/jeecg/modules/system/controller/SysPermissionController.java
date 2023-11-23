@@ -76,14 +76,26 @@ public class SysPermissionController {
 	 * 检查菜单权限是否存在
 	 */
 	@RequestMapping(value = "/checkPermissionExist", method = RequestMethod.GET)
-	public Result<Boolean> checkPermissionExist(SysPermissionVo vo, HttpServletRequest req) {
+	public Result<Map<String, Boolean>> checkPermissionExist(SysPermissionVo vo, HttpServletRequest req) {
 		LambdaQueryWrapper<SysPermission> wp = Wrappers.lambdaQuery(SysPermission.class)
 				.eq(SysPermission::getDelFlag, vo.getDelFlag())
-				.eq(StringUtils.hasText(vo.getPerms()), SysPermission::getPerms, vo.getPerms())
-				.eq(StringUtils.hasText(vo.getComponent()), SysPermission::getComponent, vo.getComponent())
 				.eq(StringUtils.hasText(vo.getStatus()), SysPermission::getStatus, vo.getStatus());
-		long count = sysPermissionService.count(wp);
-		return Result.OK("成功", count > 0);
+		Map<String, Boolean> flags = new HashMap<>();
+		if (StringUtils.hasText((vo.getPerms()))) {
+			String[] split = vo.getPerms().split(",");
+			for (String perm : split) {
+				flags.put(perm, sysPermissionService
+						.count(wp.clone().eq(StringUtils.hasText(perm), SysPermission::getPerms, perm)) > 0);
+			}
+		}
+		if (StringUtils.hasText(vo.getComponent())) {
+			String[] split = vo.getComponent().split(",");
+			for (String component : split) {
+				flags.put(component, sysPermissionService
+						.count(wp.clone().eq(StringUtils.hasText(component), SysPermission::getComponent, component)) > 0);
+			}
+		}
+		return Result.OK(flags);
 	}
 
 	/**
