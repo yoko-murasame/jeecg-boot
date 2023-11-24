@@ -2,7 +2,7 @@
 
 # VuePdfAppModal
 
-PDF在线预览弹窗组件，基于 `vue-pdf-app` 封装。
+PDF在线预览弹窗组件，基于 [vue-pdf-app](https://github.com/sandanat/vue-pdf-app) 封装。
 
 组件路径: [VuePdfAppModal](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/src/components/yoko/VuePdfAppModal.vue)
 
