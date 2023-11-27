@@ -39,7 +39,7 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 	private ISysDepartService sysDepartService;
 	@Autowired
 	private SysUserMapper sysUserMapper;
-	
+
 
 	/**
 	 * 根据用户id查询部门信息
@@ -71,8 +71,8 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 			e.fillInStackTrace();
 		}
 		return null;
-		
-		
+
+
 	}
 
 
@@ -135,6 +135,9 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
             //update-end---author:wangshuai ---date:20220104  for：[JTC-297]已冻结用户仍可设置为代理人------------
 			if(oConvertUtils.isNotEmpty(username)){
 				query.like(SysUser::getUsername, username);
+			}
+			if(oConvertUtils.isNotEmpty(realname)){
+				query.like(SysUser::getRealname, realname);
 			}
             //update-begin---author:wangshuai ---date:20220608  for：[VUEN-1238]邮箱回复时，发送到显示的为用户id------------
             if(oConvertUtils.isNotEmpty(id)){
