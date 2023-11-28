@@ -14,6 +14,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "third-app.type")
 public class ThirdAppTypeConfig {
 
+    public static final String THIRD_APP_TYPE = "THIRD_APP_TYPE";
+    public static final String TYPE_DINGTALK = "DINGTALK";
+    public static final String TYPE_WECHAT_ENTERPRISE = "WECHAT_ENTERPRISE";
+    public static final String TYPE_ALL = "ALL";
+
     /**
      * 对应企业微信配置
      */
