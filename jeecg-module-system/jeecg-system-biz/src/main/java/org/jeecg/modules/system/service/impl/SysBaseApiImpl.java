@@ -430,10 +430,10 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 			if (StringUtils.isNotBlank(thirdApp)) {
 				switch (thirdApp) {
 					case ThirdAppTypeConfig.TYPE_DINGTALK:
-						wechatEnterpriseService.sendTextCardMessage(announcement, true);
+						dingtalkService.sendActionCardMessage(announcement, true);
 						break;
 					case ThirdAppTypeConfig.TYPE_WECHAT_ENTERPRISE:
-						dingtalkService.sendActionCardMessage(announcement, true);
+						wechatEnterpriseService.sendTextCardMessage(announcement, true);
 						break;
 					case ThirdAppTypeConfig.TYPE_ALL:
 						dingtalkService.sendActionCardMessage(announcement, true);
