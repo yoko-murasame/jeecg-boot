@@ -25,6 +25,12 @@ public class RestUtil {
 
     public static String getDomain() {
         if (domain == null) {
+            // FIXME 线上的Nginx代理环境中，后端获取domain会去掉端口号，如果非默认端口，会导致一些回调地址报错
+            //  比如 http://aa.bb.com:8888 会变成 http://aa.bb.com
+            //  因此最好换成配置形式
+            //  这里还有一个解决方案，参考 SpringContextUtils.getDomain() 的逻辑中 可以看到他优先获取 X_GATEWAY_BASE_PATH 的值
+            //  因此在Nginx的代理中，手动设置header即可
+            //  如：proxy_set_header "X_GATEWAY_BASE_PATH" http://aa.bb.com:8888;
             domain = SpringContextUtils.getDomain();
             // issues/2959
             // 微服务版集成企业微信单点登录
