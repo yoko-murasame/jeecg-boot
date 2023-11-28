@@ -32,10 +32,10 @@ public enum ConstantBusiness {
     /**
      * @author Yoko
      * @date 2022/2/23 17:04
-     * @param businessKey
-     * @param idField
-     * @param nameField
-     * @param clazz
+     * @param businessKey 业务key
+     * @param idField id字段
+     * @param nameField name字段
+     * @param clazz 类
      * @description 返回指定类型的常量对象
      * @return T
      */

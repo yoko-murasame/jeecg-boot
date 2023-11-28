@@ -46,9 +46,9 @@ import java.util.stream.IntStream;
 @CacheConfig(cacheNames = "FolderServiceImpl")
 public class FolderServiceImpl implements FolderService {
 
-    @Autowired
+    @Resource
     private FolderMapper folderMapper;
-    @Autowired
+    @Resource
     private FileMapper fileMapper;
     @Autowired
     @Lazy
@@ -86,20 +86,18 @@ public class FolderServiceImpl implements FolderService {
                 .like(StringUtils.hasText(folderName), Folder::getName, folderName)
                 .list();
 
-        List<Map<String, Object>> result = folders.stream().map(folder -> {
+        return folders.stream().map(folder -> {
             Map<String, Object> res = new HashMap<>(2);
             res.put("folder", folder);
             List<String> folderTreeId = this.getFolderTreeId(folder.getId(), null);
             res.put("folderTreeId", folderTreeId);
             return res;
         }).collect(Collectors.toList());
-
-        return result;
     }
 
     /**
-     * @param fileName
-     * @param businessId
+     * @param fileName 文件名称
+     * @param businessId 业务ID
      * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
      * @author Yoko
      * @date 2022/4/25 10:08
@@ -117,24 +115,20 @@ public class FolderServiceImpl implements FolderService {
                 .like(StringUtils.hasText(fileName), File::getName, fileName);
 
         if (StringUtils.hasText(tags)) {
-            wp.and(wrapper -> {
-                Arrays.stream(tags.split(",")).forEach(
-                        tag -> wrapper.or().like(File::getTags, tag)
-                );
-            });
+            wp.and(wrapper -> Arrays.stream(tags.split(",")).forEach(
+                    tag -> wrapper.or().like(File::getTags, tag)
+            ));
         }
 
         List<File> files = wp.list();
 
-        List<Map<String, Object>> result = files.stream().map(file -> {
+        return files.stream().map(file -> {
             Map<String, Object> res = new HashMap<>(2);
             res.put("file", file);
             List<String> folderTreeId = this.getFolderTreeId(file.getFolderId(), null);
             res.put("folderTreeId", folderTreeId);
             return res;
         }).collect(Collectors.toList());
-
-        return result;
     }
 
     /**
@@ -185,7 +179,7 @@ public class FolderServiceImpl implements FolderService {
     @Transactional
     @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
     public Folder refreshAllChild(Folder folder, String folderId) {
-        if (StringUtils.isEmpty(folderId) && folder == null) {
+        if (!StringUtils.hasText(folderId) && folder == null) {
             return null;
         }
         if (folder == null) {
@@ -243,6 +237,7 @@ public class FolderServiceImpl implements FolderService {
         return folderMapper.selectAuthList(qr, permWp, fdWpStr, permWpStr);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public List<Folder> initialStringSubFolder(Folder folderParam, List<String> subFolders) {
         folderParam.setName(Optional.ofNullable(folderParam.getName()).orElse(DEFAULT_FOLDER_NAME));
@@ -272,9 +267,10 @@ public class FolderServiceImpl implements FolderService {
             });
             this.refreshAllChild(initFolder.getId());
         }
-        return Arrays.asList(initFolder);
+        return Collections.singletonList(initFolder);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void initialJsonSubFolders(Folder folderParam, JSONArray initialFolders, Folder parent, List<Folder> rootFolders) {
         IntStream.range(0, initialFolders.size()).forEach(idx -> {
@@ -295,10 +291,10 @@ public class FolderServiceImpl implements FolderService {
                         .setParentId(parent.getId());
             }
             this.save(folder);
-            this.refreshAllChild(folder);
+            // this.refreshAllChild(folder);
             // 子目录
             JSONArray children = jsonObject.getJSONArray("children");
-            if (children != null && children.size() > 0) {
+            if (children != null && !children.isEmpty()) {
                 this.initialJsonSubFolders(folderParam, children, folder, rootFolders);
             }
         });
@@ -320,11 +316,11 @@ public class FolderServiceImpl implements FolderService {
             if ((null == folders || folders.isEmpty()) && sysPermissionService.hasButtonPermission(ShiroUtil.getLoginUsername(), PermissionType.FULL.getPerm())) {
                 folders = new ArrayList<>();
                 if (null != jsonFolders && !jsonFolders.isEmpty()) {
-                    this.initialJsonSubFolders(folderParam, jsonFolders, null, folders);
+                    folderService.initialJsonSubFolders(folderParam, jsonFolders, null, folders);
                     // 再刷新父节点
-                    folders.forEach(folderService::refreshAllChild);
+                    // folders.forEach(folderService::refreshAllChild);
                 } else if (null != subFolders && !subFolders.isEmpty()) {
-                    folders = this.initialStringSubFolder(folderParam, subFolders);
+                    folders = folderService.initialStringSubFolder(folderParam, subFolders);
                 } else {
                     Folder initFolder = new Folder()
                             .setProjectId(folderParam.getProjectId())
@@ -334,7 +330,7 @@ public class FolderServiceImpl implements FolderService {
                             .setType(folderParam.getType())
                             .setLevel(Level.ROOT)
                             .setName(DEFAULT_FOLDER_NAME);
-                    this.save(initFolder);
+                    folderService.save(initFolder);
                     folders.add(initFolder);
                 }
             }
@@ -392,7 +388,7 @@ public class FolderServiceImpl implements FolderService {
                 })
                 .between(Folder::getFolderOrder, minOrder, maxOrder)
                 .orderByAsc(Folder::getFolderOrder).list();
-        Assert.state(folders.size() > 0, "待移动列表为空");
+        Assert.state(!folders.isEmpty(), "待移动列表为空");
         if (source.getFolderOrder() > target.getFolderOrder()) { // 上移动：max换成min，剩余下移1位（+1）
             folders.forEach(folder -> {
                 Integer order = folder.getFolderOrder();
@@ -417,7 +413,7 @@ public class FolderServiceImpl implements FolderService {
             });
         }
 
-        List<Folder> newFolders = new LambdaQueryChainWrapper<>(folderMapper)
+        return new LambdaQueryChainWrapper<>(folderMapper)
                 .eq(Folder::getEnabled, Enabled.ENABLED)
                 .and(wrapper -> {
                     wrapper.eq(Folder::getParentId, source.getParentId());
@@ -428,8 +424,6 @@ public class FolderServiceImpl implements FolderService {
                     }
                 })
                 .orderByAsc(Folder::getFolderOrder).list();
-
-        return newFolders;
     }
 
     /**
@@ -437,17 +431,17 @@ public class FolderServiceImpl implements FolderService {
      *
      * @param ids 待移动目录列表
      * @param targetId 传入空字符串表示根目录
-     * @return
+     * @return java.util.List<org.jeecg.modules.technical.entity.Folder>
      */
     @Transactional
     @Override
     @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
     public List<Folder> moveFolder(List<String> ids, String targetId) {
         // 移动目录：parentId、order、Level
-        Assert.state(ids.size() > 0, "参数错误");
+        Assert.state(!ids.isEmpty(), "参数错误");
         // 找到所有目录
         List<Folder> sources = folderMapper.selectBatchIds(ids);
-        Assert.state(sources.size() > 0, "没有找到选择的移动目录");
+        Assert.state(!sources.isEmpty(), "没有找到选择的移动目录");
         // 重置参数
         if (StringUtils.hasText(targetId)) { // 非根目录情况
             Folder target = this.findOne(targetId);
@@ -469,7 +463,7 @@ public class FolderServiceImpl implements FolderService {
             sources.forEach(folder -> {
                 // 源目录的父目录的子目录数操作--
                 if (StringUtils.hasText(folder.getParentId())) {
-                    this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
+                    this.refreshAllChild(folder.getParentId());
                 }
 
                 folder.setParentId(newParentId);
@@ -480,7 +474,7 @@ public class FolderServiceImpl implements FolderService {
                 folderMapper.updateById(folder);
             });
             // 目标目录的子目录数操作++
-            this.operateChildFolderSize(targetId, sources.size(), Operation.PLUS);
+            this.refreshAllChild(targetId);
 
             return this.findChild(targetId);
         } else { // 根目录情况
@@ -500,7 +494,7 @@ public class FolderServiceImpl implements FolderService {
             sources.forEach(folder -> {
                 // 源目录的父目录的子目录数操作--
                 if (StringUtils.hasText(folder.getParentId())) {
-                    this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
+                    this.refreshAllChild(folder.getParentId());
                 }
 
                 folder.setParentId("");
@@ -644,7 +638,7 @@ public class FolderServiceImpl implements FolderService {
             // 删除权限
             permissionService.removePermission(Collections.singletonList(id));
             // 删除成功后，父目录的子目录树--
-            this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
+            this.refreshAllChild(folder.getParentId());
             // 删除相关文件，真实删除
             fileService.deleteAllByFolder(folder.getId(), false);
             // 递归找到所有子树，并删除
@@ -683,7 +677,7 @@ public class FolderServiceImpl implements FolderService {
         permissionService.removePermission(Collections.singletonList(id));
         if (enabled == Enabled.DISABLED) {
             // 删除成功后，父目录的子目录树--
-            this.operateChildFolderSize(folder.getParentId(), 1, Operation.SUB);
+            this.refreshAllChild(folder.getParentId());
             // 删除相关文件
             fileService.deleteAllByFolder(folder.getId());
             // 递归找到所有子树，并删除
@@ -692,51 +686,6 @@ public class FolderServiceImpl implements FolderService {
         }
     }
 
-    @Transactional
-    @Override
-    @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
-    @Deprecated
-    public Folder operateChildFolderSize(String id, Integer value, Operation operation) {
-        /**
-         * 全部走自维护方法，旧的逻辑不适用了（复杂切易错）
-         */
-        if (true) {
-            return this.refreshAllChild(id);
-        }
-        /**
-         * 下面方法废弃了
-         */
-        // 此目录非根目录
-        if (!StringUtils.hasText(id)) {
-            log.info("id为空，可能是根目录相关操作，无需操作父节点改变子项数量");
-            return null;
-        }
-        Assert.state(value != null && value >= 0, "操作数不能为负数");
-        Folder folder = folderService.findOne(id);
-        // 真实删除后需要判断空
-        if (folder != null) {
-            folder.setChildFolderSize(operation.calculate(folder.getChildFolderSize(), value));
-            int isOk = folderMapper.updateById(folder);
-            Assert.state(isOk > 0, "目录：" + id + " 子目录数更新失败");
-        }
-        return folder;
-    }
-
-    @Transactional
-    @Override
-    @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
-    public Folder operateChildFileSize(String id, Integer value, Operation operation) {
-        // 此目录非根目录
-        if (!StringUtils.hasText(id)) {
-            log.info("id为空，可能是根目录相关操作，无需操作父节点改变子项数量");
-            return null;
-        }
-        Assert.state(value != null && value >= 0, "操作数不能为负数");
-        Folder folder = folderService.findOne(id);
-        folder.setChildFileSize(operation.calculate(folder.getChildFileSize(), value));
-        folderMapper.updateById(folder);
-        return folder;
-    }
 
     @Override
     @Transactional
@@ -762,18 +711,16 @@ public class FolderServiceImpl implements FolderService {
     @Override
     @Transactional
     public void deleteByBusinessIds(List<String> ids) {
-        ids.forEach(id -> {
-            this.deleteByBusinessId(id);
-        });
+        ids.forEach(this::deleteByBusinessId);
     }
 
-    @Autowired
+    @Resource
     private ProjectMapper projectMapper;
 
     /**
      * 查询自定义项目
      *
-     * @param folderParam
+     * @param folderParam 查询条件
      * @return org.jeecg.modules.technical.sample.entity.Project
      * @author Yoko
      * @since 2022/12/7 16:10
@@ -792,10 +739,10 @@ public class FolderServiceImpl implements FolderService {
             LambdaQueryWrapper<Project> projectQr = new LambdaQueryWrapper<Project>().last("limit 1");
             Project exist = projectMapper.selectOne(projectQr
                     .eq(StringUtils.hasText(businessId) && !NULL.equals(businessId), Project::getId, businessId)
-                    .and(StringUtils.isEmpty(businessId) && StringUtils.hasText(businessName), ew ->
+                    .and(!StringUtils.hasText(businessId) && StringUtils.hasText(businessName), ew ->
                             ew.like(Project::getName, businessName))
                     .and(StringUtils.hasText(projectId) && !NULL.equals(projectId), ew -> ew.eq(Project::getId, projectId))
-                    .and(StringUtils.isEmpty(projectId) && StringUtils.hasText(projectName), ew ->
+                    .and(!StringUtils.hasText(projectId) && StringUtils.hasText(projectName), ew ->
                             ew.like(Project::getName, projectName).or().like(Project::getName, projectName)));
             if (exist != null) {
                 project = new Project().setBusinessName(exist.getName()).setBusinessId(String.valueOf(exist.getId()))
@@ -845,7 +792,7 @@ public class FolderServiceImpl implements FolderService {
             return null;
         }
         List<String> folderNameArr = Arrays.asList(folderTreeName.split(","));
-        if (folderNameArr.size() == 0) {
+        if (folderNameArr.isEmpty()) {
             return null;
         }
         LambdaQueryWrapper<Folder> commonWp = Wrappers.lambdaQuery(folderParam)
@@ -863,15 +810,14 @@ public class FolderServiceImpl implements FolderService {
 
         String endWpstr = endWp.getCustomSqlSegment().replaceAll("ew", "endWp");
         String beginWpstr = beginWp.getCustomSqlSegment().replaceAll("ew", "beginWp");
-        List<Folder> result = folderMapper.queryTreeListByFolderNames(endWp, beginWp, endWpstr, beginWpstr);
 
-        return result;
+        return folderMapper.queryTreeListByFolderNames(endWp, beginWp, endWpstr, beginWpstr);
     }
 
     @Override
     public Folder queryTreeLastNodeByFolderTreeName(Folder folderParam, String folderTreeName) {
         List<Folder> folders = this.queryTreeListByFolderTreeName(folderParam, folderTreeName);
-        return (folders == null || folders.size() == 0) ? null : folders.get(folders.size() - 1);
+        return (folders == null || folders.isEmpty()) ? null : folders.get(folders.size() - 1);
     }
 
     /**
@@ -886,8 +832,7 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public List<Folder> queryTreeLastNodeByFolderTreeNames(Folder folderParam, List<String> folderTreeNames) {
         Function<String, Folder> func = e -> this.queryTreeLastNodeByFolderTreeName(folderParam, e);
-        List<Folder> res = folderTreeNames.stream().map(func).filter(Objects::nonNull).collect(Collectors.toList());
-        return res;
+        return folderTreeNames.stream().map(func).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override
@@ -909,14 +854,15 @@ public class FolderServiceImpl implements FolderService {
     }
 
     /**
-     * @param projectId
-     * @param projectName
+     * @param projectId  项目id
+     * @param projectName 项目名称
      * @return org.jeecg.modules.technical.sample.entity.Project
      * @author Yoko
      * @date 2022/2/15 12:07
      * @description 查询项目是否存在 Todo 改成自己的业务项目表
      * @deprecated
      */
+    @Deprecated
     private Project existProject(String projectId, String projectName) {
         Assert.state(StringUtils.hasText(projectId) || StringUtils.hasText(projectName), "关联项目id或名称不能全为空");
         // QueryWrapper<Project> projectQr = new QueryWrapper<Project>().last("limit 1");
@@ -924,25 +870,24 @@ public class FolderServiceImpl implements FolderService {
         LambdaQueryWrapper<Project> projectQr = new LambdaQueryWrapper<Project>().last("limit 1");
         boolean existProjectId = StringUtils.hasText(projectId);
         projectQr.eq(existProjectId && !"null".equals(projectId), Project::getId, projectId);
-        projectQr.and(!existProjectId && StringUtils.hasText(projectName), wrapper -> {
-            wrapper.like(Project::getName, projectName).or().like(Project::getName, projectName);
-        });
+        projectQr.and(!existProjectId && StringUtils.hasText(projectName), wrapper -> wrapper.like(Project::getName, projectName).or().like(Project::getName, projectName));
 
         Project exist = projectMapper.selectOne(projectQr);
         if (exist == null) {
             return null;
         }
-        return new Project().setName(exist.getName()).setId(exist.getId() + "");
+        return new Project().setName(exist.getName()).setId(exist.getId());
     }
 
     /**
-     * @param businessId
+     * @param businessId 业务id
      * @return org.jeecg.modules.technical.sample.entity.Project
      * @author Yoko
      * @date 2022/2/15 12:05
      * @description 查询项目是否存在（业务id，可以自定义关联，这里用教投项目表关联） Todo 改成自己的业务项目表
      * @deprecated
      */
+    @Deprecated
     private Project existProject(String businessId) {
         Assert.state(StringUtils.hasText(businessId), "业务id或名称不能全为空");
         LambdaQueryWrapper<Project> projectQr = new LambdaQueryWrapper<Project>().last("limit 1");
@@ -951,7 +896,7 @@ public class FolderServiceImpl implements FolderService {
             // 继续查找标准业务
             return ConstantBusiness.getConstantBusiness(businessId, "id", "name", Project.class);
         }
-        return new Project().setName(exist.getName()).setId(exist.getId() + "");
+        return new Project().setName(exist.getName()).setId(exist.getId());
     }
 
 }

@@ -4,8 +4,8 @@ package org.jeecg.modules.technical.service;
 import com.alibaba.fastjson.JSONArray;
 import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.enums.Enabled;
-import org.jeecg.modules.technical.entity.enums.Operation;
 import org.jeecg.modules.technical.sample.entity.Project;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,12 @@ public interface FolderService {
 
     List<Folder> findByLevel(Folder folderParam);
 
+    @Transactional(rollbackFor = Exception.class)
+    List<Folder> initialStringSubFolder(Folder folderParam, List<String> subFolders);
+
+    @Transactional(rollbackFor = Exception.class)
+    void initialJsonSubFolders(Folder folderParam, JSONArray initialFolders, Folder parent, List<Folder> rootFolders);
+
     List<Folder> findRoot(Folder folderParam);
 
     List<Folder> findRoot(Folder folderParam, JSONArray initialFolders, List<String> subFolders);
@@ -54,10 +60,6 @@ public interface FolderService {
 
     // 逻辑删除
     void changeStatus(String id, Enabled enabled);
-
-    Folder operateChildFolderSize(String id, Integer value, Operation operation);
-
-    Folder operateChildFileSize(String id, Integer value, Operation operation);
 
     void deleteByBusinessId(String businessId);
 
