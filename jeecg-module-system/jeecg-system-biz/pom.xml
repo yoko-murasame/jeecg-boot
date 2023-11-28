@@ -205,6 +205,7 @@
 		<dependency>
 			<groupId>org.jeecgframework</groupId>
 			<artifactId>jeewx-api</artifactId>
+			<version>1.5.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-collections</groupId>

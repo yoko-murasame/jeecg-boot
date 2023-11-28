@@ -34,6 +34,7 @@
 * [PostgreSQL分词功能开发步骤](./jeecg-boot-3.4.3last/PostgreSQL分词功能开发步骤.md)
 * [Oracle数据库安装参考文档](./jeecg-boot-3.4.3last/Oracle数据库安装参考文档.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
+* [钉钉集成说明](./jeecg-boot-3.4.3last/钉钉集成说明.md)
 * Jeecg接口修改
   * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
