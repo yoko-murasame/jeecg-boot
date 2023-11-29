@@ -21,12 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 /**
-* @Description: 项目表_温州市放心征迁依法程序监管系统
-* @Author: jeecg-boot
-* @Date:   2021-11-20
-* @Version: V1.0
+* 样例项目
 */
-@Api(tags="项目表_温州市放心征迁依法程序监管系统")
+@Api(tags="样例项目")
 @RestController("TechnicalSampleProjectController")
 @RequestMapping("/project/project")
 @Slf4j
@@ -43,8 +40,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param req
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-分页列表查询")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-分页列表查询", notes="项目表_温州市放心征迁依法程序监管系统-分页列表查询")
+   @AutoLog(value = "样例项目-分页列表查询")
+   @ApiOperation(value="样例项目-分页列表查询", notes="样例项目-分页列表查询")
    @GetMapping(value = "/list")
    public Result<?> queryPageList(Project project,
                                   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -62,8 +59,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param project
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-添加")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-添加", notes="项目表_温州市放心征迁依法程序监管系统-添加")
+   @AutoLog(value = "样例项目-添加")
+   @ApiOperation(value="样例项目-添加", notes="样例项目-添加")
    @PostMapping(value = "/add")
    public Result<?> add(@RequestBody Project project) {
        projectService.save(project);
@@ -76,8 +73,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param project
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-编辑")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-编辑", notes="项目表_温州市放心征迁依法程序监管系统-编辑")
+   @AutoLog(value = "样例项目-编辑")
+   @ApiOperation(value="样例项目-编辑", notes="样例项目-编辑")
    @PutMapping(value = "/edit")
    public Result<?> edit(@RequestBody Project project) {
        projectService.updateById(project);
@@ -90,8 +87,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param id
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-通过id删除")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-通过id删除", notes="项目表_温州市放心征迁依法程序监管系统-通过id删除")
+   @AutoLog(value = "样例项目-通过id删除")
+   @ApiOperation(value="样例项目-通过id删除", notes="样例项目-通过id删除")
    @DeleteMapping(value = "/delete")
    public Result<?> delete(@RequestParam(name="id",required=true) String id) {
        projectService.removeById(id);
@@ -104,8 +101,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param ids
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-批量删除")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-批量删除", notes="项目表_温州市放心征迁依法程序监管系统-批量删除")
+   @AutoLog(value = "样例项目-批量删除")
+   @ApiOperation(value="样例项目-批量删除", notes="样例项目-批量删除")
    @DeleteMapping(value = "/deleteBatch")
    public Result<?> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
        this.projectService.removeByIds(Arrays.asList(ids.split(",")));
@@ -118,8 +115,8 @@ public class ProjectController extends JeecgController<Project, IProjectService>
     * @param id
     * @return
     */
-   @AutoLog(value = "项目表_温州市放心征迁依法程序监管系统-通过id查询")
-   @ApiOperation(value="项目表_温州市放心征迁依法程序监管系统-通过id查询", notes="项目表_温州市放心征迁依法程序监管系统-通过id查询")
+   @AutoLog(value = "样例项目-通过id查询")
+   @ApiOperation(value="样例项目-通过id查询", notes="样例项目-通过id查询")
    @GetMapping(value = "/queryById")
    public Result<?> queryById(@RequestParam(name="id",required=true) String id) {
        Project project = projectService.getById(id);
@@ -137,7 +134,7 @@ public class ProjectController extends JeecgController<Project, IProjectService>
    */
    @RequestMapping(value = "/exportXls")
    public ModelAndView exportXls(HttpServletRequest request, Project project) {
-       return super.exportXls(request, project, Project.class, "项目表_温州市放心征迁依法程序监管系统");
+       return super.exportXls(request, project, Project.class, "样例项目");
    }
 
    /**
