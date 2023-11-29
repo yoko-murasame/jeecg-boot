@@ -51,6 +51,7 @@ public enum Suffix {
     RMVB("rmvb", ".rmvb", "视频 rmvb格式", new Type[]{VIDEO, PICTURE, DOCUMENT}, false),
     MKV("mkv", ".mkv", "视频 mkv格式", new Type[]{VIDEO, PICTURE, DOCUMENT}, false),
     MOV("mov", ".mov", "视频 mov格式", new Type[]{VIDEO, PICTURE, DOCUMENT}, false),
+    WMV("wmv", ".wmv", "视频 wmv格式", new Type[]{VIDEO, PICTURE, DOCUMENT}, false),
 
 
     // 压缩文件格式，也算入文档类型

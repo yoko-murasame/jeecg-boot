@@ -4,15 +4,19 @@
 
 v-viewer图片预览
 
+* https://mirari.cc/posts/v-viewer
 * https://www.npmjs.com/package/v-viewer
 * [中文文档](https://mirari.cc/2017/08/27/Vue图片浏览组件v-viewer，支持旋转、缩放、翻转等操作/)
 * https://github.com/fengyuanchen/viewerjs
 
 安装：
-```js
-// npm install v-viewer
-// yarn add v-Viewer
+```shell
+npm install v-viewer
+yarn add v-Viewer
+```
 
+使用：
+```js
 /* v-viewer 图片预览 */
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
@@ -33,6 +37,30 @@ Viewer.setDefaults({
     fullscreen: true, // 是否全屏
     keyboard: true, // 是否支持键盘
     url: 'data-source' // 设置大图片的url
+  }
+})
+// 直接调用api模式
+const centextMenuListener = (event) => {
+  event.preventDefault(); // 阻止右键菜单的默认行为
+}
+const viewer = this.$viewerApi({
+  images: [fileUrl],
+  options: {
+    button: false, // 右上方的关闭按钮
+    navbar: false, // 底部工具栏
+    toolbar: false, // 底部工具配置
+    // url: 'data-source',
+    initialViewIndex: 0,
+    backdrop: true, // 遮罩关闭
+    className: 'v-viewer-image-hide',
+    viewed: function () {
+      console.log('viewed', viewer)
+      viewer.body.addEventListener('contextmenu', centextMenuListener);
+    },
+    hidden: function () {
+      console.log('hidden', viewer)
+      viewer.body.removeEventListener('contextmenu', centextMenuListener);
+    }
   }
 })
 /* v-viewer 图片预览 */

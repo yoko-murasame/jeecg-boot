@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
@@ -21,7 +21,9 @@ import org.jeecg.modules.system.model.SysPermissionTree;
 import org.jeecg.modules.system.model.TreeModel;
 import org.jeecg.modules.system.service.*;
 import org.jeecg.modules.system.util.PermissionDataUtil;
+import org.jeecg.modules.system.vo.SysPermissionVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,6 +73,32 @@ public class SysPermissionController {
 	private static final String CHILDREN = "children";
 
 	/**
+	 * 检查菜单权限是否存在
+	 */
+	@RequestMapping(value = "/checkPermissionExist", method = RequestMethod.GET)
+	public Result<Map<String, Boolean>> checkPermissionExist(SysPermissionVo vo, HttpServletRequest req) {
+		LambdaQueryWrapper<SysPermission> wp = Wrappers.lambdaQuery(SysPermission.class)
+				.eq(SysPermission::getDelFlag, vo.getDelFlag())
+				.eq(StringUtils.hasText(vo.getStatus()), SysPermission::getStatus, vo.getStatus());
+		Map<String, Boolean> flags = new HashMap<>();
+		if (StringUtils.hasText((vo.getPerms()))) {
+			String[] split = vo.getPerms().split(",");
+			for (String perm : split) {
+				flags.put(perm, sysPermissionService
+						.count(wp.clone().eq(StringUtils.hasText(perm), SysPermission::getPerms, perm)) > 0);
+			}
+		}
+		if (StringUtils.hasText(vo.getComponent())) {
+			String[] split = vo.getComponent().split(",");
+			for (String component : split) {
+				flags.put(component, sysPermissionService
+						.count(wp.clone().eq(StringUtils.hasText(component), SysPermission::getComponent, component)) > 0);
+			}
+		}
+		return Result.OK(flags);
+	}
+
+	/**
 	 * 加载数据节点
 	 *
 	 * @return
@@ -83,7 +111,7 @@ public class SysPermissionController {
 			LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>();
 			query.eq(SysPermission::getDelFlag, CommonConstant.DEL_FLAG_0);
 			query.orderByAsc(SysPermission::getSortNo);
-			
+
 			//支持通过菜单名字，模糊查询
 			if(oConvertUtils.isNotEmpty(sysPermission.getName())){
 				query.like(SysPermission::getName, sysPermission.getName());
@@ -207,7 +235,7 @@ public class SysPermissionController {
 
 //	/**
 //	 * 查询用户拥有的菜单权限和按钮权限（根据用户账号）
-//	 * 
+//	 *
 //	 * @return
 //	 */
 //	@RequestMapping(value = "/queryByUser", method = RequestMethod.GET)
@@ -273,7 +301,7 @@ public class SysPermissionController {
 				}
 				//update-end---author:liusq ---date:2022-06-29  for：设置自定义首页地址和组件-----------
 			}
-			
+
 			JSONObject json = new JSONObject();
 			JSONArray menujsonArray = new JSONArray();
 			this.getPermissionJsonArray(menujsonArray, metaList, null);
@@ -299,7 +327,7 @@ public class SysPermissionController {
 			json.put("sysSafeMode", jeecgBaseConfig.getSafeMode());
 			result.setResult(json);
 		} catch (Exception e) {
-			result.error500("查询失败:" + e.getMessage());  
+			result.error500("查询失败:" + e.getMessage());
 			log.error(e.getMessage(), e);
 		}
 		return result;

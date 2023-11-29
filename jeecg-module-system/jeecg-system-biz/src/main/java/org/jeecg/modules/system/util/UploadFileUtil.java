@@ -50,6 +50,33 @@ public class UploadFileUtil {
         }
     }
 
+    // 输入流取MD5
+    public static String calcMD5(InputStream stream, boolean reset) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = stream.read(buf)) > 0) {
+                digest.update(buf, 0, len);
+            }
+            return toHexString(digest.digest());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "";
+        } finally {
+            if (reset) {
+                try {
+                    stream.reset();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
     public static String toHexString(byte[] data) {
         StringBuilder r = new StringBuilder(data.length * 2);
         for (byte b : data) {

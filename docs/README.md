@@ -1,8 +1,5 @@
 # Jeecg Yoko's Branch
 
-* 记录Jeecg使用心得
-* 部分Jeecg组件优化
-* 个人封装的一些组件
 * 请勿用于商业用途
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * [文档模板](./Template.md)
@@ -10,7 +7,6 @@
 ## [ant-design-vue-jeecg](https://github.com/yoko-murasame/ant-design-vue-jeecg)
 
 * [Nginx配置示例](./ant-design-vue-jeecg/Nginx配置示例.md)
-* 流程功能文档
 * [个性化配置文档](./ant-design-vue-jeecg/个性化配置文档.md)
 * 个人封装组件
   * [CancelButton 防误触Modal取消按钮组件](./ant-design-vue-jeecg/CancelButton.md)
@@ -25,6 +21,7 @@
   * [JSearchSelectTag 字典搜索表单组件](./ant-design-vue-jeecg/JSearchSelectTag.md)
   * [JUpload 文件上传表单组件](./ant-design-vue-jeecg/JUpload.md)
   * [JUploadKnowledge 文件上传表单组件-知识库扩展版本](./ant-design-vue-jeecg/JUploadKnowledge.md)
+  * [VuePdfAppModal PDF在线预览弹窗组件](./ant-design-vue-jeecg/VuePdfAppModal.md)
   * [系统强密码校验](./ant-design-vue-jeecg/系统强密码校验.md)
 * 其他组件
   * [v-viewer 图片预览插件](./ant-design-vue-jeecg/V-Viewer.md)
@@ -37,17 +34,19 @@
 * [PostgreSQL分词功能开发步骤](./jeecg-boot-3.4.3last/PostgreSQL分词功能开发步骤.md)
 * [Oracle数据库安装参考文档](./jeecg-boot-3.4.3last/Oracle数据库安装参考文档.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
-* 流程功能文档
+* [钉钉集成说明](./jeecg-boot-3.4.3last/钉钉集成说明.md)
 * Jeecg接口修改
   * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
-  * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
+  * [QueryGenerator 查询条件构造器](./jeecg-boot-3.4.3last/QueryGenerator.md)
+  * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
 
 ## 扩展
 
 * [APIJSON](./external/APIJSON.md)
 * [Spring Boot Snippets](./jeecg-boot-3.4.3last/Spring Boot Snippets.md)
 * [Linux DevOps](./jeecg-boot-3.4.3last/Linux DevOps.md)
+* [mybatis-plus-generator-ui](./external/mybatis-plus-generator-ui.md)
 * [暗黑作画禁书目录-分词查询示例模块](./external/暗黑作画禁书目录.md)
 * [知识库-通用文档管理模块](./external/知识库.md)

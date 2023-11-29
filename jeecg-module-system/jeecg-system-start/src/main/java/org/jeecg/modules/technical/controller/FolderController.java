@@ -14,6 +14,8 @@ import org.jeecg.modules.technical.entity.enums.Type;
 import org.jeecg.modules.technical.service.FolderService;
 import org.jeecg.modules.technical.vo.FolderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -92,10 +94,12 @@ public class FolderController {
         List<String> subFolders = params.getSubFolders();
         JSONArray initialFolders = params.getInitialFolders();
         Type type = params.getType();
-        String projectId = params.getProjectId();
-        String projectName = params.getProjectName();
+        String projectId = StringUtils.hasText(params.getProjectId()) ? params.getProjectId() : params.getBusinessId();
+        String projectName = StringUtils.hasText(params.getProjectName()) ? params.getProjectName() : params.getBusinessName();
         String businessId = params.getBusinessId();
         String businessName = params.getBusinessName();
+        Assert.hasText(businessId, "businessId不能为空！");
+        // Assert.hasText(businessName, "businessName不能为空！");
 
         List<Folder> roots = folderService.findRoot(Folder.of().ofType(type).ofProject(projectId, projectName).ofBusiness(businessId, businessName),
                 initialFolders, subFolders);

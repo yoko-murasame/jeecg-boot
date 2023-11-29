@@ -114,6 +114,7 @@
                             FROM act_hi_procinst),
             result AS (SELECT task_view.*,
                               task_view.start_time_   AS create_time,
+                              task_view.start_time_   AS create_time_,
                               efd.form_data_id,
                               efd.oa_todo_id,
                               task_view.assignee_     AS task_assignee_id,
@@ -142,7 +143,7 @@
         SELECT *
         FROM result ${ew.customSqlSegment}
     </select>
-    
+
     <select id="myApplyProcessListV2" resultType="org.jeecg.modules.workflow.entity.ProcessHisDTO">
         WITH his_procinst AS (select distinct RES.*, ARP.NAME_ as proc_def_name
                               from act_hi_procinst RES
@@ -159,6 +160,7 @@
                                his_procinst.proc_def_id_                              AS process_definition_id,
                                his_procinst.proc_def_name                             AS process_definition_name,
                                his_procinst.start_time_                               AS create_time,
+                               his_procinst.start_time_                               AS create_time_,
                                his_procinst.start_time_                               AS start_time,
                                his_procinst.end_time_                                 AS end_time,
                                his_procinst.duration_                                 AS task_due_time,
@@ -206,6 +208,7 @@
                             FROM act_hi_procinst),
             result AS (SELECT task_view.*,
                               task_view.start_time_   AS create_time,
+                              task_view.start_time_   AS create_time_,
                               efd.form_data_id,
                               efd.oa_todo_id,
                               task_view.assignee_     AS task_assignee_id,

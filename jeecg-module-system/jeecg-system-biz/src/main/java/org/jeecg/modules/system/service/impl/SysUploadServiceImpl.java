@@ -174,6 +174,12 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
         biz = this.generateBizPath(biz);
 
         if (CommonConstant.UPLOAD_TYPE_LOCAL.equals(uploadType)) {
+            /**
+             * 直接的inputStream，在经过md5计算后，会导致流关闭，所以需要重置
+             * 而来自 multipartFile.getInputStream() 每次调用会重新获取流，所以不需要重置
+             * 后续如果有文件流调用此接口产生的写入异常，可以优先考虑这个情况。
+             */
+            is.reset();
             // 本地文件上传需要捕获IOException
             String url = this.uploadLocal(is, fileName, biz);
             sysUpload.setUrl(url);

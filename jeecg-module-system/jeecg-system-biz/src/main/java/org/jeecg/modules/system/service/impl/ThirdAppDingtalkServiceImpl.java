@@ -24,10 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.dto.message.MessageDTO;
 import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.common.util.RestUtil;
-import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.thirdapp.ThirdAppConfig;
 import org.jeecg.config.thirdapp.ThirdAppTypeItemVo;
@@ -37,6 +35,7 @@ import org.jeecg.modules.system.mapper.SysUserMapper;
 import org.jeecg.modules.system.model.SysDepartTreeModel;
 import org.jeecg.modules.system.model.ThirdLoginModel;
 import org.jeecg.modules.system.service.*;
+import org.jeecg.modules.system.util.ShiroUtil;
 import org.jeecg.modules.system.vo.thirdapp.JdtDepartmentTreeVo;
 import org.jeecg.modules.system.vo.thirdapp.SyncInfoVo;
 import org.springframework.beans.BeanUtils;
@@ -44,10 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -208,7 +204,9 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
         }
         // 获取【钉钉】所有的部门
         List<Department> departments = JdtDepartmentAPI.listAll(accessToken);
-        String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+        // String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+        // 递归执行时超级token会导致jwt解析失败，因此换成这个方式获取用户名
+        String username = ShiroUtil.getLoginUsername();
         List<JdtDepartmentTreeVo> departmentTreeList = JdtDepartmentTreeVo.listToTree(departments);
         // 递归同步部门
         this.syncDepartmentToLocalRecursion(departmentTreeList, null, username, syncInfo, accessToken);
@@ -257,10 +255,11 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
                         Department updateDtDepart = new Department();
                         updateDtDepart.setDept_id(departmentTree.getDept_id());
                         updateDtDepart.setSource_identifier(newSysDepart.getId());
-                        Response response = JdtDepartmentAPI.update(updateDtDepart, accessToken);
-                        if (!response.isSuccess()) {
-                            throw new RuntimeException(response.getErrmsg());
-                        }
+                        // todo 这个接口没权限，先关掉
+                        // Response response = JdtDepartmentAPI.update(updateDtDepart, accessToken);
+                        // if (!response.isSuccess()) {
+                        //     throw new RuntimeException(response.getErrmsg());
+                        // }
                         String str = String.format("部门 %s 创建成功！", newSysDepart.getDepartName());
                         syncInfo.addSuccessInfo(str);
                     } catch (Exception e) {
@@ -769,7 +768,7 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
         // 封装钉钉消息
         String title = message.getTitle();
         String content = message.getContent();
-        int agentId = thirdAppConfig.getDingtalk().getAgentIdInt();
+        String agentId = thirdAppConfig.getDingtalk().getAgentId();
         Message<MarkdownMessage> mdMessage = new Message<>(agentId, new MarkdownMessage(title, content));
         if (message.getToAll()) {
             mdMessage.setTo_all_user(true);
@@ -793,7 +792,7 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
         }
         // 封装钉钉消息
         String content = message.getContent();
-        int agentId = thirdAppConfig.getDingtalk().getAgentIdInt();
+        String agentId = thirdAppConfig.getDingtalk().getAgentId();
         Message<TextMessage> textMessage = new Message<>(agentId, new TextMessage(content));
         if (message.getToAll()) {
             textMessage.setTo_all_user(true);
@@ -826,7 +825,7 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
         if (accessToken == null) {
             return null;
         }
-        int agentId = thirdAppConfig.getDingtalk().getAgentIdInt();
+        String agentId = thirdAppConfig.getDingtalk().getAgentId();
         return JdtMessageAPI.recallMessage(agentId, msgTaskId, getAccessToken());
     }
 
@@ -845,7 +844,7 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
         if (accessToken == null) {
             return null;
         }
-        int agentId = thirdAppConfig.getDingtalk().getAgentIdInt();
+        String agentId = thirdAppConfig.getDingtalk().getAgentId();
         String markdown = "### " + announcement.getTitile() + "\n" + oConvertUtils.getString(announcement.getMsgAbstract(),"空");
         ActionCardMessage actionCard = new ActionCardMessage(markdown);
         actionCard.setTitle(announcement.getTitile());

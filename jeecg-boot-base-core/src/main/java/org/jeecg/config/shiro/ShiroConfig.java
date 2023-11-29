@@ -74,6 +74,8 @@ public class ShiroConfig {
                 }
             }
         }
+        // 检测权限是否存在
+        filterChainDefinitionMap.put("/sys/permission/checkPermissionExist", "anon");
 
         // 流程
         filterChainDefinitionMap.put("/designer/**", "anon");

@@ -12,11 +12,9 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
-import org.jeecg.common.util.CommonUtils;
-import org.jeecg.common.util.DateUtils;
-import org.jeecg.common.util.SqlInjectionUtil;
-import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.common.util.*;
 import org.springframework.util.NumberUtils;
+import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
@@ -73,6 +71,23 @@ public class QueryGenerator {
 
 	/**to_date*/
 	public static final String TO_DATE = "to_date";
+
+	public static QueryRuleEnum STRING_RULE = null;
+
+	/**
+	 * 根据配置初始化字符类型的查询匹配模式
+	 * 默认为 EQ
+	 */
+	private static void installStringRule() {
+		if (null != STRING_RULE) {
+			return;
+		}
+		String property = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("jeecg.queryRule");
+		if (!StringUtils.hasText(property)) {
+			property = QueryRuleEnum.EQ.getValue();
+		}
+		STRING_RULE = QueryRuleEnum.getByValue(property);
+	}
 
 	/**时间格式化 */
 	private static final ThreadLocal<SimpleDateFormat> LOCAL = new ThreadLocal<SimpleDateFormat>();
@@ -178,10 +193,12 @@ public class QueryGenerator {
 					QueryRuleEnum rule = convert2Rule(value);
 					value = replaceValue(rule,value);
 					// add -begin 添加判断为字符串时设为全模糊查询
-					//if( (rule==null || QueryRuleEnum.EQ.equals(rule)) && "class java.lang.String".equals(type)) {
+					if( (rule==null || QueryRuleEnum.EQ.equals(rule)) && "class java.lang.String".equals(type)) {
 						// 可以设置左右模糊或全模糊，因人而异
-						//rule = QueryRuleEnum.LIKE;
-					//}
+						// rule = QueryRuleEnum.LIKE;
+						installStringRule();
+						rule = STRING_RULE;
+					}
 					// add -end 添加判断为字符串时设为全模糊查询
 					addEasyQuery(queryWrapper, column, rule, value);
 				}

@@ -25,6 +25,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.dynamic.db.FreemarkerParseFactory;
+import org.jeecg.config.thirdapp.ThirdAppTypeConfig;
 import org.jeecg.modules.message.entity.SysMessageTemplate;
 import org.jeecg.modules.message.handle.impl.DdSendMsgHandle;
 import org.jeecg.modules.message.handle.impl.EmailSendMsgHandle;
@@ -425,8 +426,21 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		}
 		try {
 			// 同步企业微信、钉钉的消息通知
-			dingtalkService.sendActionCardMessage(announcement, true);
-			wechatEnterpriseService.sendTextCardMessage(announcement, true);
+			String thirdApp = SpringContextUtils.getHttpServletRequest().getParameter(ThirdAppTypeConfig.THIRD_APP_TYPE);
+			if (StringUtils.isNotBlank(thirdApp)) {
+				switch (thirdApp) {
+					case ThirdAppTypeConfig.TYPE_DINGTALK:
+						dingtalkService.sendActionCardMessage(announcement, true);
+						break;
+					case ThirdAppTypeConfig.TYPE_WECHAT_ENTERPRISE:
+						wechatEnterpriseService.sendTextCardMessage(announcement, true);
+						break;
+					case ThirdAppTypeConfig.TYPE_ALL:
+						dingtalkService.sendActionCardMessage(announcement, true);
+						wechatEnterpriseService.sendTextCardMessage(announcement, true);
+						break;
+				}
+			}
 		} catch (Exception e) {
 			log.error("同步发送第三方APP消息失败！", e);
 		}
@@ -498,9 +512,21 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 			}
 		}
 		try {
-			// 同步企业微信、钉钉的消息通知
-			dingtalkService.sendActionCardMessage(announcement, true);
-			wechatEnterpriseService.sendTextCardMessage(announcement, true);
+			String thirdApp = SpringContextUtils.getHttpServletRequest().getParameter(ThirdAppTypeConfig.THIRD_APP_TYPE);
+			if (StringUtils.isNotBlank(thirdApp)) {
+				switch (thirdApp) {
+					case ThirdAppTypeConfig.TYPE_DINGTALK:
+						dingtalkService.sendActionCardMessage(announcement, true);
+						break;
+					case ThirdAppTypeConfig.TYPE_WECHAT_ENTERPRISE:
+						wechatEnterpriseService.sendTextCardMessage(announcement, true);
+						break;
+					case ThirdAppTypeConfig.TYPE_ALL:
+						dingtalkService.sendActionCardMessage(announcement, true);
+						wechatEnterpriseService.sendTextCardMessage(announcement, true);
+						break;
+				}
+			}
 		} catch (Exception e) {
 			log.error("同步发送第三方APP消息失败！", e);
 		}
