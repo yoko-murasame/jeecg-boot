@@ -826,8 +826,12 @@ public class ThirdAppWechatEnterpriseServiceImpl implements IThirdAppService {
             }else{
                 LambdaQueryWrapper<SysAnnouncementSend> queryWrapper = new LambdaQueryWrapper<>();
                 queryWrapper.eq(SysAnnouncementSend::getAnntId, announcement.getId());
-                SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendMapper.selectOne(queryWrapper);
-                userIds = new String[] {sysAnnouncementSend.getUserId()};
+                // 原先的逻辑选择多人不行
+                // SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendMapper.selectOne(queryWrapper, false);
+                // userIds = new String[] {sysAnnouncementSend.getUserId()};
+                // 换成多人推送
+                List<SysAnnouncementSend> sends = sysAnnouncementSendMapper.selectList(queryWrapper);
+                userIds = sends.stream().map(SysAnnouncementSend::getUserId).toArray(String[] :: new);
             }
 
             LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -842,7 +846,7 @@ public class ThirdAppWechatEnterpriseServiceImpl implements IThirdAppService {
         entity.setTitle(announcement.getTitile());
         entity.setDescription(oConvertUtils.getString(announcement.getMsgAbstract(),"空"));
         String baseUrl = null;
-        
+
         //优先通过请求获取basepath，获取不到读取 jeecg.domainUrl.pc
         try {
             baseUrl = RestUtil.getBaseUrl();
@@ -851,7 +855,7 @@ public class ThirdAppWechatEnterpriseServiceImpl implements IThirdAppService {
             baseUrl =  jeecgBaseConfig.getDomainUrl().getPc();
             //e.printStackTrace();
         }
-       
+
         entity.setUrl(baseUrl + "/sys/annountCement/show/" + announcement.getId());
         textCard.setTextcard(entity);
         return JwMessageAPI.sendTextCardMessage(textCard, accessToken);

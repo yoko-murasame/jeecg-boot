@@ -1,6 +1,5 @@
 package org.jeecg.modules.system.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -48,7 +47,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.jeecg.common.constant.CommonConstant.ANNOUNCEMENT_SEND_STATUS_1;
@@ -128,6 +130,7 @@ public class SysAnnouncementController {
 			// update-begin-author:liusq date:20210804 for:标题处理xss攻击的问题
 			String title = XssUtils.scriptXss(sysAnnouncement.getTitile());
 			sysAnnouncement.setTitile(title);
+			sysAnnouncement.setMsgAbstract(title);
 			// update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
 			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
             //未发布
@@ -156,6 +159,7 @@ public class SysAnnouncementController {
 			// update-begin-author:liusq date:20210804 for:标题处理xss攻击的问题
 			String title = XssUtils.scriptXss(sysAnnouncement.getTitile());
 			sysAnnouncement.setTitile(title);
+			sysAnnouncement.setMsgAbstract(title);
 			// update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
 			boolean ok = sysAnnouncementService.upDateAnnouncement(sysAnnouncement);
 			//TODO 返回false说明什么？
