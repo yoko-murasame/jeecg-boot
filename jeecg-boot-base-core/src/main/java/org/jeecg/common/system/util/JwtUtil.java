@@ -79,6 +79,15 @@ public class JwtUtil {
             DecodedJWT jwt = verifier.verify(token);
             return true;
         } catch (Exception exception) {
+            try {
+                String superToken = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("spring.profiles.superToken");
+                // 如果是超级token，返回超级用户
+                if (token.equals(superToken)) {
+                    return true;
+                }
+            } catch (Exception ex) {
+                return false;
+            }
             return false;
         }
     }
