@@ -91,7 +91,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             onlCgformIndex.setCgformHeadId(replace);
         }
         head.setIsDbSynch("N");
-        head.setQueryMode(org.jeecg.modules.online.cgform.d.b.sC);
+        head.setQueryMode(org.jeecg.modules.online.cgform.d.b.single);
         head.setTableVersion(1);
         head.setCopyType(0);
         if (head.getTableType().intValue() == 3 && head.getTabOrderNum() == null) {
@@ -308,9 +308,9 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                     .eq(OnlCgformHead::getTableName, str))) != null) {
                 String subTableStr = onlCgformHead2.getSubTableStr();
                 if (oConvertUtils.isNotEmpty(subTableStr)) {
-                    List list = (List) Arrays.asList(subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)).stream().collect(Collectors.toList());
+                    List list = (List) Arrays.asList(subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)).stream().collect(Collectors.toList());
                     list.remove(onlCgformHead.getTableName());
-                    onlCgformHead2.setSubTableStr(String.join(org.jeecg.modules.online.cgform.d.b.sB, list));
+                    onlCgformHead2.setSubTableStr(String.join(org.jeecg.modules.online.cgform.d.b.DOT_STRING, list));
                     ((OnlCgformHeadMapper) this.baseMapper).updateById(onlCgformHead2);
                 }
             }
@@ -364,7 +364,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (isListButton) {
             lambdaQueryWrapper.in(OnlCgformButton::getButtonStyle, new Object[]{"link", "button"});
         } else {
-            lambdaQueryWrapper.eq(OnlCgformButton::getButtonStyle, org.jeecg.modules.online.cgform.d.b.ai);
+            lambdaQueryWrapper.eq(OnlCgformButton::getButtonStyle, org.jeecg.modules.online.cgform.d.b.form);
         }
         lambdaQueryWrapper.orderByAsc(OnlCgformButton::getOrderNum);
         return this.onlCgformButtonMapper.selectList(lambdaQueryWrapper);
@@ -426,7 +426,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 onlCgformField.setFieldMustInput("0");
                 onlCgformField.setIsShowList(1);
                 onlCgformField.setOrderNum(Integer.valueOf(i + 1));
-                onlCgformField.setQueryMode(org.jeecg.modules.online.cgform.d.b.sC);
+                onlCgformField.setQueryMode(org.jeecg.modules.online.cgform.d.b.single);
                 onlCgformField.setDbLength(Integer.valueOf(oConvertUtils.getInt(columnVo.getPrecision())));
                 onlCgformField.setFieldLength(120);
                 onlCgformField.setDbPointLength(Integer.valueOf(oConvertUtils.getInt(columnVo.getScale())));
@@ -454,7 +454,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                     onlCgformField.setDbType("int");
                 } else if ("java.util.Date".equalsIgnoreCase(columnVo.getFieldType())) {
                     onlCgformField.setDbType("Date");
-                    onlCgformField.setFieldShowType(org.jeecg.modules.online.cgform.d.i.d);
+                    onlCgformField.setFieldShowType(org.jeecg.modules.online.cgform.d.i.DATE);
                 } else if ("java.lang.Double".equalsIgnoreCase(columnVo.getFieldType()) || "java.lang.Float".equalsIgnoreCase(columnVo.getFieldType())) {
                     onlCgformField.setDbType("double");
                 } else if ("java.math.BigDecimal".equalsIgnoreCase(columnVo.getFieldType()) || "BigDecimal".equalsIgnoreCase(columnVo.getFieldType())) {
@@ -524,7 +524,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                     if (oConvertUtils.isEmpty(subTableStr)) {
                         subTableStr = onlCgformHead3.getTableName();
                     } else if (subTableStr.indexOf(onlCgformHead3.getTableName()) < 0) {
-                        ArrayList arrayList = new ArrayList(Arrays.asList(subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)));
+                        ArrayList arrayList = new ArrayList(Arrays.asList(subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)));
                         int i2 = 0;
                         while (true) {
                             if (i2 >= arrayList.size()) {
@@ -543,7 +543,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                         if (arrayList.indexOf(onlCgformHead3.getTableName()) < 0) {
                             arrayList.add(onlCgformHead3.getTableName());
                         }
-                        subTableStr = String.join(org.jeecg.modules.online.cgform.d.b.sB, arrayList);
+                        subTableStr = String.join(org.jeecg.modules.online.cgform.d.b.DOT_STRING, arrayList);
                     }
                     onlCgformHead2.setSubTableStr(subTableStr);
                     ((OnlCgformHeadMapper) this.baseMapper).updateById(onlCgformHead2);
@@ -559,12 +559,12 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 String subTableStr2 = onlCgformHead5.getSubTableStr();
                 if (onlCgformHead5.getSubTableStr().equals(onlCgformHead.getTableName())) {
                     subTableStr2 = "";
-                } else if (onlCgformHead5.getSubTableStr().startsWith(onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.sB)) {
-                    subTableStr2 = subTableStr2.replace(onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.sB, "");
-                } else if (onlCgformHead5.getSubTableStr().endsWith(org.jeecg.modules.online.cgform.d.b.sB + onlCgformHead.getTableName())) {
-                    subTableStr2 = subTableStr2.replace(org.jeecg.modules.online.cgform.d.b.sB + onlCgformHead.getTableName(), "");
-                } else if (onlCgformHead5.getSubTableStr().indexOf(org.jeecg.modules.online.cgform.d.b.sB + onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.sB) != -1) {
-                    subTableStr2 = subTableStr2.replace(org.jeecg.modules.online.cgform.d.b.sB + onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.sB, org.jeecg.modules.online.cgform.d.b.sB);
+                } else if (onlCgformHead5.getSubTableStr().startsWith(onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
+                    subTableStr2 = subTableStr2.replace(onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.DOT_STRING, "");
+                } else if (onlCgformHead5.getSubTableStr().endsWith(org.jeecg.modules.online.cgform.d.b.DOT_STRING + onlCgformHead.getTableName())) {
+                    subTableStr2 = subTableStr2.replace(org.jeecg.modules.online.cgform.d.b.DOT_STRING + onlCgformHead.getTableName(), "");
+                } else if (onlCgformHead5.getSubTableStr().indexOf(org.jeecg.modules.online.cgform.d.b.DOT_STRING + onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.DOT_STRING) != -1) {
+                    subTableStr2 = subTableStr2.replace(org.jeecg.modules.online.cgform.d.b.DOT_STRING + onlCgformHead.getTableName() + org.jeecg.modules.online.cgform.d.b.DOT_STRING, org.jeecg.modules.online.cgform.d.b.DOT_STRING);
                 }
                 onlCgformHead5.setSubTableStr(subTableStr2);
                 ((OnlCgformHeadMapper) this.baseMapper).updateById(onlCgformHead5);
@@ -587,7 +587,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead2.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead2.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     JSONArray jSONArray = json.getJSONArray(str);
                     if (jSONArray != null && jSONArray.size() != 0 && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
                             .selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
@@ -729,7 +729,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     OnlCgformHead onlCgformHead2 = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
                             .eq(OnlCgformHead::getTableName, str));
                     if (onlCgformHead2 != null) {
@@ -778,7 +778,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     OnlCgformHead onlCgformHead2 = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
                             .eq(OnlCgformHead::getTableName, str));
                     if (onlCgformHead2 != null) {
@@ -967,7 +967,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (head.getTableType().intValue() == 2) {
             String subTableStr = head.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     OnlCgformHead onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
                             .selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
                                     .eq(OnlCgformHead::getTableName, str));
@@ -1159,7 +1159,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (lowerCase.indexOf(org.jeecg.modules.online.config.b.b.e) >= 0) {
             return "java.math.BigDecimal";
         }
-        if (lowerCase.indexOf(org.jeecg.modules.online.cgform.d.i.d) >= 0) {
+        if (lowerCase.indexOf(org.jeecg.modules.online.cgform.d.i.DATE) >= 0) {
             return "java.util.Date";
         }
         return "java.lang.String";
@@ -1176,7 +1176,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             throw new DBException("数据库主表[" + tbname + "]不存在");
         }
         if (onlCgformHead2.getTableType().intValue() == 2 && (subTableStr = onlCgformHead2.getSubTableStr()) != null) {
-            for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+            for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                 String string = json.getString(org.jeecg.modules.online.cgform.d.b.ae + str);
                 if (!oConvertUtils.isEmpty(string) && (parseArray = JSONArray.parseArray(URLDecoder.decode(string, "UTF-8"))) != null && parseArray.size() != 0 && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne(new LambdaQueryWrapper<OnlCgformHead>()
                         .eq(OnlCgformHead::getTableName, str))) != null) {
@@ -1213,7 +1213,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             throw new DBException("数据库主表[" + tbname + "]不存在");
         }
         if (onlCgformHead.getTableType().intValue() == 2) {
-            for (String str : onlCgformHead.getSubTableStr().split(org.jeecg.modules.online.cgform.d.b.sB)) {
+            for (String str : onlCgformHead.getSubTableStr().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                 OnlCgformHead onlCgformHead2 = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne(new LambdaQueryWrapper<OnlCgformHead>()
                         .eq(OnlCgformHead::getTableName, str));
                 if (onlCgformHead2 != null) {
@@ -1309,7 +1309,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     public void deleteBatch(String ids, String flag) {
-        String[] split = ids.split(org.jeecg.modules.online.cgform.d.b.sB);
+        String[] split = ids.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
         if ("1".equals(flag)) {
             for (String str : split) {
                 try {

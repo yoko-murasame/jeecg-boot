@@ -41,7 +41,7 @@ public class OnlCgreportItemServiceImpl extends ServiceImpl<OnlCgreportItemMappe
             } else {
                 hashMap.put("view", onlCgreportItem.getFieldType().toLowerCase());
             }
-            hashMap.put("mode", oConvertUtils.isEmpty(onlCgreportItem.getSearchMode()) ? org.jeecg.modules.online.cgform.d.b.sC : onlCgreportItem.getSearchMode());
+            hashMap.put("mode", oConvertUtils.isEmpty(onlCgreportItem.getSearchMode()) ? org.jeecg.modules.online.cgform.d.b.single : onlCgreportItem.getSearchMode());
             hashMap.put("field", onlCgreportItem.getFieldName());
             i++;
             if (i > 2) {

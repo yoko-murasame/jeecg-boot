@@ -40,9 +40,9 @@ public class a implements DbTableHandleI {
         } else if (dataType.equalsIgnoreCase("int")) {
             str = "int";
         } else if (dataType.equalsIgnoreCase("Date")) {
-            str = i.d;
+            str = i.DATE;
         } else if (dataType.equalsIgnoreCase("Datetime")) {
-            str = i.d;
+            str = i.DATE;
         } else if (dataType.equalsIgnoreCase("blob")) {
             str = "blob";
         } else if (dataType.equalsIgnoreCase("clob")) {
@@ -65,14 +65,14 @@ public class a implements DbTableHandleI {
         String str = "(\"" + aVar.getColumnName() + "\"";
         if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
             str = str + " varchar2(" + aVar.getColumnSize() + ")";
-        } else if (aVar.getColunmType().equalsIgnoreCase(i.d)) {
+        } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
             str = str + " date";
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = str + " INT";
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
-            str = str + " NUMBER(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ")";
+            str = str + " NUMBER(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ")";
         } else if (aVar.getColunmType().equalsIgnoreCase("bigdecimal")) {
-            str = str + " DECIMAL(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ")";
+            str = str + " DECIMAL(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ")";
         } else if (aVar.getColunmType().equalsIgnoreCase("text")) {
             str = str + " CLOB ";
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
@@ -89,14 +89,14 @@ public class a implements DbTableHandleI {
         }
         if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
             str = aVar.getColumnName() + " varchar2(" + aVar.getColumnSize() + ")" + str2;
-        } else if (aVar.getColunmType().equalsIgnoreCase(i.d)) {
+        } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
             str = aVar.getColumnName() + " date " + str2;
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " INT " + str2;
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
-            str = aVar.getColumnName() + " NUMBER(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ") " + str2;
+            str = aVar.getColumnName() + " NUMBER(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") " + str2;
         } else if (aVar.getColunmType().equalsIgnoreCase("bigdecimal")) {
-            str = aVar.getColumnName() + " DECIMAL(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ") " + str2;
+            str = aVar.getColumnName() + " DECIMAL(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") " + str2;
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
             str = aVar.getColumnName() + " BLOB " + str2;
         } else if (aVar.getColunmType().equalsIgnoreCase("text")) {

@@ -536,6 +536,10 @@ public class QueryGenerator {
 		}
 		//update-end--Author:taoyan  Date:20201229 for：initQueryWrapper组装sql查询条件错误 #284---------------------
 
+		// FIXME 针对字符串的操作直接全模糊匹配 NOTE 已经使用新的模糊查询开关功能，这里的不注释会导致BUG
+		// if (rule == null && "class java.lang.String".equals(value.getClass().toString())) {
+		// 	rule = QueryRuleEnum.LIKE;
+		// }
 		return rule != null ? rule : QueryRuleEnum.EQ;
 	}
 
@@ -905,6 +909,14 @@ public class QueryGenerator {
 		}
 		field =  alias+oConvertUtils.camelToUnderline(field);
 		QueryRuleEnum rule = QueryGenerator.convert2Rule(value);
+		// add -begin 添加判断为字符串时设为全模糊查询
+		if( (rule==null || QueryRuleEnum.EQ.equals(rule)) && isString) {
+			// 可以设置左右模糊或全模糊，因人而异
+			// rule = QueryRuleEnum.LIKE;
+			installStringRule();
+			rule = STRING_RULE;
+		}
+		// add -end 添加判断为字符串时设为全模糊查询
 		return getSingleSqlByRule(rule, field, value, isString, dataBaseType);
 	}
 

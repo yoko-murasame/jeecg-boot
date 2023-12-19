@@ -1,10 +1,11 @@
 package org.jeecg.modules.online.cgform.converter;
 
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.online.cgform.entity.OnlCgformField;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 
 /* compiled from: ConvertUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/converter/b.class */
@@ -42,7 +43,7 @@ public class b {
         if (config != null) {
             String str = config.get("linkField");
             if (oConvertUtils.isNotEmpty(str)) {
-                for (String str2 : str.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str2 : str.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     Object obj = map.get(str2);
                     if (obj != null) {
                         String obj2 = obj.toString();

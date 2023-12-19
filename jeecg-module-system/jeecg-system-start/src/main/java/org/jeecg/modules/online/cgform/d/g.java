@@ -1,18 +1,11 @@
 package org.jeecg.modules.online.cgform.d;
 
+import javax.crypto.Cipher;
 import java.io.UnsupportedEncodingException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Signature;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import javax.crypto.Cipher;
 
 /* compiled from: MachineRsaUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/g.class */
@@ -195,7 +188,7 @@ public class g {
         } catch (UnsupportedEncodingException e2) {
             e2.printStackTrace();
         }
-        return str.substring(0, str.indexOf(b.sB));
+        return str.substring(0, str.indexOf(b.DOT_STRING));
     }
 
     public static String e() {
@@ -205,7 +198,7 @@ public class g {
         } catch (UnsupportedEncodingException e2) {
             e2.printStackTrace();
         }
-        return str.substring(0, str.indexOf(b.sB));
+        return str.substring(0, str.indexOf(b.DOT_STRING));
     }
 
     public static String f() {
@@ -215,7 +208,7 @@ public class g {
         } catch (UnsupportedEncodingException e2) {
             e2.printStackTrace();
         }
-        return str.substring(0, str.indexOf(b.sB));
+        return str.substring(0, str.indexOf(b.DOT_STRING));
     }
 
     public static String g() {
@@ -225,7 +218,7 @@ public class g {
         } catch (UnsupportedEncodingException e2) {
             e2.printStackTrace();
         }
-        return str.substring(0, str.indexOf(b.sB));
+        return str.substring(0, str.indexOf(b.DOT_STRING));
     }
 
     public static String h() {
@@ -235,7 +228,7 @@ public class g {
         } catch (UnsupportedEncodingException e2) {
             e2.printStackTrace();
         }
-        return str.substring(0, str.indexOf(b.sB));
+        return str.substring(0, str.indexOf(b.DOT_STRING));
     }
 
     public static String i() {

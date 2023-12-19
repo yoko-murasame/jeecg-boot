@@ -20,6 +20,8 @@ management:
         include: metrics,httptrace
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   servlet:
     multipart:
       max-file-size: 10MB
@@ -55,7 +57,7 @@ spring:
             # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
             # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
             class: org.quartz.impl.jdbcjobstore.JobStoreTX
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
             misfireThreshold: 12000
@@ -235,6 +237,11 @@ jeecg:
     password:
     type: STANDALONE
     enabled: true
+  desform:
+    # 主题颜色（仅支持 16进制颜色代码）
+    theme-color: "#1890ff"
+    # 文件、图片上传方式，可选项：qiniu（七牛云）、system（跟随系统配置）
+    upload-type: system
 #cas单点登录
 cas:
   prefixUrl: http://cas.example.org:8443/cas
@@ -300,3 +307,9 @@ third-app:
       # appSecret
       client-secret: ??
       agent-id: ??
+supermap:
+  url: http://???/iserver/services/security/tokens.rjson
+  userName: serveradmin
+  password: wzDsjy$h1ghClass!
+  clientType: NONE
+  expiration: 720

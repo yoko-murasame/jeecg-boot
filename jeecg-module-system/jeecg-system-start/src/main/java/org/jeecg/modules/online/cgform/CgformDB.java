@@ -260,7 +260,7 @@ public class CgformDB {
                         var11 = var1.get(var9 + "_begin");
                         if (var11 != null) {
                             var4.append(" AND " + var9 + ">=");
-                            if (org.jeecg.modules.online.cgform.d.k.a(var10)) {
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var10)) {
                                 var4.append(var11.toString());
                             } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
                                 var4.append(a(var11.toString()));
@@ -272,7 +272,7 @@ public class CgformDB {
                         Object var12 = var1.get(var9 + "_end");
                         if (var12 != null) {
                             var4.append(" AND " + var9 + "<=");
-                            if (org.jeecg.modules.online.cgform.d.k.a(var10)) {
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var10)) {
                                 var4.append(var12.toString());
                             } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
                                 var4.append(a(var12.toString()));
@@ -304,7 +304,7 @@ public class CgformDB {
                 } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
                     var4.append(" AND " + var9 + "=" + a(var11.toString()));
                 } else {
-                    boolean var19 = !org.jeecg.modules.online.cgform.d.k.a(var10);
+                    boolean var19 = !org.jeecg.modules.online.cgform.d.k.isNumber(var10);
                     var13 = QueryGenerator.getSingleQueryConditionSql(var9, "", var11, var19);
                     var4.append(" AND " + var13);
                 }
@@ -577,10 +577,10 @@ public class CgformDB {
                 }
 
                 var14 = new StringProperty(var11, var12, var13, var10.getDbLength(), (List)var30);
-                if (org.jeecg.modules.online.cgform.d.k.a(var10.getDbType())) {
+                if (org.jeecg.modules.online.cgform.d.k.isNumber(var10.getDbType())) {
                     ((CommonProperty)var14).setType("number");
                 }
-            } else if (org.jeecg.modules.online.cgform.d.k.a(var10.getDbType())) {
+            } else if (org.jeecg.modules.online.cgform.d.k.isNumber(var10.getDbType())) {
                 NumberProperty var29 = new NumberProperty(var11, var12, "number");
                 if (CgformValidPatternEnum.INTEGER.getType().equals(var10.getFieldValidType())) {
                     var29.setPattern(CgformValidPatternEnum.INTEGER.getPattern());
@@ -712,7 +712,7 @@ public class CgformDB {
                 String var10 = var7.getFieldShowType();
                 String var11 = var7.getDictField();
                 Object var12 = null;
-                if (org.jeecg.modules.online.cgform.d.k.a(var7.getDbType())) {
+                if (org.jeecg.modules.online.cgform.d.k.isNumber(var7.getDbType())) {
                     var12 = new NumberProperty(var8, var9, "number");
                 } else if (c(var10)) {
                     List var13 = var5.queryDictItemsByCode(var11);
@@ -820,7 +820,7 @@ public class CgformDB {
 
                                 if ("".equals(var2.get(var13))) {
                                     var14 = var12.getDbType();
-                                    if (org.jeecg.modules.online.cgform.d.k.a(var14) || org.jeecg.modules.online.cgform.d.k.b(var14)) {
+                                    if (org.jeecg.modules.online.cgform.d.k.isNumber(var14) || org.jeecg.modules.online.cgform.d.k.b(var14)) {
                                         continue;
                                     }
                                 }
@@ -884,7 +884,7 @@ public class CgformDB {
                         } else if (var9.getIsShowForm() == 1 && !"id".equals(var10)) {
                             if ("".equals(var2.get(var10))) {
                                 var11 = var9.getDbType();
-                                if (org.jeecg.modules.online.cgform.d.k.a(var11) || org.jeecg.modules.online.cgform.d.k.b(var11)) {
+                                if (org.jeecg.modules.online.cgform.d.k.isNumber(var11) || org.jeecg.modules.online.cgform.d.k.b(var11)) {
                                     continue;
                                 }
                             }
@@ -1048,7 +1048,7 @@ public class CgformDB {
             boolean var9;
             String var10;
             if (oConvertUtils.isNotEmpty(var6.getMainField())) {
-                var9 = !org.jeecg.modules.online.cgform.d.k.a(var8);
+                var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
                 var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", var2.get(var7), var9);
                 if (!"".equals(var10)) {
                     var3.append(" AND " + var10);
@@ -1058,7 +1058,7 @@ public class CgformDB {
             if (var6.getIsQuery() == 1) {
                 if ("single".equals(var6.getQueryMode())) {
                     if (var2.get(var7) != null) {
-                        var9 = !org.jeecg.modules.online.cgform.d.k.a(var8);
+                        var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
                         var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", var2.get(var7), var9);
                         if (!"".equals(var10)) {
                             var3.append(" AND " + var10);
@@ -1068,7 +1068,7 @@ public class CgformDB {
                     Object var11 = var2.get(var7 + "_begin");
                     if (var11 != null) {
                         var3.append(" AND " + var7 + ">=");
-                        if (org.jeecg.modules.online.cgform.d.k.a(var8)) {
+                        if (org.jeecg.modules.online.cgform.d.k.isNumber(var8)) {
                             var3.append(var11.toString());
                         } else {
                             var3.append("'" + var11.toString() + "'");
@@ -1078,7 +1078,7 @@ public class CgformDB {
                     Object var12 = var2.get(var7 + "_end");
                     if (var12 != null) {
                         var3.append(" AND " + var7 + "<=");
-                        if (org.jeecg.modules.online.cgform.d.k.a(var8)) {
+                        if (org.jeecg.modules.online.cgform.d.k.isNumber(var8)) {
                             var3.append(var12.toString());
                         } else {
                             var3.append("'" + var12.toString() + "'");
@@ -1218,7 +1218,7 @@ public class CgformDB {
 
     private static void a(String var0, SysPermissionDataRuleModel var1, String var2, String var3, StringBuffer var4) {
         QueryRuleEnum var5 = QueryRuleEnum.getByValue(var1.getRuleConditions());
-        boolean var6 = !org.jeecg.modules.online.cgform.d.k.a(var3);
+        boolean var6 = !org.jeecg.modules.online.cgform.d.k.isNumber(var3);
         String var7 = a(var1.getRuleValue(), var6, var5);
         if (var7 != null && var5 != null) {
             if ("ORACLE".equalsIgnoreCase(var0) && "Date".equals(var3)) {
@@ -1727,7 +1727,7 @@ public class CgformDB {
                         String var13;
                         if ("".equals(var2.get(var12))) {
                             var13 = var11.getDbType();
-                            if (org.jeecg.modules.online.cgform.d.k.a(var13) || org.jeecg.modules.online.cgform.d.k.b(var13)) {
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var13) || org.jeecg.modules.online.cgform.d.k.b(var13)) {
                                 continue;
                             }
                         }
@@ -1785,7 +1785,7 @@ public class CgformDB {
                         String var10;
                         if ("".equals(var2.get(var9))) {
                             var10 = var8.getDbType();
-                            if (org.jeecg.modules.online.cgform.d.k.a(var10) || org.jeecg.modules.online.cgform.d.k.b(var10)) {
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var10) || org.jeecg.modules.online.cgform.d.k.b(var10)) {
                                 continue;
                             }
                         }

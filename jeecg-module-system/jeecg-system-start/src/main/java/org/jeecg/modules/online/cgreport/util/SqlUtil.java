@@ -1,16 +1,17 @@
 package org.jeecg.modules.online.cgreport.util;
 
+import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.online.cgform.d.b;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.util.oConvertUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jeecg.modules.online.cgform.d.b;
 
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgreport/util/SqlUtil.class */
 public class SqlUtil {
@@ -39,7 +40,7 @@ public class SqlUtil {
                 String valueOf = String.valueOf(obj);
                 String valueOf2 = String.valueOf(map.get(valueOf));
                 if (oConvertUtils.isNotEmpty(valueOf2)) {
-                    sb.append(b.sc);
+                    sb.append(b.AND);
                     sb.append(" " + valueOf + valueOf2);
                 }
             }
@@ -179,7 +180,7 @@ public class SqlUtil {
             } else if (value instanceof String[]) {
                 strArr=new String[((String[]) value).length];
                 for (int i2 = 0; i2 < ((String[]) value).length; i2++) {
-                    str2 = strArr[i2] + b.sB;
+                    str2 = strArr[i2] + b.DOT_STRING;
                 }
                 str = str2.substring(0, str2.length() - 1);
             } else {
@@ -197,7 +198,7 @@ public class SqlUtil {
         if (str.toLowerCase().indexOf("where") > 0) {
             return convertSystemVariables + allConfigAuth;
         }
-        return convertSystemVariables + b.sf + allConfigAuth;
+        return convertSystemVariables + b.WHERE_1_1 + allConfigAuth;
     }
 
     public static boolean c(String str) {

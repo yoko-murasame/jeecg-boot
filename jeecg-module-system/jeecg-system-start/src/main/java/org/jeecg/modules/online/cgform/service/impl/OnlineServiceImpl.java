@@ -4,14 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.LoginUser;
@@ -22,7 +14,6 @@ import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
 import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJs;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
-import org.jeecg.modules.online.cgform.model.HrefSlots;
 import org.jeecg.modules.online.cgform.model.OnlColumn;
 import org.jeecg.modules.online.cgform.model.OnlComplexModel;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
@@ -31,10 +22,11 @@ import org.jeecg.modules.online.cgform.service.IOnlineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/* compiled from: OnlineServiceImpl.java */
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service("onlineService")
-/* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/service/impl/i.class */
-public class i implements IOnlineService {
+public class OnlineServiceImpl implements IOnlineService {
     @Autowired
     private IOnlCgformFieldService onlCgformFieldService;
     @Autowired
@@ -52,7 +44,7 @@ public class i implements IOnlineService {
     public OnlComplexModel queryOnlineConfig(OnlCgformHead head, String username) {
         JSONObject parseObject;
         String id = head.getId();
-        List<OnlCgformField> a2 = a(id);
+        List<OnlCgformField> a2 = getCgformField(id);
         List<String> queryHideCode = this.onlAuthPageService.queryHideCode(id, true);
         ArrayList arrayList = new ArrayList();
         HashMap hashMap = new HashMap();
@@ -70,7 +62,7 @@ public class i implements IOnlineService {
                 OnlColumn onlColumn = new OnlColumn(onlCgformField.getDbFieldTxt(), dbFieldName);
                 String dictField = onlCgformField.getDictField();
                 String fieldShowType = onlCgformField.getFieldShowType();
-                if (oConvertUtils.isNotEmpty(dictField) && !org.jeecg.modules.online.cgform.d.b.sJ.equals(fieldShowType)) {
+                if (oConvertUtils.isNotEmpty(dictField) && !org.jeecg.modules.online.cgform.d.b.POPUP.equals(fieldShowType)) {
                     ArrayList arrayList5 = new ArrayList();
                     if (oConvertUtils.isNotEmpty(onlCgformField.getDictTable())) {
                         arrayList5 = (ArrayList) this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), dictField);
@@ -89,14 +81,14 @@ public class i implements IOnlineService {
                     hashMap.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(aVar.getTable(), aVar.getTxt(), aVar.getKey()));
                     onlColumn.setCustomRender(dbFieldName);
                     arrayList.add(onlColumn);
-                    a(a2, arrayList4, arrayList, dbFieldName, aVar.getLinkField());
+                    getCgformField(a2, arrayList4, arrayList, dbFieldName, aVar.getLinkField());
                 }
                 if (org.jeecg.modules.online.cgform.d.b.sN.equals(fieldShowType)) {
-                    String[] split = onlCgformField.getDictText().split(org.jeecg.modules.online.cgform.d.b.sB);
+                    String[] split = onlCgformField.getDictText().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
                     hashMap.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), split[2], split[0]));
                     onlColumn.setCustomRender(dbFieldName);
                 }
-                if (org.jeecg.modules.online.cgform.d.b.sO.equals(fieldShowType)) {
+                if (org.jeecg.modules.online.cgform.d.b.CAT_TREE.equals(fieldShowType)) {
                     String dictText = onlCgformField.getDictText();
                     if (oConvertUtils.isEmpty(dictText)) {
                         hashMap.put(dbFieldName, this.sysBaseAPI.queryFilterTableDictInfo(org.jeecg.modules.online.cgform.d.b.sW, org.jeecg.modules.online.cgform.d.b.sX, "ID", org.jeecg.modules.online.cgform.d.b.e(onlCgformField.getDictField())));
@@ -117,22 +109,20 @@ public class i implements IOnlineService {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.a));
                 } else if (fieldShowType.indexOf("image") >= 0) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.b));
-                } else if (fieldShowType.indexOf(org.jeecg.modules.online.cgform.d.i.c) >= 0) {
+                } else if (fieldShowType.indexOf(org.jeecg.modules.online.cgform.d.i.EDITOR) >= 0) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.c));
-                } else if (fieldShowType.equals(org.jeecg.modules.online.cgform.d.i.d)) {
+                } else if (fieldShowType.equals(org.jeecg.modules.online.cgform.d.i.DATE)) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.d));
-                } else if (fieldShowType.equals(org.jeecg.modules.online.cgform.d.i.e)) {
+                } else if (fieldShowType.equals(org.jeecg.modules.online.cgform.d.i.PCA)) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.f));
                 }
-                if (org.jeecg.modules.online.cgform.d.c.b(onlCgformField.getFieldHref())) {
-                    String str = j.e + dbFieldName;
-                    onlColumn.setHrefSlotName(str);
-                    arrayList2.add(new HrefSlots(str, onlCgformField.getFieldHref()));
-                }
+                String fieldExtendJson = onlCgformField.getFieldExtendJson();
                 if ("1".equals(onlCgformField.getSortFlag())) {
                     onlColumn.setSorter(true);
+                    if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.orderRule) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.orderRule) != null) {
+                        onlColumn.setSorterType(oConvertUtils.getString(parseObject.get(org.jeecg.modules.online.cgform.d.b.orderRule)).toString());
+                    }
                 }
-                String fieldExtendJson = onlCgformField.getFieldExtendJson();
                 if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.ax) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.ax) != null) {
                     onlColumn.setShowLength(oConvertUtils.getInt(parseObject.get(org.jeecg.modules.online.cgform.d.b.ax)).intValue());
                 }
@@ -176,10 +166,10 @@ public class i implements IOnlineService {
         return onlComplexModel;
     }
 
-    private void a(List<OnlCgformField> list, List<String> list2, List<OnlColumn> list3, String str, String str2) {
+    private void getCgformField(List<OnlCgformField> list, List<String> list2, List<OnlColumn> list3, String str, String str2) {
         String[] split;
         if (oConvertUtils.isNotEmpty(str2)) {
-            for (String str3 : str2.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+            for (String str3 : str2.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                 Iterator<OnlCgformField> it = list.iterator();
                 while (true) {
                     if (it.hasNext()) {
@@ -246,7 +236,7 @@ public class i implements IOnlineService {
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
     public JSONObject queryOnlineFormObj(OnlCgformHead head, String username) {
-        return queryOnlineFormObj(head, this.onlCgformHeadService.queryEnhanceJs(head.getId(), org.jeecg.modules.online.cgform.d.b.ai));
+        return queryOnlineFormObj(head, this.onlCgformHeadService.queryEnhanceJs(head.getId(), org.jeecg.modules.online.cgform.d.b.form));
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
@@ -265,7 +255,7 @@ public class i implements IOnlineService {
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
     public JSONObject queryOnlineFormItem(OnlCgformHead head, String username) {
         head.setTaskId(null);
-        return a(head);
+        return getCgformField(head);
     }
 
     static {
@@ -282,7 +272,7 @@ public class i implements IOnlineService {
 //                if (StreamUtils.isr()) {
 //                    a = new String[]{StringUtil.dl()};
 //                } else {
-//                    a = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.sB);
+//                    a = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
 //                }
 //            }
 //            if (!org.jeecg.modules.online.cgform.d.c.b(a, org.jeecg.modules.online.cgform.d.h.b()) && !org.jeecg.modules.online.cgform.d.c.b(a, org.jeecg.modules.online.cgform.d.h.a())) {
@@ -303,7 +293,7 @@ public class i implements IOnlineService {
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
     public JSONObject queryFlowOnlineFormItem(OnlCgformHead head, String username, String taskId) {
         head.setTaskId(taskId);
-        return a(head);
+        return getCgformField(head);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
@@ -316,16 +306,16 @@ public class i implements IOnlineService {
         return str;
     }
 
-    private List<OnlCgformField> a(String str) {
+    private List<OnlCgformField> getCgformField(String str) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, str);
         lambdaQueryWrapper.orderByAsc(OnlCgformField::getOrderNum);
         return this.onlCgformFieldService.list(lambdaQueryWrapper);
     }
 
-    private JSONObject a(OnlCgformHead onlCgformHead) {
+    private JSONObject getCgformField(OnlCgformHead onlCgformHead) {
         List<String> queryFormDisabledCode;
-        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(onlCgformHead.getId(), org.jeecg.modules.online.cgform.d.b.ai);
+        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(onlCgformHead.getId(), org.jeecg.modules.online.cgform.d.b.form);
         JSONObject queryOnlineFormObj = queryOnlineFormObj(onlCgformHead, queryEnhanceJs);
         queryOnlineFormObj.put("formTemplate", onlCgformHead.getFormTemplate());
         if (onlCgformHead.getTableType().intValue() == 2) {
@@ -333,7 +323,7 @@ public class i implements IOnlineService {
             String subTableStr = onlCgformHead.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
                 ArrayList<OnlCgformHead> arrayList = new ArrayList();
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.sB)) {
+                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     OnlCgformHead onlCgformHead2 = (OnlCgformHead) this.onlCgformHeadService.getOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>().eq(OnlCgformHead::getTableName, str));
                     if (onlCgformHead2 != null) {
                         arrayList.add(onlCgformHead2);

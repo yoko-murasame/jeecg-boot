@@ -4,19 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jeecg.common.api.vo.Result;
@@ -40,13 +27,20 @@ import org.jeecgframework.poi.excel.entity.params.ExcelExportEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /* compiled from: OnlCgreportAPI.java */
 @RequestMapping({"/online/cgreport/api"})
@@ -225,7 +219,7 @@ public class a {
                         }
                         Object obj2 = ((Map) list.get(i)).get("replace_val");
                         if (oConvertUtils.isNotEmpty(obj2)) {
-                            excelExportEntity.setReplace(obj2.toString().split(org.jeecg.modules.online.cgform.d.b.sB));
+                            excelExportEntity.setReplace(obj2.toString().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING));
                         }
                         if (oConvertUtils.isNotEmpty(((Map) list.get(i)).get("group_title"))) {
                             String obj3 = ((Map) list.get(i)).get("group_title").toString();

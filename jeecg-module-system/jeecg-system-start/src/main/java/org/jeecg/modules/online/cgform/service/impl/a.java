@@ -1,24 +1,12 @@
 package org.jeecg.modules.online.cgform.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.CharSetUtils;
-import org.apache.commons.lang.CharUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.*;
 import org.apache.commons.lang.text.StrBuilder;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 @Aspect
 @Component("onlCgformSignServiceImpl")
@@ -305,7 +293,7 @@ public class a {
 //                if (StreamUtils.isr()) {
 //                    e = new String[]{StringUtil.dl()};
 //                } else {
-//                    e = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.sB);
+//                    e = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
 //                }
 //            } catch (Exception e2) {
 //            }
@@ -322,7 +310,7 @@ public class a {
 //                if (StreamUtils.isr()) {
 //                    c = new String[]{StringUtil.dl()};
 //                } else {
-//                    c = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.sB);
+//                    c = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
 //                }
 //            }
 //            if (!org.jeecg.modules.online.cgform.d.c.b(c, org.jeecg.modules.online.cgform.d.h.b()) && !org.jeecg.modules.online.cgform.d.c.b(c, org.jeecg.modules.online.cgform.d.h.a())) {
@@ -867,7 +855,7 @@ public class a {
 //                if (StreamUtils.isr()) {
 //                    e = new String[]{StringUtil.dl()};
 //                } else {
-//                    e = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.sB);
+//                    e = a2.getString(org.jeecg.modules.online.cgform.d.g.f()).split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
 //                }
 //            }
 //            if (!org.jeecg.modules.online.cgform.d.c.b(e, org.jeecg.modules.online.cgform.d.h.b()) && !org.jeecg.modules.online.cgform.d.c.b(e, org.jeecg.modules.online.cgform.d.h.a())) {

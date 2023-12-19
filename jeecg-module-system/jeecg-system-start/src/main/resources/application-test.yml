@@ -300,3 +300,9 @@ third-app:
       # appSecret
       client-secret: ??
       agent-id: ??
+supermap:
+  url: ??
+  userName: ??
+  password: ??
+  clientType: NONE
+  expiration: 720
