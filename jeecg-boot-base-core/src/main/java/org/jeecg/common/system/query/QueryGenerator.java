@@ -257,7 +257,7 @@ public class QueryGenerator {
         // log.info("排序规则>>列:" + column + ",排序方式:" + order);
 
 		// 新的多字段排序
-		if (!parameterMap.containsKey(ORDER_COLUMN) || !parameterMap.containsKey(ORDER_TYPE)) {
+		if (null == parameterMap || !parameterMap.containsKey(ORDER_COLUMN) || !parameterMap.containsKey(ORDER_TYPE)) {
 			return;
 		}
 		List<String> columns = Arrays.stream(parameterMap.get(ORDER_COLUMN))
