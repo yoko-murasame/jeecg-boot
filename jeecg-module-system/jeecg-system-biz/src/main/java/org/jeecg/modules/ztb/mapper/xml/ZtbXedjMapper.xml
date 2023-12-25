@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.ztb.mapper.ZtbXedjMapper">
+    <!--overdue规则：
+    1.非完工登记阶段-开工登记时候填的实际开工时间，超过半年以上，自动提醒填写工程过程登记（只有超过半年才会要求填写），如果再超半年，需要再次填写工程过程
+    2.完工登记阶段-根据登记的验收时间，超过验收时间3个月不传结算材料，就做提醒-->
+    <sql id="listSql">
+        WITH tmp AS (SELECT *,
+                            CASE
+                                WHEN current_state != '3'
+                                    AND (sjkgsj &lt; current_date - interval '6 months') AND (
+                                             (htwcjd IS NULL OR REPLACE(htwcjd, '@@@', '') = '') OR
+                                             (mqxxjd IS NULL OR REPLACE(mqxxjd, '@@@', '') = '') OR
+                                             (gcezfjd IS NULL OR REPLACE(gcezfjd, '@@@', '') = '') OR
+                                             (xmczwt IS NULL OR REPLACE(xmczwt, '@@@', '') = '') OR
+                                             (mqxczp IS NULL OR REPLACE(mqxczp, '@@@', '') = '')
+                                         )
+                                    THEN '1'
+                                WHEN current_state = '3' AND
+                                     (yssj &lt; current_date - interval '3 months') AND
+                                     (jszl IS NULL OR jszl = '')
+                                    THEN '1'
+                                ELSE '0' END AS overdue
+                     FROM ztb_xedj)
+        SELECT *
+        FROM tmp
+    </sql>
+    <!--这里的参数注入也可以用 <bind name="queryType" value="'1'" />，然后判断 <if test="queryType == '1'"> 即可-->
+    <!--比如可以动态传入表名：<bind name="tableName" value="'t'"/>，可惜IDEA不会提示-->
+    <!--注意 bind 标签只能在根元素使用 -->
+    <select id="selectPageCustom" resultType="org.jeecg.modules.ztb.entity.ZtbXedj">
+        <bind name="tableName" value="'ztb_xedj'"/>
+        <include refid="listSql">
+            <property name="queryType" value="page"/>
+        </include>
+        ${ew.customSqlSegment}
+    </select>
+    <select id="selectListCustom" resultType="org.jeecg.modules.ztb.entity.ZtbXedj">
+        <bind name="tableName" value="'ztb_xedj'"/>
+        <include refid="listSql">
+            <property name="queryType" value="list"/>
+        </include>
+        ${ew.customSqlSegment}
+    </select>
+    <select id="selectOneCustom" resultType="org.jeecg.modules.ztb.entity.ZtbXedj">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+            <property name="tableName" value="ztb_xedj"/>
+        </include>
+        ${ew.customSqlSegment} limit 1
+    </select>
+    <select id="selectByIdCustom" resultType="org.jeecg.modules.ztb.entity.ZtbXedj">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+            <property name="tableName" value="ztb_xedj"/>
+        </include>
+        WHERE id = #{id}
+    </select>
+</mapper>
