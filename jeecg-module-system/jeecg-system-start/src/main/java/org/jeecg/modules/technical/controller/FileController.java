@@ -171,7 +171,7 @@ public class FileController {
     }
 
     /**
-     * 预览图片&下载文件
+     * 视频分块播放&预览图片&下载文件
      * 请求地址：/technical/file/download/static/{user/20190119/e1fe9925bc315c60addea1b98eb1cb1349547719_1547866868179.jpg}
      *
      * @param request request
@@ -179,7 +179,6 @@ public class FileController {
      * @deprecated 用系统自带的
      */
     @GetMapping(value = "/download/static/**")
-    @Deprecated
     public void view(HttpServletRequest request, HttpServletResponse response) {
         // ISO-8859-1 ==> UTF-8 进行编码转换
         String imgPath = extractPathFromPattern(request);
@@ -245,8 +244,10 @@ public class FileController {
                     }
                 }
             } else {
+                // FIXME 请注意word、xlsx、ppt等格式，必须设置成强制下载，否则会被浏览器识别成zip文档
+                // 设置强制下载不打开
                 if (StringUtils.hasText((String) forceDownload)) {
-                    response.setContentType("application/force-download");// 设置强制下载不打开
+                    response.setContentType("application/force-download");
                     response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(
                             StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
                 }

@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -289,9 +290,14 @@ public class CommonController {
                 // response.flushBuffer();
                 // return;
             }
+            // FIXME 请注意word、xlsx、ppt等格式，必须设置成强制下载，否则会被浏览器识别成zip文档
             // 设置强制下载不打开
-            response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1));
+            String forceDownload = request.getParameter("forceDownload");
+            if (StringUtils.hasText(forceDownload)) {
+                response.setContentType("application/force-download");
+                response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(
+                        StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+            }
             inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
             outputStream = response.getOutputStream();
             byte[] buf = new byte[1024];
