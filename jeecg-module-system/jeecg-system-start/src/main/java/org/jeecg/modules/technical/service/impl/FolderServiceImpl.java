@@ -220,9 +220,9 @@ public class FolderServiceImpl implements FolderService {
                 .eq(Folder::getLevel, folderParam.getLevel())
                 .eq(null != folderParam.getType(), Folder::getType, folderParam.getType())
                 .eq(StringUtils.hasText(existProject.getId()), Folder::getProjectId, existProject.getId())
-                .eq(StringUtils.hasText(existProject.getName()), Folder::getProjectName, existProject.getName())
+                // .eq(StringUtils.hasText(existProject.getName()), Folder::getProjectName, existProject.getName())
                 .eq(StringUtils.hasText(existProject.getBusinessId()), Folder::getBusinessId, existProject.getBusinessId())
-                .eq(StringUtils.hasText(existProject.getBusinessName()), Folder::getBusinessName, existProject.getBusinessName())
+                // .eq(StringUtils.hasText(existProject.getBusinessName()), Folder::getBusinessName, existProject.getBusinessName())
                 .eq(StringUtils.hasText(folderParam.getParentId()), Folder::getParentId, folderParam.getParentId())
                 .orderByAsc(Folder::getLevel, Folder::getFolderOrder);
         // 区分全部列表和权限列表
