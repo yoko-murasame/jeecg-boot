@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -129,8 +130,11 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
         String md5 = UploadFileUtil.calcMD5(multipartFile.getInputStream());
         sysUpload = this.queryByMd5(md5);
         if (sysUpload != null) {
-            log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
-            return sysUpload;
+            boolean exists = Files.exists(Paths.get(sysUpload.getUrl()));
+            if (exists) {
+                log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
+                return sysUpload;
+            }
         }
         sysUpload = new SysUpload();
         sysUpload.setId(IdWorker.getIdStr());
@@ -163,8 +167,11 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
         String md5 = UploadFileUtil.calcMD5(is);
         sysUpload = this.queryByMd5(md5);
         if (sysUpload != null) {
-            log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
-            return sysUpload;
+            boolean exists = Files.exists(Paths.get(sysUpload.getUrl()));
+            if (exists) {
+                log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
+                return sysUpload;
+            }
         }
         sysUpload = new SysUpload();
         sysUpload.setId(IdWorker.getIdStr());
