@@ -101,7 +101,7 @@ public class TaskEntity {
 
     @TableField("oa_todo_id")
     @ApiModelProperty(value = "oa代办id")
-    private String oaDodoId;
+    private String oaTodoId;
 
     @TableField("bpm_biz_title")
     @ApiModelProperty(value = "业务标题")
