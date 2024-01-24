@@ -59,6 +59,10 @@ public class TaskEntity {
     @ApiModelProperty(value = "受理人")
     private String assignee;
 
+    @TableField("candidate_user_id")
+    @ApiModelProperty(value = "候选人（多个通过逗号分隔）")
+    private String candidateUserId;
+
     @TableField("delegation_")
     @ApiModelProperty(value = "委派")
     private String delegation;
