@@ -244,7 +244,7 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
                 return exist;
             }
             // 本地文件需要重新校验文件路径是否存在
-            boolean localExist = Files.exists(Paths.get(exist.getUrl()));
+            boolean localExist = Files.exists(Paths.get(uploadpath + FILE_SPLIT + exist.getUrl()));
             if (localExist) {
                 log.info("Local文件已存在,无需重复上传:{},md5:{}", url, md5);
                 return exist;
