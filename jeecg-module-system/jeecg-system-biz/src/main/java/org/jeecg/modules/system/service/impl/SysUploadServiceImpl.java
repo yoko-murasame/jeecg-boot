@@ -10,6 +10,7 @@ import com.aliyun.oss.model.ObjectMetadata;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.util.concurrent.AtomicDouble;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.dto.message.MessageDTO;
 import org.jeecg.common.constant.CommonConstant;
@@ -126,20 +127,10 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
         fileName = CommonUtils.getFileName(fileName);
 
         // 扩展md5检测
-        SysUpload sysUpload = null;
-        String md5 = UploadFileUtil.calcMD5(multipartFile.getInputStream());
-        sysUpload = this.queryByMd5(md5);
-        if (sysUpload != null) {
-            boolean exists = Files.exists(Paths.get(sysUpload.getUrl()));
-            if (exists) {
-                log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
-                return sysUpload;
-            }
+        SysUpload sysUpload = this.getExistIfNullThenNewOneWithoutUrl(multipartFile.getInputStream(), fileName);
+        if (StringUtils.hasText(sysUpload.getUrl())) {
+            return sysUpload;
         }
-        sysUpload = new SysUpload();
-        sysUpload.setId(IdWorker.getIdStr());
-        sysUpload.setMd5(md5);
-        sysUpload.setFileName(fileName);
 
         biz = this.generateBizPath(biz);
 
@@ -163,20 +154,10 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
     public SysUpload upload(InputStream is, String fileName, String biz) throws Exception {
         fileName = CommonUtils.getFileName(fileName);
         // 扩展md5检测
-        SysUpload sysUpload = null;
-        String md5 = UploadFileUtil.calcMD5(is);
-        sysUpload = this.queryByMd5(md5);
-        if (sysUpload != null) {
-            boolean exists = Files.exists(Paths.get(sysUpload.getUrl()));
-            if (exists) {
-                log.info("文件已存在,无需重复上传:{},md5:{}", fileName, md5);
-                return sysUpload;
-            }
+        SysUpload sysUpload = this.getExistIfNullThenNewOneWithoutUrl(is, fileName);
+        if (StringUtils.hasText(sysUpload.getUrl())) {
+            return sysUpload;
         }
-        sysUpload = new SysUpload();
-        sysUpload.setId(IdWorker.getIdStr());
-        sysUpload.setMd5(md5);
-        sysUpload.setFileName(fileName);
 
         biz = this.generateBizPath(biz);
 
@@ -244,6 +225,60 @@ public class SysUploadServiceImpl extends ServiceImpl<SysUploadMapper, SysUpload
     @Override
     public SysUpload queryByMd5(String md5) {
         return this.baseMapper.queryByMd5(md5);
+    }
+
+    /**
+     * 判断获取的文件是否已经存在
+     */
+    @Override
+    public SysUpload getExist(String md5) {
+        SysUpload exist = this.queryByMd5(md5);
+        if (exist != null) {
+            String url = exist.getUrl();
+            // 判断文件是否是oss，如果是直接返回
+            if (!StringUtils.hasText(url)) {
+                return null;
+            }
+            if (url.toLowerCase().startsWith("http")) {
+                log.info("OSS文件已存在,无需重复上传:{},md5:{}", url, md5);
+                return exist;
+            }
+            // 本地文件需要重新校验文件路径是否存在
+            boolean localExist = Files.exists(Paths.get(exist.getUrl()));
+            if (localExist) {
+                log.info("Local文件已存在,无需重复上传:{},md5:{}", url, md5);
+                return exist;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断获取的文件是否已经存在，如果不存在则创建一个新的（不带URL）
+     */
+    @Override
+    @NonNull
+    public SysUpload getExistIfNullThenNewOneWithoutUrl(InputStream stream, String targetName) {
+        Assert.hasText(targetName, "文件名不能为空");
+        String md5 = UploadFileUtil.calcMD5(stream);
+        SysUpload exist = this.getExist(md5);
+        // 先判断存在
+        if (exist != null) {
+            // 如果是同名文件，直接返回
+            if (exist.getFileName().equals(targetName)) {
+                return exist;
+            }
+            // 不同名称，设置新名称后保存
+            exist.setFileName(targetName);
+            exist.setId(IdWorker.getIdStr());
+            this.save(exist);
+            return exist;
+        }
+        exist = new SysUpload();
+        exist.setFileName(targetName);
+        exist.setId(IdWorker.getIdStr());
+        exist.setMd5(md5);
+        return exist;
     }
 
     /**

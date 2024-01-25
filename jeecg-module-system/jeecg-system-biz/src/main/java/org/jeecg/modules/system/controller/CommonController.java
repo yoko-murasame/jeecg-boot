@@ -2,7 +2,6 @@ package org.jeecg.modules.system.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
@@ -17,7 +16,6 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.system.entity.SysUpload;
 import org.jeecg.modules.system.service.ISysUploadService;
 import org.jeecg.modules.system.service.impl.SysUploadServiceImpl;
-import org.jeecg.modules.system.util.UploadFileUtil;
 import org.jeecg.modules.system.vo.OssToLocalVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -118,18 +116,13 @@ public class CommonController {
         SysUpload sysUpload = null;
         String forceUpload = request.getParameter("forceUpload");
         if (!"true".equals(forceUpload) && file != null) {
-            String md5 = UploadFileUtil.calcMD5(file.getInputStream());
-            sysUpload = uploadService.queryByMd5(md5);
-            if (sysUpload != null) {
+            // 自动获取已存在文件
+            sysUpload = uploadService.getExistIfNullThenNewOneWithoutUrl(file.getInputStream(), file.getOriginalFilename());
+            if (StringUtils.hasText(sysUpload.getUrl())) {
                 result.setResult(sysUpload.getUrl());
                 result.setMessage(sysUpload.getUrl());
-                log.info("文件已存在,无需重复上传:{},md5:{}", file.getOriginalFilename(), md5);
                 return result;
             }
-            sysUpload = new SysUpload();
-            sysUpload.setFileName(file.getOriginalFilename());
-            sysUpload.setId(IdWorker.getIdStr());
-            sysUpload.setMd5(md5);
         }
 
         if(oConvertUtils.isEmpty(bizPath)){

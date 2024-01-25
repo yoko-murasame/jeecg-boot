@@ -28,6 +28,10 @@ public interface ISysUploadService extends IService<SysUpload> {
 
     SysUpload queryByMd5(String md5);
 
+    SysUpload getExist(String md5);
+
+    SysUpload getExistIfNullThenNewOneWithoutUrl(InputStream stream, String targetName);
+
     @Async
     void transferOssToLocal(List<OssToLocalVo> vos,
                             String endpoint,
