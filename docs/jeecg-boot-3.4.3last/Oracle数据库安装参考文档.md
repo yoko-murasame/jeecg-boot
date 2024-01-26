@@ -86,6 +86,10 @@ windows os: `exp username/"""password"""@devdb` --3个双引号扩密码
 linux/unix os: `exp 'username/"password"@devdb'` --1个双引号扩密码，1个单引号扩全部
 
 ```shell
+-- 设置环境变量指定导入导出编码
+export NLS_LANG=AMERICAN_AMERICA.UTF8
+
+
 -- 完整导出命令，用户名即对应数据库，特殊密码需要用双引号扩起来，服务名一般为orcl、xe
 -- exp 'username/"password@password"@127.0.0.1:15211/服务名' full=y file=export.dmp log=export.log
 # 容器内的备份命令
@@ -98,6 +102,26 @@ docker cp <容器名>:/export.dmp ./ && docker exec -it <容器名> rm /export.d
 # 容器内的导入命令
 docker cp ./export.dmp <容器名>:/export.dmp && rm ./export.dmp \ &&
 docker exec -it <容器名> imp 'username/"password@password"@127.0.0.1:1521/服务名' full=y file=export.dmp log=export.log && rm /export.dmp
+
+
+-- 特殊情况 sys as sysdba 下的导出命令
+# 一般不会拿sys as sysdba去导出，如果真有需求，参考下面命令
+docker exec -it oracle-12c exp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' full=y file=export.dmp log=export.log
+
+# 拿sys as sysdba导出时，可以指定scheme，注意 owner=(system,sys) 和 full=y 是冲突的
+docker exec -it oracle-12c exp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' owner=system file=export.dmp log=export.log
+
+
+-- 特殊情况 sys as sysdba 下的导入命令
+# 拿sys as sysdba去导入时，可以指定scheme，需要指定 fromuser=(system,sys) 和 touser=(system,sys)
+docker exec -it oracle-12c imp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' full=y file=export.dmp log=import.log
+
+docker exec -it oracle-12c imp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' file=export.dmp log=import.log fromuser=system touser=system
+
+# 在Windows上终端使用powershell时，需要先进容器，再执行导入命令
+docker cp ./export.dmp oracle-12c:/export.dmp
+docker exec -it oracle-12c bash
+imp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' file=export.dmp log=import.log fromuser=zy touser=zy && rm /export.dmp
 ```
 
 ### 修改默认管理员账户密码
