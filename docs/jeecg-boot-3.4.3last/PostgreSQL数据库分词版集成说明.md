@@ -211,6 +211,21 @@ docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W
 
 **脚本内容(pgbackup-docker.sh):**
 
+**备注:**
+
+`crontab` 中使用 `docker exec` 命令无法使用参数-it。
+
+`docker exec` 命令用于在运行的 Docker 容器中执行命令。`-it` 是两个参数的组合，`-i` 和 `-t`。
+
+`-i` 参数（或 `--interactive`）保持 STDIN 打开，即使没有附加到容器。这意味着你可以向容器发送输入。
+
+`-t` 参数（或 `--tty`）为容器分配一个伪终端。这通常使得输出更易读，因为它可以使命令的输出看起来像在本地终端运行的命令的输出。
+
+当你在交互式 shell 中运行 `docker exec` 命令时，使用 `-it` 参数通常是有用的，因为它允许你与容器进行交互。然而，当你在非交互式环境（如 `crontab`）中运行 `docker exec` 命令时，`-it` 参数可能会导致问题，因为这些环境不提供一个交互式终端。
+
+因此，如果你的命令不需要用户交互，你应该去掉 `-it` 参数。例如，如果你的命令是一个数据库备份脚本，那么你可能不需要 `-it` 参数，因为备份过程通常不需要用户输入。
+
+
 ```shell
 #!/bin/bash
 
@@ -239,7 +254,7 @@ PG_CONTAINER_NAME=postgre-13
 ################################################################################
 
 # pg_dump 命令
-PG_DUMP="docker exec -it ${PG_CONTAINER_NAME} pg_dump"
+PG_DUMP="docker exec ${PG_CONTAINER_NAME} pg_dump"
 # 日期格式，用于命名备份文件
 DATE=$(date +%Y%m%d)
 # 备份文件名
@@ -251,7 +266,7 @@ PGPASSWORD=${password} ${PG_DUMP} -h ${HOSTNAME} -p ${PORT} -U ${username} -Fc -
 mkdir -p ${BACKUP_DIR}
 docker cp ${PG_CONTAINER_NAME}:/${BACKUP_FILE} ${BACKUP_DIR}/${BACKUP_FILE}
 # 删除容器内备份
-docker exec -it ${PG_CONTAINER_NAME} rm /${BACKUP_FILE}
+docker exec ${PG_CONTAINER_NAME} rm /${BACKUP_FILE}
 
 # 检查备份文件是否存在
 if [ -f "${BACKUP_DIR}/${BACKUP_FILE}" ]; then

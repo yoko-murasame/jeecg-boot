@@ -25,7 +25,7 @@ PG_CONTAINER_NAME=postgre-13
 ################################################################################
 
 # pg_dump 命令
-PG_DUMP="docker exec -it ${PG_CONTAINER_NAME} pg_dump"
+PG_DUMP="docker exec ${PG_CONTAINER_NAME} pg_dump"
 # 日期格式，用于命名备份文件
 DATE=$(date +%Y%m%d)
 # 备份文件名
@@ -37,7 +37,7 @@ PGPASSWORD=${password} ${PG_DUMP} -h ${HOSTNAME} -p ${PORT} -U ${username} -Fc -
 mkdir -p ${BACKUP_DIR}
 docker cp ${PG_CONTAINER_NAME}:/${BACKUP_FILE} ${BACKUP_DIR}/${BACKUP_FILE}
 # 删除容器内备份
-docker exec -it ${PG_CONTAINER_NAME} rm /${BACKUP_FILE}
+docker exec ${PG_CONTAINER_NAME} rm /${BACKUP_FILE}
 
 # 检查备份文件是否存在
 if [ -f "${BACKUP_DIR}/${BACKUP_FILE}" ]; then
