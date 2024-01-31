@@ -33,7 +33,7 @@ public class SysRoleDesignFormServiceImpl extends ServiceImpl<SysRoleDesignFormM
         if(add!=null && add.size()>0) {
             List<SysRoleDesignForm> list = new ArrayList<SysRoleDesignForm>();
             for (String designId : add) {
-                if(org.apache.commons.lang.StringUtil.isNotEmpty(designId)) {
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(designId)) {
                     SysRoleDesignForm rolepms = new SysRoleDesignForm(roleId, designId);
                     list.add(rolepms);
                 }
@@ -72,10 +72,10 @@ public class SysRoleDesignFormServiceImpl extends ServiceImpl<SysRoleDesignFormM
      * @return
      */
     private List<String> getDiff(String main, String diff){
-        if(org.apache.commons.lang.StringUtil.isEmpty(diff)) {
+        if(org.apache.commons.lang.StringUtils.isEmpty(diff)) {
             return null;
         }
-        if(org.apache.commons.lang.StringUtil.isEmpty(main)) {
+        if(org.apache.commons.lang.StringUtils.isEmpty(main)) {
             return Arrays.asList(diff.split(","));
         }
 
@@ -87,7 +87,7 @@ public class SysRoleDesignFormServiceImpl extends ServiceImpl<SysRoleDesignFormM
         }
         List<String> res = new ArrayList<String>();
         for (String key : diffArr) {
-            if(org.apache.commons.lang.StringUtil.isNotEmpty(key) && !map.containsKey(key)) {
+            if(org.apache.commons.lang.StringUtils.isNotEmpty(key) && !map.containsKey(key)) {
                 res.add(key);
             }
         }

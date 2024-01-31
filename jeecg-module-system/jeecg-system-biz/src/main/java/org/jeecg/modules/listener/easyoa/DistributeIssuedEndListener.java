@@ -12,6 +12,8 @@ import org.jeecg.modules.listener.entity.OaOfficialdocBute;
 import org.jeecg.modules.listener.entity.OaOfficialdocDeUser;
 import org.jeecg.modules.listener.service.IOaOfficialdocButeService;
 import org.jeecg.modules.listener.service.IOaOfficialdocDeUserService;
+import org.springframework.util.StringUtils;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -49,7 +51,7 @@ public class DistributeIssuedEndListener implements TaskListener {
         newDepartId.split(",")) {
             OaOfficialdocDeUser oaOfficialdocDeUser = deUserService.selectByDepartId(departId);
             String userId = oaOfficialdocDeUser.getUserId();
-            if(org.apache.commons.lang.StringUtil.isNotBlank(userId)){
+            if(StringUtils.hasText(userId)){
                 String[] userIds = userId.split(",");
                 for (String uId: userIds) {
                     OaOfficialdocBute distribute = new OaOfficialdocBute();

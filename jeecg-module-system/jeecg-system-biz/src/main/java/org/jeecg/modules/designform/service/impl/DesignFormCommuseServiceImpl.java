@@ -33,7 +33,7 @@ public class DesignFormCommuseServiceImpl extends ServiceImpl<DesignFormCommuseM
         if(add!=null && add.size()>0) {
             List<DesignFormCommuse> list = new ArrayList<DesignFormCommuse>();
             for (String designId : add) {
-                if(org.apache.commons.lang.StringUtil.isNotEmpty(designId)) {
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(designId)) {
                     DesignFormCommuse rolepms = new DesignFormCommuse(userId, designId);
                     list.add(rolepms);
                 }
@@ -55,10 +55,10 @@ public class DesignFormCommuseServiceImpl extends ServiceImpl<DesignFormCommuseM
      * @return
      */
     private List<String> getDiff(String main, String diff){
-        if(org.apache.commons.lang.StringUtil.isEmpty(diff)) {
+        if(org.apache.commons.lang.StringUtils.isEmpty(diff)) {
             return null;
         }
-        if(org.apache.commons.lang.StringUtil.isEmpty(main)) {
+        if(org.apache.commons.lang.StringUtils.isEmpty(main)) {
             return Arrays.asList(diff.split(","));
         }
 
@@ -70,7 +70,7 @@ public class DesignFormCommuseServiceImpl extends ServiceImpl<DesignFormCommuseM
         }
         List<String> res = new ArrayList<String>();
         for (String key : diffArr) {
-            if(org.apache.commons.lang.StringUtil.isNotEmpty(key) && !map.containsKey(key)) {
+            if(org.apache.commons.lang.StringUtils.isNotEmpty(key) && !map.containsKey(key)) {
                 res.add(key);
             }
         }
