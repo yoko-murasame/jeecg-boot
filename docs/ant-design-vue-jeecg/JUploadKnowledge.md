@@ -26,6 +26,8 @@
 
 <j-upload-knowledge
   knowledge-path="默认目录,测试1,ceshi3,ceshi3-1,ceshi3-1-1"
+  business-id="业务主键，可选，用于筛选关联目录"
+  project-id="项目主键，可选，用于筛选关联目录"
   :show-tags-dialog="true"
   biz-path="上传的路径"
   text="按钮名称"
@@ -49,3 +51,4 @@
 
 修改历史:
 * 2023-10-24: 新增知识库联动上传组件
+* 2024-02-19: 添加关联目录双主键筛选
