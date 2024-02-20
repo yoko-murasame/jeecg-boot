@@ -19,10 +19,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -40,7 +37,9 @@ public class FolderController {
         List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
         if (folders.isEmpty() && folderParams.getInitialFolderTreeNamesIfNotExist()) {
             // 初始化目录
-            JSONArray objects = FolderServiceImpl.convertDirectoryStructure(folderParams.getFolderTreeNames());
+            JSONArray newFolders = FolderServiceImpl.createDirectoryTree(folderParams.getFolderTreeNames());
+            folderService.initialJsonSubFolders(folderParams, newFolders, null, new ArrayList<>());
+            folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
         }
         return Result.OK(folders);
     }

@@ -23,12 +23,12 @@
 使用示例:
 
 ```vue
-
 <j-upload-knowledge
   knowledge-path="默认目录,测试1,ceshi3,ceshi3-1,ceshi3-1-1"
-  business-id="业务主键，可选，用于筛选关联目录"
-  project-id="项目主键，可选，用于筛选关联目录"
-  :show-tags-dialog="true"
+  :knowledge-path-auto-init="'当关联知识库路径不存在时，是否自动初始化，默认为false'"
+  :business-id="'业务主键，可选，用于筛选关联目录'"
+  :project-id="'项目主键，可选，用于筛选关联目录'"
+  :show-tags-dialog="'是否打开标签管理弹窗，默认为true'"
   biz-path="上传的路径"
   text="按钮名称"
   file-type="all|image|file"
