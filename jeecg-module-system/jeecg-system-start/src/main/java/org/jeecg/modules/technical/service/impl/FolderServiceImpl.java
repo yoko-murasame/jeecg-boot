@@ -290,7 +290,7 @@ public class FolderServiceImpl implements FolderService {
                 folder.setLevel(Level.child(parent.getLevel()))
                         .setParentId(parent.getId());
             }
-            this.save(folder);
+            folder = this.saveAndReturnExistIfSameName(folder, true);
             // this.refreshAllChild(folder);
             // 子目录
             JSONArray children = jsonObject.getJSONArray("children");
@@ -511,7 +511,7 @@ public class FolderServiceImpl implements FolderService {
     @Transactional
     @Override
     @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
-    public Folder save(Folder folder) {
+    public Folder saveAndReturnExistIfSameName(Folder folder, Boolean returnExistIfSameName) {
         Assert.notNull(folder, "操作对象不能为空");
         Assert.state(StringUtils.hasText(folder.getName().trim()), "目录名称不能为空");
 
@@ -574,6 +574,10 @@ public class FolderServiceImpl implements FolderService {
                     .eq("parent_id", existFolder.getParentId())
                     .eq("name", folder.getName())
                     .last("limit 1"));
+            // 返回同级同名目录
+            if (returnExistIfSameName && null != sameName) {
+                return sameName;
+            }
             Assert.state(null == sameName || sameName.getId().equals(folder.getId()), "同级存在同名目录，请重新命名");
             // 保存
             existFolder.setName(folder.getName());
@@ -585,6 +589,10 @@ public class FolderServiceImpl implements FolderService {
                     .eq("parent_id", folder.getParentId())
                     .eq("name", folder.getName())
                     .last("limit 1"));
+            // 返回同级同名目录
+            if (returnExistIfSameName && null != sameName) {
+                return sameName;
+            }
             Assert.state(null == sameName || sameName.getId().equals(folder.getId()), "同级存在同名目录，请重新命名");
             // Order处理 每次新增设置最大值
             List<Map<String, Object>> maxOrderObj = folderMapper.selectMaps(baseQr.clone()
@@ -607,6 +615,13 @@ public class FolderServiceImpl implements FolderService {
         this.refreshAllChild(folder.getParentId());
 
         return folder;
+    }
+
+    @Transactional
+    @Override
+    @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
+    public Folder save(Folder folder) {
+        return this.saveAndReturnExistIfSameName(folder, false);
     }
 
     @Transactional

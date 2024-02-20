@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import org.jeecg.modules.technical.entity.Folder;
 import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.sample.entity.Project;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -48,6 +49,10 @@ public interface FolderService {
     List<Folder> reOrder(String sourceId, String targetId);
 
     List<Folder> moveFolder(List<String> ids, String targetId);
+
+    @Transactional
+    @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
+    Folder saveAndReturnExistIfSameName(Folder folder, Boolean returnExistIfSameName);
 
     Folder save(Folder folder);
 
