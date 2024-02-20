@@ -12,6 +12,7 @@ import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.entity.enums.Level;
 import org.jeecg.modules.technical.entity.enums.Type;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.service.impl.FolderServiceImpl;
 import org.jeecg.modules.technical.vo.FolderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -37,6 +38,10 @@ public class FolderController {
     public Result queryTreeLastNodeByFolderTreeNames(@RequestBody Folder folderParams) {
         String[] split = Optional.ofNullable(folderParams.getFolderTreeNames()).orElse("").split(";");
         List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+        if (folders.isEmpty() && folderParams.getInitialFolderTreeNamesIfNotExist()) {
+            // 初始化目录
+            JSONArray objects = FolderServiceImpl.convertDirectoryStructure(folderParams.getFolderTreeNames());
+        }
         return Result.OK(folders);
     }
 

@@ -51,6 +51,10 @@ public class Folder extends JeecgEntity {
     @TableField(exist = false)
     private String folderTreeNames;
 
+    // 是否初始化文件夹树名称
+    @TableField(exist = false)
+    private Boolean initialFolderTreeNamesIfNotExist = false;
+
     public static Folder of(String id, String projectId, String projectName, String businessId, String businessName) {
         return new Folder().setId(id).setProjectId(projectId).setProjectName(projectName).setBusinessId(businessId).setBusinessName(businessName);
     }

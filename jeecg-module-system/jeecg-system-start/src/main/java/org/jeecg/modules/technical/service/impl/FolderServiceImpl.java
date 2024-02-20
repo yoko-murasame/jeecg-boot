@@ -899,4 +899,63 @@ public class FolderServiceImpl implements FolderService {
         return new Project().setName(exist.getName()).setId(exist.getId());
     }
 
+    /**
+     * 转换目录结构
+     *
+     * @author Yoko
+     * @since 2024/2/19 17:14
+     * @param directoryStructure 指定树型目录结构，如：a,b,c;d,e,f
+     * @return com.alibaba.fastjson.JSONArray
+     * [
+     *   {
+     *     "name": "默认目录",
+     *     "children": []
+     *   }
+     * ]
+     */
+    public static JSONArray convertDirectoryStructure(String directoryStructure) {
+        // 将目录结构分割为目录列表
+        List<String> directories = new ArrayList<>();
+        for (String dir : directoryStructure.split(";")) {
+            directories.add(dir);
+        }
+
+        // 使用栈模拟目录树的结构
+        Stack<JSONObject> stack = new Stack<>();
+        JSONArray resultArray = new JSONArray();
+
+        for (String dir : directories) {
+            // 分割目录名和子目录名
+            String[] parts = dir.split(",");
+            String parentDir = parts[0];
+            String[] subDirs = parts[1].split(",");
+
+            // 创建父目录
+            JSONObject parentDirectory = new JSONObject();
+            parentDirectory.put("name", parentDir);
+            parentDirectory.put("children", new JSONArray());
+
+            // 将父目录压入栈中
+            if (stack.isEmpty()) {
+                stack.push(parentDirectory);
+            } else {
+                stack.peek().getJSONArray("children").add(parentDirectory);
+                stack.push(parentDirectory);
+            }
+
+            // 创建子目录并添加到父目录中
+            for (String subDir : subDirs) {
+                JSONObject subDirectory = new JSONObject();
+                subDirectory.put("name", subDir);
+                subDirectory.put("children", new JSONArray());
+                parentDirectory.getJSONArray("children").add(subDirectory);
+            }
+        }
+
+        // 返回栈顶的目录树
+        resultArray.add(stack.peek());
+
+        return resultArray;
+    }
+
 }
