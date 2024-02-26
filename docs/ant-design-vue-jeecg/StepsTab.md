@@ -40,13 +40,10 @@
 ```
 
 
-# 归档
-
-## 旧版本-使用dict的选中值作为v-model值
-
-使用：
+## 使用
 
 ```vue
+<!--当前状态和分步按钮选项两个数据分离情况-->
 <steps-tab
   ref="stepsTab"
   :debug="false"
@@ -60,7 +57,20 @@
   @update:hasNext="e => $emit('update:hasNext', e)"
   @stateChange="switchRequired"
 ></steps-tab>
+<!--当前状态和选项表现一致的情况-->
+<steps-tab
+  :debug="true"
+  dict="excavation_type_object_state"
+  v-decorator="['currentState']"
+  :current-finish="true"
+  :current-tab-dict-value.sync="model.currentState"
+  @update:currentTabDictValue="e => form.setFieldsValue({'currentState': e})"
+></steps-tab>
 ```
+
+# 归档
+
+## 旧版本-使用dict的选中值作为v-model值
 
 代码：
 
