@@ -33,15 +33,18 @@ public class FolderController {
     @ApiOperation("根据树型层级目录名称查询目录,树型用','分割,多个树型用';'分割e.g. aaa,bbb;ccc,ddd")
     @RequestMapping(value = "queryTreeLastNodeByFolderTreeNames", method = {RequestMethod.POST, RequestMethod.GET})
     public Result queryTreeLastNodeByFolderTreeNames(@RequestBody Folder folderParams) {
-        String[] split = Optional.ofNullable(folderParams.getFolderTreeNames()).orElse("").split(";");
-        List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
-        if (folders.isEmpty() && folderParams.getInitialFolderTreeNamesIfNotExist()) {
-            // 初始化目录
-            JSONArray newFolders = FolderServiceImpl.createDirectoryTree(folderParams.getFolderTreeNames());
-            folderService.initialJsonSubFolders(folderParams, newFolders, null, new ArrayList<>());
-            folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+        // 必须加锁，多个j-upload-knowledge组件同时初始化时，容易导致并发问题，创建重复的目录
+        synchronized (this) {
+            String[] split = Optional.ofNullable(folderParams.getFolderTreeNames()).orElse("").split(";");
+            List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+            if (folders.isEmpty() && folderParams.getInitialFolderTreeNamesIfNotExist()) {
+                // 初始化目录
+                JSONArray newFolders = FolderServiceImpl.createDirectoryTree(folderParams.getFolderTreeNames());
+                folderService.initialJsonSubFolders(folderParams, newFolders, null, new ArrayList<>());
+                folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+            }
+            return Result.OK(folders);
         }
-        return Result.OK(folders);
     }
 
     @GetMapping("/business/search/folder")
