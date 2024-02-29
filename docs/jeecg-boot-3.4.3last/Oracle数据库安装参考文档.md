@@ -149,6 +149,474 @@ imp \'sys/\"带@的密码\"@127.0.0.1:1521/xe AS SYSDBA\' file=export.dmp log=im
    EXIT;
    ```
 
+## Oracle高级SQL
+
+### 递归结合分页高级查询
+
+sql功能描述：
+
+查询两个资产表 -> 将结果聚合 -> 翻译部门、用户名等字段 -> 联合中间状态表
+-> 根据动态条件过滤（结合mybatisPlus）
+-> 递归查询所有父项 -> 递归查询所有父项的子项（这个需求是，不同部门存在交叉数据时，需要查询出所有的父项和子项）
+-> 最后去重并排序
+
+```sql
+WITH unit AS (select ORG_CODE, DEPART_NAME
+              from SYS_DEPART),
+     sysuser AS (SELECT USERNAME, REALNAME
+                 FROM SYS_USER),
+     house AS (select ID,
+                      CREATE_TIME,
+                      UPDATE_TIME,
+                      ASSET_NUMBER,
+                      ASSET_NAME,
+                      ASSET_AREA,
+                      PID,
+                      '房产' AS ASSET_TYPE,
+                      MANAGE_UNIT,
+                      CREATE_UNIT,
+                      HANDLER
+               from ZY_HOUSE_ASSET
+               where is_del = 0),
+     land AS (select ID,
+                     CREATE_TIME,
+                     UPDATE_TIME,
+                     ASSET_NUMBER,
+                     ASSET_NAME,
+                     ASSET_AREA,
+                     PID,
+                     '土地' AS ASSET_TYPE,
+                     MANAGE_UNIT,
+                     CREATE_UNIT,
+                     HANDLER
+              from ZY_LAND_ASSET
+              where is_del = 0),
+     house_view AS (select a.*,
+                           b.DEPART_NAME AS MANAGE_UNIT_TEXT,
+                           c.DEPART_NAME AS CREATE_UNIT_TEXT,
+                           d.REALNAME    AS HANDLER_TEXT
+                    from house a
+                             left join unit b on a.MANAGE_UNIT = b.ORG_CODE
+                             left join unit c on a.CREATE_UNIT = c.ORG_CODE
+                             left join sysuser d on a.HANDLER = d.USERNAME),
+     land_view AS (select a.*,
+                          b.DEPART_NAME AS MANAGE_UNIT_NAME,
+                          c.DEPART_NAME AS CREATE_UNIT_NAME,
+                          d.REALNAME    AS HANDLER_TEXT
+                   from land a
+                            left join unit b on a.MANAGE_UNIT = b.ORG_CODE
+                            left join unit c on a.CREATE_UNIT = c.ORG_CODE
+                            left join sysuser d on a.HANDLER = d.USERNAME),
+     unit_view AS (select *
+                   from house_view
+                   union all
+                   select *
+                   from land_view),
+     -- 接入同步中间状态(指定del_flag=0的为1=1关联，如果产生错误数据，就让交叉乘积的错误数据暴露出来)
+     unit_sync_view AS (SELECT a.*, b.SYNC_STATE
+                        FROM unit_view a
+                                 LEFT JOIN ZY_ASSERT_SYNC_MIDDLE b
+                                           ON a.ID = b.ASSERT_ID AND a.ASSET_TYPE = b.ASSERT_ID AND b.DEL_FLAG = 0),
+     filter_view AS (select *
+                     from unit_sync_view
+                     where ASSET_NAME = '清东路站公共移动设备室'
+                       AND MANAGE_UNIT = 'F'),
+--                      where ASSET_NUMBER = 'ZY103-02000017-00003'),
+--                      where ID = 'fcgz14000002212'),
+     -- 递归查询所有父项
+     parent_view AS (SELECT *
+                     FROM unit_sync_view
+                     START WITH ID IN (SELECT ID FROM filter_view)
+                     CONNECT BY PRIOR PID = ID),
+     -- 递归查询所有子项
+--      children_view AS (SELECT *
+--                      FROM unit_view
+--                      START WITH ID IN (SELECT ID FROM filter_view)
+--                      CONNECT BY PRIOR ID = PID),
+     -- 递归查询所有父项的子项
+     children_view AS (SELECT *
+                       FROM unit_sync_view
+                       START WITH ID IN (SELECT ID FROM parent_view)
+                       CONNECT BY PRIOR ID = PID),
+     unique_view AS (SELECT *
+                     FROM parent_view
+                     UNION
+                     SELECT *
+                     FROM children_view)
+SELECT *
+FROM unique_view
+ORDER BY SYNC_STATE DESC, UPDATE_TIME DESC NULLS LAST, CREATE_TIME DESC
+;
+
+```
+
+如果需要使用分页，必须针对root节点进行分页处理，下面是写成动态接口的示例：
+
+mapper
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.zy.sync.mapper.ZyAssertSyncMiddleMapper">
+    <!--分页仅作用于递归筛选查询出的所有root节点数据，也在这里排序-->
+    <sql id="listSql">
+        WITH unit AS (select ORG_CODE, DEPART_NAME
+                      from SYS_DEPART),
+             sysuser AS (SELECT USERNAME, REALNAME
+                         FROM SYS_USER),
+             sync_dict AS (SELECT item_text, item_value
+                           FROM sys_dict_item
+                           WHERE dict_id = (SELECT id FROM sys_dict WHERE dict_code = 'zy_asset_sync_state')),
+             house AS (select ID,
+                              CREATE_TIME,
+                              UPDATE_TIME,
+                              ASSET_NUMBER,
+                              ASSET_NAME,
+                              ASSET_AREA,
+                              PID,
+                              HAS_CHILD,
+                              '房产' AS ASSET_TYPE,
+                              MANAGE_UNIT,
+                              CREATE_UNIT,
+                              HANDLER
+                       from ZY_HOUSE_ASSET
+                       where is_del = 0),
+             land AS (select ID,
+                             CREATE_TIME,
+                             UPDATE_TIME,
+                             ASSET_NUMBER,
+                             ASSET_NAME,
+                             ASSET_AREA,
+                             PID,
+                             HAS_CHILD,
+                             '土地' AS ASSET_TYPE,
+                             MANAGE_UNIT,
+                             CREATE_UNIT,
+                             HANDLER
+                      from ZY_LAND_ASSET
+                      where is_del = 0),
+             house_view AS (select a.*,
+                                   b.DEPART_NAME               AS MANAGE_UNIT_TEXT,
+                                   c.DEPART_NAME               AS CREATE_UNIT_TEXT,
+                                   d.REALNAME                  AS HANDLER_TEXT,
+                                   COALESCE(e.SYNC_STATE, '1') AS SYNC_STATE,
+                                   e.LATEST_SYNC_TIME
+                            from house a
+                                     left join unit b on a.MANAGE_UNIT = b.ORG_CODE
+                                     left join unit c on a.CREATE_UNIT = c.ORG_CODE
+                                     left join sysuser d on a.HANDLER = d.USERNAME
+                                     left join ZY_ASSERT_SYNC_MIDDLE e
+                                               on a.ID = e.ASSERT_ID AND a.ASSET_TYPE = e.ASSERT_ID AND e.DEL_FLAG = 0),
+             land_view AS (select a.*,
+                                  b.DEPART_NAME               AS MANAGE_UNIT_NAME,
+                                  c.DEPART_NAME               AS CREATE_UNIT_NAME,
+                                  d.REALNAME                  AS HANDLER_TEXT,
+                                  COALESCE(e.SYNC_STATE, '1') AS SYNC_STATE,
+                                  e.LATEST_SYNC_TIME
+                           from land a
+                                    left join unit b on a.MANAGE_UNIT = b.ORG_CODE
+                                    left join unit c on a.CREATE_UNIT = c.ORG_CODE
+                                    left join sysuser d on a.HANDLER = d.USERNAME
+                                    left join ZY_ASSERT_SYNC_MIDDLE e
+                                              on a.ID = e.ASSERT_ID AND a.ASSET_TYPE = e.ASSERT_ID AND e.DEL_FLAG = 0),
+             unit_view AS (select *
+                           from house_view
+                           union all
+                           select *
+                           from land_view),
+             unit_sync_view AS (SELECT a.*, b.ITEM_TEXT AS SYNC_STATE_TEXT
+                                FROM unit_view a
+                                         LEFT JOIN sync_dict b ON a.SYNC_STATE = b.item_value),
+             filter_view AS (select *
+                             from unit_sync_view ${ew.customSqlSegment}),
+             parent_view AS (SELECT *
+                             FROM unit_sync_view
+                             START WITH ID IN (SELECT ID FROM filter_view)
+                             CONNECT BY PRIOR PID = ID),
+             parent_distinct_view AS (SELECT DISTINCT *
+                                      FROM parent_view
+                                      WHERE PID = '0'
+                                      ORDER BY SYNC_STATE DESC, UPDATE_TIME DESC NULLS LAST, CREATE_TIME DESC),
+        parent_page_view AS (
+        <if test="queryType eq 'pageParent'">
+            SELECT ID,
+                   CREATE_TIME,
+                   UPDATE_TIME,
+                   ASSET_NUMBER,
+                   ASSET_NAME,
+                   ASSET_AREA,
+                   PID,
+                   HAS_CHILD,
+                   ASSET_TYPE,
+                   MANAGE_UNIT,
+                   CREATE_UNIT,
+                   HANDLER,
+                   MANAGE_UNIT_TEXT,
+                   CREATE_UNIT_TEXT,
+                   HANDLER_TEXT,
+                   SYNC_STATE,
+                   LATEST_SYNC_TIME,
+                   SYNC_STATE_TEXT
+            FROM (SELECT TMP.*,
+                         ROWNUM ROW_ID
+                  FROM parent_distinct_view TMP
+                  WHERE ROWNUM <![CDATA[<=]]> ${page} * ${size})
+            WHERE ROW_ID <![CDATA[>]]> (${page} - 1) * ${size}
+        </if>
+        <if test="queryType neq 'pageParent'">
+            select *
+            from parent_distinct_view
+        </if>
+        ),
+            children_view AS (SELECT *
+                              FROM unit_sync_view
+                              START WITH ID IN (SELECT ID FROM parent_page_view)
+                              CONNECT BY PRIOR ID = PID),
+            unique_view AS (SELECT *
+                            FROM parent_page_view
+                            UNION
+                            SELECT *
+                            FROM children_view)
+        <if test="queryType neq 'countParent'">
+            SELECT *
+            FROM unique_view
+            ORDER BY SYNC_STATE DESC, UPDATE_TIME DESC NULLS LAST, ASSET_NAME DESC
+        </if>
+        <if test="queryType eq 'countParent'">
+            SELECT COUNT(DISTINCT ID)
+            FROM parent_distinct_view
+        </if>
+    </sql>
+
+    <!--由于采用了头尾递归，最后的返回结果一定是以root的数量为准，因此分页插件失效，需要手动重写-->
+    <select id="pageVo" resultType="org.jeecg.modules.zy.sync.entity.vo.ZyAssertSyncMiddleVo">
+        <bind name="queryType" value="'pageError'"/>
+        <include refid="listSql"/>
+    </select>
+
+    <select id="listVo" resultType="org.jeecg.modules.zy.sync.entity.vo.ZyAssertSyncMiddleVo">
+        <bind name="queryType" value="'list'"/>
+        <include refid="listSql"/>
+    </select>
+
+    <!--统计父节点的数量-->
+    <select id="countVoOnlyParent" resultType="long">
+        <bind name="queryType" value="'countParent'"/>
+        <include refid="listSql"/>
+    </select>
+
+    <select id="pageVoOnlyParent" resultType="org.jeecg.modules.zy.sync.entity.vo.ZyAssertSyncMiddleVo">
+        <bind name="queryType" value="'pageParent'"/>
+        <include refid="listSql"/>
+    </select>
+
+</mapper>
+
+```
+
+service
+
+```java
+import cn.hutool.core.collection.IterUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.jeecg.modules.zy.sync.entity.ZyAssertSyncMiddle;
+import org.jeecg.modules.zy.sync.entity.vo.ZyAssertSyncMiddleVo;
+import org.jeecg.modules.zy.sync.mapper.ZyAssertSyncMiddleMapper;
+import org.jeecg.modules.zy.sync.service.IZyAssertSyncMiddleService;
+import org.springframework.stereotype.Service;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import javax.annotation.Resource;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Service
+public class ZyAssertSyncMiddleServiceImpl extends ServiceImpl<ZyAssertSyncMiddleMapper, ZyAssertSyncMiddle> implements IZyAssertSyncMiddleService {
+
+    @Resource
+    private ZyAssertSyncMiddleMapper zyAssertSyncMiddleMapper;
+
+    @Override
+    public IPage<ZyAssertSyncMiddleVo> pageVo(Page<ZyAssertSyncMiddleVo> page, Wrapper<ZyAssertSyncMiddleVo> queryWrapper) {
+        Page<ZyAssertSyncMiddleVo> pageResult = new Page<>(page.getCurrent(), page.getSize());
+        long countVoOnlyParent = zyAssertSyncMiddleMapper.countVoOnlyParent(queryWrapper);
+        pageResult.setTotal(countVoOnlyParent);
+        if (countVoOnlyParent > 0) {
+            List<ZyAssertSyncMiddleVo> result = zyAssertSyncMiddleMapper.pageVoOnlyParent(queryWrapper, page.getCurrent(), page.getSize());
+            pageResult.setRecords(this.toTree(result));
+        }
+        return pageResult;
+    }
+
+    @Override
+    public List<ZyAssertSyncMiddleVo> listVo(Wrapper<ZyAssertSyncMiddleVo> queryWrapper) {
+        List<ZyAssertSyncMiddleVo> result = zyAssertSyncMiddleMapper.listVo(queryWrapper);
+        return this.toTree(result);
+    }
+
+    private List<ZyAssertSyncMiddleVo> toTree(List<ZyAssertSyncMiddleVo> result) {
+        Map<String, ZyAssertSyncMiddleVo> listMap = IterUtil.toMap(result, ZyAssertSyncMiddleVo::getId);
+        List<ZyAssertSyncMiddleVo> roots = new ArrayList<>();
+        result.forEach(item -> {
+            if (ROOT_PID_VALUE.equals(item.getPid())) {
+                roots.add(item);
+                return;
+            }
+            Optional.ofNullable(listMap.get(item.getPid())).ifPresent(parent -> parent.getChildren().add(item));
+        });
+        return roots;
+    }
+
+    @Override
+    public ZyAssertSyncMiddleVo getOneVo(Wrapper<ZyAssertSyncMiddleVo> queryWrapper) {
+        return zyAssertSyncMiddleMapper.listVo(queryWrapper).get(0);
+    }
+
+    @Override
+    public ZyAssertSyncMiddleVo getByIdVo(Serializable id) {
+        return zyAssertSyncMiddleMapper.listVo(Wrappers.lambdaQuery(ZyAssertSyncMiddleVo.class).eq(ZyAssertSyncMiddleVo::getId, id)).get(0);
+    }
+
+}
+
+```
+
+分页SQL的渲染结果:
+
+```sql
+WITH unit AS (select ORG_CODE,
+                     DEPART_NAME
+              from SYS_DEPART),
+     sysuser AS (SELECT USERNAME,
+                        REALNAME
+                 FROM SYS_USER),
+     house AS (select ID,
+                      CREATE_TIME,
+                      UPDATE_TIME,
+                      ASSET_NUMBER,
+                      ASSET_NAME,
+                      ASSET_AREA,
+                      PID,
+                      '房产' AS ASSET_TYPE,
+                      MANAGE_UNIT,
+                      CREATE_UNIT,
+                      HANDLER
+               from ZY_HOUSE_ASSET
+               where is_del = 0),
+     land AS (select ID,
+                     CREATE_TIME,
+                     UPDATE_TIME,
+                     ASSET_NUMBER,
+                     ASSET_NAME,
+                     ASSET_AREA,
+                     PID,
+                     '土地' AS ASSET_TYPE,
+                     MANAGE_UNIT,
+                     CREATE_UNIT,
+                     HANDLER
+              from ZY_LAND_ASSET
+              where is_del = 0),
+     house_view AS (select a.*,
+                           b.DEPART_NAME AS MANAGE_UNIT_TEXT,
+                           c.DEPART_NAME AS CREATE_UNIT_TEXT,
+                           d.REALNAME    AS HANDLER_TEXT
+                    from house a
+                             left join
+                         unit b
+                         on a.MANAGE_UNIT = b.ORG_CODE
+                             left join
+                         unit c
+                         on a.CREATE_UNIT = c.ORG_CODE
+                             left join
+                         sysuser d
+                         on a.HANDLER = d.USERNAME),
+     land_view AS (select a.*,
+                          b.DEPART_NAME AS MANAGE_UNIT_NAME,
+                          c.DEPART_NAME AS CREATE_UNIT_NAME,
+                          d.REALNAME    AS HANDLER_TEXT
+                   from land a
+                            left join
+                        unit b
+                        on a.MANAGE_UNIT = b.ORG_CODE
+                            left join
+                        unit c
+                        on a.CREATE_UNIT = c.ORG_CODE
+                            left join
+                        sysuser d
+                        on a.HANDLER = d.USERNAME),
+     unit_view AS (select *
+                   from house_view
+                   union
+                       all
+                   select *
+                   from land_view),
+     unit_sync_view AS (SELECT a.*,
+                               b.SYNC_STATE
+                        FROM unit_view a
+                                 LEFT JOIN
+                             ZY_ASSERT_SYNC_MIDDLE b
+                             ON a.ID = b.ASSERT_ID
+                                 AND a.ASSET_TYPE = b.ASSERT_ID
+                                 AND b.DEL_FLAG = 0),
+     filter_view AS (select *
+                     from unit_sync_view
+                     WHERE (asset_type = '房产'
+                         AND manage_unit_text = 'xxx')),
+     parent_view AS (SELECT *
+                     FROM unit_sync_view
+                     START WITH ID IN (SELECT ID
+                                       FROM filter_view)
+                     CONNECT BY PRIOR PID = ID),
+     parent_distinct_view AS (SELECT DISTINCT *
+                              FROM parent_view
+                              WHERE PID = '0'
+                              ORDER BY SYNC_STATE DESC,
+                                       UPDATE_TIME DESC NULLS LAST,
+                                       CREATE_TIME DESC),
+     parent_page_view AS (SELECT
+                              -- 不能带入 ROWNUM ROW_ID 字段要不union字段匹配不上，底下也加rowNum会报错因此所有字段列出来
+                              ID,
+                              CREATE_TIME,
+                              UPDATE_TIME,
+                              ASSET_NUMBER,
+                              ASSET_NAME,
+                              ASSET_AREA,
+                              PID,
+                              ASSET_TYPE,
+                              MANAGE_UNIT,
+                              CREATE_UNIT,
+                              HANDLER,
+                              MANAGE_UNIT_TEXT,
+                              CREATE_UNIT_TEXT,
+                              HANDLER_TEXT,
+                              SYNC_STATE
+                          FROM (SELECT TMP.*,
+                                       ROWNUM ROW_ID
+                                FROM parent_distinct_view TMP
+                                WHERE ROWNUM <= 1 * 10)
+                          WHERE ROW_ID > (1 - 1) * 10),
+     children_view AS (SELECT *
+                       FROM unit_sync_view
+                       START WITH ID IN (SELECT ID
+                                         FROM parent_page_view)
+                       CONNECT BY PRIOR ID = PID),
+     unique_view AS ((SELECT *
+                      FROM parent_page_view)
+                     UNION
+                     (SELECT *
+                      FROM children_view))
+SELECT *
+FROM unique_view;
+
+```
+
 ## 归档
 
 ### 11g备份导入到12c
