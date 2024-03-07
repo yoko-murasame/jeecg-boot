@@ -107,7 +107,7 @@ spring:
       stat-view-servlet:
         enabled: true
         loginUsername: admin
-        loginPassword: 123456
+        loginPassword: 123456@123456
         allow:
       web-stat-filter:
         enabled: true
