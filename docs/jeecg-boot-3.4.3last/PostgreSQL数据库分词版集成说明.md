@@ -65,7 +65,7 @@ docker run -d \
 - listen_addresses = 'localhost'
 + listen_addresses = '*'
 #############################################
-# 修改 pg_hba.conf
+# 修改 pg_hba.conf，最好 vim 13 dd 后全部粘贴
 #############################################
 # "local" is for Unix domain socket connections only
 local   all             all                                     md5

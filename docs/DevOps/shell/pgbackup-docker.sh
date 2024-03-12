@@ -8,7 +8,7 @@ KEEP_COUNT=7
 # 用户密码
 username=postgres
 password=123456
-# HOST
+# HOST，由于是容器内的，因此端口和HOST基本不用改
 HOSTNAME=127.0.0.1
 PORT=5432
 # 数据库名称，可以指定多个数据库
