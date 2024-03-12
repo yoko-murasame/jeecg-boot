@@ -8,10 +8,14 @@
 
 组件路径: 
 * [PG初始化脚本](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL)
+* [PG备份脚本-windows](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/shell/pgbackup-windows.sh)
+* [PG备份脚本-linux](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/shell/pgbackup-linux.sh)
+* [PG备份脚本-docker](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/shell/pgbackup-docker.sh)
 
 修改历史:
 * 2023-07-18: 添加分词功能PostgreSQL、各类脚本。
 * 2023-07-20: 添加完整数据库部署教程。
+* 2024-01-24: 添加PostgreSQL运维备份脚本
 
 ## PostgreSQL分词版本数据库安装和导入完整步骤
 
@@ -61,7 +65,7 @@ docker run -d \
 - listen_addresses = 'localhost'
 + listen_addresses = '*'
 #############################################
-# 修改 pg_hba.conf
+# 修改 pg_hba.conf，最好 vim 13 dd 后全部粘贴
 #############################################
 # "local" is for Unix domain socket connections only
 local   all             all                                     md5
@@ -167,6 +171,7 @@ spring:
 ## 扩展
 
 ### 性能优化
+
 在线性能优选参数生成器：https://pgtune.leopard.in.ua/
 
 Github项目地址：https://github.com/le0pard/pgtune
@@ -182,6 +187,7 @@ lsblk -d -o name,rota
 ```
 
 ### 数据备份和还原
+
 ```shell
 # 进入容器执行备份
 docker exec -it <容器> pg_dump -h localhost -p 5432 -U postgres -W -Fc -f /backup.dump -d <database>
@@ -197,6 +203,102 @@ docker exec -it <新容器> pg_restore --verbose -U postgres -W -d <目标数据
 docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
 # 也可以-f指定
 docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> -f <容器内备份文件路径>
+```
+
+## 归档
+
+### Linux备份脚本-Docker版本
+
+**脚本内容(pgbackup-docker.sh):**
+
+**备注:**
+
+`crontab` 中使用 `docker exec` 命令无法使用参数-it。
+
+`docker exec` 命令用于在运行的 Docker 容器中执行命令。`-it` 是两个参数的组合，`-i` 和 `-t`。
+
+`-i` 参数（或 `--interactive`）保持 STDIN 打开，即使没有附加到容器。这意味着你可以向容器发送输入。
+
+`-t` 参数（或 `--tty`）为容器分配一个伪终端。这通常使得输出更易读，因为它可以使命令的输出看起来像在本地终端运行的命令的输出。
+
+当你在交互式 shell 中运行 `docker exec` 命令时，使用 `-it` 参数通常是有用的，因为它允许你与容器进行交互。然而，当你在非交互式环境（如 `crontab`）中运行 `docker exec` 命令时，`-it` 参数可能会导致问题，因为这些环境不提供一个交互式终端。
+
+因此，如果你的命令不需要用户交互，你应该去掉 `-it` 参数。例如，如果你的命令是一个数据库备份脚本，那么你可能不需要 `-it` 参数，因为备份过程通常不需要用户输入。
+
+
+```shell
+#!/bin/bash
+
+################################# 配置项 BEGIN ##################################
+# 所有数据库备份存放目录
+BACKUP_DIR="/root/opt/pgbackup"
+# 每个数据库保留的备份文件数量
+KEEP_COUNT=7
+# 用户密码
+username=postgres
+password=123456
+# HOST
+HOSTNAME=127.0.0.1
+PORT=5432
+# 数据库名称，可以指定多个数据库
+DB_NAMES=("postgres" "db2" "db3")
+# PostgreSQL容器名称
+PG_CONTAINER_NAME=postgre-13
+################################# 配置项 END ####################################
+# 设置权限
+# chmod u+x pgbackup-docker.sh
+# 设置定时任务
+# crontab -e
+# PostgreSQL备份脚本-每天凌晨1点执行一次
+# 0 1 * * * /path/to/pgbackup-docker.sh
+################################################################################
+
+# pg_dump 命令
+PG_DUMP="docker exec ${PG_CONTAINER_NAME} pg_dump"
+# 日期格式，用于命名备份文件
+DATE=$(date +%Y%m%d)
+
+# 遍历所有数据库
+for DB_NAME in "${DB_NAMES[@]}"
+do
+    # 备份文件名
+    BACKUP_FILE="${DB_NAME}_${DATE}.dump"
+
+    # 导出数据库
+    PGPASSWORD=${password} ${PG_DUMP} -h ${HOSTNAME} -p ${PORT} -U ${username} -Fc -f /${BACKUP_FILE} ${DB_NAME}
+    # 导出备份
+    mkdir -p ${BACKUP_DIR}
+    docker cp ${PG_CONTAINER_NAME}:/${BACKUP_FILE} ${BACKUP_DIR}/${BACKUP_FILE}
+    # 删除容器内备份
+    docker exec ${PG_CONTAINER_NAME} rm /${BACKUP_FILE}
+
+    # 检查备份文件是否存在
+    if [ -f "${BACKUP_DIR}/${BACKUP_FILE}" ]; then
+        echo "备份成功: ${BACKUP_DIR}/${BACKUP_FILE}" >> ${BACKUP_DIR}/backup.log
+    else
+        echo "备份失败: ${BACKUP_DIR}/${BACKUP_FILE}"  >> ${BACKUP_DIR}/backup.log
+    fi
+
+    # 清理的文件名前缀
+    BACKUP_PREFIX="${DB_NAME}_"
+
+    # 遍历备份目录下所有以 BACKUP_PREFIX 开头的文件，并按修改时间排序
+    files=($(find "$BACKUP_DIR" -maxdepth 1 -name "${BACKUP_PREFIX}*.dump" -printf "%T@ %p\n" | sort -n | cut -d' ' -f2-))
+
+    # 如果备份文件数量大于 KEEP_COUNT，则删除除了最新的 KEEP_COUNT 个文件之外的所有文件
+    count=${#files[@]}
+    if [[ $count -gt $KEEP_COUNT ]]; then
+        echo "保存最近 $KEEP_COUNT 个备份" >> ${BACKUP_DIR}/backup-clean.log
+        for ((i=0; i<count-KEEP_COUNT; i++))
+        do
+            echo "删除备份 ${files[i]}" >> ${BACKUP_DIR}/backup-clean.log
+            rm "${files[i]}"
+        done
+    else
+        echo "备份文件数量 (${#files[@]}) 小于等于 $KEEP_COUNT, 不执行清理操作." >> ${BACKUP_DIR}/backup-clean.log
+    fi
+done
+
 ```
 
 
@@ -215,9 +317,9 @@ password=123456
 HOSTNAME=localhost
 PORT=54321
 # 数据库名称
-DB_NAME=gongyong_test
+DB_NAME=dbname
 # pg_dump 命令路径
-PG_DUMP="docker exec -it postgis pg_dump"
+PG_DUMP="/path/to/pg_dump"
 
 # 日期格式，用于命名备份文件
 DATE=$(date +%Y%m%d)
@@ -282,8 +384,6 @@ SET PGPASSWORD=%PASSWORD%
 %PG_DUMP% -h %HOSTNAME% -p %PORT% -U %USERNAME% -Z 9 -Fc -f %BACKUP_FILE% %DB_NAME%
 
 ```
-
-## 归档
 
 ### PostgreSQL分词版本安装说明(基于Docker)
 ```shell

@@ -3,13 +3,13 @@
 <mapper namespace="org.jeecg.modules.technical.mapper.FolderMapper">
     <select id="queryTreeListByFolderNames" resultType="org.jeecg.modules.technical.entity.Folder">
         WITH RECURSIVE
-            resEnd AS (SELECT *
+            resEnd AS (SELECT *, folder_order AS sort_order
                        FROM public.technical_folder ${endWpstr}
                        UNION ALL
-                       SELECT b.*
+                       SELECT b.*, b.folder_order AS sort_order
                        FROM resEnd a
                                 INNER JOIN public.technical_folder b ON a.parent_id = b.id),
-            resBegin AS (SELECT *
+            resBegin AS (SELECT *, folder_order AS sort_order
                          FROM public.technical_folder ${beginWpstr}
                          UNION ALL
                          SELECT b.*

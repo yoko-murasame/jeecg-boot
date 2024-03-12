@@ -253,6 +253,10 @@ public class BpmCommonController {
                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                               HttpServletRequest request) {
         QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        if (pageNo == 0 || pageSize == 0) {
+            List<TaskEntity> taskEntities = this.bpmCommonService.taskList(queryWrapper);
+            return Result.OK(taskEntities);
+        }
         Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
         Page<TaskEntity> taskEntityPage = this.bpmCommonService.taskPage(page, queryWrapper);
         return Result.OK(taskEntityPage);
@@ -265,6 +269,10 @@ public class BpmCommonController {
                                   @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                   HttpServletRequest request) {
         QueryWrapper<TaskEntity> queryWrapper = QueryGenerator.initQueryWrapper(taskEntity, request.getParameterMap());
+        if (pageNo == 0 || pageSize == 0) {
+            List<TaskEntity> taskEntities = this.bpmCommonService.myTaskListV2(queryWrapper, JwtUtil.getUserNameByToken(request));
+            return Result.OK(taskEntities);
+        }
         Page<TaskEntity> page = new Page<TaskEntity>(pageNo, pageSize);
         Page<TaskEntity> taskEntityPage = this.bpmCommonService.myTaskListV2(page, queryWrapper, JwtUtil.getUserNameByToken(request));
         return Result.OK(taskEntityPage);

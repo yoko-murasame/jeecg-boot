@@ -32,9 +32,9 @@ public class e implements DbTableHandleI {
         } else if (dataType.equalsIgnoreCase("int")) {
             str = "int";
         } else if (dataType.equalsIgnoreCase("Date")) {
-            str = i.d;
+            str = i.DATE;
         } else if (dataType.equalsIgnoreCase("Datetime")) {
-            str = i.d;
+            str = i.DATE;
         } else if (dataType.equalsIgnoreCase("numeric")) {
             str = "bigdecimal";
         } else if (dataType.equalsIgnoreCase("varbinary") || dataType.equalsIgnoreCase("image")) {
@@ -59,14 +59,14 @@ public class e implements DbTableHandleI {
         String str = "";
         if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
             str = aVar.getColumnName() + " nvarchar(" + aVar.getColumnSize() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
-        } else if (aVar.getColunmType().equalsIgnoreCase(i.d)) {
+        } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
             str = aVar.getColumnName() + " datetime " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " int " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
             str = aVar.getColumnName() + " float " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("bigdecimal")) {
-            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
+            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("text")) {
             str = aVar.getColumnName() + " ntext " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
@@ -79,14 +79,14 @@ public class e implements DbTableHandleI {
         String str = "";
         if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
             str = aVar.getColumnName() + " nvarchar(" + aVar.getColumnSize() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
-        } else if (aVar.getColunmType().equalsIgnoreCase(i.d)) {
+        } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
             str = aVar.getColumnName() + " datetime " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " int " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
             str = aVar.getColumnName() + " float " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("bigdecimal")) {
-            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.sB + aVar.getDecimalDigits() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
+            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("text")) {
             str = aVar.getColumnName() + " ntext " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
@@ -99,7 +99,7 @@ public class e implements DbTableHandleI {
         String str = "";
         if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
             str = aVar.getColumnName() + " nvarchar(" + aVar.getColumnSize() + ") " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
-        } else if (aVar.getColunmType().equalsIgnoreCase(i.d)) {
+        } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
             str = aVar.getColumnName() + " datetime " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " int " + ("Y".equals(aVar.getIsNullable()) ? "NULL" : "NOT NULL");

@@ -94,6 +94,7 @@ public class SystemSendMsgHandle implements ISendMsgHandle {
             }
         }
         announcement.setTitile(title);
+        announcement.setMsgAbstract(title);
         announcement.setMsgContent(msgContent);
         announcement.setSender(fromUser);
         announcement.setPriority(CommonConstant.PRIORITY_M);

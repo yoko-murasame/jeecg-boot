@@ -1,16 +1,17 @@
 package org.jeecg.modules.online.graphreport.util;
 
 import com.alibaba.fastjson.JSONArray;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.modules.online.cgform.d.b;
 import org.jeecg.modules.online.cgform.d.k;
+
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /* compiled from: GraphreportUtil.java */
 /* renamed from: org.jeecg.modules.online.graphreport.b.a */
@@ -68,7 +69,7 @@ public class GraphreportUtil extends b {
                     Object obj5 = parseArray.get(1);
                     if (obj4 != null) {
                         stringBuffer.append(" AND " + obj2 + ">=");
-                        if (k.a(obj3)) {
+                        if (k.isNumber(obj3)) {
                             stringBuffer.append(obj4.toString());
                         } else {
                             stringBuffer.append("'" + obj4.toString() + "'");
@@ -76,14 +77,14 @@ public class GraphreportUtil extends b {
                     }
                     if (obj5 != null) {
                         stringBuffer.append(" AND " + obj2 + "<=");
-                        if (k.a(obj3)) {
+                        if (k.isNumber(obj3)) {
                             stringBuffer.append(obj5.toString());
                         } else {
                             stringBuffer.append("'" + obj5.toString() + "'");
                         }
                     }
                 } else if (!StringUtils.isEmpty(obj)) {
-                    stringBuffer.append(" AND " + QueryGenerator.getSingleQueryConditionSql(obj2.toLowerCase(), "", obj, !k.a(obj3)));
+                    stringBuffer.append(" AND " + QueryGenerator.getSingleQueryConditionSql(obj2.toLowerCase(), "", obj, !k.isNumber(obj3)));
                 }
             }
             return stringBuffer.toString();

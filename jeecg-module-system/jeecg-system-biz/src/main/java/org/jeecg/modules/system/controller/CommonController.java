@@ -2,7 +2,6 @@ package org.jeecg.modules.system.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
@@ -17,7 +16,6 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.system.entity.SysUpload;
 import org.jeecg.modules.system.service.ISysUploadService;
 import org.jeecg.modules.system.service.impl.SysUploadServiceImpl;
-import org.jeecg.modules.system.util.UploadFileUtil;
 import org.jeecg.modules.system.vo.OssToLocalVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -117,18 +116,13 @@ public class CommonController {
         SysUpload sysUpload = null;
         String forceUpload = request.getParameter("forceUpload");
         if (!"true".equals(forceUpload) && file != null) {
-            String md5 = UploadFileUtil.calcMD5(file.getInputStream());
-            sysUpload = uploadService.queryByMd5(md5);
-            if (sysUpload != null) {
+            // 自动获取已存在文件
+            sysUpload = uploadService.getExistIfNullThenNewOneWithoutUrl(file.getInputStream(), file.getOriginalFilename());
+            if (StringUtils.hasText(sysUpload.getUrl())) {
                 result.setResult(sysUpload.getUrl());
                 result.setMessage(sysUpload.getUrl());
-                log.info("文件已存在,无需重复上传:{},md5:{}", file.getOriginalFilename(), md5);
                 return result;
             }
-            sysUpload = new SysUpload();
-            sysUpload.setFileName(file.getOriginalFilename());
-            sysUpload.setId(IdWorker.getIdStr());
-            sysUpload.setMd5(md5);
         }
 
         if(oConvertUtils.isEmpty(bizPath)){
@@ -289,9 +283,14 @@ public class CommonController {
                 // response.flushBuffer();
                 // return;
             }
+            // FIXME 请注意word、xlsx、ppt等格式，必须设置成强制下载，否则会被浏览器识别成zip文档
             // 设置强制下载不打开
-            response.setContentType("application/force-download");
-            response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1));
+            String forceDownload = request.getParameter("forceDownload");
+            if (StringUtils.hasText(forceDownload)) {
+                response.setContentType("application/force-download");
+                response.addHeader("Content-Disposition", "attachment;fileName=" + new String(file.getName().getBytes(
+                        StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+            }
             inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
             outputStream = response.getOutputStream();
             byte[] buf = new byte[1024];

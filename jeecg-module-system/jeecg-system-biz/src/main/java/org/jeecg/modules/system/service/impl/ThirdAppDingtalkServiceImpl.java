@@ -863,11 +863,15 @@ public class ThirdAppDingtalkServiceImpl implements IThirdAppService {
             }else{
                 LambdaQueryWrapper<SysAnnouncementSend> queryWrapper = new LambdaQueryWrapper<>();
                 queryWrapper.eq(SysAnnouncementSend::getAnntId, announcement.getId());
-                SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendMapper.selectOne(queryWrapper);
-                userIds = new String[] {sysAnnouncementSend.getUserId()};
+                // 原先的逻辑选择多人不行
+                // SysAnnouncementSend sysAnnouncementSend = sysAnnouncementSendMapper.selectOne(queryWrapper, false);
+                // userIds = new String[] {sysAnnouncementSend.getUserId()};
+                // 换成多人推送
+                List<SysAnnouncementSend> sends = sysAnnouncementSendMapper.selectList(queryWrapper);
+                userIds = sends.stream().map(SysAnnouncementSend::getUserId).toArray(String[] :: new);
             }
 
-            if(userIds!=null){
+            if (null != userIds) {
                 LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
                 queryWrapper.in(SysUser::getId, userIds);
                 List<SysUser> userList = userMapper.selectList(queryWrapper);

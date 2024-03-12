@@ -16,6 +16,18 @@
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-boot-base-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-ck</artifactId>
+            <version>6.2.09</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-ck</artifactId>
+            <version>6.2.09</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

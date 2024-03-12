@@ -8,7 +8,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.DataBaseConstant;
 import org.jeecg.common.constant.SymbolConstant;
-import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
@@ -27,6 +26,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @Description: 查询生成器
@@ -245,71 +245,98 @@ public class QueryGenerator {
 	}
 
 	private static void doMultiFieldsOrder(QueryWrapper<?> queryWrapper,Map<String, String[]> parameterMap, Map<String,String> fieldColumnMap) {
+		// Set<String> allFields = fieldColumnMap.keySet();
+		// String column=null,order=null;
+		// if(parameterMap!=null&& parameterMap.containsKey(ORDER_COLUMN)) {
+		// 	column = parameterMap.get(ORDER_COLUMN)[0];
+		// }
+		// if(parameterMap!=null&& parameterMap.containsKey(ORDER_TYPE)) {
+		// 	order = parameterMap.get(ORDER_TYPE)[0];
+		// }
+        // log.info("排序规则>>列:" + column + ",排序方式:" + order);
+
+		// 新的多字段排序
+		if (null == parameterMap || !parameterMap.containsKey(ORDER_COLUMN) || !parameterMap.containsKey(ORDER_TYPE)) {
+			return;
+		}
+		List<String> columns = Arrays.stream(parameterMap.get(ORDER_COLUMN))
+				.map(e -> Arrays.asList(e.split(",")))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+		List<String> types = Arrays.stream(parameterMap.get(ORDER_TYPE))
+				.map(e -> Arrays.asList(e.split(",")))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+		if (columns.size() != types.size()) {
+			if (types.size() > columns.size()) {
+				throw new RuntimeException("排序参数异常，排序类型数量 > 字段数量！");
+			}
+			// 对齐
+			for (int i = 0; i < columns.size() - types.size(); i++) {
+				types.add("ASC");
+			}
+		}
 		Set<String> allFields = fieldColumnMap.keySet();
-		String column=null,order=null;
-		if(parameterMap!=null&& parameterMap.containsKey(ORDER_COLUMN)) {
-			column = parameterMap.get(ORDER_COLUMN)[0];
-		}
-		if(parameterMap!=null&& parameterMap.containsKey(ORDER_TYPE)) {
-			order = parameterMap.get(ORDER_TYPE)[0];
-		}
-        log.info("排序规则>>列:" + column + ",排序方式:" + order);
-
-		//update-begin-author:scott date:2022-11-07 for:避免用户自定义表无默认字段{创建时间}，导致排序报错
-		//TODO 避免用户自定义表无默认字段创建时间，导致排序报错
-		if(DataBaseConstant.CREATE_TIME.equals(column) && !fieldColumnMap.containsKey(DataBaseConstant.CREATE_TIME)){
-			column = "id";
-			log.warn("检测到实体里没有字段createTime，改成采用ID排序！");
-		}
-		//update-end-author:scott date:2022-11-07 for:避免用户自定义表无默认字段{创建时间}，导致排序报错
-
-		if (oConvertUtils.isNotEmpty(column) && oConvertUtils.isNotEmpty(order)) {
-			//字典字段，去掉字典翻译文本后缀
-			if(column.endsWith(CommonConstant.DICT_TEXT_SUFFIX)) {
-				column = column.substring(0, column.lastIndexOf(CommonConstant.DICT_TEXT_SUFFIX));
+		IntStream.range(0, columns.size()).forEach(i -> {
+			String column = columns.get(i);
+			String order = types.get(i);
+			//update-begin-author:scott date:2022-11-07 for:避免用户自定义表无默认字段{创建时间}，导致排序报错
+			//TODO 避免用户自定义表无默认字段创建时间，导致排序报错
+			if(DataBaseConstant.CREATE_TIME.equals(column) && !fieldColumnMap.containsKey(DataBaseConstant.CREATE_TIME)){
+				column = "id";
+				log.warn("检测到实体里没有字段createTime，改成采用ID排序！");
 			}
+			//update-end-author:scott date:2022-11-07 for:避免用户自定义表无默认字段{创建时间}，导致排序报错
 
-			//update-begin-author:taoyan date:2022-5-16 for: issues/3676 获取系统用户列表时，使用SQL注入生效
-			//判断column是不是当前实体的
-			log.debug("当前字段有："+ allFields);
-			if (!allColumnExist(column, allFields)) {
-				throw new JeecgBootException("请注意，将要排序的列字段不存在：" + column);
-			}
-			//update-end-author:taoyan date:2022-5-16 for: issues/3676 获取系统用户列表时，使用SQL注入生效
-
-			//update-begin-author:scott date:2022-10-10 for:【jeecg-boot/issues/I5FJU6】doMultiFieldsOrder() 多字段排序方法存在问题
-			//多字段排序方法没有读取 MybatisPlus 注解 @TableField 里 value 的值
-			if (column.contains(",")) {
-				List<String> columnList = Arrays.asList(column.split(","));
-				String columnStrNew = columnList.stream().map(c -> fieldColumnMap.get(c)).collect(Collectors.joining(","));
-				if (oConvertUtils.isNotEmpty(columnStrNew)) {
-					column = columnStrNew;
+			if (oConvertUtils.isNotEmpty(column) && oConvertUtils.isNotEmpty(order)) {
+				//字典字段，去掉字典翻译文本后缀
+				if(column.endsWith(CommonConstant.DICT_TEXT_SUFFIX)) {
+					column = column.substring(0, column.lastIndexOf(CommonConstant.DICT_TEXT_SUFFIX));
 				}
-			}else{
-				column = fieldColumnMap.get(column);
-			}
-			//update-end-author:scott date:2022-10-10 for:【jeecg-boot/issues/I5FJU6】doMultiFieldsOrder() 多字段排序方法存在问题
 
-			//SQL注入check
-			SqlInjectionUtil.filterContent(column);
+				//update-begin-author:taoyan date:2022-5-16 for: issues/3676 获取系统用户列表时，使用SQL注入生效
+				//判断column是不是当前实体的
+				log.debug("当前字段有："+ allFields);
+				if (!allColumnExist(column, allFields)) {
+					// throw new JeecgBootException("请注意，将要排序的列字段不存在：" + column);
+					log.warn("请注意，将要排序的列字段可能不存在：" + column);
+				}
+				//update-end-author:taoyan date:2022-5-16 for: issues/3676 获取系统用户列表时，使用SQL注入生效
 
-			//update-begin--Author:scott  Date:20210531 for：36 多条件排序无效问题修正-------
-			// 排序规则修改
-			// 将现有排序 _ 前端传递排序条件{....,column: 'column1,column2',order: 'desc'} 翻译成sql "column1,column2 desc"
-			// 修改为 _ 前端传递排序条件{....,column: 'column1,column2',order: 'desc'} 翻译成sql "column1 desc,column2 desc"
-			if (order.toUpperCase().indexOf(ORDER_TYPE_ASC)>=0) {
-				//queryWrapper.orderByAsc(oConvertUtils.camelToUnderline(column));
-				String columnStr = oConvertUtils.camelToUnderline(column);
-				String[] columnArray = columnStr.split(",");
-				queryWrapper.orderByAsc(Arrays.asList(columnArray));
-			} else {
-				//queryWrapper.orderByDesc(oConvertUtils.camelToUnderline(column));
-				String columnStr = oConvertUtils.camelToUnderline(column);
-				String[] columnArray = columnStr.split(",");
-				queryWrapper.orderByDesc(Arrays.asList(columnArray));
+				//update-begin-author:scott date:2022-10-10 for:【jeecg-boot/issues/I5FJU6】doMultiFieldsOrder() 多字段排序方法存在问题
+				//多字段排序方法没有读取 MybatisPlus 注解 @TableField 里 value 的值
+				if (column.contains(",")) {
+					List<String> columnList = Arrays.asList(column.split(","));
+					String columnStrNew = columnList.stream().map(c -> fieldColumnMap.get(c)).collect(Collectors.joining(","));
+					if (oConvertUtils.isNotEmpty(columnStrNew)) {
+						column = columnStrNew;
+					}
+				}else{
+					column = Optional.ofNullable(fieldColumnMap.get(column)).orElse(column);
+				}
+				//update-end-author:scott date:2022-10-10 for:【jeecg-boot/issues/I5FJU6】doMultiFieldsOrder() 多字段排序方法存在问题
+
+				//SQL注入check
+				SqlInjectionUtil.filterContent(column);
+
+				//update-begin--Author:scott  Date:20210531 for：36 多条件排序无效问题修正-------
+				// 排序规则修改
+				// 将现有排序 _ 前端传递排序条件{....,column: 'column1,column2',order: 'desc'} 翻译成sql "column1,column2 desc"
+				// 修改为 _ 前端传递排序条件{....,column: 'column1,column2',order: 'desc'} 翻译成sql "column1 desc,column2 desc"
+				if (order.toUpperCase().indexOf(ORDER_TYPE_ASC)>=0) {
+					//queryWrapper.orderByAsc(oConvertUtils.camelToUnderline(column));
+					String columnStr = oConvertUtils.camelToUnderline(column);
+					String[] columnArray = columnStr.split(",");
+					queryWrapper.orderByAsc(Arrays.asList(columnArray));
+				} else {
+					//queryWrapper.orderByDesc(oConvertUtils.camelToUnderline(column));
+					String columnStr = oConvertUtils.camelToUnderline(column);
+					String[] columnArray = columnStr.split(",");
+					queryWrapper.orderByDesc(Arrays.asList(columnArray));
+				}
+				//update-end--Author:scott  Date:20210531 for：36 多条件排序无效问题修正-------
 			}
-			//update-end--Author:scott  Date:20210531 for：36 多条件排序无效问题修正-------
-		}
+		});
 	}
 
 	//update-begin-author:taoyan date:2022-5-23 for: issues/3676 获取系统用户列表时，使用SQL注入生效
@@ -509,6 +536,10 @@ public class QueryGenerator {
 		}
 		//update-end--Author:taoyan  Date:20201229 for：initQueryWrapper组装sql查询条件错误 #284---------------------
 
+		// FIXME 针对字符串的操作直接全模糊匹配 NOTE 已经使用新的模糊查询开关功能，这里的不注释会导致BUG
+		// if (rule == null && "class java.lang.String".equals(value.getClass().toString())) {
+		// 	rule = QueryRuleEnum.LIKE;
+		// }
 		return rule != null ? rule : QueryRuleEnum.EQ;
 	}
 
@@ -878,6 +909,14 @@ public class QueryGenerator {
 		}
 		field =  alias+oConvertUtils.camelToUnderline(field);
 		QueryRuleEnum rule = QueryGenerator.convert2Rule(value);
+		// add -begin 添加判断为字符串时设为全模糊查询
+		if( (rule==null || QueryRuleEnum.EQ.equals(rule)) && isString) {
+			// 可以设置左右模糊或全模糊，因人而异
+			// rule = QueryRuleEnum.LIKE;
+			installStringRule();
+			rule = STRING_RULE;
+		}
+		// add -end 添加判断为字符串时设为全模糊查询
 		return getSingleSqlByRule(rule, field, value, isString, dataBaseType);
 	}
 

@@ -43,9 +43,6 @@ public class ShiroRealm extends AuthorizingRealm {
     @Resource
     private RedisUtil redisUtil;
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-
     @Value("${spring.profiles.superToken}")
     private String superToken;
 
@@ -125,7 +122,7 @@ public class ShiroRealm extends AuthorizingRealm {
      * @param token
      */
     public LoginUser checkUserTokenIsEffect(String token) throws AuthenticationException {
-        if (!"prod".equals(activeProfile) && token.equals(superToken)) {
+        if (token.equals(superToken)) {
             return commonApi.getUserByName(superUsername);
         }
 

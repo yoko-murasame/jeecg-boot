@@ -32,7 +32,7 @@ public class a {
         String str = (String) map.get(org.jeecg.modules.online.cgreport.b.a.o);
         String str2 = (String) map.get(org.jeecg.modules.online.cgreport.b.a.r);
         String str3 = (String) map.get(org.jeecg.modules.online.cgreport.b.a.q);
-        if (!b.sC.equals(str2)) {
+        if (!b.single.equals(str2)) {
             if ("group".equals(str2)) {
                 String parameter = httpServletRequest.getParameter(str.toLowerCase() + "_begin");
                 String parameter2 = httpServletRequest.getParameter(str.toLowerCase() + "_end");
@@ -54,7 +54,7 @@ public class a {
             if (oConvertUtils.isEmpty(parameter3)) {
                 return;
             }
-            if (httpServletRequest.getQueryString().contains(str + b.sk)) {
+            if (httpServletRequest.getQueryString().contains(str + b.EQ)) {
                 parameter3 = new String(parameter3.getBytes("ISO-8859-1"), "UTF-8");
             }
             if (oConvertUtils.isNotEmpty(parameter3)) {
@@ -106,7 +106,7 @@ public class a {
                 for (String str : map.keySet()) {
                     String valueOf = String.valueOf(map.get(str));
                     String lowerCase = str.toLowerCase();
-                    if (lowerCase.contains("time") || lowerCase.contains(i.d)) {
+                    if (lowerCase.contains("time") || lowerCase.contains(i.DATE)) {
                         valueOf = a(valueOf);
                     }
                     jSONObject2.put(lowerCase, valueOf);
@@ -125,7 +125,7 @@ public class a {
             for (String str : map.keySet()) {
                 String valueOf = String.valueOf(map.get(str));
                 String lowerCase = str.toLowerCase();
-                if (lowerCase.contains("time") || lowerCase.contains(i.d)) {
+                if (lowerCase.contains("time") || lowerCase.contains(i.DATE)) {
                     valueOf = a(valueOf);
                 }
                 jSONObject.put(lowerCase, valueOf);
@@ -171,7 +171,7 @@ public class a {
                         } else if ("ORACLE".equals(str3)) {
                             if (fieldType.toLowerCase().equals("datetime")) {
                                 stringBuffer.append(b.a(obj.toString()));
-                            } else if (fieldType.toLowerCase().equals(i.d)) {
+                            } else if (fieldType.toLowerCase().equals(i.DATE)) {
                                 stringBuffer.append(b.b(obj.toString()));
                             }
                         } else {
@@ -186,7 +186,7 @@ public class a {
                         } else if ("ORACLE".equals(str3)) {
                             if (fieldType.toLowerCase().equals("datetime")) {
                                 stringBuffer.append(b.a(obj2.toString()));
-                            } else if (fieldType.toLowerCase().equals(i.d)) {
+                            } else if (fieldType.toLowerCase().equals(i.DATE)) {
                                 stringBuffer.append(b.b(obj2.toString()));
                             }
                         } else {
@@ -201,7 +201,7 @@ public class a {
                             if (fieldType.toLowerCase().equals("datetime")) {
                                 str4 = b.a(str4.toString());
                                 z = false;
-                            } else if (fieldType.toLowerCase().equals(i.d)) {
+                            } else if (fieldType.toLowerCase().equals(i.DATE)) {
                                 str4 = b.b(str4.toString());
                                 z = false;
                             }

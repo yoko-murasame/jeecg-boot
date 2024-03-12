@@ -1,6 +1,7 @@
 package org.jeecg.common.api.dto.message;
 
 import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -29,6 +30,10 @@ public class TemplateMessageDTO extends TemplateDTO implements Serializable {
      */
     protected String title;
 
+    /**
+     * 摘要
+     */
+    protected String msgAbstract;
 
     public TemplateMessageDTO(){
 

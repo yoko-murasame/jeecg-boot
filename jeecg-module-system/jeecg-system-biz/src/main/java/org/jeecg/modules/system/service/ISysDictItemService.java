@@ -21,4 +21,10 @@ public interface ISysDictItemService extends IService<SysDictItem> {
      * @return
      */
     public List<SysDictItem> selectItemsByMainId(String mainId);
+    /**
+     * 通过字典code查询字典项
+     * @param code 字典code
+     * @return
+     */
+    public List<SysDictItem> selectItemsByCode(String code);
 }

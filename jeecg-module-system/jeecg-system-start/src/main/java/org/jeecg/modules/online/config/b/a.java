@@ -28,7 +28,7 @@ public class a {
             return false;
         }
         a aVar = (a) obj;
-        return (this.se.contains(i.d) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault()) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault());
+        return (this.se.contains(i.DATE) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault()) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault());
     }
 
     public boolean a(Object obj, String str) {
@@ -39,7 +39,7 @@ public class a {
             return false;
         }
         a aVar = (a) obj;
-        return "SQLSERVER".equals(str) ? (this.se.contains(i.d) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : "POSTGRESQL".equals(str) ? (this.se.contains(i.d) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : ("ORACLE".equals(str) || "DM".equals(str)) ? (this.se.contains(i.d) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : (this.se.contains(i.d) || this.se.contains("blob") || this.se.contains("text")) ? this.se.equals(aVar.getColunmType()) && this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault()) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault());
+        return "SQLSERVER".equals(str) ? (this.se.contains(i.DATE) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : "POSTGRESQL".equals(str) ? (this.se.contains(i.DATE) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : ("ORACLE".equals(str) || "DM".equals(str)) ? (this.se.contains(i.DATE) || this.se.contains("blob") || this.se.contains("text")) ? this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sg, aVar.getFieldDefault()) : (this.se.contains(i.DATE) || this.se.contains("blob") || this.se.contains("text")) ? this.se.equals(aVar.getColunmType()) && this.sc.equals(aVar.getColumnName()) && this.si.equals(aVar.si) && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault()) : this.se.equals(aVar.getColunmType()) && this.si.equals(aVar.si) && this.sd == aVar.getColumnSize() && a(this.sf, aVar.getComment()) && a(this.sg, aVar.getFieldDefault());
     }
 
     public boolean a(a aVar) {
@@ -128,7 +128,7 @@ public class a {
     }
 
     public String toString() {
-        return this.sc + org.jeecg.modules.online.cgform.d.b.sB + this.se + org.jeecg.modules.online.cgform.d.b.sB + this.si + org.jeecg.modules.online.cgform.d.b.sB + this.sd;
+        return this.sc + org.jeecg.modules.online.cgform.d.b.DOT_STRING + this.se + org.jeecg.modules.online.cgform.d.b.DOT_STRING + this.si + org.jeecg.modules.online.cgform.d.b.DOT_STRING + this.sd;
     }
 
     public String getColumnId() {

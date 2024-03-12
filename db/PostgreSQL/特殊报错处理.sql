@@ -2,6 +2,7 @@
 -- 这个问题主要是由于jdbc:postgresql://127.0.0.1:54321/postgres?stringtype=unspecified中指定了?stringtype=unspecified导致的
 -- 受影响的类: org.jeecg.modules.system.mapper.SysDepartMapper.getSubDepIdsByOrgCodes
 -- 将 CONCAT(#{item},'%') -> CONCAT(#{item}::text,'%')
+-- 除此之外，可以全局搜索“),'%'”，都加上“::text”，防止别的模块出现同样的问题
 
 
 -- 2.错误: 字段 "is_leaf" 的类型为 smallint, 但表达式的类型为 boolean

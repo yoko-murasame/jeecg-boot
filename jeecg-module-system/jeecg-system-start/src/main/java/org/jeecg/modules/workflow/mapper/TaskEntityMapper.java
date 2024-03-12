@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.workflow.entity.ProcessHisDTO;
 import org.jeecg.modules.workflow.entity.TaskEntity;
 
+import java.util.List;
+
 /**
  * @author Yoko
  */
@@ -17,10 +19,12 @@ public interface TaskEntityMapper extends BaseMapper<TaskEntity> {
      * 查询所有代办，分页接口
      */
     <E extends IPage<TaskEntity>> E taskPage(E page, @Param(Constants.WRAPPER) Wrapper<TaskEntity> wrapper);
+    List<TaskEntity> taskList(@Param(Constants.WRAPPER) Wrapper<TaskEntity> wrapper);
     /**
      * 获取我的待办列表-全条件版本
      */
     <E extends IPage<TaskEntity>> E myTaskListV2(E page, @Param(Constants.WRAPPER) Wrapper<TaskEntity> wrapper, @Param("username") String username);
+    List<TaskEntity> myTaskListV2(@Param(Constants.WRAPPER) Wrapper<TaskEntity> wrapper, @Param("username") String username);
     <E extends IPage<TaskEntity>> E taskHistoryListV2(E page, @Param(Constants.WRAPPER) Wrapper<TaskEntity> wrapper, @Param("username") String username);
 
     /**

@@ -1,9 +1,10 @@
 package org.jeecg.modules.online.cgform.d;
 
 import com.alibaba.fastjson.JSONObject;
+import org.jeecg.modules.online.cgform.entity.OnlCgformField;
+
 import java.math.BigDecimal;
 import java.util.Map;
-import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 
 /* compiled from: OnlineDbHandler.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/k.class */
@@ -17,7 +18,7 @@ public class k {
     public static final String g = "datetime";
     public static final String h = "Timestamp";
 
-    public static boolean a(String str) {
+    public static boolean isNumber(String str) {
         return "int".equals(str) || "double".equals(str) || "BigDecimal".equals(str) || "Integer".equals(str);
     }
 
@@ -47,14 +48,14 @@ public class k {
         } else if ("Date".equals(dbType)) {
             String string = jSONObject.getString(dbFieldName);
             if ("ORACLE".equals(str)) {
-                if (i.d.equals(fieldShowType)) {
+                if (i.DATE.equals(fieldShowType)) {
                     map.put(dbFieldName, string.length() > 10 ? string.substring(0, 10) : string);
                     return "to_date(#{" + dbFieldName + "},'yyyy-MM-dd')";
                 }
                 map.put(dbFieldName, string.length() == 10 ? jSONObject.getString(dbFieldName) + " 00:00:00" : string);
                 return "to_date(#{" + dbFieldName + "},'yyyy-MM-dd HH24:mi:ss')";
             } else if ("POSTGRESQL".equals(str)) {
-                if (i.d.equals(fieldShowType)) {
+                if (i.DATE.equals(fieldShowType)) {
                     map.put(dbFieldName, string.length() > 10 ? string.substring(0, 10) : string);
                     return "CAST(#{" + dbFieldName + "} as TIMESTAMP)";
                 }

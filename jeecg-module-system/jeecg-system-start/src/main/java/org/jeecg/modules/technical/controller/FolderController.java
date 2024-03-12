@@ -12,16 +12,14 @@ import org.jeecg.modules.technical.entity.enums.Enabled;
 import org.jeecg.modules.technical.entity.enums.Level;
 import org.jeecg.modules.technical.entity.enums.Type;
 import org.jeecg.modules.technical.service.FolderService;
+import org.jeecg.modules.technical.service.impl.FolderServiceImpl;
 import org.jeecg.modules.technical.vo.FolderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -35,9 +33,18 @@ public class FolderController {
     @ApiOperation("根据树型层级目录名称查询目录,树型用','分割,多个树型用';'分割e.g. aaa,bbb;ccc,ddd")
     @RequestMapping(value = "queryTreeLastNodeByFolderTreeNames", method = {RequestMethod.POST, RequestMethod.GET})
     public Result queryTreeLastNodeByFolderTreeNames(@RequestBody Folder folderParams) {
-        String[] split = Optional.ofNullable(folderParams.getFolderTreeNames()).orElse("").split(";");
-        List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
-        return Result.OK(folders);
+        // 必须加锁，多个j-upload-knowledge组件同时初始化时，容易导致并发问题，创建重复的目录
+        synchronized (this) {
+            String[] split = Optional.ofNullable(folderParams.getFolderTreeNames()).orElse("").split(";");
+            List<Folder> folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+            if (folders.isEmpty() && folderParams.getInitialFolderTreeNamesIfNotExist()) {
+                // 初始化目录
+                JSONArray newFolders = FolderServiceImpl.createDirectoryTree(folderParams.getFolderTreeNames());
+                folderService.initialJsonSubFolders(folderParams, newFolders, null, new ArrayList<>());
+                folders = folderService.queryTreeLastNodeByFolderTreeNames(folderParams, Arrays.asList(split));
+            }
+            return Result.OK(folders);
+        }
     }
 
     @GetMapping("/business/search/folder")

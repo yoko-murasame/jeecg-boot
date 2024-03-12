@@ -1,11 +1,12 @@
 package org.jeecg.modules.online.cgreport.model;
 
-import java.util.Arrays;
-import java.util.List;
 import org.jeecg.modules.online.cgform.d.b;
 import org.jeecg.modules.online.cgreport.entity.OnlCgreportHead;
 import org.jeecg.modules.online.cgreport.entity.OnlCgreportItem;
 import org.jeecg.modules.online.cgreport.entity.OnlCgreportParam;
+
+import java.util.Arrays;
+import java.util.List;
 
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgreport/model/OnlCgreportModel.class */
 public class OnlCgreportModel {
@@ -44,7 +45,7 @@ public class OnlCgreportModel {
     }
 
     public List<String> getDeleteParamIdList() {
-        return Arrays.asList(this.deleteParamIds.split(b.sB));
+        return Arrays.asList(this.deleteParamIds.split(b.DOT_STRING));
     }
 
     public void setDeleteParamIds(String deleteParamIds) {
@@ -56,7 +57,7 @@ public class OnlCgreportModel {
     }
 
     public List<String> getDeleteItemIdList() {
-        return Arrays.asList(this.deleteItemIds.split(b.sB));
+        return Arrays.asList(this.deleteItemIds.split(b.DOT_STRING));
     }
 
     public void setDeleteItemIds(String deleteItemIds) {

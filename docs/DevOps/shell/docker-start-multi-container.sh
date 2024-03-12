@@ -7,8 +7,8 @@ image_names=("redis:latest" "postgres-14-zhparser-postgis:1.0" "nginx:latest")
 # 创建容器命令数组
 create_container_cmds=(
   "docker run -di --restart=unless-stopped -p 63791:63791 -v /home/redis/data:/data --name ${container_names[0]} ${image_names[0]} --requirepass "123456" --port "63791" --appendonly "yes""
-  "docker run -di -e POSTGRES_PASSWORD=123456 -e PGDATA=/var/lib/postgresql/data/pgdata -p 54321:5432 -v /home/postgres/data1:/var/lib/postgresql/data/pgdata --name ${container_names[1]} ${image_names[1]}"
-  "docker run -di --network=host -v /home/nginx/nginx.conf:/etc/nginx/nginx.conf -v /home/nginx/log:/var/log/nginx -v /home/nginx/conf.d:/etc/nginx/conf.d -v /home/nginx/html:/etc/nginx/html --name ${container_names[2]} ${image_names[2]}"
+  "docker run -di --restart=unless-stopped -e POSTGRES_PASSWORD=123456 -e PGDATA=/var/lib/postgresql/data/pgdata -p 54321:5432 -v /home/postgres/pgdata14:/var/lib/postgresql/data/pgdata --name ${container_names[1]} ${image_names[1]}"
+  "docker run -di --restart=unless-stopped --network=host -v /home/nginx/nginx.conf:/etc/nginx/nginx.conf -v /home/nginx/log:/var/log/nginx -v /home/nginx/conf.d:/etc/nginx/conf.d -v /home/nginx/html:/etc/nginx/html --name ${container_names[2]} ${image_names[2]}"
 )
 
 # 启动容器函数

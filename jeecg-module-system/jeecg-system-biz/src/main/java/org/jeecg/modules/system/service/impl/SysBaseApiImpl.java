@@ -392,6 +392,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 
 		SysAnnouncement announcement = new SysAnnouncement();
 		announcement.setTitile(title);
+		announcement.setMsgAbstract(message.getMsgAbstract());
 		announcement.setMsgContent(content);
 		announcement.setSender(fromUser);
 		announcement.setPriority(CommonConstant.PRIORITY_M);
@@ -475,6 +476,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		}
 		SysAnnouncement announcement = new SysAnnouncement();
 		announcement.setTitile(title);
+		announcement.setMsgAbstract(message.getMsgAbstract());
 		announcement.setMsgContent(content);
 		announcement.setSender(fromUser);
 		announcement.setPriority(CommonConstant.PRIORITY_M);
@@ -997,6 +999,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private void sendSysAnnouncement(String fromUser, String toUser, String title, String msgContent, String setMsgCategory) {
 		SysAnnouncement announcement = new SysAnnouncement();
 		announcement.setTitile(title);
+		announcement.setMsgAbstract(title);
 		announcement.setMsgContent(msgContent);
 		announcement.setSender(fromUser);
 		announcement.setPriority(CommonConstant.PRIORITY_M);
@@ -1045,6 +1048,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private void sendBusAnnouncement(String fromUser, String toUser, String title, String msgContent, String setMsgCategory, String busType, String busId) {
 		SysAnnouncement announcement = new SysAnnouncement();
 		announcement.setTitile(title);
+		announcement.setMsgAbstract(title);
 		announcement.setMsgContent(msgContent);
 		announcement.setSender(fromUser);
 		announcement.setPriority(CommonConstant.PRIORITY_M);

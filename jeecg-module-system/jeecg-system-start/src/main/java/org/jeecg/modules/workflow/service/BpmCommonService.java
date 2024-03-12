@@ -1,6 +1,7 @@
 package org.jeecg.modules.workflow.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -112,15 +113,22 @@ public class BpmCommonService {
      * @deprecated {@link BpmCommonService#myTaskListV2}
      */
     @Deprecated
-    public <E extends IPage<TaskEntity>> E taskPage(E page, QueryWrapper<TaskEntity> queryWrapper) {
+    public <E extends IPage<TaskEntity>> E taskPage(E page, Wrapper<TaskEntity> queryWrapper) {
         return taskEntityMapper.taskPage(page, queryWrapper);
+    }
+    @Deprecated
+    public List<TaskEntity> taskList(Wrapper<TaskEntity> queryWrapper) {
+        return taskEntityMapper.taskList(queryWrapper);
     }
 
     /**
      * 获取我的待办列表-全条件版本
      */
-    public <E extends IPage<TaskEntity>> E myTaskListV2(E page, QueryWrapper<TaskEntity> queryWrapper, String username) {
+    public <E extends IPage<TaskEntity>> E myTaskListV2(E page, Wrapper<TaskEntity> queryWrapper, String username) {
         return taskEntityMapper.myTaskListV2(page, queryWrapper, username);
+    }
+    public List<TaskEntity> myTaskListV2(Wrapper<TaskEntity> queryWrapper, String username) {
+        return taskEntityMapper.myTaskListV2(queryWrapper, username);
     }
 
     /**

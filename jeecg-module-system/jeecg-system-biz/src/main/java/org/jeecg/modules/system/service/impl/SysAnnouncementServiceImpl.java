@@ -34,10 +34,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 
 	@Resource
 	private SysAnnouncementMapper sysAnnouncementMapper;
-	
+
 	@Resource
 	private SysAnnouncementSendMapper sysAnnouncementSendMapper;
-	
+
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public void saveAnnouncement(SysAnnouncement sysAnnouncement) {
@@ -61,7 +61,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 			}
 		}
 	}
-	
+
 	/**
 	 * @功能：编辑消息信息
 	 */
@@ -109,6 +109,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 	public void saveSysAnnouncement(String title, String msgContent) {
 		SysAnnouncement announcement = new SysAnnouncement();
 		announcement.setTitile(title);
+		announcement.setMsgAbstract(title);
 		announcement.setMsgContent(msgContent);
 		announcement.setSender("JEECG BOOT");
 		announcement.setPriority(CommonConstant.PRIORITY_L);
@@ -153,7 +154,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 				LambdaQueryWrapper<SysAnnouncementSend> query = new LambdaQueryWrapper<>();
 				query.eq(SysAnnouncementSend::getAnntId,announcements.get(i).getId());
 				query.eq(SysAnnouncementSend::getUserId,userId);
-				SysAnnouncementSend one = sysAnnouncementSendMapper.selectOne(query);
+				SysAnnouncementSend one = sysAnnouncementSendMapper.selectOne(query, false);
 				if(null==one){
 					SysAnnouncementSend announcementSend = new SysAnnouncementSend();
 					announcementSend.setAnntId(announcements.get(i).getId());
@@ -165,7 +166,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 				//update-end--Author:wangshuai  Date:20200803  for： 通知公告消息重复LOWCOD-759------------
 			}
 		}
-		
+
 	}
 
 	@Override

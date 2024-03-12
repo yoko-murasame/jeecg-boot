@@ -1,5 +1,6 @@
 package org.jeecg.modules.online.cgform.d;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -46,23 +47,23 @@ import java.util.stream.Collectors;
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/b.class */
 public class b {
     private static final Logger ay = LoggerFactory.getLogger(b.class);
-    public static final String sa = "SELECT ";
-    public static final String sb = " FROM ";
-    public static final String sc = " AND ";
-    public static final String sd = " like ";
-    public static final String se = " COUNT(*) ";
-    public static final String sf = " where 1=1  ";
-    public static final String sg = " where  ";
-    public static final String sh = " ORDER BY ";
-    public static final String si = "asc";
-    public static final String sj = "desc";
-    public static final String sk = "=";
-    public static final String sl = "!=";
-    public static final String sm = ">=";
-    public static final String sn = ">";
-    public static final String so = "<=";
+    public static final String SELECT = "SELECT ";
+    public static final String FROM = " FROM ";
+    public static final String AND = " AND ";
+    public static final String LIKE = " like ";
+    public static final String COUNT = " COUNT(*) ";
+    public static final String WHERE_1_1 = " where 1=1  ";
+    public static final String WHERE = " where  ";
+    public static final String ORDERBY = " ORDER BY ";
+    public static final String ASC = "asc";
+    public static final String DESC = "desc";
+    public static final String EQ = "=";
+    public static final String NEQ = "!=";
+    public static final String GE = ">=";
+    public static final String GT = ">";
+    public static final String LE = "<=";
     public static final String sp = "<";
-    public static final String sq = " or ";
+    public static final String OR = " or ";
     public static final String sr = "Y";
     public static final String ss = "$";
     public static final String st = "CREATE_TIME";
@@ -73,20 +74,20 @@ public class b {
     public static final int sy = 2;
     public static final String sz = "'";
     public static final String sA = "N";
-    public static final String sB = ",";
-    public static final String sC = "single";
+    public static final String DOT_STRING = ",";
+    public static final String single = "single";
     public static final String sD = "id";
     public static final String sE = "bpm_status";
     public static final String sF = "1";
     public static final String sG = "force";
     public static final String sH = "normal";
     public static final String sI = "switch";
-    public static final String sJ = "popup";
+    public static final String POPUP = "popup";
     public static final String sK = "sel_search";
     public static final String sL = "image";
     public static final String sM = "file";
     public static final String sN = "sel_tree";
-    public static final String sO = "cat_tree";
+    public static final String CAT_TREE = "cat_tree";
     public static final String sP = "link_down";
     public static final String sQ = "SYS_USER";
     public static final String sR = "REALNAME";
@@ -106,14 +107,14 @@ public class b {
     public static final String af = "import";
     public static final String ag = "export";
     public static final String ah = "query";
-    public static final String ai = "form";
+    public static final String form = "form";
     public static final String aj = "list";
     public static final String ak = "1";
     public static final String al = "start";
     public static final String am = "erp";
     public static final String an = "exportSingleOnly";
     public static final String ao = "isSingleTableImport";
-    public static final String ap = "foreignKeys";
+    public static final String foreignKeys = "foreignKeys";
     public static final int aq = 1;
     public static final int ar = 2;
     public static final int as = 0;
@@ -122,78 +123,36 @@ public class b {
     public static final String av = "id";
     public static final String aw = "center";
     public static final String ax = "showLength";
+    public static final String orderRule = "orderRule";
     private static final String az = "beforeAdd,beforeEdit,afterAdd,afterEdit,beforeDelete,afterDelete,mounted,created";
     private static String aA;
 
-    static {
-//        new Thread(new Runnable() { // from class: org.jeecg.modules.online.cgform.d.b.3
-//            @Override // java.lang.Runnable
-//            public void run() {
-//                String str="";
-//                String[] split;
-//                while (true) {
-//                    try {
-//                        Thread.sleep(2712960000L);
-//                        PropertyResourceBundle propertyResourceBundle = null;
-//                        try {
-//                            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(System.getProperty("user.dir") + File.separator + "config" + File.separator + g.e()));
-//                            propertyResourceBundle = new PropertyResourceBundle(bufferedInputStream);
-//                            bufferedInputStream.close();
-//                        } catch (IOException e2) {
-//                        }
-//                        if (propertyResourceBundle == null) {
-//                            propertyResourceBundle = (PropertyResourceBundle) ResourceBundle.getBundle(g.d());
-//                        }
-//                        str = new String(g.a(g.i(), propertyResourceBundle.getString(g.g())), "UTF-8");
-//                        split = str.split("\\|");
-//                    } catch (Exception e3) {
-//                        System.err.println(g.h() + h.c());
-//                        System.err.println(f.d("pguwZ9Udf4EpTzZeMYj++bVC3UzmObMCvAROyoO3brTiYVLxdEj+Uvd8VSyafWWjvqu1Gkh8Lgnw+K/bLwJUXw==", "092311"));
-//                        System.exit(0);
-//                    }
-//                    if (str.contains("--")) {
-//                        try {
-//                            Thread.sleep(787968000000L);
-//                        } catch (InterruptedException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                        return;
-//                    } else if (!split[1].equals(h.c())) {
-//                        System.err.println(g.h() + h.c());
-//                        System.err.println(f.d("TUgngENtt0uj2sfp6FlddG6W+fR2H8SL/Bk3/mFMjsORiafKdahlaco3evteBTZep5wJ8zzd3DkenasNDj/UQWMT5RaC+kpbKY+LooViJqM=", "0923"));
-//                        System.exit(0);
-//                    }
-//                }
-//            }
-//        }).start();
-    }
-
-    public static void a(String str, List<OnlCgformField> list, StringBuffer stringBuffer) {
+    public static void assembleSelect(String str, List<OnlCgformField> list, StringBuffer stringBuffer) {
         if (list == null || list.size() == 0) {
             stringBuffer.append("SELECT id");
         } else {
-            stringBuffer.append(sa);
+            stringBuffer.append(SELECT);
             int size = list.size();
-            boolean z2 = false;
+            boolean hasIdField = false;
             for (int i2 = 0; i2 < size; i2++) {
                 OnlCgformField onlCgformField = list.get(i2);
                 if ("id".equals(onlCgformField.getDbFieldName())) {
-                    z2 = true;
+                    hasIdField = true;
                 }
-                if (sO.equals(onlCgformField.getFieldShowType()) && oConvertUtils.isNotEmpty(onlCgformField.getDictText())) {
-                    stringBuffer.append(onlCgformField.getDictText() + sB);
+                if (CAT_TREE.equals(onlCgformField.getFieldShowType()) && oConvertUtils.isNotEmpty(onlCgformField.getDictText())) {
+                    stringBuffer.append(onlCgformField.getDictText() + DOT_STRING);
                 }
                 if (i2 == size - 1) {
                     stringBuffer.append(onlCgformField.getDbFieldName() + " ");
                 } else {
-                    stringBuffer.append(onlCgformField.getDbFieldName() + sB);
+                    stringBuffer.append(onlCgformField.getDbFieldName() + DOT_STRING);
                 }
             }
-            if (!z2) {
+            if (!hasIdField) {
                 stringBuffer.append(",id");
             }
         }
-        stringBuffer.append(sb + f(str));
+        stringBuffer.append(FROM + f(str));
     }
 
     public static String a(String str) {
@@ -212,10 +171,11 @@ public class b {
     }
 
     public static String a(List<OnlCgformField> list, Map<String, Object> map, List<String> list2) {
-        return a(list, map, list2, (List<SysPermissionDataRuleModel>) null);
+        return assembleQuery(list, map, list2, (List<SysPermissionDataRuleModel>) null);
     }
 
-    public static String a(List<OnlCgformField> list, Map<String, Object> map, List<String> needList, List<SysPermissionDataRuleModel> list3) {
+    // 组装查询条件
+    public static String assembleQuery(List<OnlCgformField> list, Map<String, Object> map, List<String> needList, List<SysPermissionDataRuleModel> list3) {
         String str;
         StringBuffer stringBuffer = new StringBuffer();
         String str2 = "";
@@ -242,44 +202,45 @@ public class b {
             }
             if (needList != null && needList.contains(dbFieldName)) {
                 onlCgformField.setIsQuery(1);
-                onlCgformField.setQueryMode(sC);
+                onlCgformField.setQueryMode(single);
             }
             if (oConvertUtils.isNotEmpty(onlCgformField.getMainField()) && oConvertUtils.isNotEmpty(onlCgformField.getMainTable())) {
                 onlCgformField.setIsQuery(1);
-                onlCgformField.setQueryMode(sC);
+                onlCgformField.setQueryMode(single);
             }
             if (1 == onlCgformField.getIsQuery().intValue()) {
-                if (sC.equals(onlCgformField.getQueryMode())) {
+                if (single.equals(onlCgformField.getQueryMode())) {
                     Object obj = map.get(dbFieldName);
                     if (obj != null) {
                         if ("list_multi".equals(onlCgformField.getFieldShowType())) {
-                            String[] split = obj.toString().split(sB);
+                            String[] split = obj.toString().split(DOT_STRING);
                             String str4 = "";
                             for (int i2 = 0; i2 < split.length; i2++) {
                                 if (oConvertUtils.isNotEmpty(str4)) {
-                                    str = str4 + sq + dbFieldName + sd + "'%" + split[i2] + ",%'" + sq + dbFieldName + sd + "'%," + split[i2] + "%'";
+                                    str = str4 + OR + dbFieldName + LIKE + "'%" + split[i2] + ",%'" + OR + dbFieldName + LIKE + "'%," + split[i2] + "%'";
                                 } else {
-                                    str = dbFieldName + sd + "'%" + split[i2] + ",%'" + sq + dbFieldName + sd + "'%," + split[i2] + "%'";
+                                    str = dbFieldName + LIKE + "'%" + split[i2] + ",%'" + OR + dbFieldName + LIKE + "'%," + split[i2] + "%'";
                                 }
                                 str4 = str;
                             }
                             stringBuffer.append(" AND (" + str4 + ")");
                         }
-                        if (sJ.equals(onlCgformField.getFieldShowType())) {
+                        if (POPUP.equals(onlCgformField.getFieldShowType())) {
                             stringBuffer.append(" AND (" + b(dbFieldName, obj.toString()) + ")");
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.d) >= 0) {
-                            stringBuffer.append(sc + dbFieldName + sk + a(obj.toString()));
+                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            stringBuffer.append(AND + dbFieldName + EQ + a(obj.toString()));
                         } else {
-                            stringBuffer.append(sc + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, !k.a(dbType)));
+                            // FIXME 主要是这里调用了默认的构造入口
+                            stringBuffer.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, !k.isNumber(dbType)));
                         }
                     }
                 } else {
                     Object obj2 = map.get(dbFieldName + "_begin");
                     if (obj2 != null) {
-                        stringBuffer.append(sc + dbFieldName + sm);
-                        if (k.a(dbType)) {
+                        stringBuffer.append(AND + dbFieldName + GE);
+                        if (k.isNumber(dbType)) {
                             stringBuffer.append(obj2.toString());
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.d) >= 0) {
+                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
                             stringBuffer.append(a(obj2.toString()));
                         } else {
                             stringBuffer.append(sz + obj2.toString() + sz);
@@ -287,10 +248,10 @@ public class b {
                     }
                     Object obj3 = map.get(dbFieldName + "_end");
                     if (obj3 != null) {
-                        stringBuffer.append(sc + dbFieldName + so);
-                        if (k.a(dbType)) {
+                        stringBuffer.append(AND + dbFieldName + LE);
+                        if (k.isNumber(dbType)) {
                             stringBuffer.append(obj3.toString());
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.d) >= 0) {
+                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
                             stringBuffer.append(a(obj3.toString()));
                         } else {
                             stringBuffer.append(sz + obj3.toString() + sz);
@@ -302,7 +263,7 @@ public class b {
         return stringBuffer.toString();
     }
 
-    public static String a(Map<String, Object> map) {
+    public static String assembleSuperQuery(Map<String, Object> map) {
         Object obj = map.get("superQueryParams");
         if (obj == null || StringUtils.isBlank(obj.toString())) {
             return "";
@@ -315,12 +276,12 @@ public class b {
                 byValue = MatchTypeEnum.AND;
             }
             HashMap hashMap = new HashMap();
-            StringBuilder append = new StringBuilder(sc).append("(");
+            StringBuilder append = new StringBuilder(AND).append("(");
             int i2 = 0;
             while (i2 < parseArray.size()) {
                 JSONObject jSONObject = parseArray.getJSONObject(i2);
                 String string = jSONObject.getString("field");
-                String[] split = string.split(sB);
+                String[] split = string.split(DOT_STRING);
                 if (split.length == 1) {
                     a(append, string, jSONObject, byValue, null, i2 == 0);
                 } else if (split.length == 2) {
@@ -367,14 +328,14 @@ public class b {
             String string4 = jSONObject2.getString("subField");
             jSONObject2.getString("mainTable");
             sb.append("(").append(jSONObject2.getString("mainField")).append(" IN (SELECT ").append(string4).append(sb).append(string3).append(" WHERE ");
-            if (sJ.equals(string)) {
+            if (POPUP.equals(string)) {
                 sb.append(b(str, string2));
             } else {
                 sb.append(str);
                 a(sb, byValue, string2, a2, string);
             }
             sb.append("))");
-        } else if (sJ.equals(string)) {
+        } else if (POPUP.equals(string)) {
             sb.append(b(str, string2));
         } else {
             sb.append(str);
@@ -383,7 +344,7 @@ public class b {
     }
 
     private static void a(StringBuilder sb, QueryRuleEnum queryRuleEnum, String str, String str2, String str3) {
-        if (i.d.equals(str3) && "ORACLE".equalsIgnoreCase(getDatabseType())) {
+        if (i.DATE.equals(str3) && "ORACLE".equalsIgnoreCase(getDatabseType())) {
             String replace = str2.replace(sz, "");
             if (replace.length() == 10) {
                 str2 = b(replace);
@@ -393,46 +354,46 @@ public class b {
         }
         switch (AnonymousClass4.a[queryRuleEnum.ordinal()]) {
             case 1:
-                sb.append(sn).append(str2);
+                sb.append(GT).append(str2);
                 return;
             case 2:
-                sb.append(sm).append(str2);
+                sb.append(GE).append(str2);
                 return;
             case 3:
                 sb.append(sp).append(str2);
                 return;
             case 4:
-                sb.append(so).append(str2);
+                sb.append(LE).append(str2);
                 return;
             case 5:
-                sb.append(sl).append(str2);
+                sb.append(NEQ).append(str2);
                 return;
             case 6:
                 sb.append(" IN (");
-                String[] split = str.split(sB);
+                String[] split = str.split(DOT_STRING);
                 for (int i2 = 0; i2 < split.length; i2++) {
                     String str4 = split[i2];
                     if (StringUtils.isNotBlank(str4)) {
                         sb.append(a(str3, str4));
                         if (i2 < split.length - 1) {
-                            sb.append(sB);
+                            sb.append(DOT_STRING);
                         }
                     }
                 }
                 sb.append(")");
                 return;
             case 7:
-                sb.append(sd).append("N").append(sz).append("%").append(str).append("%").append(sz);
+                sb.append(LIKE).append("N").append(sz).append("%").append(str).append("%").append(sz);
                 return;
             case 8:
-                sb.append(sd).append("N").append(sz).append("%").append(str).append(sz);
+                sb.append(LIKE).append("N").append(sz).append("%").append(str).append(sz);
                 return;
             case 9:
-                sb.append(sd).append("N").append(sz).append(str).append("%").append(sz);
+                sb.append(LIKE).append("N").append(sz).append(str).append("%").append(sz);
                 return;
             case 10:
             default:
-                sb.append(sk).append(str2);
+                sb.append(EQ).append(str2);
                 return;
         }
     }
@@ -492,7 +453,7 @@ public class b {
         if ("int".equals(str) || org.jeecg.modules.online.config.b.b.h.equals(str)) {
             return str2;
         }
-        if (i.d.equals(str)) {
+        if (i.DATE.equals(str)) {
             return sz + str2 + sz;
         }
         if ("SQLSERVER".equals(getDatabseType())) {
@@ -514,7 +475,7 @@ public class b {
                 str = "";
             } else if (value instanceof String[]) {
                 for (int i2 = 0; i2 < ((String[]) value).length; i2++) {
-                    str2 = strArr[i2] + sB;
+                    str2 = strArr[i2] + DOT_STRING;
                 }
                 str = str2.substring(0, str2.length() - 1);
             } else {
@@ -566,20 +527,20 @@ public class b {
                         arrayList4 = (ArrayList) iSysBaseAPI.queryDictItemsByCode(onlCgformField.getDictField());
                     }
                     stringProperty = new StringProperty(dbFieldName, dbFieldTxt, fieldShowType, onlCgformField.getDbLength(), arrayList4);
-                    if (k.a(onlCgformField.getDbType())) {
+                    if (k.isNumber(onlCgformField.getDbType())) {
                         stringProperty.setType(org.jeecg.modules.online.config.b.b.h);
                     }
-                } else if (k.a(onlCgformField.getDbType())) {
+                } else if (k.isNumber(onlCgformField.getDbType())) {
                     NumberProperty numberProperty = new NumberProperty(dbFieldName, dbFieldTxt, org.jeecg.modules.online.config.b.b.h);
                     if (CgformValidPatternEnum.INTEGER.getType().equals(onlCgformField.getFieldValidType())) {
                         numberProperty.setPattern(CgformValidPatternEnum.INTEGER.getPattern());
                     }
                     stringProperty = numberProperty;
-                } else if (sJ.equals(fieldShowType)) {
+                } else if (POPUP.equals(fieldShowType)) {
                     PopupProperty popupProperty = new PopupProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable(), onlCgformField.getDictText(), onlCgformField.getDictField());
                     String dictText = onlCgformField.getDictText();
                     if (dictText != null && !dictText.equals("")) {
-                        for (String str : dictText.split(sB)) {
+                        for (String str : dictText.split(DOT_STRING)) {
                             if (!a(str, list)) {
                                 HiddenProperty hiddenProperty = new HiddenProperty(str, str);
                                 hiddenProperty.setOrder(onlCgformField.getOrderNum());
@@ -602,13 +563,13 @@ public class b {
                     a((LinkDownProperty) linkDownProperty, list, (List<String>) arrayList3);
                     stringProperty = linkDownProperty;
                 } else if (sN.equals(fieldShowType)) {
-                    String[] split2 = onlCgformField.getDictText().split(sB);
-                    TreeSelectProperty treeSelectProperty = new TreeSelectProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable() + sB + split2[2] + sB + split2[0], split2[1], onlCgformField.getDictField());
+                    String[] split2 = onlCgformField.getDictText().split(DOT_STRING);
+                    TreeSelectProperty treeSelectProperty = new TreeSelectProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable() + DOT_STRING + split2[2] + DOT_STRING + split2[0], split2[1], onlCgformField.getDictField());
                     if (split2.length > 3) {
                         treeSelectProperty.setHasChildField(split2[3]);
                     }
                     stringProperty = treeSelectProperty;
-                } else if (sO.equals(fieldShowType)) {
+                } else if (CAT_TREE.equals(fieldShowType)) {
                     String dictText2 = onlCgformField.getDictText();
                     String dictField = onlCgformField.getDictField();
                     String str2 = "0";
@@ -622,7 +583,7 @@ public class b {
                         arrayList2.add(new HiddenProperty(dictText2, dictText2));
                     }
                 } else if (dVar != null && dbFieldName.equals(dVar.getFieldName())) {
-                    TreeSelectProperty treeSelectProperty2 = new TreeSelectProperty(dbFieldName, dbFieldTxt, dVar.getTableName() + sB + dVar.getTextField() + sB + dVar.getCodeField(), dVar.getPidField(), dVar.getPidValue());
+                    TreeSelectProperty treeSelectProperty2 = new TreeSelectProperty(dbFieldName, dbFieldTxt, dVar.getTableName() + DOT_STRING + dVar.getTextField() + DOT_STRING + dVar.getCodeField(), dVar.getPidField(), dVar.getPidValue());
                     treeSelectProperty2.setHasChildField(dVar.getHsaChildField());
                     treeSelectProperty2.setPidComponent(1);
                     stringProperty = treeSelectProperty2;
@@ -677,7 +638,7 @@ public class b {
                 }
                 String fieldShowType = onlCgformField.getFieldShowType();
                 String dictField = onlCgformField.getDictField();
-                if (k.a(onlCgformField.getDbType())) {
+                if (k.isNumber(onlCgformField.getDbType())) {
                     stringProperty = new NumberProperty(dbFieldName, dbFieldTxt, org.jeecg.modules.online.config.b.b.h);
                 } else if (c(fieldShowType)) {
                     stringProperty = new StringProperty(dbFieldName, dbFieldTxt, fieldShowType, onlCgformField.getDbLength(), iSysBaseAPI.queryDictItemsByCode(dictField));
@@ -696,10 +657,10 @@ public class b {
         String dictText;
         HashSet hashSet = new HashSet();
         for (OnlCgformField onlCgformField : list) {
-            if (sJ.equals(onlCgformField.getFieldShowType()) && (dictText = onlCgformField.getDictText()) != null && !dictText.equals("")) {
-                hashSet.addAll((Collection) Arrays.stream(dictText.split(sB)).collect(Collectors.toSet()));
+            if (POPUP.equals(onlCgformField.getFieldShowType()) && (dictText = onlCgformField.getDictText()) != null && !dictText.equals("")) {
+                hashSet.addAll((Collection) Arrays.stream(dictText.split(DOT_STRING)).collect(Collectors.toSet()));
             }
-            if (sO.equals(onlCgformField.getFieldShowType())) {
+            if (CAT_TREE.equals(onlCgformField.getFieldShowType())) {
                 String dictText2 = onlCgformField.getDictText();
                 if (oConvertUtils.isNotEmpty(dictText2)) {
                     hashSet.add(dictText2);
@@ -744,11 +705,11 @@ public class b {
             } else {
                 a(onlCgformField, loginUser, jSONObject, su, st, sx);
                 if (sE.equals(dbFieldName.toLowerCase())) {
-                    stringBuffer.append(sB + dbFieldName);
+                    stringBuffer.append(DOT_STRING + dbFieldName);
                     stringBuffer2.append(",'1'");
                 } else if (a2.contains(dbFieldName)) {
-                    stringBuffer.append(sB + dbFieldName);
-                    stringBuffer2.append(sB + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer.append(DOT_STRING + dbFieldName);
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
                 } else if (onlCgformField.getIsShowForm().intValue() == 1 || !oConvertUtils.isEmpty(onlCgformField.getMainField()) || !oConvertUtils.isEmpty(onlCgformField.getDbDefaultVal())) {
                     if (jSONObject.get(dbFieldName) == null) {
                         if (!oConvertUtils.isEmpty(onlCgformField.getDbDefaultVal())) {
@@ -757,11 +718,11 @@ public class b {
                     }
                     if ("".equals(jSONObject.get(dbFieldName))) {
                         String dbType = onlCgformField.getDbType();
-                        if (!k.a(dbType) && !k.b(dbType)) {
+                        if (!k.isNumber(dbType) && !k.b(dbType)) {
                         }
                     }
-                    stringBuffer.append(sB + dbFieldName);
-                    stringBuffer2.append(sB + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer.append(DOT_STRING + dbFieldName);
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
                 }
             }
         }
@@ -815,30 +776,30 @@ public class b {
                 }
                 a(onlCgformField, loginUser, jSONObject, sw, sv);
                 if (a2.contains(dbFieldName) && jSONObject.get(dbFieldName) != null && !"".equals(jSONObject.getString(dbFieldName))) {
-                    stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
                 } else if (onlCgformField.getIsShowForm().intValue() == 1 && !"id".equals(dbFieldName)) {
                     if ("".equals(jSONObject.get(dbFieldName))) {
                         String dbType = onlCgformField.getDbType();
-                        if (!k.a(dbType) && !k.b(dbType)) {
+                        if (!k.isNumber(dbType) && !k.b(dbType)) {
                         }
                     }
                     if (!oConvertUtils.isNotEmpty(onlCgformField.getMainTable()) || !oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
-                        stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
                     } else {
                         // 无论是不是外键，都更新字段
-                        stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
                     }
                 } else {
                     // 无论是不是表单显示字段，都更新
-                    stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
                 }
             }
         }
         String stringBuffer2 = stringBuffer.toString();
-        if (stringBuffer2.endsWith(sB)) {
+        if (stringBuffer2.endsWith(DOT_STRING)) {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
-        String str3 = "update " + f(str) + " set " + stringBuffer2 + sg + "id" + sk + sz + jSONObject.getString("id") + sz;
+        String str3 = "update " + f(str) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + jSONObject.getString("id") + sz;
         ay.info("--动态表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
@@ -850,7 +811,8 @@ public class b {
 
     public static String a(String str, List<OnlCgformField> list, String str2, String str3) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(sa);
+        stringBuffer.append(SELECT);
+        StringBuffer orderStr=new StringBuffer();
         int size = list.size();
         boolean z2 = false;
         for (int i2 = 0; i2 < size; i2++) {
@@ -860,7 +822,21 @@ public class b {
             }
             stringBuffer.append(dbFieldName);
             if (size > i2 + 1) {
-                stringBuffer.append(sB);
+                stringBuffer.append(DOT_STRING);
+            }
+            // 处理子表排序
+            JSONObject parseObject;
+            String fieldExtendJson=list.get(i2).getFieldExtendJson();
+            if(StringUtils.isNotEmpty(fieldExtendJson)){
+                if(fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.orderRule) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.orderRule) != null){
+                   String orderTyep= parseObject.get("orderRule").toString();
+                   if(orderStr.indexOf(ORDERBY)==-1) {
+                       orderStr.append(ORDERBY);
+                   }
+                    orderStr.append(dbFieldName);
+                    orderStr.append(" ");
+                    orderStr.append(orderTyep);
+                }
             }
         }
         if (!z2) {
@@ -868,7 +844,11 @@ public class b {
         }
         // 原版本时依赖主键查询，如果想要多对多（一个字段存储了多个附表id），就必须换成模糊查询
         // stringBuffer.append(sb + f(str) + sf + sc + str2 + sk + sz + str3 + sz);
-        stringBuffer.append(sb + f(str) + sf + sc + str2 + " like " + sz + "%" + str3 + "%" + sz);
+        stringBuffer.append(FROM + f(str) + WHERE_1_1 + AND + str2 + " like " + sz + "%" + str3 + "%" + sz);
+        stringBuffer.append(" ");
+        stringBuffer.append(orderStr);
+
+
         return stringBuffer.toString();
     }
 
@@ -971,27 +951,27 @@ public class b {
             String dbFieldName = onlCgformField.getDbFieldName();
             String dbType = onlCgformField.getDbType();
             if (onlCgformField.getIsShowList().intValue() == 1) {
-                stringBuffer2.append(sB + dbFieldName);
+                stringBuffer2.append(DOT_STRING + dbFieldName);
             }
             if (oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
-                String singleQueryConditionSql = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", map.get(dbFieldName), !k.a(dbType));
+                String singleQueryConditionSql = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", map.get(dbFieldName), !k.isNumber(dbType));
                 if (!"".equals(singleQueryConditionSql)) {
-                    stringBuffer.append(sc + singleQueryConditionSql);
+                    stringBuffer.append(AND + singleQueryConditionSql);
                 }
             }
             if (onlCgformField.getIsQuery().intValue() == 1) {
-                if (sC.equals(onlCgformField.getQueryMode())) {
+                if (single.equals(onlCgformField.getQueryMode())) {
                     if (map.get(dbFieldName) != null) {
-                        String singleQueryConditionSql2 = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", map.get(dbFieldName), !k.a(dbType));
+                        String singleQueryConditionSql2 = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", map.get(dbFieldName), !k.isNumber(dbType));
                         if (!"".equals(singleQueryConditionSql2)) {
-                            stringBuffer.append(sc + singleQueryConditionSql2);
+                            stringBuffer.append(AND + singleQueryConditionSql2);
                         }
                     }
                 } else {
                     Object obj = map.get(dbFieldName + "_begin");
                     if (obj != null) {
-                        stringBuffer.append(sc + dbFieldName + sm);
-                        if (k.a(dbType)) {
+                        stringBuffer.append(AND + dbFieldName + GE);
+                        if (k.isNumber(dbType)) {
                             stringBuffer.append(obj.toString());
                         } else {
                             stringBuffer.append(sz + obj.toString() + sz);
@@ -999,8 +979,8 @@ public class b {
                     }
                     Object obj2 = map.get(dbFieldName + "_end");
                     if (obj2 != null) {
-                        stringBuffer.append(sc + dbFieldName + so);
-                        if (k.a(dbType)) {
+                        stringBuffer.append(AND + dbFieldName + LE);
+                        if (k.isNumber(dbType)) {
                             stringBuffer.append(obj2.toString());
                         } else {
                             stringBuffer.append(sz + obj2.toString() + sz);
@@ -1009,7 +989,7 @@ public class b {
                 }
             }
         }
-        return "SELECT id" + stringBuffer2.toString() + sb + f(str) + sf + stringBuffer.toString();
+        return "SELECT id" + stringBuffer2.toString() + FROM + f(str) + WHERE_1_1 + stringBuffer.toString();
     }
 
     public static List<ExcelExportEntity> a(List<OnlCgformField> list, String str) {
@@ -1018,7 +998,7 @@ public class b {
             if ((null == str || !str.equals(list.get(i2).getDbFieldName())) && list.get(i2).getIsShowList().intValue() == 1) {
                 ExcelExportEntity excelExportEntity = new ExcelExportEntity(list.get(i2).getDbFieldTxt(), list.get(i2).getDbFieldName());
                 int intValue = list.get(i2).getDbLength().intValue() == 0 ? 12 : list.get(i2).getDbLength().intValue() > 30 ? 30 : list.get(i2).getDbLength().intValue();
-                if (list.get(i2).getFieldShowType().equals(i.d)) {
+                if (list.get(i2).getFieldShowType().equals(i.DATE)) {
                     excelExportEntity.setFormat("yyyy-MM-dd");
                 } else if (list.get(i2).getFieldShowType().equals("datetime")) {
                     excelExportEntity.setFormat("yyyy-MM-dd HH:mm:ss");
@@ -1121,7 +1101,7 @@ public class b {
         if (str == null || str.length() == 0) {
             return "()";
         }
-        String[] split = QueryGenerator.converRuleValue(str).split(sB);
+        String[] split = QueryGenerator.converRuleValue(str).split(DOT_STRING);
         ArrayList arrayList = new ArrayList();
         for (String str2 : split) {
             if (str2 != null && str2.length() != 0) {
@@ -1132,12 +1112,12 @@ public class b {
                 }
             }
         }
-        return "(" + StringUtils.join(arrayList, sB) + ")";
+        return "(" + StringUtils.join(arrayList, DOT_STRING) + ")";
     }
 
     private static void a(String str, SysPermissionDataRuleModel sysPermissionDataRuleModel, String str2, String str3, StringBuffer stringBuffer) {
         QueryRuleEnum byValue = QueryRuleEnum.getByValue(sysPermissionDataRuleModel.getRuleConditions());
-        String a2 = a(sysPermissionDataRuleModel.getRuleValue(), !k.a(str3), byValue);
+        String a2 = a(sysPermissionDataRuleModel.getRuleValue(), !k.isNumber(str3), byValue);
         if (a2 == null || byValue == null) {
             return;
         }
@@ -1147,34 +1127,34 @@ public class b {
         }
         switch (AnonymousClass4.a[byValue.ordinal()]) {
             case 1:
-                stringBuffer.append(sc + str2 + sn + a2);
+                stringBuffer.append(AND + str2 + GT + a2);
                 return;
             case 2:
-                stringBuffer.append(sc + str2 + sm + a2);
+                stringBuffer.append(AND + str2 + GE + a2);
                 return;
             case 3:
-                stringBuffer.append(sc + str2 + sp + a2);
+                stringBuffer.append(AND + str2 + sp + a2);
                 return;
             case 4:
-                stringBuffer.append(sc + str2 + so + a2);
+                stringBuffer.append(AND + str2 + LE + a2);
                 return;
             case 5:
-                stringBuffer.append(sc + str2 + " <> " + a2);
+                stringBuffer.append(AND + str2 + " <> " + a2);
                 return;
             case 6:
-                stringBuffer.append(sc + str2 + " IN " + a2);
+                stringBuffer.append(AND + str2 + " IN " + a2);
                 return;
             case 7:
-                stringBuffer.append(sc + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + "%'");
+                stringBuffer.append(AND + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + "%'");
                 return;
             case 8:
-                stringBuffer.append(sc + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + sz);
+                stringBuffer.append(AND + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + sz);
                 return;
             case 9:
-                stringBuffer.append(sc + str2 + " LIKE '" + QueryGenerator.trimSingleQuote(a2) + "%'");
+                stringBuffer.append(AND + str2 + " LIKE '" + QueryGenerator.trimSingleQuote(a2) + "%'");
                 return;
             case 10:
-                stringBuffer.append(sc + str2 + sk + a2);
+                stringBuffer.append(AND + str2 + EQ + a2);
                 return;
             default:
                 ay.info("--查询规则未匹配到---");
@@ -1206,7 +1186,7 @@ public class b {
     public static String c(String str, List<OnlCgformButton> list) {
         String[] split;
         String d2 = d(str, list);
-        for (String str2 : az.split(sB)) {
+        for (String str2 : az.split(DOT_STRING)) {
             if ("beforeAdd,afterAdd,mounted,created".indexOf(str2) >= 0) {
                 Matcher matcher = Pattern.compile("(" + str2 + "\\s*\\(\\)\\s*\\{)").matcher(d2);
                 if (matcher.find()) {
@@ -1293,7 +1273,7 @@ public class b {
                             str = str.replace(matcher2.group(0), buttonCode + "(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;");
                         }
                     }
-                } else if ("button".equals(onlCgformButton.getButtonStyle()) || ai.equals(onlCgformButton.getButtonStyle())) {
+                } else if ("button".equals(onlCgformButton.getButtonStyle()) || form.equals(onlCgformButton.getButtonStyle())) {
                     Matcher matcher3 = Pattern.compile("(" + buttonCode + "\\s*\\(\\)\\s*\\{)").matcher(str);
                     if (matcher3.find()) {
                         str = str.replace(matcher3.group(0), buttonCode + "(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;");
@@ -1344,14 +1324,14 @@ public class b {
                     }
                     jSONObject.put("customValue", jSONArray2);
                 }
-                if (c2.equals(sJ)) {
+                if (c2.equals(POPUP)) {
                     jSONObject.put("popupCode", onlCgformField.getDictTable());
                     jSONObject.put("orgFields", onlCgformField.getDictField());
                     jSONObject.put("destFields", onlCgformField.getDictText());
                     String dictText = onlCgformField.getDictText();
                     if (dictText != null && !dictText.equals("")) {
                         ArrayList arrayList = new ArrayList();
-                        for (String str : dictText.split(sB)) {
+                        for (String str : dictText.split(DOT_STRING)) {
                             if (!a(str, list)) {
                                 arrayList.add(str);
                                 JSONObject jSONObject2 = new JSONObject();
@@ -1531,15 +1511,15 @@ public class b {
                 a(onlCgformField, loginUser, jSONObject, su, st, sx);
                 if ("".equals(jSONObject.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
-                    if (!k.a(dbType) && !k.b(dbType)) {
+                    if (!k.isNumber(dbType) && !k.b(dbType)) {
                     }
                 }
                 if ("id".equals(dbFieldName.toLowerCase())) {
                     z2 = true;
                     str3 = jSONObject.getString(dbFieldName);
                 } else {
-                    stringBuffer.append(sB + dbFieldName);
-                    stringBuffer2.append(sB + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer.append(DOT_STRING + dbFieldName);
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
                 }
             }
         }
@@ -1575,17 +1555,17 @@ public class b {
                 a(onlCgformField, loginUser, jSONObject, sw, sv, sx);
                 if ("".equals(jSONObject.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
-                    if (!k.a(dbType) && !k.b(dbType)) {
+                    if (!k.isNumber(dbType) && !k.b(dbType)) {
                     }
                 }
-                stringBuffer.append(dbFieldName + sk + k.a(str2, onlCgformField, jSONObject, hashMap) + sB);
+                stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
             }
         }
         String stringBuffer2 = stringBuffer.toString();
-        if (stringBuffer2.endsWith(sB)) {
+        if (stringBuffer2.endsWith(DOT_STRING)) {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
-        String str3 = "update " + f(str) + " set " + stringBuffer2 + sg + "id" + sk + sz + jSONObject.getString("id") + sz;
+        String str3 = "update " + f(str) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + jSONObject.getString("id") + sz;
         ay.info("--表单设计器表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
@@ -1593,7 +1573,7 @@ public class b {
 
     public static Map<String, Object> a(String str, String str2, String str3) {
         HashMap hashMap = new HashMap();
-        String str4 = "update " + f(str) + " set " + str2 + sk + sz + 0 + sz + sg + "id" + sk + sz + str3 + sz;
+        String str4 = "update " + f(str) + " set " + str2 + EQ + sz + 0 + sz + WHERE + "id" + EQ + sz + str3 + sz;
         ay.info("--修改树节点状态：为无子节点sql-->" + str4);
         hashMap.put("execute_sql_string", str4);
         return hashMap;
@@ -1617,7 +1597,7 @@ public class b {
         String string = JSONObject.parseObject(linkDownProperty.getDictTable()).getString("linkField");
         ArrayList arrayList = new ArrayList();
         if (oConvertUtils.isNotEmpty(string)) {
-            String[] split = string.split(sB);
+            String[] split = string.split(DOT_STRING);
             for (OnlCgformField onlCgformField : list) {
                 String dbFieldName = onlCgformField.getDbFieldName();
                 int length = split.length;
@@ -1708,14 +1688,14 @@ public class b {
         if ("sel_depart".equals(onlCgformField.getFieldShowType())) {
             return "sel_depart";
         }
-        if ("image".equals(onlCgformField.getFieldShowType()) || "file".equals(onlCgformField.getFieldShowType()) || "radio".equals(onlCgformField.getFieldShowType()) || sJ.equals(onlCgformField.getFieldShowType()) || "list_multi".equals(onlCgformField.getFieldShowType()) || "sel_search".equals(onlCgformField.getFieldShowType())) {
+        if ("image".equals(onlCgformField.getFieldShowType()) || "file".equals(onlCgformField.getFieldShowType()) || "radio".equals(onlCgformField.getFieldShowType()) || POPUP.equals(onlCgformField.getFieldShowType()) || "list_multi".equals(onlCgformField.getFieldShowType()) || "sel_search".equals(onlCgformField.getFieldShowType())) {
             return onlCgformField.getFieldShowType();
         }
         if ("datetime".equals(onlCgformField.getFieldShowType())) {
             return "datetime";
         }
-        if (i.d.equals(onlCgformField.getFieldShowType())) {
-            return i.d;
+        if (i.DATE.equals(onlCgformField.getFieldShowType())) {
+            return i.DATE;
         }
         if ("int".equals(onlCgformField.getDbType()) || "double".equals(onlCgformField.getDbType()) || "BigDecimal".equals(onlCgformField.getDbType())) {
             return "inputNumber";
@@ -1749,12 +1729,12 @@ public class b {
         if (str2 == null || "".equals(str2)) {
             return str3;
         }
-        String[] split = str2.split(sB);
+        String[] split = str2.split(DOT_STRING);
         for (int i2 = 0; i2 < split.length; i2++) {
             if (i2 > 0) {
-                str3 = str3 + sc;
+                str3 = str3 + AND;
             }
-            String str4 = str3 + str + sd;
+            String str4 = str3 + str + LIKE;
             if ("SQLSERVER".equals(getDatabseType())) {
                 str4 = str4 + "N";
             }

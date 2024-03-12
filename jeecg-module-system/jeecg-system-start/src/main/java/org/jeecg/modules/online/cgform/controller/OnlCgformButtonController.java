@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import java.util.Arrays;
-import javax.servlet.http.HttpServletRequest;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
@@ -14,15 +12,10 @@ import org.jeecg.modules.online.cgform.service.IOnlCgformButtonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 /* compiled from: OnlCgformButtonController.java */
 @RequestMapping({"/online/cgform/button"})
@@ -100,7 +93,7 @@ public class OnlCgformButtonController {
         if (str == null || "".equals(str.trim())) {
             result.error500("参数不识别！");
         } else {
-            this.onlCgformButtonService.removeByIds(Arrays.asList(str.split(org.jeecg.modules.online.cgform.d.b.sB)));
+            this.onlCgformButtonService.removeByIds(Arrays.asList(str.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)));
             result.success("删除成功!");
         }
         return result;

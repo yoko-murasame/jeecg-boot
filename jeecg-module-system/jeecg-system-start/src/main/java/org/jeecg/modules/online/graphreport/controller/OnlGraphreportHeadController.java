@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.apache.commons.lang.StringUtil;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.online.graphreport.entity.OnlGraphreportHead;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -148,7 +148,7 @@ public class OnlGraphreportHeadController {
         Wrapper<OnlGraphreportHead> wrapper = null;
         try {
             String parameter = httpServletRequest.getParameter("paramsStr");
-            if (StringUtil.isNotEmpty(parameter)) {
+            if (StringUtils.hasText(parameter)) {
                 wrapper = QueryGenerator.initQueryWrapper((OnlGraphreportHead) JSON.parseObject(URLDecoder.decode(parameter, "UTF-8"), OnlGraphreportHead.class), httpServletRequest.getParameterMap());
             }
         } catch (UnsupportedEncodingException e) {

@@ -45,8 +45,14 @@ public class FillRuleUtil {
                 if (formData == null) {
                     formData = new JSONObject();
                 }
-                // 通过反射执行配置的类里的方法
-                IFillRuleHandler ruleHandler = (IFillRuleHandler) Class.forName(ruleClass).newInstance();
+                // 先尝试加载Spring容器中的Bean，找不到再反射创建
+                IFillRuleHandler ruleHandler = null;
+                try {
+                    ruleHandler = (IFillRuleHandler) SpringContextUtils.getBean(Class.forName(ruleClass));
+                } catch (Exception e) {
+                    // 通过反射执行配置的类里的方法
+                    ruleHandler = (IFillRuleHandler) Class.forName(ruleClass).newInstance();
+                }
                 return ruleHandler.execute(params, formData);
             } catch (Exception e) {
                 e.printStackTrace();

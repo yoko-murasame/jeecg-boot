@@ -220,9 +220,9 @@ public class FolderServiceImpl implements FolderService {
                 .eq(Folder::getLevel, folderParam.getLevel())
                 .eq(null != folderParam.getType(), Folder::getType, folderParam.getType())
                 .eq(StringUtils.hasText(existProject.getId()), Folder::getProjectId, existProject.getId())
-                .eq(StringUtils.hasText(existProject.getName()), Folder::getProjectName, existProject.getName())
+                // .eq(StringUtils.hasText(existProject.getName()), Folder::getProjectName, existProject.getName())
                 .eq(StringUtils.hasText(existProject.getBusinessId()), Folder::getBusinessId, existProject.getBusinessId())
-                .eq(StringUtils.hasText(existProject.getBusinessName()), Folder::getBusinessName, existProject.getBusinessName())
+                // .eq(StringUtils.hasText(existProject.getBusinessName()), Folder::getBusinessName, existProject.getBusinessName())
                 .eq(StringUtils.hasText(folderParam.getParentId()), Folder::getParentId, folderParam.getParentId())
                 .orderByAsc(Folder::getLevel, Folder::getFolderOrder);
         // 区分全部列表和权限列表
@@ -290,7 +290,7 @@ public class FolderServiceImpl implements FolderService {
                 folder.setLevel(Level.child(parent.getLevel()))
                         .setParentId(parent.getId());
             }
-            this.save(folder);
+            folder = this.saveAndReturnExistIfSameName(folder, true);
             // this.refreshAllChild(folder);
             // 子目录
             JSONArray children = jsonObject.getJSONArray("children");
@@ -511,7 +511,7 @@ public class FolderServiceImpl implements FolderService {
     @Transactional
     @Override
     @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
-    public Folder save(Folder folder) {
+    public Folder saveAndReturnExistIfSameName(Folder folder, Boolean returnExistIfSameName) {
         Assert.notNull(folder, "操作对象不能为空");
         Assert.state(StringUtils.hasText(folder.getName().trim()), "目录名称不能为空");
 
@@ -574,6 +574,10 @@ public class FolderServiceImpl implements FolderService {
                     .eq("parent_id", existFolder.getParentId())
                     .eq("name", folder.getName())
                     .last("limit 1"));
+            // 返回同级同名目录
+            if (returnExistIfSameName && null != sameName) {
+                return sameName;
+            }
             Assert.state(null == sameName || sameName.getId().equals(folder.getId()), "同级存在同名目录，请重新命名");
             // 保存
             existFolder.setName(folder.getName());
@@ -585,6 +589,10 @@ public class FolderServiceImpl implements FolderService {
                     .eq("parent_id", folder.getParentId())
                     .eq("name", folder.getName())
                     .last("limit 1"));
+            // 返回同级同名目录
+            if (returnExistIfSameName && null != sameName) {
+                return sameName;
+            }
             Assert.state(null == sameName || sameName.getId().equals(folder.getId()), "同级存在同名目录，请重新命名");
             // Order处理 每次新增设置最大值
             List<Map<String, Object>> maxOrderObj = folderMapper.selectMaps(baseQr.clone()
@@ -607,6 +615,13 @@ public class FolderServiceImpl implements FolderService {
         this.refreshAllChild(folder.getParentId());
 
         return folder;
+    }
+
+    @Transactional
+    @Override
+    @CacheEvict(cacheNames = {"FolderServiceImpl", "TechnicalCacheService"}, allEntries = true)
+    public Folder save(Folder folder) {
+        return this.saveAndReturnExistIfSameName(folder, false);
     }
 
     @Transactional
@@ -897,6 +912,65 @@ public class FolderServiceImpl implements FolderService {
             return ConstantBusiness.getConstantBusiness(businessId, "id", "name", Project.class);
         }
         return new Project().setName(exist.getName()).setId(exist.getId());
+    }
+
+
+    /**
+     * 转换目录结构
+     *
+     * @param directoryStructure 指定树型目录结构，如：a,b,c,d;e,f,g
+     * @return com.alibaba.fastjson.JSONArray
+     * [
+     * {
+     * "name": "默认目录",
+     * "children": []
+     * }
+     * ]
+     * @author Yoko
+     * @since 2024/2/19 17:14
+     */
+    public static JSONArray createDirectoryTree(String directoryStructure) {
+        String[] directoryGroups = directoryStructure.split(";");
+        JSONArray jsonArray = new JSONArray();
+        for (String directoryGroup : directoryGroups) {
+            String[] directories = directoryGroup.split(",");
+            DirectoryNode rootNode = createNodes(directories, 0);
+            jsonArray.add(rootNode.toJSON());
+        }
+        return jsonArray;
+    }
+
+    private static DirectoryNode createNodes(String[] directories, int index) {
+        DirectoryNode node = new DirectoryNode(directories[index]);
+        if (index + 1 < directories.length) {
+            node.addChild(createNodes(directories, index + 1));
+        }
+        return node;
+    }
+
+    static class DirectoryNode {
+        private final String name;
+        private final List<DirectoryNode> children;
+
+        public DirectoryNode(String name) {
+            this.name = name;
+            this.children = new ArrayList<>();
+        }
+
+        public void addChild(DirectoryNode child) {
+            this.children.add(child);
+        }
+
+        public JSONObject toJSON() {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", this.name);
+            JSONArray jsonArray = new JSONArray();
+            for (DirectoryNode child : this.children) {
+                jsonArray.add(child.toJSON());
+            }
+            jsonObject.put("children", jsonArray);
+            return jsonObject;
+        }
     }
 
 }

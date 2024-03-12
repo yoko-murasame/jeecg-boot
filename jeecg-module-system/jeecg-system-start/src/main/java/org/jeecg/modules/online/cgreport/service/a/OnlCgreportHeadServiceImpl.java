@@ -252,7 +252,7 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
         if (oConvertUtils.isEmpty(str)) {
             return null;
         }
-        String trim = str.replace(org.jeecg.modules.online.cgform.d.b.sk, org.jeecg.modules.online.cgreport.b.a.u).trim();
+        String trim = str.replace(org.jeecg.modules.online.cgform.d.b.EQ, org.jeecg.modules.online.cgreport.b.a.u).trim();
         if (trim.endsWith(";")) {
             trim = trim.substring(0, trim.length() - 1);
         }
@@ -349,7 +349,7 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
         }
         if (keyword != null && !"".equals(keyword)) {
             String str = " like '%" + keyword + "%'";
-            sql2 = "select * from (" + sql2 + ") t where t.value " + str + org.jeecg.modules.online.cgform.d.b.sq + "t.text" + str;
+            sql2 = "select * from (" + sql2 + ") t where t.value " + str + org.jeecg.modules.online.cgform.d.b.OR + "t.text" + str;
         }
         List records = ((OnlCgreportHeadMapper) this.baseMapper).selectPageBySql(page, sql2).getRecords();
         if (records != null && records.size() != 0) {

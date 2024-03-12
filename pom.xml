@@ -62,10 +62,14 @@
 	</properties>
 
 	<modules>
-        <module>jeecg-boot-base-core</module>
-        <module>jeecg-module-demo</module>
-        <module>jeecg-module-system</module>
-        <module>jeecg-module-extra</module>
+		<!--核心模块：各种基础依赖、工具-->
+		<module>jeecg-boot-base-core</module>
+		<!--Demo模块：tomcat依赖-->
+		<module>jeecg-module-demo</module>
+		<!--核心模块：启动入口、流程、依赖-->
+		<module>jeecg-module-system</module>
+		<!--扩展模块：存放一些新的东西-->
+		<module>jeecg-module-extra</module>
     </modules>
 
 	<repositories>
