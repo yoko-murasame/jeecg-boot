@@ -1,14 +1,28 @@
 #!/bin/bash
 
 # 配置容器和镜像名称
-container_names=("redis" "postgre-14" "nginx")
-image_names=("redis:latest" "postgres-14-zhparser-postgis:1.0" "nginx:latest")
+container_names=(
+  "redis"
+  "postgre-14"
+  "nginx"
+  # "app-separate" # 非超图建议走单独的脚本部署形式
+  # "app-supermap" # 超图iObjects Java Docker镜像打包请参考 https://blog.csdn.net/SerikaOnoe/article/details/130337989
+)
+image_names=(
+  "redis:latest"
+  "postgres-14-zhparser-postgis:1.0"
+  "nginx:latest"
+  # "app-separate:latest"
+  # "app-supermap-11.1.0:latest"
+)
 
 # 创建容器命令数组
 create_container_cmds=(
   "docker run -di --restart=unless-stopped -p 63791:63791 -v /home/redis/data:/data --name ${container_names[0]} ${image_names[0]} --requirepass "123456" --port "63791" --appendonly "yes""
   "docker run -di --restart=unless-stopped -e POSTGRES_PASSWORD=123456 -e PGDATA=/var/lib/postgresql/data/pgdata -p 54321:5432 -v /home/postgres/pgdata14:/var/lib/postgresql/data/pgdata --name ${container_names[1]} ${image_names[1]}"
   "docker run -di --restart=unless-stopped --network=host -v /home/nginx/nginx.conf:/etc/nginx/nginx.conf -v /home/nginx/log:/var/log/nginx -v /home/nginx/conf.d:/etc/nginx/conf.d -v /home/nginx/html:/etc/nginx/html --name ${container_names[2]} ${image_names[2]}"
+  # "docker run -di --restart=unless-stopped -p 8888:8888 -v /home/project/app:/app -v /home/project/upFiles:/opt/upFiles --name ${container_names[3]} ${image_names[3]}"
+  # "docker run -di --restart=unless-stopped -p 8889:8888 -v /home/project/app:/app -v /home/project/upFiles:/opt/upFiles -v /home/project/supermap/Bin:/supermap/Bin -v /home/project/supermap/License:/opt/SuperMap/License --name ${container_names[4]} ${image_names[4]}"
 )
 
 # 启动容器函数

@@ -1,7 +1,7 @@
 # 超图容器依赖打包 Dockerfile（支持x64、arm）
 # 防火墙：firewall-cmd --zone=public --add-port=8888/tcp --permanent && firewall-cmd --reload
-# 构建容器：docker build -t app-supermap -f Dockerfile_SuperMap .; docker save -o ./app-supermap app-supermap
-# 第一次载入镜像：docker load -i app-supermap
+# 构建容器：docker build -t app-supermap-11.1.0 -f Dockerfile_SuperMap_11 .; docker save -o ./app-supermap-11.1.0 app-supermap-11.1.0
+# 第一次载入镜像：docker load -i app-supermap-11.1.0
 
 # 临时镜像,用于去掉ADD的大文件层(超图包3个G),最后只保留最终镜像
 FROM ubuntu:16.04 AS TMP_IMAGE
@@ -14,7 +14,7 @@ ENV SUPERMAP_SUPPORT $SUPERMAP/Support
 ENV SUPERMAP_BIN $SUPERMAP/Bin
 ENV SUPERMAP_JRE $SUPERMAP/jre
 # 超图依赖(完整包),需要不同架构的去下载不同的包即可:http://support.supermap.com.cn/DownloadCenter/ProductPlatform.aspx
-ADD supermap-iobjectsjava-10.2.1-20428-92245-linux64-all.tar.gz $SUPERMAP_TMP
+ADD supermap-iobjectsjava-11.1.0-linux64-all.tar.gz $SUPERMAP_TMP
 RUN mv $SUPERMAP_TMP/jre* $SUPERMAP_JRE && mv $SUPERMAP_TMP/Support $SUPERMAP_SUPPORT
 # RUN mv $SUPERMAP_TMP/Bin $SUPERMAP_BIN # 是否需要Bin内嵌看自己
 RUN tar -xvf $SUPERMAP_SUPPORT/aksusbd* -C $SUPERMAP_SUPPORT --strip-components=1
