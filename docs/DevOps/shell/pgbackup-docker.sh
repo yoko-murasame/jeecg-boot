@@ -1,6 +1,6 @@
 #!/bin/bash
 
-################################# 配置项 BEGIN ##################################
+####################################### 配置项 BEGIN #######################################
 # 所有数据库备份存放目录
 BACKUP_DIR="/root/opt/pgbackup"
 # 每个数据库保留的备份文件数量
@@ -15,15 +15,31 @@ PORT=5432
 DB_NAMES=("postgres" "db2" "db3")
 # PostgreSQL容器名称
 PG_CONTAINER_NAME=postgre-13
-################################# 配置项 END ####################################
-# 设置权限
-# chmod u+x pgbackup-docker.sh
-# 设置定时任务
-# crontab -e
-# PostgreSQL备份脚本-每天凌晨1点执行一次
-# 0 1 * * * /path/to/pgbackup-docker.sh
-################################################################################
+# 定时任务Crony表达式-每天凌晨1点执行一次
+CRON_SCHEDULE="0 1 * * *"
+####################################### 配置项 END #########################################
 
+####################################### 定时任务 BEGIN ######################################
+# 设置权限
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+chmod u+x $SCRIPT_PATH
+# 设置定时任务
+CRON_CMD="${CRON_SCHEDULE} ${SCRIPT_PATH}"
+# 使用 sed 命令将 * 和 ? 转义
+ESCAPED_CMD=$(echo "$CRON_CMD" | sed 's/\*/\\*/g; s/\?/\\?/g')
+# 使用 grep 命令查找是否已经存在我们想要添加的定时任务
+if echo "$(crontab -l)" | grep -q "$ESCAPED_CMD"; then
+    echo "定时任务已存在($CRON_CMD)。"
+else
+    echo "删除脚本($SCRIPT_PATH)关联的定时任务..."
+    (crontab -l | grep -v "$(basename "${BASH_SOURCE[0]}")"; ) | crontab -
+    echo "正在添加..."
+    (crontab -l; echo "$CRON_CMD") | crontab -
+    echo "定时任务已添加。"
+fi
+####################################### 定时任务 END ########################################
+
+####################################### 数据库备份 BEGIN #####################################
 # pg_dump 命令
 PG_DUMP="docker exec ${PG_CONTAINER_NAME} pg_dump"
 # 日期格式，用于命名备份文件
@@ -69,3 +85,4 @@ do
         echo "备份文件数量 (${#files[@]}) 小于等于 $KEEP_COUNT, 不执行清理操作." >> ${BACKUP_DIR}/backup-clean.log
     fi
 done
+####################################### 数据库备份 END #######################################
