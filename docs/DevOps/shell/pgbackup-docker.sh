@@ -41,7 +41,7 @@ fi
 
 ####################################### 数据库备份 BEGIN #####################################
 # pg_dump 命令
-PG_DUMP="docker exec ${PG_CONTAINER_NAME} pg_dump"
+PG_DUMP="PGPASSWORD=${password} pg_dump"
 # 日期格式，用于命名备份文件
 DATE=$(date +%Y%m%d)
 
@@ -52,7 +52,7 @@ do
     BACKUP_FILE="${DB_NAME}_${DATE}.dump"
 
     # 导出数据库
-    PGPASSWORD=${password} ${PG_DUMP} -h ${HOSTNAME} -p ${PORT} -U ${username} -Fc -f /${BACKUP_FILE} ${DB_NAME}
+    docker exec ${PG_CONTAINER_NAME} bash -c "${PG_DUMP} -h ${HOSTNAME} -p ${PORT} -U ${username} -Fc -f /${BACKUP_FILE} ${DB_NAME}"
     # 导出备份
     mkdir -p ${BACKUP_DIR}
     docker cp ${PG_CONTAINER_NAME}:/${BACKUP_FILE} ${BACKUP_DIR}/${BACKUP_FILE}
