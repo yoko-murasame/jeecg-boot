@@ -36,7 +36,7 @@ else
     # --graph $DOCKER_FILE_PATH 用于指定 Docker 的数据存储路径
     # -graph 参数已经在 Docker 1.13.0 版本被弃用，现在推荐使用 --data-root 参数来替代。
     # 这个参数的作用是指定 Docker 的工作目录，所有的 Docker 数据（包括镜像和容器）都会存储在这个目录下
-    echo "ExecStart=/usr/bin/dockerd --data-root $DOCKER_FILE_PATH" >> /etc/systemd/system/docker.service
+    echo "ExecStart=/usr/bin/dockerd --data-root $DOCKER_FILE_PATH --config-file $DOCKER_FILE_PATH/daemon.json" >> /etc/systemd/system/docker.service
     echo "ExecReload=/bin/kill -s HUP \$MAINPID" >> /etc/systemd/system/docker.service
     echo "LimitNOFILE=infinity" >> /etc/systemd/system/docker.service
     echo "LimitNPROC=infinity" >> /etc/systemd/system/docker.service
@@ -57,3 +57,27 @@ else
     systemctl enable docker.service
     echo "----------docker安装完毕----------"
 fi
+
+# 限制日志文件大小、配置镜像，默认路径是 /etc/docker/daemon.json，可使用 dockerd --config-file=xxx 指定
+cat > $DOCKER_FILE_PATH/daemon.json <<EOF
+{
+    "log-opts": {
+        "max-size": "20m",
+        "max-file": "3"
+    },
+    "registry-mirrors": ["http://hub-mirror.c.163.com", "https://registry.docker-cn.com", "https://docker.mirrors.ustc.edu.cn"]
+}
+EOF
+
+## 更多配置参考：增加一段自定义内网 IPv6 地址、开启容器的 IPv6 功能、限制日志文件大小
+#{
+#    "log-driver": "json-file",
+#    "log-opts": {
+#        "max-size": "20m",
+#        "max-file": "3"
+#    },
+#    "ipv6": true,
+#    "fixed-cidr-v6": "fd00:dead:beef:c0::/80",
+#    "experimental":true,
+#    "ip6tables":true
+#}
