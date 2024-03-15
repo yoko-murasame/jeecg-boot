@@ -7,13 +7,13 @@
 JEECG BOOT Low Code Development Platform
 ===============
 
-The Latest Version： 3.5.2（Release date：2023-06-12） 
+当前最新版本： 3.6.3（发布日期：2024-03-11） 
 
 
 [![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/zhangdaiscott/jeecg-boot/blob/master/LICENSE)
-[![](https://img.shields.io/badge/Author-qiaoqiaoyun-orange.svg)](http://www.jeecg.com)
+[![](https://img.shields.io/badge/Author-guojusoft-orange.svg)](http://www.jeecg.com)
 [![](https://img.shields.io/badge/Blog-blog-blue.svg)](https://jeecg.blog.csdn.net)
-[![](https://img.shields.io/badge/version-3.5.2-brightgreen.svg)](https://github.com/zhangdaiscott/jeecg-boot)
+[![](https://img.shields.io/badge/version-3.6.3-brightgreen.svg)](https://github.com/zhangdaiscott/jeecg-boot)
 [![GitHub stars](https://img.shields.io/github/stars/zhangdaiscott/jeecg-boot.svg?style=social&label=Stars)](https://github.com/zhangdaiscott/jeecg-boot)
 [![GitHub forks](https://img.shields.io/github/forks/zhangdaiscott/jeecg-boot.svg?style=social&label=Fork)](https://github.com/zhangdaiscott/jeecg-boot)
 
@@ -44,10 +44,12 @@ Official Support: http://jeecg.com/doc/help
 
 Download the source code
 -----------------------------------
-- The background source ：https://github.com/jeecgboot/jeecg-boot
-- Front-end source (Vue3 version)：https://github.com/jeecgboot/jeecgboot-vue3
-- Front-end source (Vue2 version)：https://github.com/jeecgboot/ant-design-vue-jeecg
-- APP Supporting framework：https://github.com/jeecgboot/jeecg-uniapp
+项目源码
+-----------------------------------
+| Source |Front-end source (Vue3 version) | The background source |
+|-|-|-|
+| Github | [jeecgboot-vue3](https://github.com/jeecgboot/jeecgboot-vue3)  | [jeecg-boot](https://github.com/jeecgboot/jeecg-boot) |
+| Gitee | [jeecgboot-vue3](https://gitee.com/jeecg/jeecgboot-vue3)    | [jeecg-boot](https://gitee.com/jeecg/jeecg-boot) |
 
 ##### Project description
 
@@ -55,11 +57,9 @@ Download the source code
 |--------------------|------------------------|
 | `jeecg-boot`    | SpringBoot background source code (support microservices)      |
 | `jeecgboot-vue3` | Vue3+TS new front-end source code|
-| `ant-design-vue-jeecg`  |Vue2 version front-end source code     |
-| `jeecg-uniapp` | APP development framework, a code multi terminal adaptation, and support APP, small program, H5 |
-| `jeecg-boot-starter` | [Stater relies on the project to be maintained separately. Click Download](https://gitee.com/jeecg/jeecg-boot-starter) |
-| `More` | [Download more source code](https://github.com/jeecgboot) |
-
+| `jeecg-uniapp` | [APP development framework, a code multi terminal adaptation, and support APP, small program, H5](https://github.com/jeecgboot/jeecg-uniapp) |
+| `SpringBoot3+JDK17`    | [BranchSourceCode](https://github.com/jeecgboot/jeecg-boot/tree/springboot3)  [UpgradeBlog](https://blog.csdn.net/zhangdaiscott/article/details/134805602)        |
+| `More` | [Download more source code](http://jeecg.com/download) |
 
 
 
@@ -76,7 +76,7 @@ Docker starts the project
 - [Docker starts the monomer background](https://help.jeecg.com/java/setup/docker/up.html)
 - [Docker starts the Vue3 front-end](http://help.jeecg.com/publish/docker.html)
 - [Docker starts the micro-service background](https://help.jeecg.com/java/springcloud/docker.html)
-
+- [ChatGPT AI Config](https://help.jeecg.com/java/chatgpt.html)
 
 
 
@@ -84,21 +84,23 @@ Technical documentation
 -----------------------------------
 
 - Website：  [http://www.jeecg.com](http://www.jeecg.com)
-
-- Demo ： [Vue3](http://boot3.jeecg.com) | [Vue2](http://boot.jeecg.com) 
-
 - Doc：  [http://help.jeecg.com](http://help.jeecg.com)
-
 - Newbie guide： [Quick start](http://www.jeecg.com/doc/quickstart)  |  [video](https://space.bilibili.com/454617261/channel/series) |   [Q&A ](http://www.jeecg.com/doc/qa)  |   [help](http://jeecg.com/doc/help) |  [1 minute experience](https://my.oschina.net/jeecg/blog/3083313)
-
 - Microservice Development：  [Monomer upgrade to microservice](https://help.jeecg.com/java/springcloud/switchcloud/monomer.html)
+- QQ group ： ⑧825232878、⑦791696430、⑥730954414(full)、683903138(full)、⑤860162132(full)、④774126647(full)、③816531124(full)、②769925425(full)、①284271917(full)
+- Demo ： [Vue3](http://boot3.jeecg.com) | [Vue2](http://boot.jeecg.com)  | [APP](http://jeecg.com/appIndex)
+> [please click obtain account password to obtain](http://jeecg.com/doc/demo) 
 
-- QQ group ： ⑦791696430、⑥730954414、683903138、⑤860162132(full)、④774126647(full)、③816531124(full)、②769925425(full)、①284271917(full)
 
 
+Thinking
+-----------------------------------
+> We are pursuing the goal of implementing complex business systems without writing code! That has been done so far
+- https://www.qiaoqiaoyun.com
 
 
-##### Star charts
+Star charts
+-----------------------------------
 
 [![Star History Chart](https://api.star-history.com/svg?repos=jeecgboot/jeecg-boot&type=Date)](https://star-history.com/#jeecgboot/jeecg-boot)
 
@@ -438,6 +440,10 @@ Technical Architecture:
 
 
 ### Effect of system
+
+##### ChatGPT AI Dialog
+> Go to the JeecgBoot background home page and click "AI Assistant" in the middle of the right side of the home page. The AI Assistant dialog screen is displayed.
+![](https://oscimg.oschina.net/oscnet/up-7c6405641a40f56638999d52da0cb5b4343.png)
 
 
 ##### PC

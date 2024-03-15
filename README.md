@@ -7,13 +7,13 @@
 JEECG BOOT 低代码开发平台
 ===============
 
-当前最新版本： 3.5.2（发布日期：2023-06-12） 
+当前最新版本： 3.6.3（发布日期：2024-03-11） 
 
 
 [![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/zhangdaiscott/jeecg-boot/blob/master/LICENSE)
-[![](https://img.shields.io/badge/Author-北京敲敲云科技-orange.svg)](http://www.jeecg.com)
+[![](https://img.shields.io/badge/Author-北京国炬软件-orange.svg)](http://jeecg.com/aboutusIndex)
 [![](https://img.shields.io/badge/Blog-官方博客-blue.svg)](https://jeecg.blog.csdn.net)
-[![](https://img.shields.io/badge/version-3.5.2-brightgreen.svg)](https://github.com/zhangdaiscott/jeecg-boot)
+[![](https://img.shields.io/badge/version-3.6.3-brightgreen.svg)](https://github.com/zhangdaiscott/jeecg-boot)
 [![GitHub stars](https://img.shields.io/github/stars/zhangdaiscott/jeecg-boot.svg?style=social&label=Stars)](https://github.com/zhangdaiscott/jeecg-boot)
 [![GitHub forks](https://img.shields.io/github/forks/zhangdaiscott/jeecg-boot.svg?style=social&label=Fork)](https://github.com/zhangdaiscott/jeecg-boot)
 
@@ -33,37 +33,72 @@ JeecgBoot 提供了一系列`低代码模块`，实现在线开发`真正的零�
 
 `JEECG业务流程:` 采用工作流来实现、扩展出任务接口，供开发编写业务逻辑，表单提供多种解决方案： 表单设计器、online配置表单、编码表单。同时实现了流程与表单的分离设计（松耦合）、并支持任务节点灵活配置，既保证了公司流程的保密性，又减少了开发人员的工作量。
 
+遇到技术问题，[请在这里反馈BUG](https://github.com/jeecgboot/jeecg-boot/issues/new)
+
 适用项目
 -----------------------------------
 Jeecg-Boot低代码开发平台，可以应用在任何J2EE项目的开发中，尤其适合SAAS项目、企业信息管理系统（MIS）、内部办公系统（OA）、企业资源计划系统（ERP）、客户关系管理系统（CRM）等，其半智能手工Merge的开发方式，可以显著提高开发效率70%以上，极大降低开发成本。
 
 
 
-源码下载
+
+项目源码
 -----------------------------------
+| 仓库 |前端源码 Vue3版 | 后端JAVA源码 |
+|-|-|-|
+| Github | [jeecgboot-vue3](https://github.com/jeecgboot/jeecgboot-vue3)   | [jeecg-boot](https://github.com/jeecgboot/jeecg-boot) |
+| 码云 | [jeecgboot-vue3](https://gitee.com/jeecg/jeecgboot-vue3)   | [jeecg-boot](https://gitee.com/jeecg/jeecg-boot) |
 
-| 源码                | 源码地址                     | 
-|--------------------|------------------------|
-| 后台源码 JAVA   | https://github.com/jeecgboot/jeecg-boot        |
-| 前端源码 `Vue3版` | https://github.com/jeecgboot/jeecgboot-vue3 |
-| APP配套框架 | https://github.com/jeecgboot/jeecg-uniapp |
+> 官方已推出 `SpringBoot3+JDK17版本` [分支源码下载](https://github.com/jeecgboot/jeecg-boot/tree/springboot3)  |  [升级SpringBoot3博客](https://blog.csdn.net/zhangdaiscott/article/details/134805602)
 
-#####  快速搭建开发环境
-
-- [通过IDEA启动前后端项目](https://help.jeecg.com/java/setup/idea/startup.html)
-- [Vue3前端项目快速启动](http://help.jeecg.com/setup/startup.html)
-- [单体快速切换为微服务版](https://help.jeecg.com/java/springcloud/switchcloud/monomer.html)
-
-##### 项目说明
+#### 项目说明
 
 | 项目名                | 说明                     | 
 |--------------------|------------------------|
-| `jeecg-boot`    | SpringBoot后台源码（支持微服务）        |
-| `jeecgboot-vue3` | Vue3+TS 新版前端源码 |
-| `jeecg-uniapp` | APP开发框架，一份代码多终端适配，同时支持APP、小程序、H5 |
-| `jeecg-boot-starter` | [Stater依赖项目单独维护，点击下载](https://gitee.com/jeecg/jeecg-boot-starter) |
-| `更多开源插件` | [更多源码下载](https://github.com/jeecgboot) |
+| `jeecgboot-vue3` | 前端源码 (Vue3版本) |
+| `jeecg-boot`    | 后端JAVA源码（支持微服务）        |
+| `jeecg-uniapp` | [APP开发框架，一份代码多终端适配，同时支持APP、小程序、H5](https://github.com/jeecgboot/jeecg-uniapp) |
+| `更多开源项目` | [更多底层源码下载](http://jeecg.com/download) |
 
+
+
+快速搭建开发环境
+-----------------------------------
+
+- [通过IDEA导入项目](https://help.jeecg.com/java/setup/idea.html)
+- [通过IDEA启动前后端项目](https://help.jeecg.com/java/setup/idea/startup.html)
+- [Vue3前端项目快速启动](http://help.jeecg.com/setup/startup.html)
+- [单体快速切换为微服务版](https://help.jeecg.com/java/springcloud/switchcloud/monomer.html)
+- [ChatGPT AI助手配置文档](https://help.jeecg.com/java/chatgpt.html)
+
+Docker快速启动项目
+-----------------------------------
+
+- [Docker启动单体后台](https://help.jeecg.com/java/setup/docker/up.html)
+- [Docker启动Vue3前端](http://help.jeecg.com/publish/docker.html)
+- [Docker启动微服务后台](https://help.jeecg.com/java/springcloud/docker.html)
+
+
+技术文档
+-----------------------------------
+
+- 项目官网：  [http://www.jeecg.com](http://www.jeecg.com)
+- 开发文档：  [https://help.jeecg.com](https://help.jeecg.com)
+- 新手指南： [快速入门](http://www.jeecg.com/doc/quickstart)  |   [常见问题 ](http://www.jeecg.com/doc/qa) |  [视频教程](https://space.bilibili.com/454617261/channel/series)  |  [1分钟低代码体验](https://my.oschina.net/jeecg/blog/3083313) 
+
+- 在线演示 ：  [Vue3演示](http://boot3.jeecg.com)   | [APP演示](http://jeecg.com/appIndex) |  [敲敲云零代码](https://qiaoqiaoyun.com)
+> 演示系统的登录账号密码，请点击 [获取账号密码](http://jeecg.com/doc/demo) 获取 
+>
+- QQ交流群 ： ⑧825232878、⑦791696430(满)、⑥730954414(满)、683903138(满)、⑤860162132(满)、④774126647(满)、③816531124(满)、②769925425(满)、①284271917(满)
+> ` 提醒：【QQ群是自助服务群，建议给帮助您解决问题的同学发送指定红包，表示感谢！】 `
+
+
+大龄码农的思考
+-----------------------------------
+> 作为码农年纪大了写不动代码了怎么办？？哎！！
+所以我们团队在追求不写代码也可实现复杂业务系统！目前已经做到了，不信你到敲敲云零代码试试（通过流程串联修改业务数据）
+
+- https://www.qiaoqiaoyun.com
 
 
 技术支持
@@ -74,44 +109,19 @@ Jeecg-Boot低代码开发平台，可以应用在任何J2EE项目的开发中，
 官方支持： [http://jeecg.com/doc/help](http://jeecg.com/doc/help)
 
 
-技术文档
------------------------------------
 
-- 项目官网：  [http://www.jeecg.com](http://www.jeecg.com)
-
-- 在线演示 ：  [低代码演示](http://boot3.jeecg.com)  |  [零代码体验](http://app.qiaoqiaoyun.com)
-
-- 开发文档：  [http://help.jeecg.com](http://help.jeecg.com)
-
-- 新手指南： [快速入门](http://www.jeecg.com/doc/quickstart)  |   [常见问题 ](http://www.jeecg.com/doc/qa) |  [视频教程](https://space.bilibili.com/454617261/channel/series)  |  [1分钟低代码体验](https://my.oschina.net/jeecg/blog/3083313) 
-
-- QQ交流群 ： ⑦791696430、⑥730954414、VUE3群683903138、⑤860162132(满)、④774126647(满)、③816531124(满)、②769925425(满)、①284271917(满)
-> ` 提醒：【QQ群是自助服务群，建议给帮助您解决问题的同学发送指定红包，表示感谢！】 `
-
-
-
-
-
-Docker启动项目
------------------------------------
-
-- [Docker启动单体后台](https://help.jeecg.com/java/setup/docker/up.html)
-- [Docker启动Vue3前端](http://help.jeecg.com/publish/docker.html)
-- [Docker启动微服务后台](https://help.jeecg.com/java/springcloud/docker.html)
-
-
-
-=======【VUE2版本专题介绍】============================================
 
 VUE2版本专题介绍
 -----------------------------------
 #### 项目介绍 
 - 项目名称：ant-design-vue-jeecg
 - 说明：JeecgBoot前端提供两套解决方案，一套VUE2和一套VUE3版本，目前vue2版本最新代码只支持到jeecgboot 3.4.3版本，一定注意。
-- 更多介绍：[Vue2版演示](http://boot.jeecg.com) |[开发文档](http://doc.jeecg.com) 
-- [快速启动——Vue2前端](http://doc.jeecg.com/2678320)
-- [Docker启动——Vue2前端](http://doc.jeecg.com/3043612)
 
+#### 源码下载
+| 源码                | 源码地址                     | 
+|--------------------|------------------------|
+| 后端JAVA源码 `Vue2版`  |https://gitee.com/jeecg/jeecg-boot/tree/v3.4.3last    |
+| 前端vue2源码 `Vue2版`  |https://gitee.com/jeecg/ant-design-vue-jeecg    |
 
 #### Vue2与Vue3版本区别
 > - VUE3版本彻底抛弃IE兼容，不兼容IE和低版本浏览器，只适配高版本谷歌和Edge
@@ -119,21 +129,14 @@ VUE2版本专题介绍
 > - 所以如果对浏览器有要求的项目，请选择VUE2版本。
 > - VUE3版是全新的技术栈，紧跟主流（前端重写），各个功能都做了优化，拥有更好的体验效果
 
-
-#### 源码下载
-| 源码                | 源码地址                     | 
-|--------------------|------------------------|
-| 后端源码 `Vue2版`  |https://gitee.com/jeecg/jeecg-boot/tree/v3.4.3last    |
-| 前端源码 `Vue2版`  |https://gitee.com/jeecg/ant-design-vue-jeecg    |
-
-=========【VUE2版本专题介绍】=========================================
+#### 技术文档
+- 在线演示：[Vue2版演示](http://boot.jeecg.com) 
+- 开发文档：| [开发文档](http://doc.jeecg.com)  | [Vue2前端快速启动](http://doc.jeecg.com/2678320) |  [Vue2前端采用Docker启动](http://doc.jeecg.com/3043612)
 
 
 
-
-
-
-##### Star走势图
+Star走势图
+-----------------------------------
 
 [![Star History Chart](https://api.star-history.com/svg?repos=jeecgboot/jeecg-boot&type=Date)](https://star-history.com/#jeecgboot/jeecg-boot)
 
@@ -464,12 +467,19 @@ VUE2版本专题介绍
    
 ```
 
+### 流程引擎推荐
 
+JeecgBoot企业版本默认集成了activiti和flowable两套方案，大家在使用本开源项目时，如果想进一步集成流程引擎，推荐结合贺波老师的书 [《深入Activiti流程引擎：核心原理与高阶实战》](https://item.m.jd.com/product/13928958.html?gx=RnAomTM2bmCImZxDqYAkVCoIHuIYVqc)
 
+<img src="https://jeecgos.oss-cn-beijing.aliyuncs.com/files/tuijian20231220161656.png" width="25%" height="auto">
 
 
 ### 系统效果
 
+
+##### ChatGPT AI交互
+> 进入JeecgBoot后台首页，点击首页右侧中间“AI助手”，弹出AI助手对话界面。
+![](https://oscimg.oschina.net/oscnet/up-7c6405641a40f56638999d52da0cb5b4343.png)
 
 
 ##### PC端

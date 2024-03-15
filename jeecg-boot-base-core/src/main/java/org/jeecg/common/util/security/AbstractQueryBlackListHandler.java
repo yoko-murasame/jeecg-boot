@@ -1,6 +1,8 @@
 package org.jeecg.common.util.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.exception.JeecgSqlInjectionException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -59,26 +61,32 @@ public abstract class AbstractQueryBlackListHandler {
         if(list==null){
             return true;
         }
-        log.info("--获取sql信息--", list.toString());
+        log.info("  获取sql信息 ：{} ", list.toString());
         boolean flag = checkTableAndFieldsName(list);
         if(flag == false){
             return false;
         }
         for (QueryTable table : list) {
             String name = table.getName();
-            String fieldString = ruleMap.get(name);
+            String fieldRule = ruleMap.get(name);
             // 有没有配置这张表
-            if (fieldString != null) {
-                if ("*".equals(fieldString) || table.isAll()) {
+            if (fieldRule != null) {
+                if ("*".equals(fieldRule) || table.isAll()) {
                     flag = false;
                     log.warn("sql黑名单校验，表【"+name+"】禁止查询");
                     break;
-                } else if (table.existSameField(fieldString)) {
+                } else if (table.existSameField(fieldRule)) {
                     flag = false;
                     break;
                 }
 
             }
+        }
+
+        // 返回黑名单校验结果（不合法直接抛出异常）
+        if(!flag){
+            log.error(this.getError());
+            throw new JeecgSqlInjectionException(this.getError());
         }
         return flag;
     }
@@ -189,21 +197,21 @@ public abstract class AbstractQueryBlackListHandler {
          * @return
          */
         public boolean existSameField(String fieldString) {
-            String[] arr = fieldString.split(",");
-            for (String exp : fields) {
-                for (String config : arr) {
-                    if (exp.equals(config)) {
+            String[] controlFields = fieldString.split(",");
+            for (String sqlField : fields) {
+                for (String controlField : controlFields) {
+                    if (sqlField.equals(controlField)) {
                         // 非常明确的列直接比较
-                        log.warn("sql黑名单校验，表【"+name+"】中字段【"+config+"】禁止查询");
+                        log.warn("sql黑名单校验，表【"+name+"】中字段【"+controlField+"】禁止查询");
                         return true;
                     } else {
                         // 使用表达式的列 只能判读字符串包含了
-                        String aliasColumn = config;
-                        if (alias != null && alias.length() > 0) {
-                            aliasColumn = alias + "." + config;
+                        String aliasColumn = controlField;
+                        if (StringUtils.isNotBlank(alias)) {
+                            aliasColumn = alias + "." + controlField;
                         }
-                        if (exp.indexOf(aliasColumn) > 0) {
-                            log.warn("sql黑名单校验，表【"+name+"】中字段【"+config+"】禁止查询");
+                        if (sqlField.indexOf(aliasColumn) != -1) {
+                            log.warn("sql黑名单校验，表【"+name+"】中字段【"+controlField+"】禁止查询");
                             return true;
                         }
                     }
