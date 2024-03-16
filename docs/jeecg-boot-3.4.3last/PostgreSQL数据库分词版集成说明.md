@@ -148,6 +148,29 @@ docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W
 # SELECT datname FROM pg_database;
 ```
 
+2.3）完整的导出导入命令
+
+```shell
+-- 精简化备份（排除某些表）
+pg_dump --verbose -h 47.118.52.119 -T bus.project_iot_* -T bus.*_copy* -T bus.*_bak* -T sys*permission -T bus.sys_log -p 54321 -U postgres -W -Fc -f ./epc_busdb_slim.dump epc_busdb
+
+-- 仅恢复结构
+docker exec -it postgre-13 pg_restore --verbose --schema-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
+
+-- 仅恢复数据（注意原先表的数据不会被清除，测过了）
+docker exec -it postgre-13 pg_restore --verbose --data-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb_slim.dump
+
+-- 恢复结构和数据（注意原先表的数据不会被清除，测过了）
+docker cp ./epc_busdb_slim.dump postgre-13:/epc_busdb_slim.dump
+docker exec -it postgre-13 pg_restore --verbose --if-exists --clean --create -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb epc_busdb_slim.dump
+docker exec postgre-13 rm /epc_busdb_slim.dump
+
+-- 从一无所有恢复
+docker cp ./epc_busdb.dump postgre-13:/epc_busdb.dump
+docker exec -it postgre-13 pg_restore --verbose -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
+docker exec postgre-13 rm /epc_busdb.dump
+```
+
 ### 3）必须执行的脚本
 
 3.1）[特殊报错处理](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/特殊报错处理.sql)
