@@ -20,11 +20,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
-			<artifactId>jeecg-bigdata-core</artifactId>
-			<version>3.4.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jeecgframework.boot</groupId>
 			<artifactId>jeecg-system-local-api</artifactId>
 		</dependency>
 		<!-- hibernate 破解的依赖 -->
