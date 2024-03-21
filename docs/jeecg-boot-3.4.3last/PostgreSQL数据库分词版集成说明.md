@@ -99,20 +99,6 @@ firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --re
 docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
 # 复制备份到宿主机
 docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
-# 非Docker安装方式的备份导出示例
-# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
-
-# 单表导出示例
-# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
-# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
-# && docker cp postgre-13:/table_a.dump ./table_a.dump \
-# && docker exec -it postgre-13 rm /table_a.dump
-
-# 单表导入示例
-# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
-# docker cp ./table_a.dump postgre-13:/table_a.dump \
-# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
-# && docker exec -it postgre-13 rm /table_a.dump
 ````
 
 2.2）导入数据库备份文件
@@ -132,20 +118,6 @@ docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 # --clean 创建数据库对象前先清理(删除)它们
 # --create 在恢复数据库之前先创建它。如果也声明了--clean， 那么在连接到数据库之前删除并重建目标数据库
 docker exec -it <新容器> pg_restore --verbose -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
-
-# 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
-docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
-
-# 其他运维命令（关闭数据库链接、删除数据库等）
-# psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
-# 查找数据库活动连接
-# SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
-# 关闭数据库连接
-# SELECT pg_terminate_backend(<pid>);
-# 删除数据库
-# DROP DATABASE <数据库名称>;
-# 查看存在的数据库列表 \l
-# SELECT datname FROM pg_database;
 ```
 
 2.3）完整的导出导入命令
@@ -161,14 +133,43 @@ docker exec -it postgre-13 pg_restore --verbose --schema-only -h 127.0.0.1 -p 54
 docker exec -it postgre-13 pg_restore --verbose --data-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb_slim.dump
 
 -- 恢复结构和数据（注意原先表的数据不会被清除，测过了）
-docker cp ./epc_busdb_slim.dump postgre-13:/epc_busdb_slim.dump
 docker exec -it postgre-13 pg_restore --verbose --if-exists --clean --create -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb epc_busdb_slim.dump
-docker exec postgre-13 rm /epc_busdb_slim.dump
 
 -- 从一无所有恢复
 docker cp ./epc_busdb.dump postgre-13:/epc_busdb.dump
 docker exec -it postgre-13 pg_restore --verbose -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
 docker exec postgre-13 rm /epc_busdb.dump
+
+-- 导入单表并直接指定密码
+docker exec -it postgre-13 bash -c "PGPASSWORD=123456 pg_restore -t table_xxx --verbose -h 127.0.0.1 -p 5432 -U postgres  -d epc_busdb /epc_busdb.dump"
+
+# 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
+docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
+
+# 其他运维命令（关闭数据库链接、删除数据库等）
+# psql -U <用户名> -h <主机名> -p <端口号> -d <数据库名称>
+# 查找数据库活动连接
+# SELECT * FROM pg_stat_activity WHERE datname='<数据库名称>';
+# 关闭数据库连接
+# SELECT pg_terminate_backend(<pid>);
+# 删除数据库
+# DROP DATABASE <数据库名称>;
+# 查看存在的数据库列表 \l
+# SELECT datname FROM pg_database;
+
+# 归档
+# 非Docker安装方式的备份导出示例
+# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
+# 单表导出示例
+# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
+# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
+# && docker cp postgre-13:/table_a.dump ./table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
+# 单表导入示例
+# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
+# docker cp ./table_a.dump postgre-13:/table_a.dump \
+# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
 ```
 
 ### 3）必须执行的脚本
