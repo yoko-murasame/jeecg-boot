@@ -65,7 +65,8 @@ cat > $DOCKER_FILE_PATH/daemon.json <<EOF
         "max-size": "20m",
         "max-file": "3"
     },
-    "registry-mirrors": ["http://hub-mirror.c.163.com", "https://registry.docker-cn.com", "https://docker.mirrors.ustc.edu.cn"]
+    "registry-mirrors": ["http://hub-mirror.c.163.com", "https://registry.docker-cn.com", "https://docker.mirrors.ustc.edu.cn"],
+    "dns": ["8.8.8.8", "114.114.114.114"]
 }
 EOF
 
