@@ -58,6 +58,13 @@ container_status() {
     docker inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null
 }
 
+# 同步系统时间，输出当前时间
+sync_date() {
+  timedatectl set-timezone Asia/Shanghai
+  ntpdate ntp1.aliyun.com
+  echo "同步时间成功！当前时间：$(date)"
+}
+
 # 根据用户输入的参数调用相应的功能
 if [ "$1" == "start" ]; then
     # 启动容器
@@ -94,6 +101,9 @@ elif [ "$1" == "restart" ]; then
             echo "$container_name 容器未运行，无法重启。"
         fi
     done
+elif [ "$1" == "sync_date" ]; then
+    # 同步时间
+    sync_date
 else
-    echo "无效的参数。请使用 'start'、'stop' 或 'restart'。"
+    echo "无效的参数。请使用 'start'、'stop' 或 'restart'。使用 'sync_date' 更新系统时间。"
 fi
