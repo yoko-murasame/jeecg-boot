@@ -406,7 +406,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setId(generate);
         ArrayList arrayList = new ArrayList();
         try {
-            List b = DbReadTableUtil.b(tbname);
+            List b = org.jeecg.codegenerate.fix.postgres.DbReadTableUtil.b(tbname);
             for (int i = 0; i < b.size(); i++) {
                 ColumnVo columnVo = (ColumnVo) b.get(i);
                 a.info("  columnt : " + columnVo.toString());

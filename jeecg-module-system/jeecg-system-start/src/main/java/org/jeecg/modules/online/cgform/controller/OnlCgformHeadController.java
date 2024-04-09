@@ -25,7 +25,6 @@ import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
 import org.jeecg.modules.online.cgform.service.IOnlCgformEnhanceService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
 import org.jeecg.modules.online.config.exception.DBException;
-import org.jeecgframework.codegenerate.database.DbReadTableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -352,7 +351,8 @@ public class OnlCgformHeadController {
 
             List var6;
             try {
-                var6 = DbReadTableUtil.a();
+                // 修复了这里的调用
+                var6 = org.jeecg.codegenerate.fix.postgres.DbReadTableUtil.a();
             } catch (SQLException var12) {
                 a.error(var12.getMessage(), var12);
                 return Result.error("同步失败，未获取数据库表信息");
