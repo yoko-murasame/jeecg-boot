@@ -1095,7 +1095,15 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 onlCgformField = onlCgformField2;
             }
             ColumnVo columnVo = new ColumnVo();
-            columnVo.setFieldLength(onlCgformField2.getFieldLength());
+            /*
+             * FIXME 如果控件长度是默认的120，去判断有无设置数据库长度，如果设置了数据库长度，就用数据库长度
+             *  更改这个逻辑后，可能影响online页面的列表搜索展示的长度，这时候需要去调整字段长度（非120）即可
+             */
+            if (onlCgformField2.getFieldLength() == 120 && onlCgformField2.getDbLength() != 0) {
+                columnVo.setFieldLength(onlCgformField2.getDbLength());
+            } else {
+                columnVo.setFieldLength(onlCgformField2.getFieldLength());
+            }
             columnVo.setFieldHref(onlCgformField2.getFieldHref());
             columnVo.setFieldValidType(onlCgformField2.getFieldValidType());
             columnVo.setFieldDefault(onlCgformField2.getDbDefaultVal());

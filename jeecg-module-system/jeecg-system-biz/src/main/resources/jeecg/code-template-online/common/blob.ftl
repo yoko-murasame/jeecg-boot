@@ -27,9 +27,22 @@
         return "";
     }
 <#else>
-    @ApiModelProperty(value = "${po.filedComment}")
+    @ApiModelProperty(value = "${po.filedComment}", name = "${po.fieldName}", notes = "${po.filedComment}")
+    <#if po.fieldDbType == 'string'>
+        <#if po.fieldLength != 0 && po.fieldName != primaryKeyField>
+    @Size(max = ${po.fieldLength}, message = "${po.filedComment}长度不能超过${po.fieldLength}")
+        </#if>
+        <#if po.nullable == 'N' && po.fieldName != primaryKeyField>
+    @NotEmpty(message = "${po.filedComment}不能为空")
+        </#if>
+    <#else>
+        <#if po.nullable == 'N' && po.fieldName != primaryKeyField>
+    @NotNull(message = "${po.filedComment}不能为空")
+        </#if>
+    </#if>
   <#if po.fieldDbName == 'del_flag'>
     @TableLogic
   </#if>
     private ${po.fieldType} ${po.fieldName};
+
 </#if>

@@ -15,6 +15,7 @@ public enum CgformEnum {
      * 单表
      */
     ONE(1, "one", "/jeecg/code-template-online", "default.one", "经典风格", new String[]{"vue3","vue","vue3Native"}),
+    YOKO(1, "yoko", "/jeecg/code-template-online", "default.yoko", "Yoko改造", new String[]{"vue3","vue","vue3Native"}),
 
     /**
      * 多表
