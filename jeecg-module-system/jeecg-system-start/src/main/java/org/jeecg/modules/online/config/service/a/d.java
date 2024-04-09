@@ -7,6 +7,9 @@ import org.jeecg.modules.online.config.service.DbTableHandleI;
 
 /* compiled from: DbTablePostgresHandleImpl.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/config/service/a/d.class */
+/**
+ * POSTGRESQL 处理类
+ */
 public class d implements DbTableHandleI {
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String getAddColumnSql(org.jeecg.modules.online.config.b.a columnMeta) {
@@ -33,7 +36,8 @@ public class d implements DbTableHandleI {
         String str = "";
         if (dataType.equalsIgnoreCase(org.jeecg.modules.online.config.b.b.l)) {
             str = org.jeecg.modules.online.config.b.b.i;
-        } else if (dataType.equalsIgnoreCase("double")) {
+        } else if (dataType.equalsIgnoreCase("double") || dataType.contains("double") || dataType.contains("float8")) {
+            // PG库的double precision类型应的dataType取值实际为：float8
             str = "double";
         } else if (dataType.contains("int")) {
             str = "int";
@@ -72,7 +76,9 @@ public class d implements DbTableHandleI {
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " type int4 ";
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
-            str = aVar.getColumnName() + " type  numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // str = aVar.getColumnName() + " type  numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // double类型应替换为正确的双精度浮点型
+            str = aVar.getColumnName() + " type double precision ";
         } else if (aVar.getColunmType().equalsIgnoreCase("BigDecimal")) {
             str = aVar.getColumnName() + " type  decimal(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
         } else if (aVar.getColunmType().equalsIgnoreCase("text")) {
@@ -87,7 +93,7 @@ public class d implements DbTableHandleI {
 
     private String b(org.jeecg.modules.online.config.b.a aVar, org.jeecg.modules.online.config.b.a aVar2) {
         String str = "";
-        if (!aVar.a(aVar2)) {
+        if (!aVar.judgeEqualA(aVar2)) {
             if (aVar.getColunmType().equalsIgnoreCase(org.jeecg.modules.online.config.b.b.i)) {
                 str = aVar.getColumnName() + (StringUtils.isNotEmpty(aVar.getFieldDefault()) ? " SET DEFAULT " + aVar.getFieldDefault() : " DROP DEFAULT");
             } else if (aVar.getColunmType().equalsIgnoreCase(i.DATE)) {
@@ -114,7 +120,9 @@ public class d implements DbTableHandleI {
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " int4";
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
-            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // double类型应替换为正确的双精度浮点型
+            str = aVar.getColumnName() + " double precision ";
         } else if (aVar.getColunmType().equalsIgnoreCase("bigdecimal")) {
             str = aVar.getColumnName() + " decimal(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
         } else if (aVar.getColunmType().equalsIgnoreCase("blob")) {
@@ -134,7 +142,9 @@ public class d implements DbTableHandleI {
         } else if (aVar.getColunmType().equalsIgnoreCase("int")) {
             str = aVar.getColumnName() + " int(" + aVar.getColumnSize() + ") ";
         } else if (aVar.getColunmType().equalsIgnoreCase("double")) {
-            str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // str = aVar.getColumnName() + " numeric(" + aVar.getColumnSize() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + aVar.getDecimalDigits() + ") ";
+            // TODO
+            str = aVar.getColumnName() + " double precision ";
         }
         return str;
     }
