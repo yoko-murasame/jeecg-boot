@@ -23,7 +23,6 @@ import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformIndexService;
 import org.jeecg.modules.online.config.exception.BusinessException;
 import org.jeecg.modules.online.config.exception.DBException;
-import org.jeecgframework.codegenerate.database.DbReadTableUtil;
 import org.jeecgframework.codegenerate.generate.impl.CodeGenerateOne;
 import org.jeecgframework.codegenerate.generate.impl.CodeGenerateOneToMany;
 import org.jeecgframework.codegenerate.generate.pojo.ColumnVo;
@@ -224,9 +223,10 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             long currentTimeMillis = System.currentTimeMillis();
             boolean booleanValue = org.jeecg.modules.online.config.b.d.a(tableName).booleanValue();
             a.info("==判断表是否存在消耗时间" + (System.currentTimeMillis() - currentTimeMillis) + "毫秒");
+            // 如果表存在
             if (booleanValue) {
                 org.jeecg.modules.online.config.b.c cVar = new org.jeecg.modules.online.config.b.c();
-                for (String str : cVar.b(aVar)) {
+                for (String str : cVar.generateUpdateSql(aVar)) {
                     if (!oConvertUtils.isEmpty(str) && !oConvertUtils.isEmpty(str.trim())) {
                         ((OnlCgformHeadMapper) this.baseMapper).executeDDL(str);
                     }
@@ -251,6 +251,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                     }
                 }
             } else {
+                // 不存在时直接新增
                 org.jeecg.modules.online.config.b.c.a(aVar);
             }
         } else if (org.jeecg.modules.online.cgform.d.b.sG.equals(synMethod)) {

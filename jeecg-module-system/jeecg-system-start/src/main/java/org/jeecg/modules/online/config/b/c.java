@@ -105,14 +105,17 @@ public class c {
         }
     }
 
-    public List<String> b(org.jeecg.modules.online.config.a.a aVar) throws DBException, SQLException {
+    public List<String> generateUpdateSql(org.jeecg.modules.online.config.a.a aVar) throws DBException, SQLException {
         String databaseType = d.getDatabaseType();
-        String a2 = d.a(aVar.getTableName(), databaseType);
-        String str = "alter table  " + a2 + " ";
+        String tableName = d.a(aVar.getTableName(), databaseType);
+        String str = "alter table  " + tableName + " ";
         ArrayList arrayList = new ArrayList();
         try {
-            Map<String, a> c2 = c(null, a2);
+            // 获取数据表已有的字段信息
+            Map<String, a> c2 = getRealDbColumns(null, tableName);
+            // 获取修改后的字段描述信息
             Map<String, a> c3 = c(aVar);
+            // 获取实际的数据库字段映射名称
             Map<String, String> a3 = a(aVar.getColumns());
             for (String str2 : c3.keySet()) {
                 if (!c2.containsKey(str2)) {
@@ -133,7 +136,7 @@ public class c {
                                 arrayList.add(str + b(aVar2, aVar3));
                             }
                         }
-                        if (!"SQLSERVER".equals(databaseType) && !aVar3.b(aVar2)) {
+                        if (!"SQLSERVER".equals(databaseType) && !aVar3.judgeEqualB(aVar2)) {
                             arrayList.add(c(aVar2));
                         }
                     } else {
@@ -145,10 +148,10 @@ public class c {
                 } else {
                     a aVar4 = c2.get(str2);
                     a aVar5 = c3.get(str2);
-                    if (!aVar4.a(aVar5, databaseType)) {
+                    if (!aVar4.equals(aVar5, databaseType)) {
                         arrayList.add(str + a(aVar5, aVar4));
                     }
-                    if (!"SQLSERVER".equals(databaseType) && !"ORACLE".equals(databaseType) && !aVar4.b(aVar5)) {
+                    if (!"SQLSERVER".equals(databaseType) && !"ORACLE".equals(databaseType) && !aVar4.judgeEqualB(aVar5)) {
                         arrayList.add(c(aVar5));
                     }
                 }
@@ -179,7 +182,7 @@ public class c {
         return hashMap;
     }
 
-    private Map<String, a> c(String str, String str2) throws SQLException {
+    private Map<String, a> getRealDbColumns(String str, String tableName) throws SQLException {
         ResultSet columns;
         HashMap hashMap = new HashMap();
         Connection connection = null;
@@ -201,14 +204,14 @@ public class c {
             username = username.toUpperCase();
         }
         if ("SQLSERVER".equals(str3) || "POSTGRESQL".equals(str3)) {
-            columns = metaData.getColumns(connection.getCatalog(), null, str2, "%");
+            columns = metaData.getColumns(connection.getCatalog(), null, tableName, "%");
         } else {
-            columns = metaData.getColumns(connection.getCatalog(), username, str2, "%");
+            columns = metaData.getColumns(connection.getCatalog(), username, tableName, "%");
         }
 
         while (columns.next()) {
             a aVar = new a();
-            aVar.setTableName(str2);
+            aVar.setTableName(tableName);
             String lowerCase = columns.getString("COLUMN_NAME").toLowerCase();
             aVar.setColumnName(lowerCase);
             String string = columns.getString("TYPE_NAME");
