@@ -1016,6 +1016,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                         .eq(OnlCgformHead::getId, model.getCode()));
         HashMap hashMap = new HashMap();
         hashMap.put("scroll", onlCgformHead.getScroll() == null ? "0" : onlCgformHead.getScroll().toString());
+        // 放入首字母大写的包名
+        hashMap.put("entityPackageUpperCase", model.getEntityPackage().substring(0, 1).toUpperCase() + model.getEntityPackage().substring(1));
         String formTemplate = onlCgformHead.getFormTemplate();
         if (oConvertUtils.isEmpty(formTemplate)) {
             tableVo.setFieldRowNum(1);
