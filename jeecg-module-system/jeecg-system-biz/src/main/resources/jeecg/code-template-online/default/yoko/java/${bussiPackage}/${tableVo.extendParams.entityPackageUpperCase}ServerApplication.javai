@@ -1,0 +1,23 @@
+package ${bussiPackage};
+
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+/**
+ * 启动类-${tableVo.extendParams.entityPackageUpperCase}
+ * FIXME 仅供参考，实际项目中各微服务保留一个即可
+ */
+@SpringBootApplication(scanBasePackages = "${bussiPackage}")
+@EnableSwagger2
+@EnableDubbo(scanBasePackages = {"<#noparse>${dubbo.scan.basePackages:</#noparse>${bussiPackage}<#noparse>.provider.rpc}</#noparse>"})
+@EnableCaching
+@EnableScheduling
+public class ${tableVo.extendParams.entityPackageUpperCase}ServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(${tableVo.extendParams.entityPackageUpperCase}ServerApplication.class, args);
+    }
+}

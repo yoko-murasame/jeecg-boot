@@ -23,8 +23,8 @@ import javax.validation.constraints.Size;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="${entityName}Form", description="${tableVo.ftlDescription}-表单")
-public class ${entityName}Form implements Serializable {
+@ApiModel(value="${entityName}RpcQueryForm", description="${tableVo.ftlDescription}-rpc查询表单")
+public class ${entityName}RpcQueryForm implements Serializable {
     private static final long serialVersionUID = 1L;
 
 <#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>
@@ -73,4 +73,10 @@ public class ${entityName}Form implements Serializable {
     </#if>
     <#include "/common/blob.ftl">
 </#list>
+    @ApiModelProperty(value = "每页数量", name = "pageSize", notes = "每页数量,默认20")
+    private java.lang.Integer pageSize = 20;
+
+    @ApiModelProperty(value = "页码", name = "pageNum", notes = "页码,默认1")
+    private java.lang.Integer pageNum = 1;
+
 }

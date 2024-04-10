@@ -1,5 +1,5 @@
 <#include "/common/utils.ftl">
-package ${bussiPackage}.form.${entityPackage};
+package ${bussiPackage}.vo.${entityPackage};
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -23,8 +23,8 @@ import javax.validation.constraints.Size;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="${entityName}Form", description="${tableVo.ftlDescription}-表单")
-public class ${entityName}Form implements Serializable {
+@ApiModel(value="${entityName}VO", description="${tableVo.ftlDescription}-VO")
+public class ${entityName}VO implements Serializable {
     private static final long serialVersionUID = 1L;
 
 <#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>

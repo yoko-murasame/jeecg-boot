@@ -1,0 +1,36 @@
+package ${bussiPackage}.provider.rpc.${entityPackage};
+
+import ${bussiPackage}.core.base.bean.HyitPage;
+import ${bussiPackage}.core.base.bean.RpcResult;
+import ${bussiPackage}.form.${entityPackage}.${entityName}RpcAddForm;
+import ${bussiPackage}.form.${entityPackage}.${entityName}RpcDeleteForm;
+import ${bussiPackage}.form.${entityPackage}.${entityName}RpcEditForm;
+import ${bussiPackage}.form.${entityPackage}.${entityName}RpcQueryForm;
+import ${bussiPackage}.vo.${entityPackage}.${entityName}VO;
+
+/**
+ * rpc-${tableVo.ftlDescription}-${entityName}
+ */
+public interface I${entityName}Rpc {
+
+    /**
+     * 添加-${entityName}
+     */
+    RpcResult<String> add${entityName}(${entityName}RpcAddForm form) throws Exception;
+
+    /**
+     * 修改-${entityName}
+     */
+    RpcResult<String> edit${entityName}(${entityName}RpcEditForm form) throws Exception;
+
+    /**
+     * 删除-${entityName}
+     */
+    RpcResult<String> delete${entityName}(${entityName}RpcDeleteForm form) throws Exception;
+
+    /**
+     * 分页查询-${entityName}
+     */
+    RpcResult<HyitPage<${entityName}VO>> paginQuery${entityName}(${entityName}RpcQueryForm form) throws Exception;
+
+}

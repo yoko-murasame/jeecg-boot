@@ -1,12 +1,16 @@
 <#include "/common/utils.ftl">
-package ${bussiPackage}.form.${entityPackage};
+package ${bussiPackage}.entity.${entityPackage};
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
-import lombok.Data;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
@@ -20,11 +24,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Data
+@ApiModel(value="${entityName}-实体", description="${tableVo.ftlDescription}-实体")
 @Accessors(chain = true)
+@Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="${entityName}Form", description="${tableVo.ftlDescription}-表单")
-public class ${entityName}Form implements Serializable {
+@TableName("${tableName}")
+public class ${entityName} implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
 
 <#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>
@@ -47,6 +52,9 @@ public class ${entityName}Form implements Serializable {
     /**
      * ${po.filedComment}
      */
+    <#if po.fieldName == primaryKeyField>
+    @TableId(type = IdType.ASSIGN_ID)
+    </#if>
     <#if po.fieldName != primaryKeyField>
         <#if po.fieldDbType =='Date' || po.fieldDbType =='Datetime'>
             <#if po.classType=='date'>
@@ -70,6 +78,7 @@ public class ${entityName}Form implements Serializable {
         <#if list_field_dictCode?length gt 1>
     @Dict(${list_field_dictCode?substring(2)})
         </#if>
+    @TableField(value = "${po.fieldDbName}")
     </#if>
     <#include "/common/blob.ftl">
 </#list>

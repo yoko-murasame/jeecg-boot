@@ -1,0 +1,48 @@
+package ${bussiPackage}.service.${entityPackage};
+
+import ${bussiPackage}.core.base.bean.HyitPage;
+import ${bussiPackage}.entity.${entityPackage}.${entityName};
+import ${bussiPackage}.form.${entityPackage}.${entityName}DeleteForm;
+import ${bussiPackage}.form.${entityPackage}.${entityName}Form;
+import ${bussiPackage}.form.${entityPackage}.${entityName}QueryForm;
+import ${bussiPackage}.vo.${entityPackage}.${entityName}VO;
+
+/**
+ * 服务接口-${tableVo.ftlDescription}-${entityName}
+ */
+public interface I${entityName}Service {
+
+    /**
+     * 新增 ${entityName}
+     *
+     * @param form 表单
+     * @return java.lang.String
+     */
+    String add${entityName}(${entityName}Form form);
+
+    /**
+     * 修改 ${entityName}
+     *
+     * @param form 表单
+     * @return java.lang.String
+     */
+    String edit${entityName}(${entityName}Form form);
+
+    /**
+     * 删除 ${entityName}
+     *
+     * @param form 表单
+     * @return java.lang.String
+     */
+    String delete${entityName}(${entityName}DeleteForm form);
+
+    /**
+     * 分页查询 ${entityName}VO
+     *
+     * @param form 筛选条件
+     * @param page 分页对象
+     * @return HyitPage<${entityName}VO>
+     */
+    HyitPage<${entityName}VO> paginQuery(${entityName}QueryForm form, HyitPage<${entityName}> page);
+
+}

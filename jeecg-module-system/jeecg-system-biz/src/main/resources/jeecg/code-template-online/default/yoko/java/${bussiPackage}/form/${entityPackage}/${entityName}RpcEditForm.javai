@@ -23,8 +23,8 @@ import javax.validation.constraints.Size;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="${entityName}Form", description="${tableVo.ftlDescription}-表单")
-public class ${entityName}Form implements Serializable {
+@ApiModel(value="${entityName}RpcEditForm", description="${tableVo.ftlDescription}-rpc编辑表单")
+public class ${entityName}RpcEditForm implements Serializable {
     private static final long serialVersionUID = 1L;
 
 <#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>
