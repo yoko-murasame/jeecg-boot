@@ -74,6 +74,9 @@ public class QueryGenerator {
 
 	public static QueryRuleEnum STRING_RULE = null;
 
+	/**工具类集成进第三方时，禁用规则值转换*/
+	public static boolean disableConverRuleValue = false;
+
 	/**
 	 * 根据配置初始化字符类型的查询匹配模式
 	 * 默认为 EQ
@@ -826,6 +829,10 @@ public class QueryGenerator {
 	}
 
 	public static String converRuleValue(String ruleValue) {
+		// 工具类集成进第三方时，禁用规则值转换
+		if (QueryGenerator.disableConverRuleValue) {
+			return ruleValue;
+		}
 		String value = JwtUtil.getUserSystemData(ruleValue,null);
 		return value!= null ? value : ruleValue;
 	}
