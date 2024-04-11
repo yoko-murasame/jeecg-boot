@@ -767,7 +767,14 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         String[] split;
         OnlCgformHead onlCgformHead = (OnlCgformHead) getById(code);
         if (onlCgformHead == null) {
-            throw new DBException("数据库主表ID[" + code + "]不存在");
+            // 通过表单名称查询
+            onlCgformHead = (OnlCgformHead) getOne(new LambdaQueryWrapper<OnlCgformHead>()
+                    .eq(OnlCgformHead::getTableName,code));
+            code=onlCgformHead.getId();
+
+            if (onlCgformHead == null) {
+                throw new DBException("数据库主表ID[" + code + "]不存在");
+            }
         }
         executeEnhanceJava("edit", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, json);
         String tableName = onlCgformHead.getTableName();

@@ -6,6 +6,7 @@
 package org.jeecg.modules.online.desform.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -26,6 +27,8 @@ public class DesignForm implements Serializable {
     private String desformIcon;
     private String desformDesignJson;
     private String cgformCode;
+    @TableField(exist = false)
+    private String cgformId;
     private String parentId;
     private String parentCode;
     private Integer desformType;
@@ -135,6 +138,12 @@ public class DesignForm implements Serializable {
 
     public void setCgformCode(String cgformCode) {
         this.cgformCode = cgformCode;
+    }
+    public void setCgformId(String cgformId){
+        this.cgformId=cgformId;
+    }
+    public String getCgformId(){
+        return this.cgformId;
     }
 
     public void setParentId(String parentId) {

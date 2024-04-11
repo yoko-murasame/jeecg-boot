@@ -19,6 +19,8 @@ import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.activiti.jeecg.commons.lang.MyStringUtil;
 import org.jeecg.modules.activiti.jeecg.jexfm.JexfmBA;
+import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
+import org.jeecg.modules.online.cgform.mapper.OnlCgformHeadMapper;
 import org.jeecg.modules.online.desform.b.f;
 import org.jeecg.modules.online.desform.constant.DesformConstant;
 import org.jeecg.modules.online.desform.constant.WidgetTypes;
@@ -59,6 +61,9 @@ public class ImplE extends ServiceImpl<DesignFormMapper, DesignForm> implements 
     private ISysBaseAPI sysBaseApi;
     @Autowired
     private JeecgElasticsearchTemplate jes;
+    @Autowired
+    @Lazy
+    private OnlCgformHeadMapper onlCgformHeadMapper;
 
     public ImplE() {
     }
@@ -124,6 +129,10 @@ public class ImplE extends ServiceImpl<DesignFormMapper, DesignForm> implements 
         LambdaQueryWrapper<DesignForm> var2 = new LambdaQueryWrapper<>();
         var2.eq(DesignForm::getDesformCode, desformCode);
         DesignForm var3 = (DesignForm)((DesignFormMapper)this.baseMapper).selectOne(var2);
+        // 添加表单id
+        OnlCgformHead cgformHead= onlCgformHeadMapper.selectOne(new LambdaQueryWrapper<OnlCgformHead>()
+                .eq(OnlCgformHead::getTableName,desformCode));
+        var3.setCgformId(cgformHead.getId());
         return var3;
     }
 
