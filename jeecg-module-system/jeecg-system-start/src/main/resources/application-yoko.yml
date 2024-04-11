@@ -362,6 +362,7 @@ third-app:
       client-secret: ??
       agent-id: ??
 supermap:
+  enabled: false
   url: ??
   userName: ??
   password: ??

@@ -1,17 +1,15 @@
 package org.jeecg.modules.activiti.jeecg.jasper.aaa;
 
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 import org.apache.jsp.designer.*;
+import org.jeecg.config.JeecgSingleCondition;
 import org.jeecg.modules.activiti.jeecg.jasper.jsp.*;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration("moduleDesigerConfig")
+@Conditional(JeecgSingleCondition.class)
 public class ModuleDesigerConfig {
     public ModuleDesigerConfig() {
     }

@@ -47,9 +47,9 @@ public class JexfmAA {
     private IDesignFormRouteService designFormRouteService;
     @Autowired
     private IDesignFormDataService designFormDataService;
-    @Value("${jeecg.desform.theme-color}")
+    @Value("${jeecg.desform.theme-color:#1890ff}")
     private String desformThemeColor;
-    @Value("${jeecg.desform.upload-type}")
+    @Value("${jeecg.desform.upload-type:system}")
     private String desformUploadType;
 
     public JexfmAA() {

@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.http.client.methods.HttpPost;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.config.SupermapCondition;
 import org.jeecg.modules.supermap.entity.SuperVO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,20 +19,21 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+@Conditional(SupermapCondition.class)
 @RestController
 @RequestMapping("supermap")
 @Api(tags = "超图")
 public class TokenController {
 
-    @Value("${supermap.url}")
+    @Value("${supermap.url:}")
     private String url;
-    @Value("${supermap.userName}")
+    @Value("${supermap.userName:}")
     private String userName;
-    @Value("${supermap.password}")
+    @Value("${supermap.password:}")
     private String password;
-    @Value("${supermap.clientType}")
+    @Value("${supermap.clientType:}")
     private String clientType;
-    @Value("${supermap.expiration}")
+    @Value("${supermap.expiration:}")
     private Long expiration;
 
     @ApiOperation("鉴权")

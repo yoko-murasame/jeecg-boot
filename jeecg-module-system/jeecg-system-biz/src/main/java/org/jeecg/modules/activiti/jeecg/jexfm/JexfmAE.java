@@ -37,7 +37,7 @@ public class JexfmAE {
     private IDesignFormDataService designFormDataService;
 //    @Value("${jeecg.desform.theme-color}")
 //    private String desformThemeColor;
-    @Value("${jeecg.desform.upload-type}")
+    @Value("${jeecg.desform.upload-type:system}")
     private String desformUploadType;
 
     public JexfmAE() {

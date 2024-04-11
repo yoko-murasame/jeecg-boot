@@ -37,7 +37,7 @@
             </exclusions>
         </dependency>
 
-        <!-- feign 熔断限流、分布式锁、xxljob示例 
+        <!-- feign 熔断限流、分布式锁、xxljob示例
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-cloud-test-more</artifactId>

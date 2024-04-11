@@ -327,6 +327,11 @@ public interface CommonConstant {
     String CLOUD_SERVER_KEY = "spring.cloud.nacos.discovery.server-addr";
 
     /**
+     * 超图配置
+     */
+    String SUPERMAP_KEY = "supermap.enabled";
+
+    /**
      * 第三方登录 验证密码/创建用户 都需要设置一个操作码 防止被恶意调用
      */
     String THIRD_LOGIN_CODE = "third_login_code";
