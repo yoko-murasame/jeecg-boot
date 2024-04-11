@@ -21,6 +21,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,10 +44,12 @@ public class ShiroRealm extends AuthorizingRealm {
     @Resource
     private RedisUtil redisUtil;
 
-    @Value("${spring.profiles.superToken}")
+    // FIXME 生产环境记得删除
+    @Value("${spring.profiles.superToken:}")
     private String superToken;
 
-    @Value("${spring.profiles.superUsername}")
+    // FIXME 生产环境记得删除
+    @Value("${spring.profiles.superUsername:admin}")
     private String superUsername;
 
     /**
@@ -122,7 +125,7 @@ public class ShiroRealm extends AuthorizingRealm {
      * @param token
      */
     public LoginUser checkUserTokenIsEffect(String token) throws AuthenticationException {
-        if (token.equals(superToken)) {
+        if (StringUtils.hasText(superToken) && token.equals(superToken)) {
             return commonApi.getUserByName(superUsername);
         }
 

@@ -18,6 +18,7 @@ import org.jeecg.common.system.vo.SysUserCacheInfo;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -82,7 +83,7 @@ public class JwtUtil {
             try {
                 String superToken = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("spring.profiles.superToken");
                 // 如果是超级token，返回超级用户
-                if (token.equals(superToken)) {
+                if (StringUtils.hasText(superToken) && token.equals(superToken)) {
                     return true;
                 }
             } catch (Exception ex) {
@@ -105,7 +106,7 @@ public class JwtUtil {
             try {
                 String superToken = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("spring.profiles.superToken");
                 // 如果是超级token，返回超级用户
-                if (token.equals(superToken)) {
+                if (StringUtils.hasText(superToken) && token.equals(superToken)) {
                     return SpringContextUtils.getApplicationContext().getEnvironment().getProperty("spring.profiles.superUsername");
                 }
             } catch (Exception ex) {
