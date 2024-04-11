@@ -71,6 +71,8 @@ public class ${entityName}DeleteForm implements Serializable {
     @Dict(${list_field_dictCode?substring(2)})
         </#if>
     </#if>
+    <#--主键ID是否必填-->
+    <#assign id_required = true>
     <#include "/common/blob.ftl">
 </#list>
 }

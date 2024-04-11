@@ -27,7 +27,12 @@
         return "";
     }
 <#else>
-    @ApiModelProperty(value = "${po.filedComment}", name = "${po.fieldName}", notes = "${po.filedComment}")
+    <#--@ApiModelProperty的必填判断，主键id是否必填根据上文变量走-->
+    <#assign required_flag = po.nullable == 'N' && po.fieldName != primaryKeyField>
+    <#if !required_flag && po.fieldName == primaryKeyField && id_required??>
+      <#assign required_flag = id_required>
+    </#if>
+    @ApiModelProperty(value = "${po.filedComment}", name = "${po.fieldName}", notes = "${po.filedComment}"<#if required_flag>, required = true</#if>)
     <#if po.fieldDbType == 'string'>
         <#if po.fieldLength != 0 && po.fieldName != primaryKeyField>
     @Size(max = ${po.fieldLength}, message = "${po.filedComment}长度不能超过${po.fieldLength}")
