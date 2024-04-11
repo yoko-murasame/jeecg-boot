@@ -12,6 +12,7 @@ import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
+import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
@@ -64,6 +65,10 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
             JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
         }
+        // 检查sql注入
+        String[] arr1 = new String[]{};
+        arr1 = params.toString().split(",");
+        SqlInjectionUtil.filterContent(arr1);
         // 组装WHERE
         stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params));
         // 组装ORDER BY
@@ -80,6 +85,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 }
             }
         }
+        // 检查sql注入（这里会影响online列表getData的查询）
+        // SqlInjectionUtil.filterContent(stringBuffer.toString());
         Integer valueOf = Integer.valueOf(params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString()));
         if (valueOf.intValue() == -521) {
             List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());

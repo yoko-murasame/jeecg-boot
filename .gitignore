@@ -11,3 +11,4 @@ rebel.xml
 **/*.lock
 /.fastRequest/
 /jeecg-module-system/jeecg-system-bpm/
+*.drawio.bkp
