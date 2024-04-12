@@ -1,0 +1,31 @@
+server:
+  port: 8001
+spring:
+  main:
+    # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
+    allow-circular-references: true
+  #开发环境配置
+  profiles:
+    active: dev
+    superToken: 18988888888
+    superUsername: admin
+  application:
+    name: jeecg-system-dubbo
+  cloud:
+    nacos:
+      discovery:
+        server-addr: @config.server-addr@
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+  config:
+    import:
+      - optional:nacos:jeecg.yaml
+      - optional:nacos:jeecg-@profile.name@.yaml
+
+dubbo:
+  scan:
+    basePackages: org.jeecg.modules.provider.rpc,org.jeecg.common
+  registry:
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+  application:
+    namespace: ${spring.cloud.nacos.config.namespace:public}

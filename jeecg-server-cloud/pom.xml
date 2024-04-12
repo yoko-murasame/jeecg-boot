@@ -12,13 +12,14 @@
     <artifactId>jeecg-server-cloud</artifactId>
     <packaging>pom</packaging>
     <name>JEECG SERVER CLOUD</name>
-    
+
     <modules>
         <module>jeecg-cloud-gateway</module>
         <module>jeecg-cloud-nacos</module>
         <module>jeecg-system-cloud-start</module>
         <module>jeecg-demo-cloud-start</module>
-        
+        <module>jeecg-system-dubbo-start</module>
+
         <!-- 监控和测试例子 -->
         <module>jeecg-visual</module>
     </modules>
