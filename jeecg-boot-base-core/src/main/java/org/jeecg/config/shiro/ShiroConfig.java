@@ -172,11 +172,14 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/vxeSocket/**", "anon");//JVxeTable无痕刷新示例
 
 
-        //性能监控，放开排除会存在安全漏洞泄露TOEKN（durid连接池也有）
-        //filterChainDefinitionMap.put("/actuator/**", "anon");
+        // FIXME 微服务Monitor的监控需要放开，用于性能监控，但放开排除会存在安全漏洞泄露TOEKN（durid连接池也有）
+        // filterChainDefinitionMap.put("/actuator/**", "anon");
 
         //测试模块排除
         filterChainDefinitionMap.put("/test/seata/**", "anon");
+
+        // error
+        filterChainDefinitionMap.put("/error", "anon");
 
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);

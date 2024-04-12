@@ -391,7 +391,8 @@ public interface ISysBaseAPI extends CommonAPI {
     String translateDict(@RequestParam("code") String code, @RequestParam("key") String key);
 
     @Override
-    String translateDictReverse(String code, String key);
+    @GetMapping("/sys/api/translateDictReverse")
+    String translateDictReverse(@RequestParam("code") String code, @RequestParam("key") String key);
 
     /**
      * 42查询数据权限
