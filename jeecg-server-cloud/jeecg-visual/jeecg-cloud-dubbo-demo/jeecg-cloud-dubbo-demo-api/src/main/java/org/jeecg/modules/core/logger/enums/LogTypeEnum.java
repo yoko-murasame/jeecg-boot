@@ -1,0 +1,19 @@
+package org.jeecg.modules.core.logger.enums;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * 日志类型枚举类
+ * FIXME 仅供参考，实际项目中应该使用hyit-core包中的LogTypeEnum
+ */
+@Getter
+@AllArgsConstructor
+public enum LogTypeEnum {
+
+    SYSTEM("system"),
+    BUSINESS("business");
+
+    private final String type;
+
+}

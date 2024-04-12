@@ -1,0 +1,91 @@
+server:
+  port: 8001
+spring:
+  main:
+    # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
+    allow-circular-references: true
+  #开发环境配置
+  profiles:
+    active: dev
+    superToken: 18988888888
+    superUsername: admin
+  application:
+    name: logistics-estate-resources-service
+  cloud:
+    nacos:
+      discovery:
+        # server-addr: ${NACOS_HOST:172.30.86.100}:${NACOS_PORT:25723}
+        # namespace: ${spring.cloud.nacos.config.namespace:public}
+        # username: ${NACOS_USERNAME:ENC(78db97c94f478a85b8cf4b2d5602027ba8a14b2902d1348f6587b0142e3e0cd3)}
+        # password: ${NACOS_PWD:ENC(2f43e915bc367b5c97ca1a4af2c3254d0b897bed3f5f76409ef164f706776e8640ead8c3e239eee420a935d9f6754d5b)}
+        # contextPath: nacos
+        server-addr: @config.server-addr@
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        # file-extension: yaml
+        # group: DEFAULT_GROUP
+        # username: ${spring.cloud.nacos.discovery.username}
+        # password: ${spring.cloud.nacos.discovery.password}
+        # contextPath: nacos
+        # shared-configs: hyitframework-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        # namespace: ${NACOS_NS:logistics-dev}
+  config:
+    import:
+      - optional:nacos:jeecg.yaml
+      - optional:nacos:jeecg-@profile.name@.yaml
+swagger:
+  title: 应用-房地资源
+
+dubbo:
+  scan:
+    basePackages: org.jeecg.modules.provider.rpc,org.jeecg.modules.system
+  registry:
+    # address: hyit_nacos://${spring.cloud.nacos.discovery.server-addr}
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+  application:
+    namespace: ${spring.cloud.nacos.config.namespace:public}
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#monitor config
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /metrics
+mybatis-plus:
+  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath:mapper/**/*.xml
+  global-config:
+    db-config:
+      table-prefix:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+hyit:
+  encryption:
+    sm4Open: true
+  auth:
+    checkTokenEndpointUrl: ${hyit.gatewayPath}/hyitframework-auth-server/authToken/getAccessTokenDetailInfo/v1
+
+logging:
+  level:
+    root: info
+    com.alibaba.nacos.client.*: error
+    com.fishpro.log: error
+    cn.com.hyit.iam.center.dao.*: debug
+security:
+  oauth2:
+    client:
+      ignore-urls:
+        - /**
+jasypt:
+  encryptor:
+    password: aHlpdEAyMDIx

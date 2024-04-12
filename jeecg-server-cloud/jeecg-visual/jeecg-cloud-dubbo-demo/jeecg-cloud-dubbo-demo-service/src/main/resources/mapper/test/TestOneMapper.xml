@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dao.test.TestOneMapper">
+    <sql id="listSql">
+        WITH filter_view AS (SELECT *
+                             FROM test_one)
+        SELECT *
+        FROM filter_view
+    </sql>
+    <!--这里的参数注入也可以用 <bind name="queryType" value="'1'" />，然后判断 <if test="queryType == '1'"> 即可-->
+    <!--比如可以动态传入表名：<bind name="tableName" value="'t'"/>，可惜IDEA不会提示-->
+    <!--注意 bind 标签只能在根元素使用 -->
+    <select id="selectPageCustom" resultType="org.jeecg.modules.entity.test.TestOne">
+        <bind name="tableName" value="'test_one'"/>
+        <include refid="listSql">
+            <property name="queryType" value="page"/>
+        </include>
+        <if test="ew != null">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectListCustom" resultType="org.jeecg.modules.entity.test.TestOne">
+        <bind name="tableName" value="'test_one'"/>
+        <include refid="listSql">
+            <property name="queryType" value="list"/>
+        </include>
+        <if test="ew != null">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectOneCustom" resultType="org.jeecg.modules.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+            <property name="tableName" value="test_one"/>
+        </include>
+        <if test="ew != null">
+            ${ew.customSqlSegment}
+        </if> limit 1
+    </select>
+    <select id="selectByIdCustom" resultType="org.jeecg.modules.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+            <property name="tableName" value="test_one"/>
+        </include>
+        WHERE id = #{id} limit 1
+    </select>
+
+</mapper>

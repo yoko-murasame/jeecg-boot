@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.jeecgframework.boot</groupId>
+        <artifactId>jeecg-visual</artifactId>
+        <version>3.4.3</version>
+    </parent>
+
+    <artifactId>jeecg-cloud-dubbo-demo</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <!--引入微服务启动依赖 starter-->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-boot-starter-cloud</artifactId>
+        </dependency>
+        <!--system cloud api-->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-cloud-api</artifactId>
+        </dependency>
+        <!-- dubbo -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-dubbo</artifactId>
+        </dependency>
+        <!-- Apache Dubbo start -->
+        <!--<dependency>-->
+        <!--    <groupId>org.apache.dubbo</groupId>-->
+        <!--    <artifactId>dubbo-spring-boot-starter</artifactId>-->
+        <!--    <version>${dubbo.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--    <groupId>org.apache.dubbo</groupId>-->
+        <!--    <artifactId>dubbo</artifactId>-->
+        <!--    <version>${dubbo.version}</version>-->
+        <!--</dependency>-->
+        <!-- Apache Dubbo end -->
+
+    </dependencies>
+
+    <modules>
+        <module>jeecg-cloud-dubbo-demo-api</module>
+        <module>jeecg-cloud-dubbo-demo-service</module>
+    </modules>
+</project>
