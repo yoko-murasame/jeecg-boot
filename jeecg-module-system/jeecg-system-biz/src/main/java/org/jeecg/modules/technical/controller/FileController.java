@@ -42,10 +42,10 @@ import static org.jeecg.modules.system.service.impl.SysUploadServiceImpl.FILE_SP
 // import org.jeecg.common.wps.service.WpsFileService;
 // import org.jeecg.common.wps.util.Token;
 
+@Api(tags = "新版知识库")
 @RestController("technicalFileController")
 @RequestMapping("/technical/file")
 @Slf4j
-@Api(tags = "技术管理-文件")
 public class FileController {
 
     @Autowired

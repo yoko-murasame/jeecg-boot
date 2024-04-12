@@ -2,6 +2,7 @@ package org.jeecg.modules.system.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
@@ -47,6 +48,7 @@ import java.util.List;
  * @Author scott
  * @since 2018-12-20
  */
+@Api(tags = "系统统一上传接口")
 @Slf4j
 @RestController
 @RequestMapping("/sys/common")

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Yoko
  * @date 2022/5/10 16:39
  */
-@Api(tags = "流程通用-编辑权限申请流程")
+@Api(tags = "流程通用接口")
 @RestController
 @RequestMapping("/workflow/editapply")
 @Slf4j
@@ -28,7 +28,7 @@ public class EditApplyController {
     @Autowired
     private EditApplyService editApplyService;
 
-    @ApiOperation(value = "获取和初始化", notes = "获取和初始化")
+    @ApiOperation(value = "通用编辑权限申请流程-获取和初始化", notes = "通用编辑权限申请流程获取和初始化")
     @PostMapping(value = "/getAndInit")
     public Result<?> getAndInit(@RequestBody EditApply editApply) {
 
@@ -36,7 +36,7 @@ public class EditApplyController {
         return Result.OK("操作成功！", res);
     }
 
-    @ApiOperation(value = "编辑", notes = "编辑")
+    @ApiOperation(value = "通用编辑权限申请流程-编辑", notes = "通用编辑权限申请流程-编辑")
     @PostMapping(value = "/edit")
     public Result<?> edit(@RequestBody EditApply editApply) {
 

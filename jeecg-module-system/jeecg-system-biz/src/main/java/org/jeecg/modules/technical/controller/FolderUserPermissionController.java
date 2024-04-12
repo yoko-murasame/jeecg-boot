@@ -1,5 +1,6 @@
 package org.jeecg.modules.technical.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -19,6 +20,7 @@ import java.util.List;
  * 目录-用户权限表(technical_folder_user_permission)表控制层
  *
  */
+@Api(tags = "新版知识库")
 @RestController
 @RequestMapping("/technical/folder/user/permission")
 public class FolderUserPermissionController {

@@ -46,7 +46,7 @@ import java.util.*;
  * @author Yoko
  * @since 2022/7/21 10:55
  */
-@Api(tags = "流程通用-自定义流程功能通用实现")
+@Api(tags = "流程通用接口")
 @RestController
 @RequestMapping("/workflow/common")
 @Slf4j

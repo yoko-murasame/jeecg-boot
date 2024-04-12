@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Api(tags = "新版知识库")
 @Slf4j
 @RestController
 @RequestMapping("/technical/folder")
-@Api(tags = "技术管理-目录")
 public class FolderController {
 
     @Autowired
