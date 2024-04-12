@@ -1,12 +1,17 @@
 package org.jeecg.common.system.vo;
 
 
+import java.io.Serializable;
+
 /**
  * @Description: 系统文件实体类
  * @author: wangshuai
  * @date: 2022年08月11日 9:48
  */
-public class SysFilesModel {
+public class SysFilesModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**主键id*/
     private String id;
     /**文件名称*/

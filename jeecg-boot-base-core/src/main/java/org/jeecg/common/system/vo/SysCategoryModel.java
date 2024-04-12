@@ -1,6 +1,6 @@
 package org.jeecg.common.system.vo;
 
-import org.jeecgframework.poi.excel.annotation.Excel;
+import java.io.Serializable;
 
 /**
  * @Author qinfeng
@@ -8,7 +8,10 @@ import org.jeecgframework.poi.excel.annotation.Excel;
  * @Description:
  * @Version 1.0
  */
-public class SysCategoryModel {
+public class SysCategoryModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**主键*/
     private java.lang.String id;
     /**父级节点*/

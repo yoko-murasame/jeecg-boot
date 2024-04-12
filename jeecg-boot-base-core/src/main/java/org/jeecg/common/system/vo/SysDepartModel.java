@@ -1,10 +1,15 @@
 package org.jeecg.common.system.vo;
 
+import java.io.Serializable;
+
 /**
  * 部门机构model
  * @author: lvdandan
  */
-public class SysDepartModel {
+public class SysDepartModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**ID*/
     private String id;
     /**父机构ID*/

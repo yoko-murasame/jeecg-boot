@@ -1,11 +1,5 @@
 package org.jeecg.common.system.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,7 +11,9 @@ import java.util.Date;
  * @Author huangzhilin
  * @since 2019-03-29
  */
-public class SysPermissionDataRuleModel {
+public class SysPermissionDataRuleModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * id
