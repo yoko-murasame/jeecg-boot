@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
@@ -52,13 +53,12 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * @Description: 底层共通业务API，提供其他独立模块调用
- * @Author: scott
- * @Date:2019-4-20
- * @Version:V1.0
+ * 底层共通业务API，提供其他独立模块调用
+ * 如果是Dubbo微服务启动，默认提供此模块
  */
 @Slf4j
 @Service
+@DubboService(interfaceClass = ISysBaseAPI.class, timeout = 3000)
 public class SysBaseApiImpl implements ISysBaseAPI {
 	/** 当前系统数据库类型 */
 	private static String DB_TYPE = "";

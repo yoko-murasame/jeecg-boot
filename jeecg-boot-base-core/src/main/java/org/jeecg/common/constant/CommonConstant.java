@@ -327,6 +327,11 @@ public interface CommonConstant {
     String CLOUD_SERVER_KEY = "spring.cloud.nacos.discovery.server-addr";
 
     /**
+     * Dubbo读取配置文件属性 服务地址
+     */
+    String DUBBO_SERVER_KEY = "dubbo.registry.address";
+
+    /**
      * 超图配置
      */
     String SUPERMAP_KEY = "supermap.enabled";
