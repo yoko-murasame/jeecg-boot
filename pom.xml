@@ -201,6 +201,18 @@
 				<artifactId>jeecg-system-cloud-api</artifactId>
 				<version>${jeecgboot.version}</version>
 			</dependency>
+			<!-- system dubbo api -->
+			<dependency>
+				<groupId>org.jeecgframework.boot</groupId>
+				<artifactId>jeecg-system-dubbo-api</artifactId>
+				<version>${jeecgboot.version}</version>
+			</dependency>
+			<!-- demo测试模块 -->
+			<dependency>
+				<groupId>org.jeecgframework.boot</groupId>
+				<artifactId>jeecg-module-demo</artifactId>
+				<version>${jeecgboot.version}</version>
+			</dependency>
 
             <!--微服务启动依赖-->
             <dependency>

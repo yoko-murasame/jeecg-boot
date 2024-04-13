@@ -7,40 +7,33 @@
         SELECT *
         FROM filter_view
     </sql>
-    <!--这里的参数注入也可以用 <bind name="queryType" value="'1'" />，然后判断 <if test="queryType == '1'"> 即可-->
-    <!--比如可以动态传入表名：<bind name="tableName" value="'t'"/>，可惜IDEA不会提示-->
-    <!--注意 bind 标签只能在根元素使用 -->
     <select id="selectPageCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
-        <bind name="tableName" value="'${tableName}'"/>
         <include refid="listSql">
             <property name="queryType" value="page"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             <#noparse>${ew.customSqlSegment}</#noparse>
         </if>
     </select>
     <select id="selectListCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
-        <bind name="tableName" value="'${tableName}'"/>
         <include refid="listSql">
             <property name="queryType" value="list"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             <#noparse>${ew.customSqlSegment}</#noparse>
         </if>
     </select>
     <select id="selectOneCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
         <include refid="listSql">
             <property name="queryType" value="one"/>
-            <property name="tableName" value="${tableName}"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             <#noparse>${ew.customSqlSegment}</#noparse>
         </if> limit 1
     </select>
     <select id="selectByIdCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
         <include refid="listSql">
             <property name="queryType" value="one"/>
-            <property name="tableName" value="${tableName}"/>
         </include>
         WHERE id = <#noparse>#{id}</#noparse> limit 1
     </select>

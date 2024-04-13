@@ -1,9 +1,12 @@
 server:
   port: 7002
-  
+
 spring:
   application:
     name: jeecg-demo
+  profiles:
+    superToken: 18988888888
+    superUsername: admin
   cloud:
     nacos:
       config:
