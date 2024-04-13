@@ -15,7 +15,7 @@
         <include refid="listSql">
             <property name="queryType" value="page"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             ${ew.customSqlSegment}
         </if>
     </select>
@@ -24,7 +24,7 @@
         <include refid="listSql">
             <property name="queryType" value="list"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             ${ew.customSqlSegment}
         </if>
     </select>
@@ -33,7 +33,7 @@
             <property name="queryType" value="one"/>
             <property name="tableName" value="test_one"/>
         </include>
-        <if test="ew != null">
+        <if test="ew != null and ew != ''">
             ${ew.customSqlSegment}
         </if> limit 1
     </select>

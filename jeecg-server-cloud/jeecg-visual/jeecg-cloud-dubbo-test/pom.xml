@@ -8,7 +8,7 @@
         <version>3.4.3</version>
     </parent>
 
-    <artifactId>jeecg-cloud-dubbo-demo</artifactId>
+    <artifactId>jeecg-cloud-dubbo-test</artifactId>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
@@ -18,33 +18,20 @@
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-boot-starter-cloud</artifactId>
         </dependency>
-        <!--system cloud api-->
-        <dependency>
-            <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>jeecg-system-cloud-api</artifactId>
-        </dependency>
         <!-- dubbo -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-dubbo</artifactId>
         </dependency>
-        <!-- Apache Dubbo start -->
-        <!--<dependency>-->
-        <!--    <groupId>org.apache.dubbo</groupId>-->
-        <!--    <artifactId>dubbo-spring-boot-starter</artifactId>-->
-        <!--    <version>${dubbo.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--    <groupId>org.apache.dubbo</groupId>-->
-        <!--    <artifactId>dubbo</artifactId>-->
-        <!--    <version>${dubbo.version}</version>-->
-        <!--</dependency>-->
-        <!-- Apache Dubbo end -->
-
+        <!--system dubbo api-->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-dubbo-api</artifactId>
+        </dependency>
     </dependencies>
 
     <modules>
-        <module>jeecg-cloud-dubbo-demo-api</module>
-        <module>jeecg-cloud-dubbo-demo-service</module>
+        <module>jeecg-cloud-dubbo-test-api</module>
+        <module>jeecg-cloud-dubbo-test-service</module>
     </modules>
 </project>

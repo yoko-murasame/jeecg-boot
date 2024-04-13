@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: 8011
 spring:
   main:
     # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
@@ -36,12 +36,14 @@ swagger:
 
 dubbo:
   scan:
-    basePackages: org.jeecg.modules.provider.rpc
+    basePackages: org.jeecg.modules.provider.rpc,org.jeecg.common
   registry:
     # address: hyit_nacos://${spring.cloud.nacos.discovery.server-addr}
     address: nacos://${spring.cloud.nacos.discovery.server-addr}
   application:
     namespace: ${spring.cloud.nacos.config.namespace:public}
+  cloud:
+    subscribed-services: jeecg-system-dubbo  #订阅的服务名称,多个服务之间通过,分割
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -60,6 +62,7 @@ management:
         include: '*'
       base-path: /metrics
 mybatis-plus:
+  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath*:mapper/**/*.xml
   global-config:
     db-config:
       table-prefix:
@@ -78,6 +81,7 @@ logging:
     com.alibaba.nacos.client.*: error
     com.fishpro.log: error
     cn.com.hyit.iam.center.dao.*: debug
+    org.jeecg.modules.dao.*: debug
 security:
   oauth2:
     client:
