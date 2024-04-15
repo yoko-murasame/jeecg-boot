@@ -1025,6 +1025,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         hashMap.put("scroll", onlCgformHead.getScroll() == null ? "0" : onlCgformHead.getScroll().toString());
         // 放入首字母大写的包名
         hashMap.put("entityPackageUpperCase", model.getEntityPackage().substring(0, 1).toUpperCase() + model.getEntityPackage().substring(1));
+        // 放入业务包路径，去除最后一级
+        hashMap.put("bussiPackageNoLast", org.jeecgframework.codegenerate.a.a.g.substring(0, org.jeecgframework.codegenerate.a.a.g.lastIndexOf('.')));
         String formTemplate = onlCgformHead.getFormTemplate();
         if (oConvertUtils.isEmpty(formTemplate)) {
             tableVo.setFieldRowNum(1);

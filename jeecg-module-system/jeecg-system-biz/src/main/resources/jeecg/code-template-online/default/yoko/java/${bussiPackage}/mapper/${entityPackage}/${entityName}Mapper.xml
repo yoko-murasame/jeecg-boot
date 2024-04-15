@@ -1,3 +1,4 @@
+<#include "/common/utils.ftl">
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${bussiPackage}.dao.${entityPackage}.${entityName}Mapper">
@@ -35,7 +36,7 @@
         <include refid="listSql">
             <property name="queryType" value="one"/>
         </include>
-        WHERE id = <#noparse>#{id}</#noparse> limit 1
+        WHERE ${getRealIdField(originalColumns)} = <#noparse>#{id}</#noparse> limit 1
     </select>
 
 </mapper>

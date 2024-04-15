@@ -29,6 +29,8 @@ public class ${entityName}RpcAddForm implements Serializable {
 
 <#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>
 <#list originalColumns as po>
+<#--检查实际的ID主键值，规则：1.等于或包含配置的ID字段名（默认为id）2.不以外键命名开头-->
+    <#include "/common/checkId.ftl">
 <#-- 生成字典Code -->
     <#assign list_field_dictCode="">
     <#if po.classType='sel_user'>
