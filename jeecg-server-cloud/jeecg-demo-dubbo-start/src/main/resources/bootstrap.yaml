@@ -1,5 +1,5 @@
 server:
-  port: 8011
+  port: 8002
 
 spring:
   main:
@@ -11,7 +11,7 @@ spring:
     superToken: 18988888888
     superUsername: admin
   application:
-    name: jeecg-cloud-dubbo-test
+    name: jeecg-demo-dubbo
   cloud:
     nacos:
       discovery:
@@ -47,52 +47,8 @@ dubbo:
       group: ${spring.cloud.nacos.config.group:DEFAULT_GROUP}
       namespace: ${spring.cloud.nacos.config.namespace}
   cloud:
-    subscribed-services: / #订阅的服务名称，默认为*订阅所有服务，provider无须订阅服务所以配置为/
+    subscribed-services: jeecg-system-dubbo #订阅的服务名称，默认为*订阅所有服务
   consumer: # Dubbo 消费端配置
     check: false
     validation: true # 是否启用JSR303标准注解验证, 如果启用, 将对方法参数上的注解进行校验
     version: 1.0.0 # 默认版本
-  # config-center:
-  #   #指定配置中心的namespace（配置文档中有说明）
-  #   namespace: jeecg # ${spring.cloud.nacos.config.namespace:jeecg}
-  provider: # Dubbo 服务端配置
-    cluster: failfast # 集群方式,可选: failover/failfast/failsafe/failback/forking
-    retries: 0 # 远程服务调用重试次数, 不包括第一次调用, 不需要重试请设为0
-    timeout: 600000 # 远程服务调用超时时间(毫秒)
-    token: true # 令牌验证, 为空表示不开启, 如果为true, 表示随机生成动态令牌
-    dynamic: true # 服务是否动态注册, 如果设为false, 注册后将显示后disable状态, 需人工启用, 并且服务提供者停止时, 也不会自动取消册, 需人工禁用.
-    delay: -1 # 延迟注册服务时间(毫秒)- , 设为-1时, 表示延迟到Spring容器初始化完成时暴露服务
-    version: 1.0.0 # 服务版本
-    filter: -exception # 服务提供方远程调用过程拦截器名称, 多个名称用逗号分隔
-
-swagger:
-  title: Dubbo测试微服务工程
-
-# monitor config
-management:
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-      jmx:
-        enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-      base-path: /metrics
-
-# mybatis config
-mybatis-plus:
-  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath*:mapper/**/*.xml
-  global-config:
-    db-config:
-      table-prefix:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-# log
-logging:
-  level:
-    root: info
-    org.jeecg.modules.dao.*: debug

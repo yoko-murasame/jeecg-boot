@@ -1,5 +1,5 @@
 server:
-  port: 8011
+  port: 8001
 
 spring:
   main:
@@ -11,7 +11,7 @@ spring:
     superToken: 18988888888
     superUsername: admin
   application:
-    name: jeecg-cloud-dubbo-test
+    name: jeecg-system-dubbo
   cloud:
     nacos:
       discovery:
@@ -64,35 +64,3 @@ dubbo:
     delay: -1 # 延迟注册服务时间(毫秒)- , 设为-1时, 表示延迟到Spring容器初始化完成时暴露服务
     version: 1.0.0 # 服务版本
     filter: -exception # 服务提供方远程调用过程拦截器名称, 多个名称用逗号分隔
-
-swagger:
-  title: Dubbo测试微服务工程
-
-# monitor config
-management:
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-      jmx:
-        enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-      base-path: /metrics
-
-# mybatis config
-mybatis-plus:
-  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath*:mapper/**/*.xml
-  global-config:
-    db-config:
-      table-prefix:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-# log
-logging:
-  level:
-    root: info
-    org.jeecg.modules.dao.*: debug
