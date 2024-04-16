@@ -10,5 +10,8 @@
         <#if relKeyCount??>
             <#assign relKeyCount = relKeyCount + 1>
         </#if>
+        <#if keyFind??>
+            <#assign keyFind = true>
+        </#if>
     </#if>
 </#if>

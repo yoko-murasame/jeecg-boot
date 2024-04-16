@@ -82,6 +82,7 @@ public class ${entityName} implements Serializable, Cloneable {
         </#if>
     @TableField(value = "${po.fieldDbName}")
     </#if>
+    <#assign entityType = "entity">
     <#include "/common/blob.ftl">
 </#list>
 }

@@ -172,11 +172,15 @@
   <#return flag>
 </#function>
 
-<#--获取实际的ID字段-->
+<#--获取实际的ID字段，命中第一个为准-->
 <#function getRealIdField(originalColumns) >
+    <#assign keyFind = false>
     <#list originalColumns as po>
         <#--检查实际的ID主键值，规则：1.等于或包含配置的ID字段名（默认为id）2.不以外键命名开头-->
         <#include "checkId.ftl">
+        <#if keyFind>
+            <#return primaryKeyDbField>
+        </#if>
     </#list>
     <#return primaryKeyDbField>
 </#function>

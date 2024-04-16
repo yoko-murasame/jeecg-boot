@@ -73,6 +73,7 @@ public class ${entityName}RpcAddForm implements Serializable {
     @Dict(${list_field_dictCode?substring(2)})
         </#if>
     </#if>
+    <#assign entityType = "add">
     <#include "/common/blob.ftl">
 </#list>
 }

@@ -73,6 +73,7 @@ public class ${entityName}QueryForm implements Serializable {
     @Dict(${list_field_dictCode?substring(2)})
         </#if>
     </#if>
+    <#assign entityType = "query">
     <#include "/common/blob.ftl">
 </#list>
     @ApiModelProperty(value = "每页数量", name = "pageSize", notes = "每页数量,默认20")
