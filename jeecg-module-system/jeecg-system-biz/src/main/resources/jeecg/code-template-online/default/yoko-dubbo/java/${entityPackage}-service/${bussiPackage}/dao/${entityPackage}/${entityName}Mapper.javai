@@ -1,3 +1,4 @@
+<#include "/common/utils.ftl">
 package ${bussiPackage}.dao.${entityPackage};
 
 import ${bussiPackage}.entity.${entityPackage}.${entityName};
@@ -21,8 +22,8 @@ public interface ${entityName}Mapper extends BaseMapper<${entityName}> {
 
     List<${entityName}> selectListCustom(@Param(Constants.WRAPPER) Wrapper<${entityName}> queryWrapper);
 
-    ${entityName} selectOneCustom(@Param(Constants.WRAPPER) Wrapper<${entityName}> queryWrapper);
+    ${entityName} selectOneCustom(@Param(Constants.WRAPPER) Wrapper<${entityName}> queryWrapper);<#if getRealIdFieldCount(originalColumns) == 1>
 
-    ${entityName} selectByIdCustom(@Param("id") Serializable id);
+    ${entityName} selectByIdCustom(@Param("id") Serializable id);</#if>
 
 }

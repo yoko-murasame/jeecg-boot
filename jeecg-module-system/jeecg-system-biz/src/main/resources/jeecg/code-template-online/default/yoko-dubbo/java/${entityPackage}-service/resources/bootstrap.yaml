@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: <#noparse>${SERVER_PORT:8001}</#noparse>
 
 spring:
   main:
@@ -7,54 +7,54 @@ spring:
     allow-circular-references: true
   #开发环境配置
   profiles:
-    active: '@profile.name@'
-    superToken: 18988888888
+    active: <#noparse>@</#noparse>profile.name@
+    superToken: 3CCBE2987412C0EA62ACFC100A16D3F4
     superUsername: admin
   application:
-    name: jeecg-system-dubbo
+    name: service-${entityPackage}
   cloud:
     nacos:
       discovery:
-        server-addr: @config.server-addr@
-        namespace: ${spring.cloud.nacos.config.namespace:public} # 服务命名空间
+        server-addr: <#noparse>@</#noparse>config.server-addr@
+        namespace: <#noparse>${spring.cloud.nacos.config.namespace:public}</#noparse> # 服务命名空间
         username: # nacos 用户名
         password: # nacos 密码
       config:
-        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        server-addr: <#noparse>${spring.cloud.nacos.discovery.server-addr}</#noparse>
         file-extension: yaml
         group: DEFAULT_GROUP # 会读取不同分组下的配置文件
-        username: ${spring.cloud.nacos.discovery.username}
-        password: ${spring.cloud.nacos.discovery.password}
+        username: <#noparse>${spring.cloud.nacos.discovery.username}</#noparse>
+        password: <#noparse>${spring.cloud.nacos.discovery.password}</#noparse>
         context-path: nacos
-        # shared-configs: custom-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        # shared-configs: custom-<#noparse>${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}</#noparse>
         namespace: # Nacos中命名空间的ID，可以用于区分开发环境
   config:
     import:
       - optional:nacos:jeecg.yaml
-      - optional:nacos:jeecg-@profile.name@.yaml
+      - optional:nacos:jeecg-<#noparse>@</#noparse>profile.name@.yaml
 
 dubbo:
   protocol: # name:采用的协议名称 port:-1代表自动选择端口，默认是：20880
-    port: ${dubbo.port:-1}
+    port: <#noparse>${dubbo.port:-1}</#noparse>
     name: dubbo
   scan: # dubbo服务路径
-    basePackages: org.jeecg.modules
+    basePackages: ${tableVo.extendParams.bussiPackageNoLast}.**.provider.rpc
   application:
     qos-enable: false #关闭dubbo在线运维工具
   registry:
-    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+    address: nacos://<#noparse>${spring.cloud.nacos.discovery.server-addr}</#noparse>
     parameters:
-      group: ${spring.cloud.nacos.config.group:DEFAULT_GROUP}
-      namespace: ${spring.cloud.nacos.config.namespace}
+      group: <#noparse>${spring.cloud.nacos.config.group:DEFAULT_GROUP}</#noparse>
+      namespace: <#noparse>${spring.cloud.nacos.config.namespace}</#noparse>
   cloud:
-    subscribed-services: / #订阅的服务名称，默认为*订阅所有服务，多个以逗号隔开，provider无须订阅服务所以配置为/
+    subscribed-services: jeecg-system-dubbo #订阅的服务名称，默认为*订阅所有服务，多个以逗号隔开
   consumer: # Dubbo 消费端配置
     check: false
     validation: true # 是否启用JSR303标准注解验证, 如果启用, 将对方法参数上的注解进行校验
     version: 1.0.0 # 默认版本
   # config-center:
   #   #指定配置中心的namespace（配置文档中有说明）
-  #   namespace: jeecg # ${spring.cloud.nacos.config.namespace:jeecg}
+  #   namespace: jeecg # <#noparse>${spring.cloud.nacos.config.namespace:jeecg}</#noparse>
   provider: # Dubbo 服务端配置
     cluster: failfast # 集群方式,可选: failover/failfast/failsafe/failback/forking
     retries: 0 # 远程服务调用重试次数, 不包括第一次调用, 不需要重试请设为0
@@ -64,3 +64,35 @@ dubbo:
     delay: -1 # 延迟注册服务时间(毫秒)- , 设为-1时, 表示延迟到Spring容器初始化完成时暴露服务
     version: 1.0.0 # 服务版本
     filter: -exception # 服务提供方远程调用过程拦截器名称, 多个名称用逗号分隔
+
+swagger:
+  title: Dubbo微服务-${entityPackage}接口文档
+
+# monitor config
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /metrics
+
+# mybatis config
+mybatis-plus:
+  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath*:mapper/**/*.xml
+  global-config:
+    db-config:
+      table-prefix:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# log
+logging:
+  level:
+    root: info
+    ${bussiPackage}.${entityPackage}.dao.*: debug

@@ -1027,6 +1027,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         hashMap.put("entityPackageUpperCase", model.getEntityPackage().substring(0, 1).toUpperCase() + model.getEntityPackage().substring(1));
         // 放入业务包路径，去除最后一级
         hashMap.put("bussiPackageNoLast", org.jeecgframework.codegenerate.a.a.g.substring(0, org.jeecgframework.codegenerate.a.a.g.lastIndexOf('.')));
+        // 放入默认的主键字段值
+        hashMap.put("defaultPrimaryKeyDbField", org.jeecgframework.codegenerate.a.a.l);
         String formTemplate = onlCgformHead.getFormTemplate();
         if (oConvertUtils.isEmpty(formTemplate)) {
             tableVo.setFieldRowNum(1);

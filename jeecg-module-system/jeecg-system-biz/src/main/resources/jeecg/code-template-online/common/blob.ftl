@@ -37,11 +37,11 @@
         <#if po.fieldLength != 0 && po.fieldName != primaryKeyField>
     @Size(max = ${po.fieldLength}, message = "${po.filedComment}长度不能超过${po.fieldLength}")
         </#if>
-        <#if po.nullable == 'N' && po.fieldName != primaryKeyField>
+        <#if po.nullable == 'N' && po.fieldName != primaryKeyField || required_flag>
     @NotEmpty(message = "${po.filedComment}不能为空")
         </#if>
     <#else>
-        <#if po.nullable == 'N' && po.fieldName != primaryKeyField>
+        <#if po.nullable == 'N' && po.fieldName != primaryKeyField || required_flag>
     @NotNull(message = "${po.filedComment}不能为空")
         </#if>
     </#if>
