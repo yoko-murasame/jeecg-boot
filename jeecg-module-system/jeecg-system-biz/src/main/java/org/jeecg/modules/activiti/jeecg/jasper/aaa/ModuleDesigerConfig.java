@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration("moduleDesigerConfig")
-@Conditional(JeecgSingleCondition.class)
+// @Conditional(JeecgSingleCondition.class)
 public class ModuleDesigerConfig {
     public ModuleDesigerConfig() {
     }

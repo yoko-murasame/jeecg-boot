@@ -11,3 +11,47 @@ spring:
     host: jeecg-boot-redis
     port: 6379
     password:
+  cloud:
+    gateway:
+      routes:
+        # 公用的一些路由
+        # - id: jeecg-designer
+        #   uri: http://localhost:8001
+        #   predicates:
+        #     - Path=/designer/**
+        # Spring Cloud Feign 微服务
+        - id: jeecg-demo # demo模块
+          uri: lb://jeecg-demo
+          predicates:
+            - Path=/mock/**,/test/**,/bigscreen/template1/**,/bigscreen/template2/**
+        - id: jeecg-system # 系统模块
+          uri: lb://jeecg-system
+          # 自定义模块的放行路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+          predicates:
+            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+        - id: jeecg-system-websocket # 系统模块websocket
+          uri: lb:ws://jeecg-system
+          predicates:
+            - Path=/websocket/**,/eoaSocket/**
+        - id: jeecg-demo-websocket # demo模块websocket
+          uri: lb:ws://jeecg-demo
+          predicates:
+            - Path=/vxeSocket/**
+        # dubbo 微服务
+        - id: jeecg-demo-dubbo # demo模块
+          uri: lb://jeecg-demo-dubbo
+          predicates:
+            - Path=/mock/**,/test/**,/bigscreen/template1/**,/bigscreen/template2/**
+        - id: jeecg-system-dubbo # 系统模块
+          uri: lb://jeecg-system-dubbo
+          # 自定义模块的放行路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+          predicates:
+            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+        - id: jeecg-system-dubbo-websocket # 系统模块websocket
+          uri: lb:ws://jeecg-system-dubbo
+          predicates:
+            - Path=/websocket/**,/eoaSocket/**
+        - id: jeecg-demo-dubbo-websocket # demo模块websocket
+          uri: lb:ws://jeecg-demo-dubbo
+          predicates:
+            - Path=/vxeSocket/**

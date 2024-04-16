@@ -9,7 +9,12 @@
           "_genkey_0": "/sys/**",
           "_genkey_1": "/jmreport/**",
           "_genkey_3": "/online/**",
-          "_genkey_4": "/generic/**"
+          "_genkey_4": "/generic/**",
+          "_genkey_5": "/workflow/**",
+          "_genkey_6": "/sakuga/**",
+          "_genkey_7": "/technical/**",
+          "_genkey_8": "/ztb/**",
+          "_genkey_10": "/alone/**"
         }
       }
     ],
