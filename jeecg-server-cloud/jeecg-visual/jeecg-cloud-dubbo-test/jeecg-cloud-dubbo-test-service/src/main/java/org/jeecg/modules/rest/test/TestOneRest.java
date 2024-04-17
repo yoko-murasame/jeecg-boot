@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * 表控制层-测试模块-TestOne
@@ -66,8 +67,8 @@ public class TestOneRest extends BaseRest {
         // 当前登陆人信息获取 AuthUserDetail authUser = HyitAuthUtils.getCurrentUser();
         // 1.分页参数
         HyitPage<TestOne> page = new HyitPage<>();
-        page.setSize(form.getPageSize());
-        page.setCurrent(form.getPageNum());
+        page.setSize(Optional.ofNullable(form.getPageSize()).orElse(20));
+        page.setCurrent(Optional.ofNullable(form.getPageNum()).orElse(1));
         // 2.分页查询
         HyitPage<TestOneVO> pageResult = testOneService.paginQuery(form, page);
         return buildSuccessResponse(pageResult);

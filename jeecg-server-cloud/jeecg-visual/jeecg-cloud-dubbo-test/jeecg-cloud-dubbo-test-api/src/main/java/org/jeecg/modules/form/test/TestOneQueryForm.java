@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -138,8 +140,10 @@ public class TestOneQueryForm implements Serializable {
     private String newOne;
 
     @ApiModelProperty(value = "每页数量", name = "pageSize", notes = "每页数量,默认20")
+    @TableField(exist = false)
     private Integer pageSize = 20;
 
+    @TableField(exist = false)
     @ApiModelProperty(value = "页码", name = "pageNum", notes = "页码,默认1")
     private Integer pageNum = 1;
 

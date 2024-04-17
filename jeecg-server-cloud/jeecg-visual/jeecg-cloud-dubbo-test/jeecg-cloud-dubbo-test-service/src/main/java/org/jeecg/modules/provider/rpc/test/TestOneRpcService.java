@@ -11,6 +11,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Resource;
+import java.util.Optional;
 
 /**
  * rpc服务实现类-测试模块-TestOne
@@ -71,8 +72,8 @@ public class TestOneRpcService implements ITestOneRpc {
         BeanUtils.copyProperties(form, target);
         // 1.分页参数
         HyitPage<TestOne> page = new HyitPage<>();
-        page.setSize(form.getPageSize());
-        page.setCurrent(form.getPageNum());
+        page.setSize(Optional.ofNullable(form.getPageSize()).orElse(20));
+        page.setCurrent(Optional.ofNullable(form.getPageNum()).orElse(1));
         // 2.分页查询
         HyitPage<TestOneVO> pageResult = testOneService.paginQuery(target, page);
         RpcResult<HyitPage<TestOneVO>> rpcResult = RpcResult.create();

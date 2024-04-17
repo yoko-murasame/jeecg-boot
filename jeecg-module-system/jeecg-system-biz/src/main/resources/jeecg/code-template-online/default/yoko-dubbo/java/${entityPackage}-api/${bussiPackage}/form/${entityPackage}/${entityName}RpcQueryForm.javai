@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
 import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -77,9 +78,11 @@ public class ${entityName}RpcQueryForm implements Serializable {
     <#include "/common/blob.ftl">
 </#list>
     @ApiModelProperty(value = "每页数量", name = "pageSize", notes = "每页数量,默认20")
+    @TableField(exist = false)
     private java.lang.Integer pageSize = 20;
 
     @ApiModelProperty(value = "页码", name = "pageNum", notes = "页码,默认1")
+    @TableField(exist = false)
     private java.lang.Integer pageNum = 1;
 
 }
