@@ -19,7 +19,12 @@ spring:
         #   uri: http://localhost:8001
         #   predicates:
         #     - Path=/designer/**
-        # Spring Cloud Feign 微服务
+        # dubbo 微服务代码生成模块路由
+        - id: jeecg-cloud-dubbo-test # dubbo-test模块
+          uri: lb://jeecg-cloud-dubbo-test
+          predicates:
+            - Path=/test/testOne/**
+        # Spring Cloud Feign 微服务（和Dubbo微服务二选一）
         - id: jeecg-demo # demo模块
           uri: lb://jeecg-demo
           predicates:
@@ -37,7 +42,7 @@ spring:
           uri: lb:ws://jeecg-demo
           predicates:
             - Path=/vxeSocket/**
-        # dubbo 微服务
+        # dubbo 微服务（和Feign微服务二选一）
         - id: jeecg-demo-dubbo # demo模块
           uri: lb://jeecg-demo-dubbo
           predicates:
