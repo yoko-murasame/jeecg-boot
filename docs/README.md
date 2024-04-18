@@ -1,5 +1,7 @@
 # Jeecg Yoko's Branch
 
+> Git拉不下来请先执行：`git config --system core.longpaths true`
+
 * 请勿用于商业用途
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * [文档模板](./Template.md)
