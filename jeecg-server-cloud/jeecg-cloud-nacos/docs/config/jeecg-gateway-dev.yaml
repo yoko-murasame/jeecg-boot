@@ -22,8 +22,8 @@ spring:
         #   predicates:
         #     - Path=/designer/**
         # dubbo 微服务代码生成模块路由
-        - id: jeecg-cloud-dubbo-test
-          uri: lb://jeecg-cloud-dubbo-test
+        - id: test-service
+          uri: lb://test-service
           predicates:
             - Path=/test/testOne/**
         # Spring Cloud Feign 微服务（和Dubbo微服务二选一）

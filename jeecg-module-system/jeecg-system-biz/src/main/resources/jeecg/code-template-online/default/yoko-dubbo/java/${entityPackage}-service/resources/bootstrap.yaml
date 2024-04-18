@@ -1,5 +1,5 @@
 server:
-  port: <#noparse>${SERVER_PORT:8001}</#noparse>
+  port: <#noparse>${SERVER_PORT:8011}</#noparse>
 
 spring:
   main:
@@ -11,7 +11,7 @@ spring:
     superToken: 3CCBE2987412C0EA62ACFC100A16D3F4
     superUsername: admin
   application:
-    name: service-${entityPackage}
+    name: ${entityPackage}-service
   cloud:
     nacos:
       discovery:

@@ -1,4 +1,4 @@
-package ${tableVo.extendParams.bussiPackageNoLast};
+package cn.com;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
@@ -10,23 +10,23 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 启动类-${tableVo.extendParams.entityPackageUpperCase}
+ * 启动类-Test
  * FIXME 仅供参考，实际项目中各微服务保留一个即可
  */
 @SpringBootApplication
 @ComponentScan(
-        basePackages = {"org.jeecg", "${tableVo.extendParams.bussiPackageNoLast}"},
+        basePackages = {"org.jeecg", "cn.com"},
         excludeFilters = @ComponentScan.Filter(classes = {
                 org.jeecg.config.mybatis.MybatisPlusSaasConfig.class,
                 org.jeecg.config.Swagger2Config.class
         }, type = FilterType.ASSIGNABLE_TYPE)
 )
-@EnableDubbo(scanBasePackages = {"<#noparse>${dubbo.scan.basePackages:</#noparse>${tableVo.extendParams.bussiPackageNoLast}<#noparse>.**.provider.rpc}</#noparse>"})
+@EnableDubbo(scanBasePackages = {"${dubbo.scan.basePackages:cn.com.**.provider.rpc}"})
 @EnableDiscoveryClient
 @EnableCaching
 @EnableScheduling
-public class ${tableVo.extendParams.entityPackageUpperCase}ServerApplication {
+public class TestServerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(${tableVo.extendParams.entityPackageUpperCase}ServerApplication.class, args);
+        SpringApplication.run(TestServerApplication.class, args);
     }
 }

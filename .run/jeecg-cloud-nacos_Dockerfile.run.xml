@@ -8,7 +8,7 @@
           <list>
             <DockerEnvVarImpl>
               <option name="name" value="MYSQL-PORT" />
-              <option name="value" value="33061" />
+              <option name="value" value="33062" />
             </DockerEnvVarImpl>
             <DockerEnvVarImpl>
               <option name="name" value="MYSQL-PWD" />
@@ -24,7 +24,7 @@
             </DockerPortBindingImpl>
           </list>
         </option>
-        <option name="commandLineOptions" value="--network=host --add-host=jeecg-boot-mysql:172.17.0.1" />
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-mysql:172.17.0.1" />
         <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-cloud-nacos/Dockerfile" />
       </settings>
     </deployment>

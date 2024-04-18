@@ -1,5 +1,5 @@
 server:
-  port: 8011
+  port: ${SERVER_PORT:8011}
 
 spring:
   main:
@@ -7,11 +7,11 @@ spring:
     allow-circular-references: true
   #开发环境配置
   profiles:
-    active: '@profile.name@'
+    active: @profile.name@
     superToken: 18988888888
     superUsername: admin
   application:
-    name: jeecg-cloud-dubbo-test
+    name: test-service
   cloud:
     nacos:
       discovery:
@@ -38,7 +38,7 @@ dubbo:
     port: ${DUBBO_PORT:-1}
     name: dubbo
   scan: # dubbo服务路径
-    basePackages: org.jeecg.modules
+    basePackages: cn.com.**.provider.rpc
   application:
     qos-enable: false #关闭dubbo在线运维工具
   registry:
@@ -66,7 +66,7 @@ dubbo:
     filter: -exception # 服务提供方远程调用过程拦截器名称, 多个名称用逗号分隔
 
 swagger:
-  title: Dubbo测试微服务工程
+  title: Dubbo微服务-test接口文档
 
 # monitor config
 management:
@@ -95,4 +95,4 @@ mybatis-plus:
 logging:
   level:
     root: info
-    org.jeecg.modules.dao.*: debug
+    cn.com.hyit.test.dao.*: debug
