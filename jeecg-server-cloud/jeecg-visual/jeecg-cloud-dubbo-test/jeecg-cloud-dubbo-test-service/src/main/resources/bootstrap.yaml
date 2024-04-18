@@ -35,7 +35,7 @@ spring:
 
 dubbo:
   protocol: # name:采用的协议名称 port:-1代表自动选择端口，默认是：20880
-    port: ${dubbo.port:-1}
+    port: ${DUBBO_PORT:-1}
     name: dubbo
   scan: # dubbo服务路径
     basePackages: org.jeecg.modules

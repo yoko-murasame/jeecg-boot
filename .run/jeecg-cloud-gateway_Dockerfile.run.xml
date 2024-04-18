@@ -12,7 +12,7 @@
             </DockerPortBindingImpl>
           </list>
         </option>
-        <option name="commandLineOptions" value="--network=host --add-host=jeecg-boot-nacos:172.17.0.1 --add-host=jeecg-boot-sentinel:172.17.0.1 --add-host=jeecg-boot-mysql:172.17.0.1 --add-host=jeecg-boot-redis:127.0.0.1 --add-host=jeecg-boot-rabbitmq:172.17.0.1 --add-host=jeecg-boot-es:172.17.0.1 --add-host=jeecg-boot-xxljob:172.17.0.1" />
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-nacos:172.17.0.1 --add-host=jeecg-boot-sentinel:172.17.0.1 --add-host=jeecg-boot-mysql:172.17.0.1 --add-host=jeecg-boot-redis:172.17.0.1 --add-host=jeecg-boot-rabbitmq:172.17.0.1 --add-host=jeecg-boot-es:172.17.0.1 --add-host=jeecg-boot-xxljob:172.17.0.1" />
         <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-cloud-gateway/Dockerfile" />
       </settings>
     </deployment>

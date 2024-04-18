@@ -1,0 +1,33 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="jeecg-cloud-nacos/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="jeecg:nacos" />
+        <option name="containerName" value="jeecg-nacos" />
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="MYSQL-PORT" />
+              <option name="value" value="33061" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="MYSQL-PWD" />
+              <option name="value" value="dsjy@123" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="8848" />
+              <option name="hostPort" value="8848" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="commandLineOptions" value="--network=host --add-host=jeecg-boot-mysql:172.17.0.1" />
+        <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-cloud-nacos/Dockerfile" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
