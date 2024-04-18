@@ -1,10 +1,12 @@
+# FIXME 请注意，放入NACOS中的配置，行尾的注释可能导致配置解析异常，请注意删除注释！最后让gateway的docker方式以--network host模式启动就好了
 jeecg:
   route:
     config:
-      #type:database nacos yml
-      data-type: database # 换成nacos可以直接从JSON里读取配置
+      #type:database nacos yml，换成nacos可以直接从JSON里读取配置
+      data-type: database
       group: DEFAULT_GROUP
-      data-id: jeecg-gateway-router # jeecg-gateway-router-dubbo # 可选测试Dubbo的配置JSON
+      # jeecg-gateway-router-dubbo # 可选测试Dubbo的配置JSON
+      data-id: jeecg-gateway-router
 spring:
   redis:
     database: 0
@@ -20,43 +22,43 @@ spring:
         #   predicates:
         #     - Path=/designer/**
         # dubbo 微服务代码生成模块路由
-        - id: jeecg-cloud-dubbo-test # dubbo-test模块
+        - id: jeecg-cloud-dubbo-test
           uri: lb://jeecg-cloud-dubbo-test
           predicates:
             - Path=/test/testOne/**
         # Spring Cloud Feign 微服务（和Dubbo微服务二选一）
-        - id: jeecg-demo # demo模块
+        - id: jeecg-demo
           uri: lb://jeecg-demo
           predicates:
             - Path=/mock/**,/test/**,/bigscreen/template1/**,/bigscreen/template2/**
-        - id: jeecg-system # 系统模块
-          uri: lb://jeecg-system
-          # 自定义模块的放行路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
-          predicates:
-            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
-        - id: jeecg-system-websocket # 系统模块websocket
-          uri: lb:ws://jeecg-system
-          predicates:
-            - Path=/websocket/**,/eoaSocket/**
-        - id: jeecg-demo-websocket # demo模块websocket
+        - id: jeecg-demo-websocket
           uri: lb:ws://jeecg-demo
           predicates:
             - Path=/vxeSocket/**
+        - id: jeecg-system
+          uri: lb://jeecg-system
+          # 自定义模块的路由路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+          predicates:
+            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+        - id: jeecg-system-websocket
+          uri: lb:ws://jeecg-system
+          predicates:
+            - Path=/websocket/**,/eoaSocket/**
         # dubbo 微服务（和Feign微服务二选一）
-        - id: jeecg-demo-dubbo # demo模块
+        - id: jeecg-demo-dubbo
           uri: lb://jeecg-demo-dubbo
           predicates:
             - Path=/mock/**,/test/**,/bigscreen/template1/**,/bigscreen/template2/**
-        - id: jeecg-system-dubbo # 系统模块
-          uri: lb://jeecg-system-dubbo
-          # 自定义模块的放行路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
-          predicates:
-            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
-        - id: jeecg-system-dubbo-websocket # 系统模块websocket
-          uri: lb:ws://jeecg-system-dubbo
-          predicates:
-            - Path=/websocket/**,/eoaSocket/**
-        - id: jeecg-demo-dubbo-websocket # demo模块websocket
+        - id: jeecg-demo-dubbo-websocket
           uri: lb:ws://jeecg-demo-dubbo
           predicates:
             - Path=/vxeSocket/**
+        - id: jeecg-system-dubbo
+          uri: lb://jeecg-system-dubbo
+          # 自定义模块的路由路径：,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+          predicates:
+            - Path=/sys/**,/eoa/plan/**,/email/**,/oa/im/**,/metting/**,/filemanage/**,/officialdoc/**,/sign/**,/oa/im/**,/cms/**,/chat/eoaCmsMenu/**,/filedisk/**,/im/**,/joa/**,/online/**,/bigscreen/**,/jmreport/**,/design/report/**,/desform/**,/process/**,/act/**,/plug-in/**,/generic/**,/workflow/**,/sakuga/**,/technical/**,/ztb/**,/alone/**,/actuator/**,/druid/**
+        - id: jeecg-system-dubbo-websocket
+          uri: lb:ws://jeecg-system-dubbo
+          predicates:
+            - Path=/websocket/**,/eoaSocket/**
