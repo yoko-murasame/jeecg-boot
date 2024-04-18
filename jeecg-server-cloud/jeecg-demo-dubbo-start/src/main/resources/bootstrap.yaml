@@ -17,8 +17,8 @@ spring:
       discovery:
         server-addr: @config.server-addr@
         namespace: ${spring.cloud.nacos.config.namespace:public} # 服务命名空间
-        username: # nacos 用户名
-        password: # nacos 密码
+        username: nacos # nacos 用户名
+        password: nacos # nacos 密码
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         file-extension: yaml

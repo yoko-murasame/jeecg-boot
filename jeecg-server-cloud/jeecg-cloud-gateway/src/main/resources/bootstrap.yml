@@ -13,8 +13,12 @@ spring:
     nacos:
       config:
         server-addr: @config.server-addr@
+        username: nacos
+        password: nacos
       discovery:
         server-addr: ${spring.cloud.nacos.config.server-addr}
+        username: ${spring.cloud.nacos.config.username}
+        password: ${spring.cloud.nacos.config.password}
     gateway:
       discovery:
         locator:

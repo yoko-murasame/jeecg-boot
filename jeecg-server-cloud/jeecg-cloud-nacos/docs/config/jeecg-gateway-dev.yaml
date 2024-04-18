@@ -1,4 +1,4 @@
-# FIXME 请注意，放入NACOS中的配置，行尾的注释可能导致配置解析异常，请注意删除注释！最后让gateway的docker方式以--network host模式启动就好了
+# FIXME 请注意gateway中，放入NACOS中的配置，行尾的注释可能导致配置解析异常，还有发现是打包后application.yml启动慢于bootstrap.yml，换个名字就能预加载nacos配置
 jeecg:
   route:
     config:
