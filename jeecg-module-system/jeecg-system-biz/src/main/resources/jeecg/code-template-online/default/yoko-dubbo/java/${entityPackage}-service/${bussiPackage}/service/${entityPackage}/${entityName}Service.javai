@@ -1,3 +1,4 @@
+<#include "/common/utils.ftl">
 package ${bussiPackage}.service.${entityPackage};
 
 import ${bussiPackage}.core.base.bean.HyitPage;
@@ -50,7 +51,7 @@ public class ${entityName}Service implements I${entityName}Service {
      */
     @Override
     public String edit${entityName}(${entityName}Form form) {
-        Assert.hasText(form.getId(), "id不能为空");
+        Assert.hasText(form.get${getRealIdFieldCamel(originalColumns)?cap_first}(), "id不能为空");
         ${entityName} entity = new ${entityName}();
         BeanUtils.copyProperties(form, entity);
         ${entityName?uncap_first}Mapper.updateById(entity);
@@ -65,8 +66,8 @@ public class ${entityName}Service implements I${entityName}Service {
      */
     @Override
     public String delete${entityName}(${entityName}DeleteForm form) {
-        Assert.hasText(form.getId(), "id不能为空");
-        ${entityName?uncap_first}Mapper.deleteById(form.getId());
+        Assert.hasText(form.get${getRealIdFieldCamel(originalColumns)?cap_first}(), "id不能为空");
+        ${entityName?uncap_first}Mapper.deleteById(form.get${getRealIdFieldCamel(originalColumns)?cap_first}());
         return "删除成功";
     }
 
