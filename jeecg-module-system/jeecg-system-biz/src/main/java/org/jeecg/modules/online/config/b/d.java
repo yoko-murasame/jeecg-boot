@@ -54,14 +54,14 @@ public class d {
             case 73844866:
                 if (databaseType.equals("MYSQL")) {
                     z = false;
-                    bVar = new org.jeecg.modules.online.config.service.a.e();
+                    bVar = new org.jeecg.modules.online.config.service.a.b();
                     break;
                 }
                 break;
             case 912124529:
                 if (databaseType.equals("SQLSERVER")) {
                     z = true;
-                    bVar = new org.jeecg.modules.online.config.service.a.d();
+                    bVar = new org.jeecg.modules.online.config.service.a.e();
                     break;
                 }
                 break;
