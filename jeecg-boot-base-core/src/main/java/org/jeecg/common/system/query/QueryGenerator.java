@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.dubbo.rpc.RpcContext;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.DataBaseConstant;
 import org.jeecg.common.constant.SymbolConstant;
@@ -76,6 +77,25 @@ public class QueryGenerator {
 
 	/**工具类集成进第三方时，禁用规则值转换*/
 	public static boolean disableConverRuleValue = false;
+
+	/**
+	 * 启用独立模式
+	 * 1.关闭规则值转换
+	 * 2.关闭数据权限规则
+	 * 3.设置默认查询匹配模式
+	 *
+	 * @author Yoko
+	 */
+	public static void standaloneMode(QueryRuleEnum defaultRule) {
+		if (null == defaultRule) {
+			defaultRule = QueryRuleEnum.EQ;
+		}
+		disableConverRuleValue = true;
+		STRING_RULE = defaultRule;
+	}
+	public static void standaloneLikeMode() {
+		standaloneMode(QueryRuleEnum.LIKE);
+	}
 
 	/**
 	 * 根据配置初始化字符类型的查询匹配模式
@@ -762,7 +782,20 @@ public class QueryGenerator {
 	 */
 	public static Map<String, SysPermissionDataRuleModel> getRuleMap() {
 		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<>(5);
-		List<SysPermissionDataRuleModel> list =JeecgDataAutorUtils.loadDataSearchConditon();
+		List<SysPermissionDataRuleModel> list = null;
+		try {
+			// 集成进第三方时，禁用数据权限
+			if (QueryGenerator.disableConverRuleValue) {
+				return ruleMap;
+			}
+			list = JeecgDataAutorUtils.loadDataSearchConditon();
+		} catch (Exception e) {
+			if (RpcContext.getContext() != null) {
+				log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 		if(list != null&&list.size()>0){
 			if(list.get(0)==null){
 				return ruleMap;
@@ -785,7 +818,19 @@ public class QueryGenerator {
 	public static Map<String, SysPermissionDataRuleModel> getRuleMap(List<SysPermissionDataRuleModel> list) {
 		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<String, SysPermissionDataRuleModel>();
 		if(list==null){
-			list =JeecgDataAutorUtils.loadDataSearchConditon();
+			try {
+				// 集成进第三方时，禁用数据权限
+				if (QueryGenerator.disableConverRuleValue) {
+					return ruleMap;
+				}
+				list = JeecgDataAutorUtils.loadDataSearchConditon();
+			} catch (Exception e) {
+				if (RpcContext.getContext() != null) {
+					log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				} else {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 		if(list != null&&list.size()>0){
 			if(list.get(0)==null){

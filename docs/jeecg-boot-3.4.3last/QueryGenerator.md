@@ -14,5 +14,67 @@ jeecg:
   queryRule: LIKE
 ```
 
+## 单独使用QueryGenerator能力
+
+1. 打包工程，将core包拿出来放到别的项目/lib目录中
+
+2. 引入core包
+
+```xml
+<projecg>
+    <!-- jeecg-core核心包 BEGIN -->
+    <dependency>
+        <groupId>org.jeecgframework.boot</groupId>
+        <artifactId>jeecg-boot-base-core</artifactId>
+        <version>3.4.3</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/lib/jeecg-boot-base-core-3.4.3.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.4</version>
+    </dependency>
+    <!-- jeecg-core核心包 END -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!--打包带上core-->
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</projecg>
+
+```
+
+3. 在启动类或配置类中为静态方法启用独立模式
+
+```java
+import org.jeecg.common.system.query.QueryGenerator;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Jeecg配置
+ *
+ * @author Yoko
+ */
+@Configuration
+public class JeecgConfig {
+
+    static {
+        // 条件构造器独立模式
+        QueryGenerator.standaloneLikeMode();
+    }
+
+}
+
+```
+
 修改历史:
 * 2023.11.22: 根据yaml配置初始化字符类型的查询匹配模式
+* 2024.04.19: 改造QueryGenerator工具类-以支持core包独立引用使用
