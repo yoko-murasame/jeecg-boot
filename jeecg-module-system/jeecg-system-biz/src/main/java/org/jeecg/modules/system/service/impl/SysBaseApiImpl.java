@@ -58,7 +58,11 @@ import java.util.*;
  */
 @Slf4j
 @Service
-@DubboService(interfaceClass = ISysBaseAPI.class, timeout = 3000)
+@DubboService(
+		interfaceClass = ISysBaseAPI.class,
+		version = "${dubbo.provider.version:2.0.0}",
+		timeout = 3000
+)
 public class SysBaseApiImpl implements ISysBaseAPI {
 	/** 当前系统数据库类型 */
 	private static String DB_TYPE = "";
