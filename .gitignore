@@ -10,3 +10,6 @@ rebel.xml
 ## front
 **/*.lock
 /.fastRequest/
+/jeecg-module-system/jeecg-system-biz/crack/
+/jeecg-module-system/jeecg-system-bpm/
+*.bkp
