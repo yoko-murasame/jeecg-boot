@@ -21,7 +21,7 @@ public class SqlInjectionUtil {
 	 * （上线修改值 20200501，同步修改前端的盐值）
 	 */
 	private final static String TABLE_DICT_SIGN_SALT = "20200501";
-	private final static String XSS_STR = "and |extractvalue|updatexml|exec |insert |select |delete |update |drop |count |chr |mid |master |truncate |char |declare |;|or |+|user()";
+	private final static String XSS_STR = "and |extractvalue|updatexml|geohash|gtid_subset|gtid_subtract|exec |insert |select |delete |update |drop |count |chr |mid |master |truncate |char |declare |;|or |+|user()";
 
 	/**
 	 * 正则 user() 匹配更严谨
@@ -33,12 +33,12 @@ public class SqlInjectionUtil {
 	/**
 	 * sleep函数
 	 */
-	private final static Pattern FUN_SLEEP = Pattern.compile("sleep\\([\\d\\.]*\\)");
+	private final static Pattern FUN_SLEEP = Pattern.compile("sleep\\([\\d\\.]*\\)", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * sql注释的正则
 	 */
-	private final static Pattern SQL_ANNOTATION = Pattern.compile("/\\*.*\\*/");
+	private final static Pattern SQL_ANNOTATION = Pattern.compile("/\\*[\\s\\S]*\\*/");
 
 	/**
 	 * 针对表字典进行额外的sign签名校验（增加安全机制）
@@ -172,7 +172,7 @@ public class SqlInjectionUtil {
 	 */
 	//@Deprecated
 	public static void specialFilterContentForDictSql(String value) {
-		String specialXssStr = " exec |extractvalue|updatexml| insert | select | delete | update | drop | count | chr | mid | master | truncate | char | declare |;|+|user()";
+		String specialXssStr = " exec |extractvalue|updatexml|geohash|gtid_subset|gtid_subtract| insert | select | delete | update | drop | count | chr | mid | master | truncate | char | declare |;|+|user()";
 		String[] xssArr = specialXssStr.split("\\|");
 		if (value == null || "".equals(value)) {
 			return;
@@ -206,7 +206,7 @@ public class SqlInjectionUtil {
      */
 	//@Deprecated
 	public static void specialFilterContentForOnlineReport(String value) {
-		String specialXssStr = " exec |extractvalue|updatexml| insert | delete | update | drop | chr | mid | master | truncate | char | declare |user()";
+		String specialXssStr = " exec |extractvalue|updatexml|geohash|gtid_subset|gtid_subtract| insert | delete | update | drop | chr | mid | master | truncate | char | declare |user()";
 		String[] xssArr = specialXssStr.split("\\|");
 		if (value == null || "".equals(value)) {
 			return;
