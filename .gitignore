@@ -12,3 +12,4 @@ rebel.xml
 /.fastRequest/
 /jeecg-module-system/jeecg-system-bpm/
 *.drawio.bkp
+/*.log
