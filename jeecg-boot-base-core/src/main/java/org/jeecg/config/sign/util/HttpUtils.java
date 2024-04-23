@@ -1,5 +1,12 @@
 package org.jeecg.config.sign.util;
 
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.constant.SymbolConstant;
+import org.jeecg.common.util.oConvertUtils;
+import org.springframework.http.HttpMethod;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,15 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import javax.servlet.http.HttpServletRequest;
-
-import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.constant.SymbolConstant;
-import org.jeecg.common.util.oConvertUtils;
-import org.springframework.http.HttpMethod;
-
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * http 工具类 获取请求中的参数
@@ -48,10 +46,10 @@ public class HttpUtils {
             if(deString.contains("%")){
                 try {
                     deString = URLDecoder.decode(deString, "UTF-8");
-                    log.info("存在%情况下，执行两次解码 — pathVariable decode: {}",deString);
                 } catch (Exception e) {
                     //e.printStackTrace();
                 }
+                log.info("存在%情况下，执行两次解码 — pathVariable decode: {}",deString);
             }
             log.info(" pathVariable decode: {}",deString);
             result.put(SignUtil.X_PATH_VARIABLE, deString);
@@ -172,11 +170,7 @@ public class HttpUtils {
         String[] params = param.split("&");
         for (String s : params) {
             int index = s.indexOf("=");
-            //update-begin---author:chenrui ---date:20240222  for：[issues/5879]数据查询传ds=“”造成的异常------------
-            if (index != -1) {
-                result.put(s.substring(0, index), s.substring(index + 1));
-            }
-            //update-end---author:chenrui ---date:20240222  for：[issues/5879]数据查询传ds=“”造成的异常------------
+            result.put(s.substring(0, index), s.substring(index + 1));
         }
         return result;
     }
@@ -200,11 +194,7 @@ public class HttpUtils {
         String[] params = param.split("&");
         for (String s : params) {
             int index = s.indexOf("=");
-            //update-begin---author:chenrui ---date:20240222  for：[issues/5879]数据查询传ds=“”造成的异常------------
-            if (index != -1) {
-                result.put(s.substring(0, index), s.substring(index + 1));
-            }
-            //update-end---author:chenrui ---date:20240222  for：[issues/5879]数据查询传ds=“”造成的异常------------
+            result.put(s.substring(0, index), s.substring(index + 1));
         }
         return result;
     }
