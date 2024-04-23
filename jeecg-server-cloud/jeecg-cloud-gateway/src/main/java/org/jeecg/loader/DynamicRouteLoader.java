@@ -117,6 +117,8 @@ public class DynamicRouteLoader implements ApplicationEventPublisherAware {
             log.warn("initConfigService fail");
         }
         try {
+            log.info("jeecg.route.config.data-id = {}", gatewayRoutersConfig.getDataId());
+            log.info("nacos.config.group = {}", gatewayRoutersConfig.getRouteGroup());
             String configInfo = configService.getConfig(gatewayRoutersConfig.getDataId(), gatewayRoutersConfig.getRouteGroup(), DEFAULT_TIMEOUT);
             if (StringUtils.isNotBlank(configInfo)) {
                 log.info("获取网关当前配置:\r\n{}", configInfo);
@@ -160,7 +162,7 @@ public class DynamicRouteLoader implements ApplicationEventPublisherAware {
         }else{
             log.warn("ERROR: 从Redis获取网关配置为空，请确认system服务是否启动成功！");
         }
-        
+
         for (MyRouteDefinition definition : routes) {
             log.info("update route : {}", definition.toString());
             Integer status=definition.getStatus();
