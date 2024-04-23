@@ -208,13 +208,13 @@ public class ShiroConfig {
         // 企业微信证书排除
         filterChainDefinitionMap.put("/WW_verify*", "anon");
 
-        // 通过注解免登录url
-        List<String> ignoreAuthUrlList = collectIgnoreAuthUrl(ctx);
-        if (!CollectionUtils.isEmpty(ignoreAuthUrlList)) {
-            for (String url : ignoreAuthUrlList) {
-                filterChainDefinitionMap.put(url, "anon");
-            }
-        }
+        // 通过注解免登录url FIXME 这里有问题，扫描所有RestController.class后，会注入很多配置类到SpringContext，这里最直观的异常就是/路径无法解析到/doc.html了（freemarker导致的）
+        // List<String> ignoreAuthUrlList = collectIgnoreAuthUrl(ctx);
+        // if (!CollectionUtils.isEmpty(ignoreAuthUrlList)) {
+        //     for (String url : ignoreAuthUrlList) {
+        //         filterChainDefinitionMap.put(url, "anon");
+        //     }
+        // }
 
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);
