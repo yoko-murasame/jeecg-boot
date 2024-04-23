@@ -2,11 +2,7 @@ package org.jeecg.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jeecg.common.system.query.QueryRuleEnum;
-import org.jeecg.config.vo.DomainUrl;
-import org.jeecg.config.vo.Elasticsearch;
-import org.jeecg.config.vo.Path;
-import org.jeecg.config.vo.Shiro;
+import org.jeecg.config.vo.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -32,10 +28,12 @@ public class JeecgBaseConfig {
      * 本地：local\Minio：minio\阿里云：alioss
      */
     private String uploadType;
+
     /**
      * 是否启用安全模式
      */
     private Boolean safeMode = false;
+
     /**
      * shiro拦截排除
      */
@@ -60,6 +58,13 @@ public class JeecgBaseConfig {
      * ES配置
      */
     private Elasticsearch elasticsearch;
+
+    /**
+     * 微信支付
+     * @return
+     */
+    private WeiXinPay weiXinPay;
+
 
     public Elasticsearch getElasticsearch() {
         return elasticsearch;
@@ -133,6 +138,13 @@ public class JeecgBaseConfig {
         this.uploadType = uploadType;
     }
 
+    public WeiXinPay getWeiXinPay() {
+        return weiXinPay;
+    }
+
+    public void setWeiXinPay(WeiXinPay weiXinPay) {
+        this.weiXinPay = weiXinPay;
+    }
 
     /**
      * 项目名称

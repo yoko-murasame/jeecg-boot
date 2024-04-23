@@ -1,20 +1,24 @@
 package org.jeecg.config.sign.interceptor;
 
 
-import com.alibaba.fastjson.JSON;
-import lombok.extern.slf4j.Slf4j;
+import java.io.PrintWriter;
+import java.util.SortedMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.DateUtils;
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.sign.util.BodyReaderHttpServletRequestWrapper;
 import org.jeecg.config.sign.util.HttpUtils;
 import org.jeecg.config.sign.util.SignUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.util.SortedMap;
+import com.alibaba.fastjson.JSON;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 签名拦截器
@@ -36,10 +40,19 @@ public class SignAuthInterceptor implements HandlerInterceptor {
         //对参数进行签名验证
         String headerSign = request.getHeader(CommonConstant.X_SIGN);
         String xTimestamp = request.getHeader(CommonConstant.X_TIMESTAMP);
-
         // 旧的表单设计器都是null直接放行
         if (null == headerSign && null == xTimestamp) {
         	return true;
+        }
+        if(oConvertUtils.isEmpty(xTimestamp)){
+            Result<?> result = Result.error("Sign签名校验失败，时间戳为空！");
+            log.error("Sign 签名校验失败！Header xTimestamp 为空");
+            //校验失败返回前端
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json; charset=utf-8");
+            PrintWriter out = response.getWriter();
+            out.print(JSON.toJSON(result));
+            return false;
         }
 
         //客户端时间
@@ -69,6 +82,7 @@ public class SignAuthInterceptor implements HandlerInterceptor {
             log.debug("Sign 签名通过！Header Sign : {}",headerSign);
             return true;
         } else {
+            log.info("sign allParams: {}", allParams);
             log.error("request URI = " + request.getRequestURI());
             log.error("Sign 签名校验失败！Header Sign : {}",headerSign);
             //校验失败返回前端
