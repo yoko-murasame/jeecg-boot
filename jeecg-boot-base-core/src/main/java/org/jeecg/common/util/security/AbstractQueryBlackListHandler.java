@@ -2,6 +2,7 @@ package org.jeecg.common.util.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.exception.JeecgSqlInjectionException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -56,7 +57,7 @@ public abstract class AbstractQueryBlackListHandler {
         } catch (Exception e) {
             log.warn("校验sql语句，解析报错：{}",e.getMessage());
         }
-        
+
         if(list==null){
             return true;
         }
@@ -81,6 +82,12 @@ public abstract class AbstractQueryBlackListHandler {
 
             }
         }
+
+        // 返回黑名单校验结果（不合法直接抛出异常）
+        if(!flag){
+            log.error(this.getError());
+            throw new JeecgSqlInjectionException(this.getError());
+        }
         return flag;
     }
 
@@ -104,7 +111,7 @@ public abstract class AbstractQueryBlackListHandler {
                     flag = false;
                     log.warn("sql黑名单校验，字段名【"+name+"】包含特殊字符");
                     break;
-                } 
+                }
             }
         }
         return flag;
@@ -122,7 +129,7 @@ public abstract class AbstractQueryBlackListHandler {
         }
         return false;
     }
-    
+
 
     /**
      * 查询的表的信息
