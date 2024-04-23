@@ -105,14 +105,14 @@
 	</select>-->
 
 	<!-- 重复校验 sql语句 -->
-	<select id="duplicateCheckCountSql" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
+	<!--<select id="duplicateCheckCountSql" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
 		SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal} and id &lt;&gt; #{dataId}
-	</select>
+	</select>-->
 
 	<!-- 重复校验 sql语句 -->
-	<select id="duplicateCheckCountSqlNoDataId" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
+	<!--<select id="duplicateCheckCountSqlNoDataId" resultType="Long" parameterType="org.jeecg.modules.system.model.DuplicateCheckVo">
 		SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal}
-	</select>
+	</select>-->
 
 	<!-- 查询部门信息 作为字典数据 -->
 	<select id="queryAllDepartBackDictModel" resultType="org.jeecg.common.system.vo.DictModel">
