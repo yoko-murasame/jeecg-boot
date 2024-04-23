@@ -4,7 +4,7 @@ import lombok.Data;
 import org.jeecg.common.constant.CommonConstant;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 普通消息
@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 public class MessageDTO implements Serializable {
     private static final long serialVersionUID = -5690444483968058442L;
-    
+
     /**
      * 发送人(用户登录账户)
      */
@@ -44,13 +44,6 @@ public class MessageDTO implements Serializable {
      */
     protected String category;
 
-    //-----------------------------------------------------------------------
-    //update-begin---author:taoyan ---date:20220705  for：支持自定义推送类型，邮件、钉钉、企业微信、系统消息-----------
-
-    /**
-     * 模板消息对应的模板编码
-     */
-    protected String templateCode;
     /**
      * 消息类型：org.jeecg.common.constant.enums.MessageTypeEnum
      *  XT("system",  "系统消息")
@@ -59,20 +52,40 @@ public class MessageDTO implements Serializable {
      *  QYWX("wechat_enterprise", "企业微信")
      */
     protected String type;
-    
+
+
+    //---【推送模板相关参数】-------------------------------------------------------------
     /**
      * 是否发送Markdown格式的消息
      */
     protected boolean isMarkdown;
-
+    /**
+     * 模板消息对应的模板编码
+     */
+    protected String templateCode;
     /**
      * 解析模板内容 对应的数据
      */
     protected Map<String, Object> data;
-    //update-end---author:taoyan ---date::20220705  for：支持自定义推送类型，邮件、钉钉、企业微信、系统消息-----------
-    //-----------------------------------------------------------------------
-    
-    
+    //---【推送模板相关参数】-------------------------------------------------------------
+
+    //---【邮件相关参数】-------------------------------------------------------------
+    /**
+     * 邮件抄送人
+     */
+    private String copyToUser;
+
+    /**
+     * 邮件推送地址
+     */
+    protected Set<String> toEmailList;
+
+    /**
+     * 邮件抄送地址
+     */
+    protected Set<String> ccEmailList;
+    //---【邮件相关参数】-------------------------------------------------------------
+
     public MessageDTO(){
     }
 
