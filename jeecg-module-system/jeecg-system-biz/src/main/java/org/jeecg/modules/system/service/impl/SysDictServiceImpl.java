@@ -72,7 +72,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
 		// 2.SQL注入check（只限制非法串改数据库）
 		//关联表字典（举例：sys_user,realname,id）
-		SqlInjectionUtil.filterContent(table, fieldName);
+		SqlInjectionUtil.filterContent(table);
+		SqlInjectionUtil.filterContent(fieldName);
 
 		// 3.表字典黑名单check
 		String checkSql = table + SymbolConstant.COMMA + fieldName + SymbolConstant.COMMA;
@@ -255,7 +256,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
 		// 1.SQL注入校验（只限制非法串改数据库）
 		SqlInjectionUtil.specialFilterContentForDictSql(table);
-		SqlInjectionUtil.filterContent(text, code);
+		SqlInjectionUtil.filterContent(text);
+		SqlInjectionUtil.filterContent(code);
 		SqlInjectionUtil.specialFilterContentForDictSql(filterSql);
 
 		// 2.表字典黑名单 Check
