@@ -183,7 +183,7 @@ public class ShiroConfig {
         //大屏模板例子
         filterChainDefinitionMap.put("/test/bigScreen/**", "anon");
         filterChainDefinitionMap.put("/bigscreen/template1/**", "anon");
-        filterChainDefinitionMap.put("/bigscreen/**", "anon");
+        filterChainDefinitionMap.put("/bigscreen/template2/**", "anon");
         //filterChainDefinitionMap.put("/test/jeecgDemo/rabbitMqClientTest/**", "anon"); //MQ测试
         //filterChainDefinitionMap.put("/test/jeecgDemo/html", "anon"); //模板页面
         //filterChainDefinitionMap.put("/test/jeecgDemo/redis/**", "anon"); //redis测试
@@ -205,7 +205,7 @@ public class ShiroConfig {
         // 企业微信证书排除
         filterChainDefinitionMap.put("/WW_verify*", "anon");
 
-        // 通过注解免登录url FIXME 这里有问题，扫描所有RestController.class后，会注入很多配置类到SpringContext，这里最直观的异常就是/路径无法解析到/doc.html了（freemarker导致的）
+        // 通过注解免登录url @fixed #6021 这里有问题，扫描所有RestController.class后，会注入很多配置类到SpringContext，这里最直观的异常就是/路径无法解析到/doc.html了（freemarker导致的）
         List<String> ignoreAuthUrlList = collectIgnoreAuthUrl();
         if (!CollectionUtils.isEmpty(ignoreAuthUrlList)) {
             for (String url : ignoreAuthUrlList) {
