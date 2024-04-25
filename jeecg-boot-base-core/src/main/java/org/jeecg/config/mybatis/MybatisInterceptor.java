@@ -8,6 +8,7 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.config.TenantContext;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.TenantConstant;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
@@ -82,6 +83,19 @@ public class MybatisInterceptor implements Interceptor {
 								field.set(parameter, sysUser.getOrgCode());
 								field.setAccessible(false);
 							}
+						}
+					}
+
+					// 注入软删
+					if ("delFlag".equals(field.getName())) {
+						field.setAccessible(true);
+						Object delFlag = field.get(parameter);
+						field.setAccessible(false);
+						if (delFlag == null) {
+							// 设置正常状态
+							field.setAccessible(true);
+							field.set(parameter, CommonConstant.DEL_FLAG_0);
+							field.setAccessible(false);
 						}
 					}
 
