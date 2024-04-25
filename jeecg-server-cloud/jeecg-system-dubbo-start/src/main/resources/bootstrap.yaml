@@ -48,10 +48,15 @@ dubbo:
       namespace: ${spring.cloud.nacos.config.namespace}
   cloud:
     subscribed-services: / #订阅的服务名称，默认为*订阅所有服务，多个以逗号隔开，provider无须订阅服务所以配置为/
+    registry-type: spring-cloud # # issue https://github.com/apache/dubbo/issues/9243
   consumer: # Dubbo 消费端配置
     check: false
     validation: true # 是否启用JSR303标准注解验证, 如果启用, 将对方法参数上的注解进行校验
     version: 2.0.0 # 默认版本
+    # reconnect: true
+    # parameters:
+    #   send:
+    #     reconnect: true
   # config-center:
   #   #指定配置中心的namespace（配置文档中有说明）
   #   namespace: jeecg # ${spring.cloud.nacos.config.namespace:jeecg}
