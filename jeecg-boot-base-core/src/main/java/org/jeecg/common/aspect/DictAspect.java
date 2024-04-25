@@ -22,6 +22,7 @@ import org.jeecg.common.constant.enums.TransDictType;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 @Aspect
 @Component
 @Slf4j
+@ConditionalOnMissingClass("cn.com.hyit.config.DictAspect")
 public class DictAspect {
     @Lazy
     @Autowired
