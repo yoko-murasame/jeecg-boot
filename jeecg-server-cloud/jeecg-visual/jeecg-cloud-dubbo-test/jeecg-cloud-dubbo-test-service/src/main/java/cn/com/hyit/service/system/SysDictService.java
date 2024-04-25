@@ -12,10 +12,7 @@ import javax.annotation.Resource;
 import java.util.*;
 
 /**
- * 功能描述
- *
- * @author: uwm
- * @date: 2024年04月24日 14:26
+ * 字典功能服务
  */
 @Slf4j
 @Service

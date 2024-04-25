@@ -85,15 +85,16 @@ public class DictAspect {
      *
      */
     private Object parseDictText(Object result) {
+
+        List<JSONObject> items = new ArrayList<>();
+        // step.1 筛选出加了 Dict 注解的字段列表
+        List<Field> dictFieldList = new ArrayList<>();
+        // 字典数据列表， key = 字典code，value=数据列表
+        Map<String, List<String>> dataListMap = new HashMap<>(5);
+
         // rest
         if (result instanceof WebResponse) {
             if (((WebResponse<?>) result).getResult() instanceof IPage) {
-                List<JSONObject> items = new ArrayList<>();
-
-                // step.1 筛选出加了 Dict 注解的字段列表
-                List<Field> dictFieldList = new ArrayList<>();
-                // 字典数据列表， key = 字典code，value=数据列表
-                Map<String, List<String>> dataListMap = new HashMap<>(5);
                 // 取出结果集
                 List<?> records = ((IPage<?>) ((WebResponse<?>) result).getResult()).getRecords();
                 Boolean hasDict = checkHasDict(records);
@@ -103,13 +104,7 @@ public class DictAspect {
                 // 翻译字典
                 handleDictTranslate(records, dictFieldList, dataListMap, items);
                 ((IPage) ((WebResponse<?>) result).getResult()).setRecords(items);
-            }
-            if (((WebResponse<?>) result).getResult() instanceof List) {
-                List<JSONObject> items = new ArrayList<>();
-                // step.1 筛选出加了 Dict 注解的字段列表
-                List<Field> dictFieldList = new ArrayList<>();
-                // 字典数据列表， key = 字典code，value=数据列表
-                Map<String, List<String>> dataListMap = new HashMap<>(5);
+            }else if (((WebResponse<?>) result).getResult() instanceof List) {
                 // 取出结果集
                 List<?> records = (List<?>) ((WebResponse<?>) result).getResult();
                 Boolean hasDict = checkHasDict(records);
@@ -119,17 +114,20 @@ public class DictAspect {
                 // 翻译字典
                 handleDictTranslate(records, dictFieldList, dataListMap, items);
                 ((WebResponse) result).setResult(items);
+            } else {
+                // 排除字符串和基础类型
+                Object record = ((WebResponse<?>) result).getResult();
+                if (null == record || record instanceof String || this.isPrimitiveOrWrapper(record.getClass())) {
+                    return result;
+                }
+                // 翻译对象
+                handleDictTranslate(Collections.singletonList(record), dictFieldList, dataListMap, items);
+                ((WebResponse) result).setResult(items.get(0));
             }
         }
         // rpc
         if (result instanceof RpcResult) {
             if (((RpcResult<?>) result).getData() instanceof IPage) {
-                List<JSONObject> items = new ArrayList<>();
-
-                // step.1 筛选出加了 Dict 注解的字段列表
-                List<Field> dictFieldList = new ArrayList<>();
-                // 字典数据列表， key = 字典code，value=数据列表
-                Map<String, List<String>> dataListMap = new HashMap<>(5);
                 // 取出结果集
                 List<?> records = ((IPage<?>) ((RpcResult<?>) result).getData()).getRecords();
                 Boolean hasDict = checkHasDict(records);
@@ -139,13 +137,7 @@ public class DictAspect {
                 // 翻译字典
                 handleDictTranslate(records, dictFieldList, dataListMap, items);
                 ((IPage) ((RpcResult<?>) result).getData()).setRecords(items);
-            }
-            if (((RpcResult<?>) result).getData() instanceof List) {
-                List<JSONObject> items = new ArrayList<>();
-                // step.1 筛选出加了 Dict 注解的字段列表
-                List<Field> dictFieldList = new ArrayList<>();
-                // 字典数据列表， key = 字典code，value=数据列表
-                Map<String, List<String>> dataListMap = new HashMap<>(5);
+            } else if (((RpcResult<?>) result).getData() instanceof List) {
                 // 取出结果集
                 List<?> records = (List<?>) ((RpcResult<?>) result).getData();
                 Boolean hasDict = checkHasDict(records);
@@ -155,6 +147,15 @@ public class DictAspect {
                 // 翻译字典
                 handleDictTranslate(records, dictFieldList, dataListMap, items);
                 ((RpcResult) result).setData(items);
+            } else {
+                // 排除字符串和基础类型
+                Object record = ((RpcResult<?>) result).getData();
+                if (null == record || record instanceof String || this.isPrimitiveOrWrapper(record.getClass())) {
+                    return result;
+                }
+                // 翻译对象
+                handleDictTranslate(Collections.singletonList(record), dictFieldList, dataListMap, items);
+                ((RpcResult) result).setData(items.get(0));
             }
         }
         return result;
@@ -386,6 +387,21 @@ public class DictAspect {
             }
         }
         return false;
+    }
+
+    private boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() || isWrapperType(clazz);
+    }
+
+    private boolean isWrapperType(Class<?> clazz) {
+        return clazz == Boolean.class ||
+                clazz == Character.class ||
+                clazz == Byte.class ||
+                clazz == Short.class ||
+                clazz == Integer.class ||
+                clazz == Long.class ||
+                clazz == Float.class ||
+                clazz == Double.class;
     }
 
 }

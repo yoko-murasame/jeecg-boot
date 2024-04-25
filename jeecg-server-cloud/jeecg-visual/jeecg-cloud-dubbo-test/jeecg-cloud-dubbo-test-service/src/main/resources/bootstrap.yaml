@@ -96,6 +96,7 @@ mybatis-plus:
 logging:
   level:
     root: info
-    com.alibaba.nacos.**.*: warn
-    cn.com.hyit.test.dao.*: debug
+    com.alibaba.**.*: warn
+    org.apache.dubbo.**.*: warn
+    cn.com.hyit.**.dao.*: debug
     cn.com.hyit.config: debug
