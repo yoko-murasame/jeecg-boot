@@ -3,10 +3,13 @@ package cn.com.hyit.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.config.JeecgDubboCondition;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.ReflectionUtils;
@@ -38,7 +41,13 @@ import java.util.stream.Collectors;
 @EnableSwagger2    //开启 Swagger2
 @EnableKnife4j     //开启 knife4j，可以不写
 @Import(BeanValidatorPluginsConfiguration.class)
+@Conditional(JeecgDubboCondition.class) // 仅在dubbo模式下启用
+@Slf4j
 public class SwaggerConfig implements WebMvcConfigurer {
+
+    public SwaggerConfig() {
+        log.info("==========加载 SwaggerConfig ===========");
+    }
 
     /**
      *

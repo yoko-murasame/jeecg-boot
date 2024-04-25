@@ -23,7 +23,7 @@ import java.util.List;
  * 单数据源配置（jeecg.datasource.open = false时生效）
  */
 @Configuration
-@MapperScan(value={"org.jeecg.modules.**.mapper*","cn.com.hyit.**.dao*"})
+@MapperScan(value={"cn.com.hyit.**.dao*"})
 public class MybatisPlusConfig {
     /**
      * tenant_id 字段名
