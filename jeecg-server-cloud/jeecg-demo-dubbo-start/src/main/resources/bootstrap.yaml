@@ -42,6 +42,10 @@ dubbo:
   application:
     qos-enable: false #关闭dubbo在线运维工具
   registry:
+    check: true # 注册中心不存在时，是否报错
+    register: false # 是否向此注册中心注册服务，如果设为false，将只订阅，不注册
+    subscribe: true # 是否向此注册中心订阅服务，如果设为false，将只注册，不订阅
+    simplified: true # 注册到注册中心的URL是否采用精简模式的（与低版本兼容）
     address: nacos://${spring.cloud.nacos.discovery.server-addr}
     parameters:
       group: ${spring.cloud.nacos.config.group:DEFAULT_GROUP}
