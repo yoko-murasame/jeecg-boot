@@ -1,9 +1,9 @@
-package cn.com.hyit.core.logger.aspect;
+package cn.com.hyit.audit.core.logger.aspect;
 
-import cn.com.hyit.core.logger.enums.LogLevelEnum;
-import cn.com.hyit.core.logger.enums.LogTypeEnum;
-import cn.com.hyit.core.logger.enums.OperTypeEnum;
-import cn.com.hyit.core.logger.enums.RoleEnum;
+import cn.com.hyit.audit.core.logger.enums.LogLevelEnum;
+import cn.com.hyit.audit.core.logger.enums.LogTypeEnum;
+import cn.com.hyit.audit.core.logger.enums.OperTypeEnum;
+import cn.com.hyit.audit.core.logger.enums.RoleEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

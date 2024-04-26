@@ -1,4 +1,4 @@
-package cn.com.hyit.core.logger.enums;
+package cn.com.hyit.audit.core.logger.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

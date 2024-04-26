@@ -1,9 +1,9 @@
 package cn.com.hyit.rest.test;
 
 import cn.com.hyit.core.base.bean.HyitPage;
-import cn.com.hyit.core.logger.aspect.FinOperationLog;
-import cn.com.hyit.core.logger.enums.LogTypeEnum;
-import cn.com.hyit.core.logger.enums.OperTypeEnum;
+import cn.com.hyit.audit.core.logger.aspect.FinOperationLog;
+import cn.com.hyit.audit.core.logger.enums.LogTypeEnum;
+import cn.com.hyit.audit.core.logger.enums.OperTypeEnum;
 import cn.com.hyit.core.web.response.BaseRest;
 import cn.com.hyit.core.web.response.WebResponse;
 import cn.com.hyit.entity.test.TestOne;
