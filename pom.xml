@@ -80,6 +80,8 @@
 		<module>jeecg-module-system</module>
 		<!--扩展模块：存放一些新的东西-->
 		<module>jeecg-module-extra</module>
+		<!--自定义starter相关依赖-->
+		<module>jeecg-boot-starter-custom</module>
 	</modules>
 
 	<repositories>
@@ -195,6 +197,16 @@
 				<groupId>org.jeecgframework.boot</groupId>
 				<artifactId>jeecg-boot-common</artifactId>
 				<version>${jeecgboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jeecgframework.boot</groupId>
+				<artifactId>jeecg-boot-common-custom</artifactId>
+				<version>${jeecgboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.9.4</version>
 			</dependency>
 			<!-- jeecg core -->
 			<dependency>

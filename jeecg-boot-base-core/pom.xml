@@ -49,18 +49,8 @@
 		<!--jeecg-tools-->
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
-			<artifactId>jeecg-boot-common</artifactId>
-			<!--升级hutool-->
-			<exclusions>
-				<exclusion>
-					<groupId>cn.hutool</groupId>
-					<artifactId>hutool-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>cn.hutool</groupId>
-					<artifactId>hutool-crypto</artifactId>
-				</exclusion>
-			</exclusions>
+			<!--<artifactId>jeecg-boot-common</artifactId>-->
+			<artifactId>jeecg-boot-common-custom</artifactId>
 		</dependency>
 		<!--集成springmvc框架并实现自动配置 -->
 		<dependency>
