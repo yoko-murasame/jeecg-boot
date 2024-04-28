@@ -208,25 +208,30 @@
 		</dependency>
 
 		<!-- knife4j BEGIN -->
+		<!--<dependency>-->
+		<!--	<groupId>com.github.xiaoymin</groupId>-->
+		<!--	<artifactId>knife4j-spring-boot-starter</artifactId>-->
+		<!--	<version>${knife4j-spring-boot-starter.version}</version>-->
+		<!--	<exclusions>-->
+		<!--		<exclusion>-->
+		<!--			<groupId>com.google.guava</groupId>-->
+		<!--			<artifactId>guava</artifactId>-->
+		<!--		</exclusion>-->
+		<!--		<exclusion>-->
+		<!--			<groupId>io.swagger</groupId>-->
+		<!--			<artifactId>swagger-annotations</artifactId>-->
+		<!--		</exclusion>-->
+		<!--	</exclusions>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+		<!--	<groupId>io.swagger</groupId>-->
+		<!--	<artifactId>swagger-annotations</artifactId>-->
+		<!--	<version>1.5.22</version>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>com.github.xiaoymin</groupId>
-			<artifactId>knife4j-spring-boot-starter</artifactId>
+			<artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
 			<version>${knife4j-spring-boot-starter.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>io.swagger</groupId>
-					<artifactId>swagger-annotations</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.22</version>
 		</dependency>
 		<!-- knife4j END-->
 
