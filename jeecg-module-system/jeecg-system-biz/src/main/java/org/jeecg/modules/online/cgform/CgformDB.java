@@ -55,7 +55,7 @@ public class CgformDB {
     public static final String c = " AND ";
     public static final String d = " like ";
     public static final String e = " COUNT(*) ";
-    public static final String f = " where 1=1  ";
+    public static final String WHERE_1_1 = " where 1=1  ";
     public static final String g = " where  ";
     public static final String h = " ORDER BY ";
     public static final String i = "asc";
@@ -935,8 +935,13 @@ public class CgformDB {
         if (!var6) {
             var4.append(",id");
         }
-
-        var4.append(" FROM " + f(var0) + " where 1=1  " + " AND " + var2 + "=" + "'" + var3 + "'");
+        // 去除 WHERE 1=1
+        if (StringUtils.isNotBlank(var3)) {
+            var4.append(" FROM " + f(var0) + " where " + var2 + "=" + "'" + var3 + "'");
+        } else {
+            var4.append(" FROM " + f(var0));
+        }
+        // var4.append(" FROM " + f(var0) + " where 1=1  " + " AND " + var2 + "=" + "'" + var3 + "'");
         return var4.toString();
     }
 
@@ -1088,7 +1093,13 @@ public class CgformDB {
             }
         }
 
-        return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where 1=1  " + var3.toString();
+        // return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where 1=1  " + var3.toString();
+        // 去除 WHERE 1=1
+        if (StringUtils.isNotBlank(var3.toString())) {
+            return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where " + var3.toString();
+        } else {
+            return "SELECT id" + var4.toString() + " FROM " + f(var0);
+        }
     }
 
     public static List<ExcelExportEntity> a(List<OnlCgformField> var0, String var1) {

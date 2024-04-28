@@ -16,6 +16,7 @@ import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
+import org.jeecg.modules.online.cgform.d.b;
 import org.jeecg.modules.online.cgform.d.c;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
@@ -70,7 +71,11 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         arr1 = params.toString().split(",");
         SqlInjectionUtil.filterContent(arr1);
         // 组装WHERE
-        stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params));
+        String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
+        if (StringUtils.isNotBlank(whereCondition)) {
+            // stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + whereCondition);
+            stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE + whereCondition);
+        }
         // 组装ORDER BY
         Object obj = params.get("column");
         if (obj != null) {

@@ -844,7 +844,13 @@ public class b {
         }
         // 原版本时依赖主键查询，如果想要多对多（一个字段存储了多个附表id），就必须换成模糊查询
         // stringBuffer.append(sb + f(str) + sf + sc + str2 + sk + sz + str3 + sz);
-        stringBuffer.append(FROM + f(str) + WHERE_1_1 + AND + str2 + " like " + sz + "%" + str3 + "%" + sz);
+        // stringBuffer.append(FROM + f(str) + WHERE_1_1 + AND + str2 + " like " + sz + "%" + str3 + "%" + sz);
+        // 去除 WHERE 1=1
+        if (StringUtils.isNotBlank(str3)) {
+            stringBuffer.append(FROM + f(str) + WHERE + str2 + " like " + sz + "%" + str3 + "%" + sz);
+        } else {
+            stringBuffer.append(FROM + f(str));
+        }
         stringBuffer.append(" ");
         stringBuffer.append(orderStr);
 
@@ -989,7 +995,14 @@ public class b {
                 }
             }
         }
-        return "SELECT id" + stringBuffer2.toString() + FROM + f(str) + WHERE_1_1 + stringBuffer.toString();
+        // return "SELECT id" + stringBuffer2.toString() + FROM + f(str) + WHERE_1_1 + stringBuffer.toString();
+
+        // 去除 WHERE 1=1
+        if (StringUtils.isNotBlank(stringBuffer.toString())) {
+            return "SELECT id" + stringBuffer2.toString() + FROM + f(str) + WHERE + stringBuffer.toString();
+        } else {
+            return "SELECT id" + stringBuffer2.toString() + FROM + f(str);
+        }
     }
 
     public static List<ExcelExportEntity> a(List<OnlCgformField> list, String str) {
