@@ -175,7 +175,7 @@ mybatis-plus:
     call-setters-on-nulls: true
 #jeecg专用配置
 minidao:
-  base-package: org.jeecg.modules.jmreport.*
+  base-package: org.jeecg.modules.jmreport.*,org.jeecg.modules.drag.*
 jeecg:
   # 是否启用安全模式
   safeMode: false
@@ -218,13 +218,14 @@ jeecg:
     bucketName: otatest
   #大屏报表参数设置
   jmreport:
-    mode: dev
-    #数据字典是否进行saas数据隔离，自己看自己的字典
-    saas: false
-    #是否需要校验token
-    is_verify_token: true
-    #必须校验方法
-    verify_methods: remove,delete,save,add,update
+    #多租户模式，默认值为空(created:按照创建人隔离、tenant:按照租户隔离) (v1.6.2+ 新增)
+    saasMode:
+    # 平台上线安全配置(v1.6.2+ 新增)
+    firewall:
+      # 数据源安全 (开启后，不允许使用平台数据源、SQL解析加签并且不允许查询数据库)
+      dataSourceSafe: false
+      # 低代码开发模式（dev:开发模式，prod:发布模式—关闭在线报表设计功能，分配角色admin、lowdeveloper可以放开限制）
+      lowCodeMode: dev
   #xxl-job配置
   xxljob:
     enabled: false
@@ -253,6 +254,7 @@ cas:
 #Mybatis输出sql日志
 logging:
   level:
+    # org.flywaydb: debug
     org.jeecg.modules.system.mapper: info
 #swagger
 knife4j:

@@ -191,32 +191,16 @@
 		<dependency>
 			<groupId>org.jeecgframework</groupId>
 			<artifactId>jeewx-api</artifactId>
-			<version>1.5.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-collections</groupId>
-					<artifactId>commons-collections</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
-		<!-- 积木报表 -->
+		<!-- 积木报表设计 -->
 		<dependency>
 			<groupId>org.jeecgframework.jimureport</groupId>
 			<artifactId>jimureport-spring-boot-starter</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.checkerframework</groupId>
-					<artifactId>checker-qual</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.github.jsqlparser</groupId>
-					<artifactId>jsqlparser</artifactId>
-				</exclusion>
-			</exclusions>
+		</dependency>
+		<!-- 积木仪表盘 -->
+		<dependency>
+			<groupId>org.jeecgframework.jimureport</groupId>
+			<artifactId>jimureport-drag</artifactId>
 		</dependency>
 		<!-- 积木报表 mongo redis 支持包
 		<dependency>
