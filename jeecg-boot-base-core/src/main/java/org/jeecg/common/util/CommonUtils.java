@@ -1,7 +1,7 @@
 package org.jeecg.common.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
+import com.baomidou.dynamic.datasource.creator.DataSourceProperty;
 import com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceProperties;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.toolkit.JdbcUtils;
@@ -11,6 +11,7 @@ import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.DataBaseConstant;
 import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.constant.SymbolConstant;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.filter.FileTypeFilter;
 import org.jeecg.common.util.oss.OssBootUtil;
 import org.jeecgframework.poi.util.PoiPublicUtil;
@@ -29,6 +30,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -138,6 +140,7 @@ public class CommonUtils {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            throw new JeecgBootException(e.getMessage());
         }
         return url;
     }
@@ -345,8 +348,11 @@ public class CommonUtils {
 
         //返回 host domain
         String baseDomainPath = null;
-        int length = 80;
-        if(length == serverPort){
+        //update-begin---author:wangshuai---date:2024-03-15---for:【QQYUN-8561】企业微信登陆请求接口设置上下文不一致，导致接口404---
+        int httpPort = 80;
+        int httpsPort = 443;
+        if(httpPort == serverPort || httpsPort == serverPort){
+        //update-end---author:wangshuai---date:2024-03-15---for:【QQYUN-8561】企业微信登陆请求接口设置上下文不一致，导致接口404---~
             baseDomainPath = scheme + "://" + serverName  + contextPath ;
         }else{
             baseDomainPath = scheme + "://" + serverName + ":" + serverPort + contextPath ;
@@ -414,6 +420,10 @@ public class CommonUtils {
      * @return name = '1212'
      */
     public static String getFilterSqlByTableSql(String tableSql) {
+        if(oConvertUtils.isEmpty(tableSql)){
+            return null;
+        }
+
         if (tableSql.toLowerCase().indexOf(DataBaseConstant.SQL_WHERE) > 0) {
             String[] arr = tableSql.split(" (?i)where ");
             if (arr != null && oConvertUtils.isNotEmpty(arr[1])) {
@@ -430,6 +440,10 @@ public class CommonUtils {
      * @return sys_user
      */
     public static String getTableNameByTableSql(String tableSql) {
+        if(oConvertUtils.isEmpty(tableSql)){
+            return null;
+        }
+
         if (tableSql.toLowerCase().indexOf(DataBaseConstant.SQL_WHERE) > 0) {
             String[] arr = tableSql.split(" (?i)where ");
             return arr[0].trim();
@@ -437,4 +451,40 @@ public class CommonUtils {
             return tableSql;
         }
     }
+
+    /**
+     * 判断两个数组是否存在交集
+     * @param set1
+     * @param arr2
+     * @return
+     */
+    public static boolean hasIntersection(Set<String> set1, String[] arr2) {
+        if (set1 == null) {
+            return false;
+        }
+
+        if(set1.size()>0){
+            for (String str : arr2) {
+                if (set1.contains(str)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 输出info日志，会捕获异常，防止因为日志问题导致程序异常
+     *
+     * @param msg
+     * @param objects
+     */
+    public static void logInfo(String msg, Object... objects) {
+        try {
+            log.info(msg, objects);
+        } catch (Exception e) {
+            log.warn("{} —— {}", msg, e.getMessage());
+        }
+    }
+
 }

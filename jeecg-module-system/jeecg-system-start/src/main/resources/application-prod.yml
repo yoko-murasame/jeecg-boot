@@ -39,7 +39,7 @@ spring:
   quartz:
     job-store-type: jdbc
     initialize-schema: embedded
-    #定时任务启动开关，true-开  false-关
+    #定时任务开关，true-开  false-关
     auto-startup: true
     #延迟1秒启动定时任务
     startup-delay: 1s
@@ -87,6 +87,7 @@ spring:
     # 设置ftl文件路径
     template-loader-path:
       - classpath:/templates
+    template_update_delay: 0
   # 设置静态文件路径，js,css等
   mvc:
     static-path-pattern: /**
@@ -96,7 +97,9 @@ spring:
   resource:
     static-locations: classpath:/static/,classpath:/public/
   autoconfigure:
-    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+    exclude:
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+      # - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
   datasource:
     druid:
       stat-view-servlet:
@@ -128,8 +131,10 @@ spring:
         maxPoolPreparedStatementPerConnectionSize: 20
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
         filters: stat,wall,slf4j
-        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+        # 打开mergeSql功能；慢SQL记录
+        stat:
+          merge-sql: true
+          slow-sql-millis: 5000
       # 多数据源配置
       primary: master
       datasource:
