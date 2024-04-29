@@ -3,6 +3,7 @@
 # Nginx配置示例
 
 组件路径: [Nginx配置示例](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/nginx)
+Dockerfile: [Dockerfile](https://github.com/yoko-murasame/ant-design-vue-jeecg/blob/yoko/Dockerfile)
 
 Nginx示例:
 ```nginx
@@ -49,9 +50,20 @@ server {
   }
 
   # 测试代理到本地前端服务
+  # location / {
+  #   proxy_pass http://localhost:3000;
+  # }
+
+  #解决Router(mode: 'history')模式下，刷新路由地址不能找到页面的问题
   location / {
-    proxy_pass http://localhost:3000;
+    root   /var/www/custom/;
+    index  index.html index.htm;
+    if (!-e $request_filename) {
+      rewrite ^(.*)$ /index.html?s=$1 last;
+      break;
+    }
   }
+
   location ^~ /jeecg-boot/ {
     proxy_pass http://localhost:8081/jeecg-boot/;
     proxy_set_header Host $host;
@@ -73,3 +85,4 @@ server {
 
 修改历史:
 * 2023-07-17: 新增
+* 2024-04-29: 完善dockerfile
