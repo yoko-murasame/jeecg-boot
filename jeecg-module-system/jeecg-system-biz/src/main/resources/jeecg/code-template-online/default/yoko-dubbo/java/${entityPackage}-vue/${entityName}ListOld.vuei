@@ -409,7 +409,7 @@
       </#list>
       },
       getSuperFieldList(){
-        <#include "/common-2.6/utils.ftl">
+        <#include "/common-2-6/utils.ftl">
         let fieldList=[];
          <#list columns as po>
         fieldList.push(${superQueryFieldList(po)})

@@ -1,5 +1,5 @@
-<#--<#include "../../../../../../../common-2.6/utils.ftl">-->
-<#include "/common-2.6/utils.ftl">
+<#--<#include "../../../../../../../common-2-6/utils.ftl">-->
+<#include "/common-2-6/utils.ftl">
 <template>
   <a-spin :spinning="confirmLoading">
     <j-form-container :disabled="formDisabled">
@@ -157,7 +157,7 @@
           sm: { span: 16 },
         },
         confirmLoading: false,
-        <#include "/common-2.6/validatorRulesTemplate/main.ftl">
+        <#include "/common-2-6/validatorRulesTemplate/main.ftl">
         url: {
           add: "/${entityPackage}/${entityName?uncap_first}/add",
           edit: "/${entityPackage}/${entityName?uncap_first}/edit",
