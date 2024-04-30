@@ -74,6 +74,10 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
         if (StringUtils.isNotBlank(whereCondition)) {
             // stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + whereCondition);
+            // 去除第一个and
+            if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
+                whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
+            }
             stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE + whereCondition);
         }
         // 组装ORDER BY
