@@ -25,12 +25,12 @@
 
 ## 三、创建微服务所需数据库
 
-手工执行jeecgboot提供的 [初始化SQL](https://gitee.com/jeecg/tree/master/jeecg-boot/db)，创建`jeecg-boot`、`nacos`、`xxl_job` 三个库。
+手工执行jeecgboot提供的 [初始化SQL](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db)，创建`jeecg-boot`、`nacos`、`xxl_job` 三个库。
 
 ![img](Jeecg单体升级微服务3.4.assets/6e37fee6ce9187a0f163336fe044d8b0_597x216.png)
 
 > **重要提示：** nacos库默认加入jeecg所需要配置。
-> 如果用自己的nacos，请[ 手工加 jeecg.yaml、jeecg-dev.yaml、jeecg-gateway-dev.yaml等配置](https://gitee.com/jeecg/jeecg-boot/tree/master/jeecg-cloud-module/jeecg-cloud-nacos/docs/config)
+> Dubbo的相关配置，请[ 手工加 jeecg.yaml、jeecg-dev.yaml、jeecg-gateway-dev.yaml等配置](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/jeecg-server-cloud/jeecg-cloud-nacos/docs/config)
 
 ## 四、启动微服务项目
 
@@ -39,7 +39,7 @@
 找到下面的启动类，右键执行
 
 ```
-项目：jeecg-cloud-module\jeecg-cloud-nacos
+项目：jeecg-server-cloud\jeecg-cloud-nacos
 启动类：com.alibaba.nacos.JeecgNacosApplication
 ```
 
@@ -48,28 +48,28 @@
 
 ![img](Jeecg单体升级微服务3.4.assets/efe315b8d0150fdc81f11fe6a1a10370_1635x382.png)
 
-### 4.2 启动`jeecg-demo`服务
+### 4.2 启动 `jeecg-demo` dubbo服务
 
 找到下面的启动类打开注释，右键启动
 
 ```
-项目：jeecg-cloud-module/jeecg-demo-dubbo-start
+项目：jeecg-server-cloud/jeecg-demo-dubbo-start
 启动类：org.jeecg.JeecgDemoDubboApplication
 ```
 
-### 4.3 启动`jeecg-system`服务
+### 4.3 启动 `jeecg-system` dubbo服务
 
 1 找到下面的启动类，右键启动
 
 ```
-项目：jeecg-cloud-module/jeecg-system-dubbo-start
+项目：jeecg-server-cloud/jeecg-system-dubbo-start
 启动类：org.jeecg.JeecgSystemDubboApplication
 ```
 
 2 单体启动类可以删掉或者注释掉
 
 ```
-jeecg-boot-module-system/src/main/java/org/jeecg/JeecgSystemApplication.java
+jeecg-module-system/jeecg-system-start/src/main/java/org/jeecg/JeecgSystemApplication.java
 ```
 
 3 Windows环境下，让system和demo微服务跑在Docker中，仅提供RPC服务
@@ -122,7 +122,7 @@ docker run \
 - 找到下面的启动类，右键启动
 
 ```
-项目：jeecg-cloud-module\jeecg-cloud-gateway
+项目：jeecg-server-cloud\jeecg-cloud-gateway
 启动类：org.jeecg.JeecgGatewayApplication
 网关配置文件：jeecg-cloud-nacos/docs/config/jeecg-gateway-dev.yaml
 ```
@@ -137,10 +137,18 @@ docker run \
 
 > 跟上面类同，这里不做详细介绍了。
 
+业务端Dubbo微服务test模块（鉴权用到System微服务）
+
+```
+ 项目：jeecg-server-cloud\jeecg-visual\jeecg-cloud-dubbo-test\jeecg-cloud-dubbo-test-service
+ 启动类：src\main\java\cn\com\TestServerApplication.java
+
+```
+
 Xxljob服务端
 
 ```
- 项目：jeecg-cloud-module\jeecg-cloud-xxljob
+ 项目：jeecg-server-cloud\jeecg-cloud-xxljob
  启动类：src\main\java\com\xxl\job\admin\XxlJobAdminApplication.java
   
 - 访问：http://localhost:9080/xxl-job-admin
@@ -152,7 +160,7 @@ Xxljob服务端
 Sentinel服务端
 
 ```
-项目： jeecg-cloud-module\jeecg-cloud-sentinel
+项目： jeecg-server-cloud\jeecg-cloud-sentinel
 启动类：src\main\java\com\alibaba\csp\sentinel\dashboard\JeecgSentinelApplication.java
 
 -访问：http://localhost:9000
@@ -164,7 +172,7 @@ Sentinel服务端
 SpringBoot Admin服务监控
 
 ```
-项目：jeecg-cloud-module\jeecg-cloud-monitor
+项目：jeecg-server-cloud\jeecg-cloud-monitor
 启动类：src\main\java\org\jeecg\monitor\JeecgMonitorApplication.java 
 
 - 访问：http://localhost:9111/login
@@ -224,6 +232,6 @@ VITE_GLOB_DOMAIN_URL=http://localhost:9999
 
 ### 6.2. xxljob服务启动
 
-1. 手工执行脚本[ jeecg-cloud-xxljob/doc/db/tables_xxl_job.sql](https://github.com/zhangdaiscott/jeecg-boot/blob/master/jeecg-boot/jeecg-cloud-module/jeecg-cloud-xxljob/doc/db/tables_xxl_job.sql) 创建xxl_job库
+1. 手工执行脚本[ jeecg-cloud-xxljob/doc/db/tables_xxl_job.sql](https://github.com/zhangdaiscott/jeecg-boot/blob/master/jeecg-boot/jeecg-server-cloud/jeecg-cloud-xxljob/doc/db/tables_xxl_job.sql) 创建xxl_job库
 2. xxljob服务启动，请右键执行`jeecg-cloud-xxljob/com.xxl.job.admin.XxlJobAdminApplication`
    详细文档见[ xxl-job定时任务集成2.4+](http://doc.jeecg.com/2043895)

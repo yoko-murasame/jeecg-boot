@@ -46,6 +46,10 @@
   * [QueryGenerator 查询条件构造器](./jeecg-boot-3.4.3last/QueryGenerator.md)
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
 
+## 微服务
+
+* [Jeecg微服务Dubbo版本.md](jeecg-boot-3.4.3last/微服务/Jeecg微服务Dubbo版本.md)
+
 ## 扩展
 
 * [APIJSON](./external/APIJSON.md)
