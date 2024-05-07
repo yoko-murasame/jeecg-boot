@@ -1,5 +1,7 @@
 package cn.com.hyit.config;
 
+import cn.com.hyit.config.constant.CommonConstant;
+import cn.com.hyit.config.util.oConvertUtils;
 import cn.com.hyit.entity.system.SysUser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
@@ -7,9 +9,7 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
-import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.config.JeecgDubboCondition;
+import org.jeecg.config.JeecgDubboCondition; // todo 待删
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 

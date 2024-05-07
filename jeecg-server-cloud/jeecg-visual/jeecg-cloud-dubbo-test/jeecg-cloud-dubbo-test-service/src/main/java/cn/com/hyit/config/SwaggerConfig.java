@@ -1,9 +1,9 @@
 package cn.com.hyit.config;
 
+import cn.com.hyit.config.constant.CommonConstant;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.config.JeecgDubboCondition;
+import org.jeecg.config.JeecgDubboCondition; // todo 待删
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;

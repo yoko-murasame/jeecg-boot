@@ -1,6 +1,6 @@
 package cn.com.hyit.service.system;
 
-import org.jeecg.common.system.vo.DictModel;
+import cn.com.hyit.config.vo.DictModel;
 
 import java.util.List;
 import java.util.Map;

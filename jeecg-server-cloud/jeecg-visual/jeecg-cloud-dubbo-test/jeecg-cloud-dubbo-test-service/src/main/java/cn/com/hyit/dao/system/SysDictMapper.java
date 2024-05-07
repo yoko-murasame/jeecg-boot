@@ -2,8 +2,8 @@ package cn.com.hyit.dao.system;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.jeecg.common.system.vo.DictModel;
-import org.jeecg.common.system.vo.DictModelMany;
+import cn.com.hyit.config.vo.DictModel;
+import cn.com.hyit.config.vo.DictModelMany;
 
 import java.util.List;
 

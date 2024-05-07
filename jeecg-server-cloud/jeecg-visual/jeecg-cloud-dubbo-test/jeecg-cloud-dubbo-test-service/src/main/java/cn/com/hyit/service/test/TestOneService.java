@@ -1,5 +1,6 @@
 package cn.com.hyit.service.test;
 
+import cn.com.hyit.config.util.QueryGenerator;
 import cn.com.hyit.core.base.bean.HyitPage;
 import cn.com.hyit.dao.test.TestOneMapper;
 import cn.com.hyit.entity.test.TestOne;
@@ -9,7 +10,6 @@ import cn.com.hyit.form.test.TestOneQueryForm;
 import cn.com.hyit.vo.test.TestOneVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
