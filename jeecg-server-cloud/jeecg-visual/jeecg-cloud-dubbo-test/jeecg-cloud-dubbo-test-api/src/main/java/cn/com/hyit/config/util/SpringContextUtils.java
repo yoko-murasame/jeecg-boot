@@ -1,6 +1,7 @@
 package cn.com.hyit.config.util;
 
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  * spring上下文工具类
  */
 @Component
+@ConditionalOnMissingClass("org.jeecg.common.util.SpringContextUtils") // todo 去掉
 public class SpringContextUtils implements ApplicationContextAware {
 
 	/**

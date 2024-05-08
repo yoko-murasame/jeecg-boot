@@ -107,7 +107,8 @@ public class QueryGenerator {
 		if (null != STRING_RULE) {
 			return;
 		}
-		String property = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("jeecg.queryRule");
+		// todo 去掉
+		String property = org.jeecg.common.util.SpringContextUtils.getApplicationContext().getEnvironment().getProperty("jeecg.queryRule");
 		if (!StringUtils.hasText(property)) {
 			property = QueryRuleEnum.EQ.getValue();
 		}
@@ -120,7 +121,7 @@ public class QueryGenerator {
 		SimpleDateFormat time = LOCAL.get();
 		if(time == null){
 			time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            LOCAL.set(time);
+			LOCAL.set(time);
 		}
 		return time;
 	}
@@ -189,7 +190,7 @@ public class QueryGenerator {
 					final String field = oConvertUtils.camelToUnderline(column);
 					if(vals.length>1) {
 						queryWrapper.and(j -> {
-                            log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
+							log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
 							j = j.like(field,vals[0]);
 							for (int k=1;k<vals.length;k++) {
 								j = j.or().like(field,vals[k]);
@@ -266,7 +267,7 @@ public class QueryGenerator {
 		// if(parameterMap!=null&& parameterMap.containsKey(ORDER_TYPE)) {
 		// 	order = parameterMap.get(ORDER_TYPE)[0];
 		// }
-        // log.info("排序规则>>列:" + column + ",排序方式:" + order);
+		// log.info("排序规则>>列:" + column + ",排序方式:" + order);
 
 		// 新的多字段排序
 		if (null == parameterMap || !parameterMap.containsKey(ORDER_COLUMN) || !parameterMap.containsKey(ORDER_TYPE)) {
@@ -384,14 +385,14 @@ public class QueryGenerator {
 		if(parameterMap!=null&& parameterMap.containsKey(SUPER_QUERY_PARAMS)){
 			String superQueryParams = parameterMap.get(SUPER_QUERY_PARAMS)[0];
 			String superQueryMatchType = parameterMap.get(SUPER_QUERY_MATCH_TYPE) != null ? parameterMap.get(SUPER_QUERY_MATCH_TYPE)[0] : MatchTypeEnum.AND.getValue();
-            MatchTypeEnum matchType = MatchTypeEnum.getByValue(superQueryMatchType);
-            // update-begin--Author:sunjianlei  Date:20200325 for：高级查询的条件要用括号括起来，防止和用户的其他条件冲突 -------
-            try {
-                superQueryParams = URLDecoder.decode(superQueryParams, "UTF-8");
-                List<QueryCondition> conditions = JSON.parseArray(superQueryParams, QueryCondition.class);
-                if (conditions == null || conditions.size() == 0) {
-                    return;
-                }
+			MatchTypeEnum matchType = MatchTypeEnum.getByValue(superQueryMatchType);
+			// update-begin--Author:sunjianlei  Date:20200325 for：高级查询的条件要用括号括起来，防止和用户的其他条件冲突 -------
+			try {
+				superQueryParams = URLDecoder.decode(superQueryParams, "UTF-8");
+				List<QueryCondition> conditions = JSON.parseArray(superQueryParams, QueryCondition.class);
+				if (conditions == null || conditions.size() == 0) {
+					return;
+				}
 				// update-begin-author:sunjianlei date:20220119 for: 【JTC-573】 过滤空条件查询，防止 sql 拼接多余的 and
 				List<QueryCondition> filterConditions = conditions.stream().filter(
 						rule -> oConvertUtils.isNotEmpty(rule.getField())
@@ -402,20 +403,20 @@ public class QueryGenerator {
 					return;
 				}
 				// update-end-author:sunjianlei date:20220119 for: 【JTC-573】 过滤空条件查询，防止 sql 拼接多余的 and
-                log.info("---高级查询参数-->" + filterConditions);
+				log.info("---高级查询参数-->" + filterConditions);
 
-                queryWrapper.and(andWrapper -> {
-                    for (int i = 0; i < filterConditions.size(); i++) {
-                        QueryCondition rule = filterConditions.get(i);
-                        if (oConvertUtils.isNotEmpty(rule.getField())
-                                && oConvertUtils.isNotEmpty(rule.getRule())
-                                && oConvertUtils.isNotEmpty(rule.getVal())) {
+				queryWrapper.and(andWrapper -> {
+					for (int i = 0; i < filterConditions.size(); i++) {
+						QueryCondition rule = filterConditions.get(i);
+						if (oConvertUtils.isNotEmpty(rule.getField())
+								&& oConvertUtils.isNotEmpty(rule.getRule())
+								&& oConvertUtils.isNotEmpty(rule.getVal())) {
 
-                            log.debug("SuperQuery ==> " + rule.toString());
+							log.debug("SuperQuery ==> " + rule.toString());
 
-                            //update-begin-author:taoyan date:20201228 for: 【高级查询】 oracle 日期等于查询报错
+							//update-begin-author:taoyan date:20201228 for: 【高级查询】 oracle 日期等于查询报错
 							Object queryValue = rule.getVal();
-                            if("date".equals(rule.getType())){
+							if("date".equals(rule.getType())){
 								queryValue = DateUtils.str2Date(rule.getVal(),DateUtils.date_sdf.get());
 							}else if("datetime".equals(rule.getType())){
 								queryValue = DateUtils.str2Date(rule.getVal(), DateUtils.datetimeFormat.get());
@@ -447,31 +448,31 @@ public class QueryGenerator {
 										case "boolean":
 											queryValue = Boolean.parseBoolean(valueStr);
 											break;
-                                        default:
+										default:
 									}
 								} catch (Exception e) {
 									log.error("高级查询值转换失败：", e);
 								}
 							}
 							// update-begin--author:sunjianlei date:20210702 for：【/issues/I3VR8E】高级查询没有类型转换，查询参数都是字符串类型 ----
-                            addEasyQuery(andWrapper, fieldColumnMap.get(rule.getField()), QueryRuleEnum.getByValue(rule.getRule()), queryValue);
+							addEasyQuery(andWrapper, fieldColumnMap.get(rule.getField()), QueryRuleEnum.getByValue(rule.getRule()), queryValue);
 							//update-end-author:taoyan date:20201228 for: 【高级查询】 oracle 日期等于查询报错
 
-                            // 如果拼接方式是OR，就拼接OR
-                            if (MatchTypeEnum.OR == matchType && i < (filterConditions.size() - 1)) {
-                                andWrapper.or();
-                            }
-                        }
-                    }
-                    //return andWrapper;
-                });
-            } catch (UnsupportedEncodingException e) {
-                log.error("--高级查询参数转码失败：" + superQueryParams, e);
-            } catch (Exception e) {
-                log.error("--高级查询拼接失败：" + e.getMessage());
-                e.printStackTrace();
-            }
-            // update-end--Author:sunjianlei  Date:20200325 for：高级查询的条件要用括号括起来，防止和用户的其他条件冲突 -------
+							// 如果拼接方式是OR，就拼接OR
+							if (MatchTypeEnum.OR == matchType && i < (filterConditions.size() - 1)) {
+								andWrapper.or();
+							}
+						}
+					}
+					//return andWrapper;
+				});
+			} catch (UnsupportedEncodingException e) {
+				log.error("--高级查询参数转码失败：" + superQueryParams, e);
+			} catch (Exception e) {
+				log.error("--高级查询拼接失败：" + e.getMessage());
+				e.printStackTrace();
+			}
+			// update-end--Author:sunjianlei  Date:20200325 for：高级查询的条件要用括号括起来，防止和用户的其他条件冲突 -------
 		}
 		//log.info(" superQuery getCustomSqlSegment: "+ queryWrapper.getCustomSqlSegment());
 	}
@@ -497,8 +498,8 @@ public class QueryGenerator {
 		//update-begin--Author:scott  Date:20190724 for：initQueryWrapper组装sql查询条件错误 #284-------------------
 		//TODO 此处规则，只适用于 le lt ge gt
 		// step 2 .>= =<
-        int length2 = 2;
-        int length3 = 3;
+		int length2 = 2;
+		int length3 = 3;
 		if (rule == null && val.length() >= length3) {
 			if(QUERY_SEPARATE_KEYWORD.equals(val.substring(length2, length3))){
 				rule = QueryRuleEnum.getByValue(val.substring(0, 2));
@@ -693,7 +694,7 @@ public class QueryGenerator {
 	}
 
 	/**
-	  * 根据规则走不同的查询
+	 * 根据规则走不同的查询
 	 * @param queryWrapper QueryWrapper
 	 * @param name         字段名字
 	 * @param rule         查询规则
@@ -706,51 +707,51 @@ public class QueryGenerator {
 		name = oConvertUtils.camelToUnderline(name);
 		log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}",name,rule.getValue(),value);
 		switch (rule) {
-		case GT:
-			queryWrapper.gt(name, value);
-			break;
-		case GE:
-			queryWrapper.ge(name, value);
-			break;
-		case LT:
-			queryWrapper.lt(name, value);
-			break;
-		case LE:
-			queryWrapper.le(name, value);
-			break;
-		case EQ:
-		case EQ_WITH_ADD:
-			queryWrapper.eq(name, value);
-			break;
-		case NE:
-			queryWrapper.ne(name, value);
-			break;
-		case IN:
-			if(value instanceof String) {
-				queryWrapper.in(name, (Object[])value.toString().split(COMMA));
-			}else if(value instanceof String[]) {
-				queryWrapper.in(name, (Object[]) value);
-			}
-			//update-begin-author:taoyan date:20200909 for:【bug】in 类型多值查询 不适配postgresql #1671
-			else if(value.getClass().isArray()) {
-				queryWrapper.in(name, (Object[])value);
-			}else {
-				queryWrapper.in(name, value);
-			}
-			//update-end-author:taoyan date:20200909 for:【bug】in 类型多值查询 不适配postgresql #1671
-			break;
-		case LIKE:
-			queryWrapper.like(name, value);
-			break;
-		case LEFT_LIKE:
-			queryWrapper.likeLeft(name, value);
-			break;
-		case RIGHT_LIKE:
-			queryWrapper.likeRight(name, value);
-			break;
-		default:
-			log.info("--查询规则未匹配到---");
-			break;
+			case GT:
+				queryWrapper.gt(name, value);
+				break;
+			case GE:
+				queryWrapper.ge(name, value);
+				break;
+			case LT:
+				queryWrapper.lt(name, value);
+				break;
+			case LE:
+				queryWrapper.le(name, value);
+				break;
+			case EQ:
+			case EQ_WITH_ADD:
+				queryWrapper.eq(name, value);
+				break;
+			case NE:
+				queryWrapper.ne(name, value);
+				break;
+			case IN:
+				if(value instanceof String) {
+					queryWrapper.in(name, (Object[])value.toString().split(COMMA));
+				}else if(value instanceof String[]) {
+					queryWrapper.in(name, (Object[]) value);
+				}
+				//update-begin-author:taoyan date:20200909 for:【bug】in 类型多值查询 不适配postgresql #1671
+				else if(value.getClass().isArray()) {
+					queryWrapper.in(name, (Object[])value);
+				}else {
+					queryWrapper.in(name, value);
+				}
+				//update-end-author:taoyan date:20200909 for:【bug】in 类型多值查询 不适配postgresql #1671
+				break;
+			case LIKE:
+				queryWrapper.like(name, value);
+				break;
+			case LEFT_LIKE:
+				queryWrapper.likeLeft(name, value);
+				break;
+			case RIGHT_LIKE:
+				queryWrapper.likeRight(name, value);
+				break;
+			default:
+				log.info("--查询规则未匹配到---");
+				break;
 		}
 	}
 	/**
@@ -779,7 +780,7 @@ public class QueryGenerator {
 				addEasyQuery(queryWrapper, name, rule, dataRule.getRuleValue());
 			}else if (propertyType.equals(Date.class)) {
 				String dateStr = dataRule.getRuleValue();
-                int length = 10;
+				int length = 10;
 				if(dateStr.length()==length){
 					addEasyQuery(queryWrapper, name, rule, DateUtils.str2Date(dateStr,DateUtils.date_sdf.get()));
 				}else{
@@ -792,12 +793,12 @@ public class QueryGenerator {
 	}
 
 	/**
-	* @author: scott
-	* @Description: 去掉值前后单引号
-	* @date: 2020/3/19 21:26
-	* @param ruleValue:
-	* @Return: java.lang.String
-	*/
+	 * @author: scott
+	 * @Description: 去掉值前后单引号
+	 * @date: 2020/3/19 21:26
+	 * @param ruleValue:
+	 * @Return: java.lang.String
+	 */
 	public static String trimSingleQuote(String ruleValue) {
 		if (oConvertUtils.isEmpty(ruleValue)) {
 			return "";
@@ -893,42 +894,42 @@ public class QueryGenerator {
 	private static String getSingleSqlByRule(QueryRuleEnum rule,String field,Object value,boolean isString, String dataBaseType) {
 		String res = "";
 		switch (rule) {
-		case GT:
-			res =field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case GE:
-			res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case LT:
-			res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case LE:
-			res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case EQ:
-			res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case EQ_WITH_ADD:
-			res = field+" = "+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case NE:
-			res = field+" <> "+getFieldConditionValue(value, isString, dataBaseType);
-			break;
-		case IN:
-			res = field + " in "+getInConditionValue(value, isString);
-			break;
-		case LIKE:
-			res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.LIKE);
-			break;
-		case LEFT_LIKE:
-			res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.LEFT_LIKE);
-			break;
-		case RIGHT_LIKE:
-			res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.RIGHT_LIKE);
-			break;
-		default:
-			res = field+" = "+getFieldConditionValue(value, isString, dataBaseType);
-			break;
+			case GT:
+				res =field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case GE:
+				res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case LT:
+				res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case LE:
+				res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case EQ:
+				res = field+rule.getValue()+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case EQ_WITH_ADD:
+				res = field+" = "+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case NE:
+				res = field+" <> "+getFieldConditionValue(value, isString, dataBaseType);
+				break;
+			case IN:
+				res = field + " in "+getInConditionValue(value, isString);
+				break;
+			case LIKE:
+				res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.LIKE);
+				break;
+			case LEFT_LIKE:
+				res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.LEFT_LIKE);
+				break;
+			case RIGHT_LIKE:
+				res = field + " like "+getLikeConditionValue(value, QueryRuleEnum.RIGHT_LIKE);
+				break;
+			default:
+				res = field+" = "+getFieldConditionValue(value, isString, dataBaseType);
+				break;
 		}
 		return res;
 	}
@@ -1220,7 +1221,8 @@ public class QueryGenerator {
 		if(oConvertUtils.isNotEmpty(DB_TYPE)){
 			return DB_TYPE;
 		}
-		DataSource dataSource = SpringContextUtils.getApplicationContext().getBean(DataSource.class);
+		// todo 去掉
+		DataSource dataSource = org.jeecg.common.util.SpringContextUtils.getApplicationContext().getBean(DataSource.class);
 		try {
 			return getDatabaseTypeByDataSource(dataSource);
 		} catch (SQLException e) {

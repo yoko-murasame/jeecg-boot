@@ -1,7 +1,5 @@
 package cn.com.hyit.config.query;
 
-import cn.com.hyit.config.util.oConvertUtils;
-
 /**
  * 查询链接规则
  *
