@@ -1,23 +1,18 @@
 package cn.com.hyit.form.test;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.math.BigDecimal;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Accessors(chain = true)
@@ -42,8 +37,8 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 创建日期
      */
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建日期", name = "createTime", notes = "创建日期")
     private Date createTime;
 
@@ -57,8 +52,8 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 更新日期
      */
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新日期", name = "updateTime", notes = "更新日期")
     private Date updateTime;
 
@@ -72,7 +67,6 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 名称
      */
-    @Excel(name = "名称", width = 15)
     @ApiModelProperty(value = "名称", name = "name", notes = "名称")
     @Size(max = 32, message = "名称长度不能超过32")
     private String name;
@@ -80,7 +74,6 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 性别
      */
-    @Excel(name = "性别", width = 15)
     @ApiModelProperty(value = "性别", name = "sex", notes = "性别")
     @Size(max = 32, message = "性别长度不能超过32")
     private String sex;
@@ -88,16 +81,14 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 时间
      */
-    @Excel(name = "时间", width = 15, format = "yyyy-MM-dd")
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "时间", name = "sj", notes = "时间")
     private Date sj;
 
     /**
      * 流程状态
      */
-    @Excel(name = "流程状态", width = 15)
     @ApiModelProperty(value = "流程状态", name = "bpmStatus", notes = "流程状态", required = true)
     @Size(max = 32, message = "流程状态长度不能超过32")
     @NotEmpty(message = "流程状态不能为空")
@@ -106,7 +97,6 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 辣辣
      */
-    @Excel(name = "辣辣", width = 15)
     @ApiModelProperty(value = "辣辣", name = "lala", notes = "辣辣")
     @Size(max = 32, message = "辣辣长度不能超过32")
     private String lala;
@@ -114,21 +104,18 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 文件
      */
-    @Excel(name = "文件", width = 15)
     @ApiModelProperty(value = "文件", name = "file", notes = "文件")
     private String file;
 
     /**
      * 图片
      */
-    @Excel(name = "图片", width = 15)
     @ApiModelProperty(value = "图片", name = "image", notes = "图片")
     private String image;
 
     /**
      * 字段a
      */
-    @Excel(name = "字段a", width = 15)
     @ApiModelProperty(value = "字段a", name = "newOne", notes = "字段a", required = true)
     @Size(max = 32, message = "字段a长度不能超过32")
     @NotEmpty(message = "字段a不能为空")
@@ -137,7 +124,6 @@ public class TestOneRpcAddForm implements Serializable {
     /**
      * 数值a
      */
-    @Excel(name = "数值a", width = 15)
     @ApiModelProperty(value = "数值a", name = "numOne", notes = "数值a")
     private BigDecimal numOne;
 

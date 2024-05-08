@@ -1,9 +1,9 @@
 package cn.com.hyit.dao.system;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import cn.com.hyit.config.vo.DictModel;
 import cn.com.hyit.config.vo.DictModelMany;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

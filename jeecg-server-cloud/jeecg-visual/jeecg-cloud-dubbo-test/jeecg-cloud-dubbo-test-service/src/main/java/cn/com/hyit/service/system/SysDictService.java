@@ -2,10 +2,10 @@ package cn.com.hyit.service.system;
 
 import cn.com.hyit.config.constant.DataBaseConstant;
 import cn.com.hyit.config.util.SqlInjectionUtil;
-import cn.com.hyit.dao.system.SysDictMapper;
-import lombok.extern.slf4j.Slf4j;
 import cn.com.hyit.config.vo.DictModel;
 import cn.com.hyit.config.vo.DictModelMany;
+import cn.com.hyit.dao.system.SysDictMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

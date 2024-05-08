@@ -1,7 +1,9 @@
 package cn.com.hyit.config;
 
 import cn.com.hyit.config.anno.Dict;
+import cn.com.hyit.config.constant.CommonConstant;
 import cn.com.hyit.config.util.oConvertUtils;
+import cn.com.hyit.config.vo.DictModel;
 import cn.com.hyit.core.base.bean.RpcResult;
 import cn.com.hyit.core.web.response.WebResponse;
 import cn.com.hyit.service.system.ISysDictService;
@@ -16,8 +18,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import cn.com.hyit.config.constant.CommonConstant;
-import cn.com.hyit.config.vo.DictModel; // todo 换掉
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
