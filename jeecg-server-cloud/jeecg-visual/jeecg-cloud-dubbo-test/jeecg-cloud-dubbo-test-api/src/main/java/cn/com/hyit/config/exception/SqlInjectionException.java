@@ -1,7 +1,7 @@
 package cn.com.hyit.config.exception;
 
 /**
- * jeecg-boot自定义SQL注入异常
+ * 定义SQL注入异常
  */
 public class SqlInjectionException extends RuntimeException {
 	private static final long serialVersionUID = 6407854850529610853L;

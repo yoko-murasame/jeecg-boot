@@ -6,6 +6,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.enums.SentinelErrorInfoEnum;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.connection.PoolException;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * @Date 2019
  */
 @RestControllerAdvice
+@ConditionalOnMissingClass("cn.com.hyit.config.EstateExceptionHandler")
 @Slf4j
 public class JeecgBootExceptionHandler {
 
