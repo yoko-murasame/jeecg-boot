@@ -9,8 +9,6 @@ import cn.com.hyit.core.web.response.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.jeecg.common.exception.JeecgBootExceptionHandler;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.connection.PoolException;
@@ -26,7 +24,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * 异常处理器
  */
 @RestControllerAdvice
-@ConditionalOnMissingBean(JeecgBootExceptionHandler.class) // todo 待删
 @Slf4j
 public class EstateExceptionHandler extends BaseRest {
 

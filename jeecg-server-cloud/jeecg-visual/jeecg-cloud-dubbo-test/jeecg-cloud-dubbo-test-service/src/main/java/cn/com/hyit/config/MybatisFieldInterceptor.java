@@ -9,8 +9,6 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
-import org.jeecg.config.JeecgDubboCondition;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -20,7 +18,6 @@ import java.util.Properties;
 /**
  * mybatis拦截器，自动注入创建人、创建时间、修改人、修改时间、软删
  */
-@Conditional(JeecgDubboCondition.class) // todo 去掉
 @Slf4j
 @Component
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }) })
@@ -140,7 +137,7 @@ public class MybatisFieldInterceptor implements Interceptor {
 						field.setAccessible(false);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 			}
 		}

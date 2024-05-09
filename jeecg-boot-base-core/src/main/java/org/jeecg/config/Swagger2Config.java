@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.constant.CommonConstant;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableSwagger2WebMvc
 @Import(BeanValidatorPluginsConfiguration.class)
+@ConditionalOnMissingClass("cn.com.hyit.config.SwaggerConfig")
 public class Swagger2Config implements WebMvcConfigurer {
 
     /**

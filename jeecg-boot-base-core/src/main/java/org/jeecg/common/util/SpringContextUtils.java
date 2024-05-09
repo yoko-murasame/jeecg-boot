@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jeecg.common.constant.ServiceNameConstants;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author: jeecg-boot
  */
 @Component
+@ConditionalOnMissingClass("cn.com.hyit.config.util.SpringContextUtils")
 public class SpringContextUtils implements ApplicationContextAware {
 
 	/**
@@ -69,7 +71,7 @@ public class SpringContextUtils implements ApplicationContextAware {
 		HttpServletRequest request = getHttpServletRequest();
 		return request.getHeader("Origin");
 	}
-	
+
 	/**
 	 * 通过name获取 Bean.
 	 *

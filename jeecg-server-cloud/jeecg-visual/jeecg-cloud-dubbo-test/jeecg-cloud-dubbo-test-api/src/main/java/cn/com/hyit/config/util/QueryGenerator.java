@@ -107,8 +107,7 @@ public class QueryGenerator {
 		if (null != STRING_RULE) {
 			return;
 		}
-		// todo 去掉
-		String property = org.jeecg.common.util.SpringContextUtils.getApplicationContext().getEnvironment().getProperty("jeecg.queryRule");
+		String property = SpringContextUtils.getApplicationContext().getEnvironment().getProperty("jeecg.queryRule");
 		if (!StringUtils.hasText(property)) {
 			property = QueryRuleEnum.EQ.getValue();
 		}
@@ -1221,8 +1220,7 @@ public class QueryGenerator {
 		if(oConvertUtils.isNotEmpty(DB_TYPE)){
 			return DB_TYPE;
 		}
-		// todo 去掉
-		DataSource dataSource = org.jeecg.common.util.SpringContextUtils.getApplicationContext().getBean(DataSource.class);
+		DataSource dataSource = SpringContextUtils.getApplicationContext().getBean(DataSource.class);
 		try {
 			return getDatabaseTypeByDataSource(dataSource);
 		} catch (SQLException e) {

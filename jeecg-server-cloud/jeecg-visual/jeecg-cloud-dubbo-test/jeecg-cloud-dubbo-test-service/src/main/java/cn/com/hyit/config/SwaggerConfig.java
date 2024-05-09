@@ -3,11 +3,9 @@ package cn.com.hyit.config;
 import cn.com.hyit.config.constant.CommonConstant;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.config.JeecgDubboCondition;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.ReflectionUtils;
@@ -40,7 +38,6 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableSwagger2WebMvc
 @Import(BeanValidatorPluginsConfiguration.class)
-@Conditional(JeecgDubboCondition.class) // 仅在dubbo模式下启用 todo 去掉
 @Slf4j
 public class SwaggerConfig implements WebMvcConfigurer {
 

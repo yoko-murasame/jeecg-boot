@@ -12,6 +12,7 @@ import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.TenantConstant;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -27,6 +28,7 @@ import java.util.Properties;
 @Slf4j
 @Component
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }) })
+@ConditionalOnMissingClass("cn.com.hyit.config.MybatisFieldInterceptor")
 public class MybatisInterceptor implements Interceptor {
 
 	@Override
