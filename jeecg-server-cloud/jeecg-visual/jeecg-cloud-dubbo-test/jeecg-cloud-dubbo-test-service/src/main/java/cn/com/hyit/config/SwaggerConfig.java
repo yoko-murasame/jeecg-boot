@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -180,12 +181,18 @@ public class SwaggerConfig implements WebMvcConfigurer {
         };
     }
 
-    // 需要跨域就放开
+    // 是否开启跨域，通过cloud网关访问时必须关闭
     @Bean
+    @ConditionalOnProperty(
+            prefix = "spring",
+            name = "cors",
+            havingValue = "true",
+            matchIfMissing = false
+    )
     public CorsFilter corsFilter() {
         final UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration corsConfiguration = new CorsConfiguration();
-        //是否允许请求带有验证信息
+        // 是否允许请求带有验证信息
         corsConfiguration.setAllowCredentials(true);
         // 允许访问的客户端域名
         corsConfiguration.addAllowedOriginPattern("*");

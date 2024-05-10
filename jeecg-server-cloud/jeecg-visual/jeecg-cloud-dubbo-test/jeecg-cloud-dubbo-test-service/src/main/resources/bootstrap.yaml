@@ -2,6 +2,7 @@ server:
   port: ${SERVER_PORT:8011}
 
 spring:
+  cors: false # 是否开启跨域，通过cloud网关访问时必须关闭
   main:
     # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
     allow-circular-references: true
