@@ -3,6 +3,7 @@ package cn.com.hyit.config;
 import cn.com.hyit.config.constant.CommonConstant;
 import cn.com.hyit.config.util.oConvertUtils;
 import cn.com.hyit.entity.system.SysUser;
+import cn.hutool.core.util.ReflectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.executor.Executor;
@@ -45,54 +46,38 @@ public class MybatisFieldInterceptor implements Interceptor {
 			for (Field field : fields) {
 				log.debug("------field.name------" + field.getName());
 				try {
-					if ("createdBy".equals(field.getName())) {
-						field.setAccessible(true);
-						Object localCreateBy = field.get(parameter);
-						field.setAccessible(false);
+					if ("createdBy".equals(field.getName()) || "createBy".equals(field.getName())) {
+						Object localCreateBy = ReflectUtil.getFieldValue(parameter, field);
 						if (localCreateBy == null || "".equals(localCreateBy)) {
 							if (sysUser != null) {
 								// 登录人账号
-								field.setAccessible(true);
-								field.set(parameter, sysUser.getUsername());
-								field.setAccessible(false);
+								ReflectUtil.setFieldValue(parameter, field, sysUser.getUsername());
 							}
 						}
 					}
 					// 注入创建时间
-					if ("createdTime".equals(field.getName())) {
-						field.setAccessible(true);
-						Object localCreateDate = field.get(parameter);
-						field.setAccessible(false);
+					if ("createdTime".equals(field.getName()) || "createTime".equals(field.getName())) {
+						Object localCreateDate = ReflectUtil.getFieldValue(parameter, field);
 						if (localCreateDate == null || "".equals(localCreateDate)) {
-							field.setAccessible(true);
-							field.set(parameter, new Date());
-							field.setAccessible(false);
+							ReflectUtil.setFieldValue(parameter, field, new Date());
 						}
 					}
 					// 注入部门编码
 					if ("sysOrgCode".equals(field.getName())) {
-						field.setAccessible(true);
-						Object localSysOrgCode = field.get(parameter);
-						field.setAccessible(false);
+						Object localSysOrgCode = ReflectUtil.getFieldValue(parameter, field);
 						if (localSysOrgCode == null || "".equals(localSysOrgCode)) {
 							// 获取登录用户信息
 							if (sysUser != null) {
-								field.setAccessible(true);
-								field.set(parameter, sysUser.getOrgCode());
-								field.setAccessible(false);
+								ReflectUtil.setFieldValue(parameter, field, sysUser.getOrgCode());
 							}
 						}
 					}
 					// 注入软删
 					if ("delFlag".equals(field.getName())) {
-						field.setAccessible(true);
-						Object delFlag = field.get(parameter);
-						field.setAccessible(false);
+						Object delFlag = ReflectUtil.getFieldValue(parameter, field);
 						if (delFlag == null) {
 							// 设置正常状态
-							field.setAccessible(true);
-							field.set(parameter, CommonConstant.DEL_FLAG_0);
-							field.setAccessible(false);
+							ReflectUtil.setFieldValue(parameter, field, CommonConstant.DEL_FLAG_0);
 						}
 					}
 				} catch (Exception ignore) {
@@ -122,19 +107,15 @@ public class MybatisFieldInterceptor implements Interceptor {
 			for (Field field : fields) {
 				log.debug("------field.name------" + field.getName());
 				try {
-					if ("updatedBy".equals(field.getName())) {
+					if ("updatedBy".equals(field.getName()) || "updateBy".equals(field.getName())) {
 						//获取登录用户信息
 						if (sysUser != null) {
 							// 登录账号
-							field.setAccessible(true);
-							field.set(parameter, sysUser.getUsername());
-							field.setAccessible(false);
+							ReflectUtil.setFieldValue(parameter, field, sysUser.getUsername());
 						}
 					}
-					if ("updatedTime".equals(field.getName())) {
-						field.setAccessible(true);
-						field.set(parameter, new Date());
-						field.setAccessible(false);
+					if ("updatedTime".equals(field.getName()) || "updateTime".equals(field.getName())) {
+						ReflectUtil.setFieldValue(parameter, field, new Date());
 					}
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
