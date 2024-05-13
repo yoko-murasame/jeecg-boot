@@ -24,16 +24,16 @@
         )
     </select>
 
-    <select id="queryTableDictByKeysAndFilterSql" parameterType="String" resultType="cn.com.hyit.config.vo.DictModel">
-        select ${text} as "text", ${code} as "value" from ${table}
-        where ${code} IN (
-        <foreach item="key" collection="codeValues" separator=",">
-            #{key}
-        </foreach>
-        )
-        <if test="filterSql != null and filterSql != ''">
-            and ${filterSql}
-        </if>
-    </select>
+    <!--<select id="queryTableDictByKeysAndFilterSql" parameterType="String" resultType="cn.com.hyit.config.vo.DictModel">-->
+    <!--    select ${text} as "text", ${code} as "value" from ${table}-->
+    <!--    where ${code} IN (-->
+    <!--    <foreach item="key" collection="codeValues" separator=",">-->
+    <!--        #{key}-->
+    <!--    </foreach>-->
+    <!--    )-->
+    <!--    <if test="filterSql != null and filterSql != ''">-->
+    <!--        and ${filterSql}-->
+    <!--    </if>-->
+    <!--</select>-->
 
 </mapper>

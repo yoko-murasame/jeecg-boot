@@ -1,10 +1,12 @@
 package cn.com.hyit.service.system;
 
 import cn.com.hyit.config.constant.DataBaseConstant;
+import cn.com.hyit.config.exception.EstateException;
 import cn.com.hyit.config.util.SqlInjectionUtil;
 import cn.com.hyit.config.vo.DictModel;
 import cn.com.hyit.config.vo.DictModelMany;
 import cn.com.hyit.dao.system.SysDictMapper;
+import cn.com.hyit.entity.system.SysDictTableEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -71,8 +73,14 @@ public class SysDictService implements ISysDictService{
         text = SqlInjectionUtil.getSqlInjectField(text);
         code = SqlInjectionUtil.getSqlInjectField(code);
 
-        return sysDictMapper.queryTableDictByKeysAndFilterSql(table, text, code, filterSql, codeValues);
-
+        // FIXME 旧的方式，无法限制表，而且在xml中会有$符号（某些代码扫描工具不允许存在）
+        // return sysDictMapper.queryTableDictByKeysAndFilterSql(table, text, code, filterSql, codeValues);
+        // 限制字典表枚举
+        Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+        if (opt.isPresent()) {
+            return opt.get().getDictModels(text, code, codeValues, filterSql);
+        }
+        throw new EstateException("不支持的字典table策略：" + table);
     }
 
 }

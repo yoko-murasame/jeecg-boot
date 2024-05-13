@@ -1,6 +1,5 @@
 package cn.com.hyit.dao.system;
 
-import cn.com.hyit.config.vo.DictModel;
 import cn.com.hyit.config.vo.DictModelMany;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -31,7 +30,7 @@ public interface SysDictMapper {
      * @param filterSql 条件sql
      * @param codeValues 存储字段值 作为查询条件in
      */
-    List<DictModel> queryTableDictByKeysAndFilterSql(@Param("table") String table, @Param("text") String text, @Param("code") String code, @Param("filterSql") String filterSql,
-                                                     @Param("codeValues") List<String> codeValues);
+    // List<DictModel> queryTableDictByKeysAndFilterSql(@Param("table") String table, @Param("text") String text, @Param("code") String code, @Param("filterSql") String filterSql,
+    //                                                  @Param("codeValues") List<String> codeValues);
 
 }
