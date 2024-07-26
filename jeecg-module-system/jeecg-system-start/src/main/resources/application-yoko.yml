@@ -1,5 +1,5 @@
 server:
-  port: 8300
+  port: ${SERVER_PORT:8300}
   tomcat:
     max-swallow-size: -1
   error:
@@ -7,7 +7,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /main
+    context-path: ${SERVER_CONTEXT_PATH:/main}
   compression:
     enabled: true
     min-response-size: 1024
@@ -173,9 +173,9 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:postgresql://127.0.0.1:54321/postgres?stringtype=unspecified
-          username: postgres
-          password: 123456
+          url: jdbc:postgresql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:54321}/${DATABASE_NAME:postgres}?stringtype=unspecified
+          username: ${DATABASE_USER:postgres}
+          password: ${DATABASE_PWD:123456}
           driver-class-name: org.postgresql.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -185,10 +185,10 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 11
-    host: 127.0.0.1
-    port: 63791
-    password: ''
+    database: ${REDIS_DB:11}
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:63791}
+    password: ${REDIS_PWD:''}
     lettuce:
       pool:
         max-active: 8   #最大连接数据库连接数,设 0 为没有限制
@@ -253,7 +253,7 @@ jeecg:
     endpoint: oss-cn-beijing.aliyuncs.com
     bucketName: jeecgdev
     staticDomain: https://static.jeecg.com
-  # ElasticSearch 6设置
+  # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES
     cluster-nodes: 127.0.0.1:9200
@@ -307,6 +307,7 @@ cas:
 #Mybatis输出sql日志
 logging:
   level:
+    # org.flywaydb: debug
     org.springframework.scheduling.quartz.LocalDataSourceJobStore: off
     org.jeecg.modules.system.mapper: info
     org.jeecg.modules: debug
