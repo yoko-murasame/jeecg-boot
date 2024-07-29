@@ -1,0 +1,51 @@
+### 线-请求资源
+GET http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/line_test/features.rjson?fromIndex=0&toIndex=1
+
+### 线-请求资源-ID
+GET http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/line_test/features/1.json
+
+### 线-新增资源
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/line_test/features.rjson
+Content-Type: application/json;charset=utf-8
+
+[
+  {
+    "fieldNames": [
+      "SMID",
+      "SMUSERID",
+      "NAME",
+      "LONGITUDE",
+      "LATITUDE",
+      "BUSS_ID"
+    ],
+    "fieldValues": [
+      "",
+      "0",
+      "大楼测试新增111",
+      "120.654800534248",
+      "28.0086819827557",
+      "测试id111"
+    ],
+    "geometry": {
+      "type": "LINE",
+      "points": [
+        { "x": 120.1, "y": 28.2 },
+        { "x": 120.2, "y": 28.3 },
+        { "x": 120.4, "y": 28.5 }
+      ]
+    }
+  }
+]
+
+### 线-删除资源-根据ID数组
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/line_test/features.rjson?_method=DELETE&deleteMode=IDS
+Content-Type: application/json;charset=utf-8
+
+[5, 6]
+
+### 线-删除资源-SQL
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/line_test/features.rjson?_method=DELETE&deleteMode=SQL
+Content-Type: application/json;charset=utf-8
+
+{"attributeFilter":"BUSS_ID like '%测试%'"}
+

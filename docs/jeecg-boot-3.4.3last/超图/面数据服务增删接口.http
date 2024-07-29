@@ -1,0 +1,52 @@
+### 面-请求资源
+GET http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/region_test/features.rjson?fromIndex=0&toIndex=1
+
+### 面-请求资源-ID
+GET http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/region_test/features/1.json
+
+### 面-新增资源（面的geometry中点的第一行和最后一行一致形成一个闭环）
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/region_test/features.rjson
+Content-Type: application/json;charset=utf-8
+
+[
+  {
+    "fieldNames": [
+      "SMID",
+      "SMUSERID",
+      "NAME",
+      "LONGITUDE",
+      "LATITUDE",
+      "BUSS_ID"
+    ],
+    "fieldValues": [
+      "",
+      "0",
+      "大楼测试新增111",
+      "120.654800534248",
+      "28.0086819827557",
+      "测试id111"
+    ],
+    "geometry": {
+      "type": "REGION",
+      "points": [
+        { "x": 120.1, "y": 28.2 },
+        { "x": 130.1, "y": 40.2 },
+        { "x": 150.1, "y": 30.2 },
+        { "x": 120.1, "y": 28.2 }
+      ]
+    }
+  }
+]
+
+### 面-删除资源-根据ID数组
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/region_test/features.rjson?_method=DELETE&deleteMode=IDS
+Content-Type: application/json;charset=utf-8
+
+[8, 9]
+
+### 面-删除资源-SQL
+POST http://localhost:3301/iserver/services/data-GJDW/rest/data/datasources/GJDW/datasets/region_test/features.rjson?_method=DELETE&deleteMode=SQL
+Content-Type: application/json;charset=utf-8
+
+{"attributeFilter":"BUSS_ID like '%测试%'"}
+
