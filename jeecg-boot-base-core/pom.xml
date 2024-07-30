@@ -152,6 +152,12 @@
 			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- 人大金仓ES V8R6（maven官方库存在jar，阿里云镜像没有）-->
+		<dependency>
+			<groupId>cn.com.kingbase</groupId>
+			<artifactId>kingbase8</artifactId>
+			<version>8.6.0</version>
+		</dependency>
 
 		<!-- Quartz定时任务 -->
 		<dependency>
