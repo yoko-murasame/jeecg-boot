@@ -17,6 +17,7 @@ $BODY$
     LANGUAGE plpgsql VOLATILE
                      COST 100;
 --创建cast规则
+-- DROP CAST (SMALLINT as BOOLEAN);
 create cast (SMALLINT as BOOLEAN) with function smallint_to_boolean as ASSIGNMENT;
 
 --创建转换fun：boolean_to_smallint（对应错误: 字段 "is_active_" 的类型为 smallint, 但表达式的类型为 boolean）
@@ -29,5 +30,6 @@ $BODY$
     LANGUAGE plpgsql VOLATILE
                      COST 100;
 --创建cast规则
+-- DROP CAST (BOOLEAN AS SMALLINT);
 create cast (BOOLEAN as SMALLINT) with function boolean_to_smallint as ASSIGNMENT;
 -- 执行脚本 END --
