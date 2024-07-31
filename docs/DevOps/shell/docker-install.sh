@@ -25,12 +25,14 @@ else
     tar -xvf $docker_install_name -C $package_path
     cp docker/* /usr/bin/
     rm -rf $package_path/docker
+    # [Unit]
     echo "[Unit]" >> /etc/systemd/system/docker.service
     echo "Description=Docker Application Container Engine" >> /etc/systemd/system/docker.service
     echo "Documentation=https://docs.docker.com" >> /etc/systemd/system/docker.service
     echo "After=network-online.target firewalld.service" >> /etc/systemd/system/docker.service
     echo "Wants=network-online.target" >> /etc/systemd/system/docker.service
     echo "" >> /etc/systemd/system/docker.service
+    # [Service]
     echo "[Service]" >> /etc/systemd/system/docker.service
     echo "Type=notify" >> /etc/systemd/system/docker.service
     # --graph $DOCKER_FILE_PATH 用于指定 Docker 的数据存储路径
@@ -48,6 +50,9 @@ else
     echo "Restart=on-failure" >> /etc/systemd/system/docker.service
     echo "StartLimitBurst=3" >> /etc/systemd/system/docker.service
     echo "StartLimitInterval=60s" >> /etc/systemd/system/docker.service
+    # [Install]
+    echo "[Install]" >> /etc/systemd/system/docker.service
+    echo "WantedBy=multi-user.target" >> /etc/systemd/system/docker.service
     # Reload systemd daemon and restart Docker
     echo "----------注册docker服务----------"
     chmod +x /etc/systemd/system/docker.service
