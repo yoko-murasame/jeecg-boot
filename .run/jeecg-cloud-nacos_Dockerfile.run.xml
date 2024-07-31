@@ -2,8 +2,8 @@
   <configuration default="false" name="jeecg-cloud-nacos/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
     <deployment type="dockerfile">
       <settings>
-        <option name="imageTag" value="jeecg:nacos" />
-        <option name="containerName" value="jeecg-nacos" />
+        <option name="imageTag" value="app:nacos" />
+        <option name="containerName" value="nacos-pg" />
         <option name="envVars">
           <list>
             <DockerEnvVarImpl>
@@ -14,17 +14,29 @@
               <option name="name" value="MYSQL-PWD" />
               <option name="value" value="dsjy@123" />
             </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="POSTGRESQL-PORT" />
+              <option name="value" value="54321" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="POSTGRESQL-PWD" />
+              <option name="value" value="" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="POSTGRESQL-USER" />
+              <option name="value" value="postgres" />
+            </DockerEnvVarImpl>
           </list>
         </option>
         <option name="portBindings">
           <list>
             <DockerPortBindingImpl>
               <option name="containerPort" value="8848" />
-              <option name="hostPort" value="8848" />
+              <option name="hostPort" value="8849" />
             </DockerPortBindingImpl>
           </list>
         </option>
-        <option name="commandLineOptions" value="--add-host=jeecg-boot-mysql:172.17.0.1" />
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-mysql:172.17.0.1 --add-host=jeecg-boot-postgresql:172.17.0.1" />
         <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-cloud-nacos/Dockerfile" />
       </settings>
     </deployment>
