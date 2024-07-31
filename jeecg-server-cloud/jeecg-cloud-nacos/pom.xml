@@ -66,11 +66,20 @@
             <artifactId>nacos-console</artifactId>
             <version>2.2.3</version>
         </dependency>
-        <!--pg支持 https://github.com/pig-mesh/nacos-datasource-plugin-pg-->
+        <!-- pg支持 如果不想折腾可以直接用别人的docker镜像：https://github.com/yangxj96/nacos-server-pgsql-docker -->
+        <!--pg支持 https://github.com/pig-mesh/nacos-datasource-plugin-pg -->
+        <!--<dependency>-->
+        <!--    <groupId>com.pig4cloud.plugin</groupId>-->
+        <!--    <artifactId>nacos-datasource-plugin-pg</artifactId>-->
+        <!--    <version>0.0.2</version>-->
+        <!--</dependency>-->
+        <!--pg支持(这个还有2.3的) https://github.com/pig-mesh/nacos-datasource-plugin-pg , 务必使用这里给得建库脚本 -->
         <dependency>
-            <groupId>com.pig4cloud.plugin</groupId>
-            <artifactId>nacos-datasource-plugin-pg</artifactId>
-            <version>0.0.2</version>
+            <groupId>net.hlinfo</groupId>
+            <artifactId>nacos-datasource-plugin-pgsql</artifactId>
+            <version>2.2.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/nacos-datasource-plugin-pgsql-2.2.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

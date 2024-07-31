@@ -10,8 +10,8 @@ spring:
   datasource:
     # mysql模式
 #    platform: mysql
-    # pg模式
-    platform: postgresql
+    # pg模式, postgresql 或 pgsql，看插件的具体实现
+    platform: pgsql
 
 db:
   num: 1
