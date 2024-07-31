@@ -66,6 +66,17 @@
             <artifactId>nacos-console</artifactId>
             <version>2.2.3</version>
         </dependency>
+        <!--pg支持 https://github.com/pig-mesh/nacos-datasource-plugin-pg-->
+        <dependency>
+            <groupId>com.pig4cloud.plugin</groupId>
+            <artifactId>nacos-datasource-plugin-pg</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
     </dependencies>
 
     <build>
