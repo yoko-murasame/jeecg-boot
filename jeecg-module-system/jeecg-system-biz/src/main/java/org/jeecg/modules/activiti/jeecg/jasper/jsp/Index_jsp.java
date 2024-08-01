@@ -5,6 +5,7 @@ package org.jeecg.modules.activiti.jeecg.jasper.jsp;
 // (powered by FernFlower decompiler)
 //
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.jasper.runtime.*;
 import org.apache.taglibs.standard.tag.rt.core.SetTag;
 import org.apache.tomcat.InstanceManager;
@@ -32,6 +33,7 @@ import java.util.Set;
 /**
  * 流程图设计页面
  */
+@Slf4j
 public final class Index_jsp extends HttpJspBase implements JspSourceDependent, JspSourceImports {
     private static final JspFactory a = JspFactory.getDefaultFactory();
     private static Map<String, Long> b = new HashMap(1);
@@ -111,14 +113,17 @@ public final class Index_jsp extends HttpJspBase implements JspSourceDependent, 
                     var8.write(10);
                     var8.write("\r\n\r\n\r\n\r\n");
                     String var12 = request.getContextPath();
+                    log.info("getContextPath:" + var12);
 //                    String var13 = request.getScheme() + "://" + request.getServerName() + ":8989"  + var12;
     //                 String var13 = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + var12;
                                 String var13 = var12;
                     String var14 = JMathUtil.defaultString(".jsp");
                     String var15 = request.getHeader("X_GATEWAY_BASE_PATH");
+                    log.info("X_GATEWAY_BASE_PATH:" + var15);
                     if (var15 != null && !var15.equals("")) {
                         var13 = var15;
                     }
+                    log.info("BASE_PATH:" + var13);
 
                     var8.write(13);
                     var8.write(10);

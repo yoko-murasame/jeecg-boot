@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.addOriginalRequestUrl;
 
@@ -27,6 +29,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.a
 public class GlobalAccessTokenFilter implements GlobalFilter, Ordered {
     public final static String X_ACCESS_TOKEN = "X-Access-Token";
     public final static String X_GATEWAY_BASE_PATH = "X_GATEWAY_BASE_PATH";
+    public final static String API_GATEWAY_PROXY_PATH = "API-GATEWAY-PROXY-PATH";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -35,6 +38,8 @@ public class GlobalAccessTokenFilter implements GlobalFilter, Ordered {
         String host = exchange.getRequest().getURI().getHost();
         int port = exchange.getRequest().getURI().getPort();
         String basePath = scheme + "://" + host + ":" + port;
+        // 获取真实的请求网关代理路径
+        String apiGatewayProxyPath = exchange.getRequest().getHeaders().getFirst(API_GATEWAY_PROXY_PATH);
         // 1. 重写StripPrefix(获取真实的URL)
         addOriginalRequestUrl(exchange, exchange.getRequest().getURI());
         String rawPath = exchange.getRequest().getURI().getRawPath();
@@ -42,7 +47,8 @@ public class GlobalAccessTokenFilter implements GlobalFilter, Ordered {
         ServerHttpRequest newRequest = exchange.getRequest().mutate().path(newPath).build();
         exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, newRequest.getURI());
         //2.将现在的request，添加当前身份
-        ServerHttpRequest mutableReq = exchange.getRequest().mutate().header("Authorization-UserName", "").header(X_GATEWAY_BASE_PATH,basePath).build();
+        ServerHttpRequest mutableReq = exchange.getRequest().mutate().header("Authorization-UserName", "")
+                .header(X_GATEWAY_BASE_PATH,StringUtils.hasText(apiGatewayProxyPath) ? apiGatewayProxyPath : basePath).build();
         ServerWebExchange mutableExchange = exchange.mutate().request(mutableReq).build();
         return chain.filter(mutableExchange);
     }
