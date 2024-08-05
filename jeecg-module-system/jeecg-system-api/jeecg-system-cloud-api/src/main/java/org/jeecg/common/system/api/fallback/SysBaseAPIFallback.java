@@ -285,6 +285,21 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<SysDepartModel> getAllSysDepart(String id) {
+        return null;
+    }
+
+    @Override
+    public SysDepartModel addSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
+    public SysDepartModel editSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
     public void sendTemplateMessage(MessageDTO message) {
     }
 

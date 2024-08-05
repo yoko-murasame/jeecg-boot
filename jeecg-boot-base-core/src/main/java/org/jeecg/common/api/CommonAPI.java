@@ -1,6 +1,8 @@
 package org.jeecg.common.api;
 
 import org.jeecg.common.system.vo.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -127,5 +129,30 @@ public interface CommonAPI {
      * @return
      */
     List<DictModel> translateDictFromTableByKeys(String table, String text, String code, String keys);
+
+
+    /**
+     * 获取所有部门列表
+     *
+     * @author Yoko
+     * @param id 部门id
+     */
+    List<SysDepartModel> getAllSysDepart(@RequestParam(name = "id", required = false) String id);
+
+    /**
+     * 添加部门
+     *
+     * @author Yoko
+     * @param model 部门实体
+     */
+    SysDepartModel addSysDepart(@RequestBody SysDepartModel model);
+
+    /**
+     * 更新部门
+     *
+     * @author Yoko
+     * @param model 部门实体
+     */
+    SysDepartModel editSysDepart(@RequestBody SysDepartModel model);
 
 }

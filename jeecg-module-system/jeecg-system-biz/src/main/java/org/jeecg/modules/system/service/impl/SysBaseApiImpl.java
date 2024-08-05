@@ -23,6 +23,7 @@ import org.jeecg.common.desensitization.util.SensitiveInfoUtil;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.dynamic.db.FreemarkerParseFactory;
@@ -51,6 +52,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 底层共通业务API，提供其他独立模块调用
@@ -1215,6 +1217,54 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	@Override
 	public List<DictModel> translateDictFromTableByKeys(String table, String text, String code, String keys) {
 		return sysDictService.queryTableDictTextByKeys(table, text, code, Arrays.asList(keys.split(",")));
+	}
+
+	@Override
+	public List<SysDepartModel> getAllSysDepart(String id) {
+		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
+		query.orderByAsc(SysDepart::getOrgCode);
+		if(oConvertUtils.isNotEmpty(id)){
+			String[] arr = id.split(",");
+			query.in(SysDepart::getId,arr);
+		}
+		List<SysDepart> ls = this.sysDepartService.list(query);
+		return ls.stream().map(l -> {
+			SysDepartModel sysDepartModel = new SysDepartModel();
+			BeanUtils.copyProperties(l, sysDepartModel);
+			return sysDepartModel;
+		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public SysDepartModel addSysDepart(SysDepartModel model) {
+		SysDepart sysDepart = new SysDepart();
+		BeanUtils.copyProperties(model, sysDepart);
+		String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+		sysDepart.setCreateBy(username);
+		sysDepartService.saveDepartData(sysDepart, username);
+		//清除部门树内存
+		// FindsDepartsChildrenUtil.clearSysDepartTreeList();
+		// FindsDepartsChildrenUtil.clearDepartIdModel();
+		BeanUtils.copyProperties(sysDepart, model);
+		return model;
+	}
+
+	@Override
+	public SysDepartModel editSysDepart(SysDepartModel model) {
+		SysDepart sysDepartEntity = sysDepartService.getById(model.getId());
+		if (sysDepartEntity == null) {
+			throw new JeecgBootException("未找到对应实体");
+		}
+		SysDepart sysDepart = new SysDepart();
+		BeanUtils.copyProperties(model, sysDepart);
+		String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+		sysDepart.setUpdateBy(username);
+		sysDepartService.updateDepartDataById(sysDepart, username);
+		//清除部门树内存
+		// FindsDepartsChildrenUtil.clearSysDepartTreeList();
+		// FindsDepartsChildrenUtil.clearDepartIdModel();
+		BeanUtils.copyProperties(sysDepart, model);
+		return model;
 	}
 
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------
