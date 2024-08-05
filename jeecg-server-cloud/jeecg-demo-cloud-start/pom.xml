@@ -17,6 +17,12 @@
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-boot-starter-cloud</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jeecgframework.boot</groupId>
+                    <artifactId>jeecg-boot-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--system cloud api-->
         <dependency>

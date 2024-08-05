@@ -23,6 +23,12 @@
                     <artifactId>jeecg-system-cloud-api</artifactId>
                 </exclusion>
             </exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jeecgframework.boot</groupId>
+                    <artifactId>jeecg-boot-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- jeecg-system-biz依赖 -->
         <dependency>

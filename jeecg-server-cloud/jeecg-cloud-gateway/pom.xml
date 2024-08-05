@@ -20,7 +20,15 @@
                     <groupId>org.jeecgframework.boot</groupId>
                     <artifactId>jeecg-system-cloud-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.jeecgframework.boot</groupId>
+                    <artifactId>jeecg-boot-common</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-boot-common-custom</artifactId>
         </dependency>
         <!-- Gateway网关依赖,内置webflux-->
         <dependency>
