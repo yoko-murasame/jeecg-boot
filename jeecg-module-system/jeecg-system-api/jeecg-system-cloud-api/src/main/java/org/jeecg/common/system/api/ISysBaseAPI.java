@@ -226,7 +226,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * @return
      */
     @GetMapping("/sys/api/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart();
+    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id);
 
     /**
      * 24查找父级部门
@@ -595,5 +595,36 @@ public interface ISysBaseAPI extends CommonAPI {
      */
     @PostMapping("/sys/api/packageUserInfo")
     JSONObject packageUserInfo(SysUserModel sysUserModel);
+
+    /**
+     * 添加部门
+     */
+    @PostMapping("/sys/api/addSysDepart")
+    SysDepartModel addSysDepart(@RequestBody SysDepartModel model);
+
+    @PostMapping("/sys/api/editSysDepart")
+    SysDepartModel editSysDepart(@RequestBody SysDepartModel model);
+
+    @PostMapping("/sys/api/deleteSysDepart")
+    SysDepartModel deleteSysDepart(@RequestBody SysDepartModel model);
+
+    /**
+     * 查询所有用户
+     */
+    @GetMapping("/sys/api/getAllSysUser")
+    List<SysUserModel> getAllSysUser(@RequestParam(required = false, value = "id") String id);
+
+    @PostMapping("/sys/api/addSysUser")
+    SysUserModel addSysUser(@RequestBody SysUserModel model,
+                            @RequestParam("roleIds") String roleIds,
+                            @RequestParam("departIds") String departIds);
+
+    @PostMapping("/sys/api/editSysUser")
+    SysUserModel editSysUser(@RequestBody SysUserModel model,
+                             @RequestParam("roleIds") String roleIds,
+                             @RequestParam("departIds") String departIds);
+
+    @PostMapping("/sys/api/deleteSysUser")
+    SysUserModel deleteSysUser(@RequestBody SysUserModel model);
 
 }

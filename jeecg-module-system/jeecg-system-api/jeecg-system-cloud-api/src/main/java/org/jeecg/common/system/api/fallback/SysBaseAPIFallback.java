@@ -9,6 +9,7 @@ import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,8 +144,8 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
-    public List<SysDepartModel> getAllSysDepart() {
-        return null;
+    public List<SysDepartModel> getAllSysDepart(String id) {
+        return Collections.emptyList();
     }
 
     @Override
@@ -285,7 +286,7 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
-    public List<SysDepartModel> getAllSysDepart(String id) {
+    public JSONObject packageUserInfo(SysUserModel sysUserModel) {
         return null;
     }
 
@@ -300,7 +301,27 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
-    public JSONObject packageUserInfo(SysUserModel sysUserModel) {
+    public SysDepartModel deleteSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
+    public List<SysUserModel> getAllSysUser(String id) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public SysUserModel addSysUser(SysUserModel model, String roleIds, String departIds) {
+        return null;
+    }
+
+    @Override
+    public SysUserModel editSysUser(SysUserModel model, String roleIds, String departIds) {
+        return null;
+    }
+
+    @Override
+    public SysUserModel deleteSysUser(SysUserModel model) {
         return null;
     }
 

@@ -6,6 +6,7 @@ import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.system.vo.*;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -188,7 +189,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * 24查询所有部门
      * @return
      */
-    public List<SysDepartModel> getAllSysDepart();
+    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id);
 
     /**
      * 25查找父级部门

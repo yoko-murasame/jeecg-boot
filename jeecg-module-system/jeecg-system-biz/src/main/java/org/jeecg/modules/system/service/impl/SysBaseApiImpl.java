@@ -735,18 +735,6 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
-	public List<SysDepartModel> getAllSysDepart() {
-		List<SysDepartModel> departModelList = new ArrayList<SysDepartModel>();
-		List<SysDepart> departList = departMapper.selectList(new QueryWrapper<SysDepart>().eq("del_flag","0"));
-		for(SysDepart depart : departList){
-			SysDepartModel model = new SysDepartModel();
-			BeanUtils.copyProperties(depart,model);
-			departModelList.add(model);
-		}
-		return departModelList;
-	}
-
-	@Override
 	public DynamicDataSourceModel getDynamicDbSourceById(String dbSourceId) {
 		SysDataSource dbSource = dataSourceService.getById(dbSourceId);
 		if(dbSource!=null && StringUtils.isNotBlank(dbSource.getDbPassword())){
@@ -1226,10 +1214,11 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	@Override
 	public List<SysDepartModel> getAllSysDepart(String id) {
 		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
+		query.eq(SysDepart::getDelFlag, 0);
 		query.orderByAsc(SysDepart::getOrgCode);
 		if(oConvertUtils.isNotEmpty(id)){
 			String[] arr = id.split(",");
-			query.in(SysDepart::getId,arr);
+			query.in(SysDepart::getId,Arrays.asList(arr));
 		}
 		List<SysDepart> ls = this.sysDepartService.list(query);
 		return ls.stream().map(l -> {
@@ -1268,6 +1257,80 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		// FindsDepartsChildrenUtil.clearSysDepartTreeList();
 		// FindsDepartsChildrenUtil.clearDepartIdModel();
 		BeanUtils.copyProperties(sysDepart, model);
+		return model;
+	}
+
+	@Override
+	public SysDepartModel deleteSysDepart(SysDepartModel model) {
+		SysDepart dept = new SysDepart();
+		BeanUtils.copyProperties(model, dept);
+		QueryWrapper<SysDepart> wrapper = QueryGenerator.initQueryWrapper(dept, SpringContextUtils.getHttpServletRequest().getParameterMap());
+		sysDepartService.list(wrapper).stream().map(SysDepart::getId).forEach(sysDepartService::delete);
+		return model;
+	}
+
+	@Override
+	public List<SysUserModel> getAllSysUser(String id) {
+		LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<SysUser>();
+		query.eq(SysUser::getDelFlag, 0);
+		if(oConvertUtils.isNotEmpty(id)){
+			String[] arr = id.split(",");
+			query.in(SysUser::getId,Arrays.asList(arr));
+		}
+		List<SysUser> ls = this.sysUserService.list(query);
+		return ls.stream().map(l -> {
+			SysUserModel sysUserModel = new SysUserModel();
+			BeanUtils.copyProperties(l, sysUserModel);
+			return sysUserModel;
+		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public SysUserModel addSysUser(SysUserModel model, String roleIds, String departIds){
+		SysUser user = new SysUser();
+		BeanUtils.copyProperties(model, user);
+		user.setCreateTime(new Date());//设置创建时间
+		String salt = oConvertUtils.randomGen(8);
+		user.setSalt(salt);
+		String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), salt);
+		user.setPassword(passwordEncode);
+		user.setStatus(1);
+		user.setDelFlag(CommonConstant.DEL_FLAG_0);
+		//用户表字段org_code不能在这里设置他的值
+		user.setOrgCode(null);
+		// 保存用户走一个service 保证事务
+		this.sysUserService.saveUser(user, roleIds, departIds);
+		BeanUtils.copyProperties(user, model);
+		return model;
+	}
+
+	@Override
+	public SysUserModel editSysUser(SysUserModel model, String roleIds, String departIds) {
+		SysUser sysUser = this.sysUserService.getById(model.getId());
+		if(sysUser==null) {
+			throw new JeecgBootException("未找到对应实体");
+		}else {
+			SysUser user = new SysUser();
+			BeanUtils.copyProperties(model, user);
+			user.setUpdateTime(new Date());
+			//String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), sysUser.getSalt());
+			user.setPassword(sysUser.getPassword());
+			//用户表字段org_code不能在这里设置他的值
+			user.setOrgCode(null);
+			// 修改用户走一个service 保证事务
+			sysUserService.editUser(user, roleIds, departIds);
+			BeanUtils.copyProperties(user, model);
+		}
+		return model;
+	}
+
+	@Override
+	public SysUserModel deleteSysUser(SysUserModel model) {
+		SysUser user = new SysUser();
+		BeanUtils.copyProperties(model, user);
+		QueryWrapper<SysUser> wrapper = QueryGenerator.initQueryWrapper(user, SpringContextUtils.getHttpServletRequest().getParameterMap());
+		List<String> ids = sysUserService.list(wrapper).stream().map(SysUser::getId).collect(Collectors.toList());
+		sysUserService.removeLogicDeleted(ids);
 		return model;
 	}
 

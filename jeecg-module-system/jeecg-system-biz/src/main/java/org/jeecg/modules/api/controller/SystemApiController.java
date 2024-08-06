@@ -231,15 +231,6 @@ public class SystemApiController {
     }
 
     /**
-     * 查询所有部门
-     * @return
-     */
-    @GetMapping("/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart(){
-        return sysBaseApi.getAllSysDepart();
-    }
-
-    /**
      * 根据 id 查询数据库中存储的 DynamicDataSourceModel
      *
      * @param dbSourceId
@@ -757,6 +748,64 @@ public class SystemApiController {
     @PostMapping("/packageUserInfo")
     public JSONObject packageUserInfo(@RequestBody SysUserModel sysUserModel){
         return this.sysBaseApi.packageUserInfo(sysUserModel);
+    }
+
+    /**
+     * 查询所有部门
+     */
+    @GetMapping("/getAllSysDepart")
+    public List<SysDepartModel> getAllSysDepart(@RequestParam(required = false, value = "id")String id){
+        return sysBaseApi.getAllSysDepart(id);
+    }
+
+    /**
+     * 添加部门
+     *
+     * @author Yoko
+     * @since 2024/8/6 上午10:25
+     * @param model 部门信息
+     * @return org.jeecg.common.system.vo.SysDepartModel
+     */
+    @PostMapping("/addSysDepart")
+    public SysDepartModel addSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.addSysDepart(model);
+    }
+
+    @PostMapping("/editSysDepart")
+    public SysDepartModel editSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.editSysDepart(model);
+    }
+
+    @PostMapping("/deleteSysDepart")
+    public SysDepartModel deleteSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.deleteSysDepart(model);
+    }
+
+    /**
+     * 查询所有用户
+     */
+    @GetMapping("/getAllSysUser")
+    public List<SysUserModel> getAllSysUser(@RequestParam(required = false, value = "id")String id){
+        return sysBaseApi.getAllSysUser(id);
+    }
+
+    @PostMapping("/addSysUser")
+    public SysUserModel addSysUser(@RequestBody SysUserModel model,
+                                   @RequestParam("roleIds") String roleIds,
+                                   @RequestParam("departIds") String departIds) {
+        return sysBaseApi.addSysUser(model, roleIds, departIds);
+    }
+
+    @PostMapping("/editSysUser")
+    public SysUserModel editSysUser(@RequestBody SysUserModel model,
+                                    @RequestParam("roleIds") String roleIds,
+                                    @RequestParam("departIds") String departIds) {
+        return sysBaseApi.editSysUser(model, roleIds, departIds);
+    }
+
+    @PostMapping("/deleteSysUser")
+    public SysUserModel deleteSysUser(@RequestBody SysUserModel model) {
+        return sysBaseApi.deleteSysUser(model);
     }
 
     /**

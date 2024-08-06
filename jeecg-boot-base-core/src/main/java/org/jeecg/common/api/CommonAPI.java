@@ -2,7 +2,6 @@ package org.jeecg.common.api;
 
 import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.system.vo.*;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -141,12 +140,20 @@ public interface CommonAPI {
     List<SysDepartModel> getAllSysDepart(@RequestParam(name = "id", required = false) String id);
 
     /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @param sysUserModel 用户登陆实体
+     */
+    JSONObject packageUserInfo(SysUserModel sysUserModel);
+
+    /**
      * 添加部门
      *
      * @author Yoko
      * @param model 部门实体
      */
-    SysDepartModel addSysDepart(@RequestBody SysDepartModel model);
+    SysDepartModel addSysDepart(SysDepartModel model);
 
     /**
      * 更新部门
@@ -154,14 +161,46 @@ public interface CommonAPI {
      * @author Yoko
      * @param model 部门实体
      */
-    SysDepartModel editSysDepart(@RequestBody SysDepartModel model);
+    SysDepartModel editSysDepart(SysDepartModel model);
 
     /**
-     * 打包登录用户信息
+     * 删除部门
      *
      * @author Yoko
-     * @param sysUserModel 用户登陆实体
+     * @param model 部门实体
      */
-    JSONObject packageUserInfo(SysUserModel sysUserModel);
+    SysDepartModel deleteSysDepart(SysDepartModel model);
+
+    /**
+     * 获取所有用户列表
+     *
+     * @author Yoko
+     * @param id 用户id
+     */
+    List<SysUserModel> getAllSysUser(String id);
+
+    /**
+     * 添加用户
+     *
+     * @author Yoko
+     * @param model 用户实体
+     */
+    SysUserModel addSysUser(SysUserModel model, String roleIds, String departIds);
+
+    /**
+     * 更新用户
+     *
+     * @author Yoko
+     * @param model 用户实体
+     */
+    SysUserModel editSysUser(SysUserModel model, String roleIds, String departIds);
+
+    /**
+     * 删除用户
+     *
+     * @author Yoko
+     * @param model 用户实体
+     */
+    SysUserModel deleteSysUser(SysUserModel model);
 
 }
