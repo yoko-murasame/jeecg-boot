@@ -50,7 +50,7 @@ public class SpringContextHolder implements ApplicationContextAware {
             try {
                 t = applicationContext.getBean(name, cls);
             } catch (Exception e) {
-                log.error("####################" + name + "未定义");
+                log.debug("####################" + name + "未定义");
             }
         }
         return t;
