@@ -1,5 +1,7 @@
 package org.jeecg.common.util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.CommonAPI;
@@ -12,6 +14,8 @@ import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * @Author scott
@@ -168,5 +172,33 @@ public class TokenUtils {
             loginUser = commonApi.getUserByName(username);
         }
         return loginUser;
+    }
+
+    /**
+     * 开启临时令牌
+     *
+     * @author Yoko
+     * @since 2024/8/6 下午5:24
+     * @param redisUtil reids操作类
+     * @param tempTokenConsumer 临时token具体使用实现函数
+     */
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer) {
+        String uuid = UUID.randomUUID().toString() + System.currentTimeMillis();
+        String token = JWT.create().withClaim("username", uuid).sign(Algorithm.HMAC256(uuid));
+        String tempTokenKey = CommonConstant.PREFIX_SSO_TEMP_TOKEN + token;
+        LoginUser tempUser = new LoginUser();
+        tempUser.setId(uuid);
+        tempUser.setStatus(1);
+        tempUser.setUsername(uuid);
+        tempUser.setPassword(uuid);
+        String loginUserKey = CacheConstant.SYS_USERS_CACHE + "::" + uuid;
+        // 临时token开始
+        redisUtil.set(tempTokenKey, token, 60);
+        redisUtil.set(loginUserKey, tempUser, 60);
+        // 在临时token中去调用特殊业务
+        tempTokenConsumer.accept(token);
+        // 临时token结束
+        redisUtil.removeAll(tempTokenKey);
+        redisUtil.removeAll(loginUserKey);
     }
 }
