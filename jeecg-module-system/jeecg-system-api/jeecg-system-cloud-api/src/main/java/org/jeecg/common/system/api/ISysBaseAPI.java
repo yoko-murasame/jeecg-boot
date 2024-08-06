@@ -586,4 +586,14 @@ public interface ISysBaseAPI extends CommonAPI {
 
     @GetMapping("/sendAppChatSocket")
     void sendAppChatSocket(@RequestParam(name="userId") String userId);
+
+    /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @param sysUserModel 用户登陆实体
+     */
+    @PostMapping("/sys/api/packageUserInfo")
+    JSONObject packageUserInfo(SysUserModel sysUserModel);
+
 }

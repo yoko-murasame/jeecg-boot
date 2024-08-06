@@ -10,13 +10,13 @@ import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.encryption.AesEncryptUtil;
 import org.jeecg.common.util.encryption.EncryptedString;
@@ -24,7 +24,6 @@ import org.jeecg.config.JeecgBaseConfig;
 import org.jeecg.modules.base.service.BaseCommonService;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.entity.SysRoleIndex;
-import org.jeecg.modules.system.entity.SysTenant;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysLoginModel;
 import org.jeecg.modules.system.service.*;
@@ -137,7 +136,14 @@ public class LoginController {
 		}
 
 		//用户登录信息
-		userInfo(sysUser, result);
+		try {
+			SysUserModel sysUserModel = new SysUserModel();
+			BeanUtils.copyProperties(sysUser, sysUserModel);
+			result.setResult(sysBaseApi.packageUserInfo(sysUserModel));
+			result.success("登录成功");
+		} catch (Exception e) {
+			return result.error500(e.getMessage());
+		}
 		//update-begin--Author:liusq  Date:20210126  for：登录成功，删除redis中的验证码
 		redisUtil.del(realKey);
 		//update-begin--Author:liusq  Date:20210126  for：登录成功，删除redis中的验证码
@@ -428,77 +434,18 @@ public class LoginController {
 			result.setMessage("手机验证码错误");
 			return result;
 		}
-		//用户信息
-		userInfo(sysUser, result);
+		//用户登录信息
+		try {
+			SysUserModel sysUserModel = new SysUserModel();
+			BeanUtils.copyProperties(sysUser, sysUserModel);
+			result.setResult(sysBaseApi.packageUserInfo(sysUserModel));
+			result.success("登录成功");
+		} catch (Exception e) {
+			return result.error500(e.getMessage());
+		}
 		//添加日志
 		baseCommonService.addLog("用户名: " + sysUser.getUsername() + ",登录成功！", CommonConstant.LOG_TYPE_1, null);
 
-		return result;
-	}
-
-
-	/**
-	 * 用户信息
-	 *
-	 * @param sysUser
-	 * @param result
-	 * @return
-	 */
-	private Result<JSONObject> userInfo(SysUser sysUser, Result<JSONObject> result) {
-		String username = sysUser.getUsername();
-		String syspassword = sysUser.getPassword();
-		// 获取用户部门信息
-		JSONObject obj = new JSONObject(new LinkedHashMap<>());
-
-		//1.生成token
-		String token = JwtUtil.sign(username, syspassword);
-		// 设置token缓存有效时间
-		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
-		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2 / 1000);
-		obj.put("token", token);
-
-		// update-begin--Author:sunjianlei Date:20210802 for：获取用户租户信息
-		String tenantIds = sysUser.getRelTenantIds();
-		if (oConvertUtils.isNotEmpty(tenantIds)) {
-			List<Integer> tenantIdList = new ArrayList<>();
-			for(String id: tenantIds.split(SymbolConstant.COMMA)){
-				tenantIdList.add(Integer.valueOf(id));
-			}
-			// 该方法仅查询有效的租户，如果返回0个就说明所有的租户均无效。
-			List<SysTenant> tenantList = sysTenantService.queryEffectiveTenant(tenantIdList);
-			if (tenantList.size() == 0) {
-				result.error500("与该用户关联的租户均已被冻结，无法登录！");
-				return result;
-			} else {
-				obj.put("tenantList", tenantList);
-			}
-		}
-		// update-end--Author:sunjianlei Date:20210802 for：获取用户租户信息
-
-		//3.设置登录用户信息
-		obj.put("userInfo", sysUser);
-
-		//4.设置登录部门
-		List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUser.getId());
-		obj.put("departs", departs);
-		if (departs == null || departs.size() == 0) {
-			obj.put("multi_depart", 0);
-		} else if (departs.size() == 1) {
-			sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
-			obj.put("multi_depart", 1);
-		} else {
-			//查询当前是否有登录部门
-			// update-begin--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
-			SysUser sysUserById = sysUserService.getById(sysUser.getId());
-			if(oConvertUtils.isEmpty(sysUserById.getOrgCode())){
-				sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
-			}
-			// update-end--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
-			obj.put("multi_depart", 2);
-		}
-		obj.put("sysAllDictItems", sysDictService.queryAllDictItems());
-		result.setResult(obj);
-		result.success("登录成功");
 		return result;
 	}
 

@@ -300,6 +300,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public JSONObject packageUserInfo(SysUserModel sysUserModel) {
+        return null;
+    }
+
+    @Override
     public void sendTemplateMessage(MessageDTO message) {
     }
 

@@ -111,6 +111,10 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private ISysDataLogService sysDataLogService;
 	@Autowired
 	private ISysFilesService sysFilesService;
+	@Autowired
+	private RedisUtil redisUtil;
+	@Autowired
+	private ISysTenantService sysTenantService;
 
 	@Override
 	//@SensitiveDecode
@@ -1265,6 +1269,62 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		// FindsDepartsChildrenUtil.clearDepartIdModel();
 		BeanUtils.copyProperties(sysDepart, model);
 		return model;
+	}
+
+	@Override
+	public JSONObject packageUserInfo(SysUserModel sysUserModel) {
+		String username = sysUserModel.getUsername();
+		String syspassword = sysUserModel.getPassword();
+		// 获取用户部门信息
+		JSONObject obj = new JSONObject(new LinkedHashMap<>());
+
+		//1.生成token
+		String token = JwtUtil.sign(username, syspassword);
+		// 设置token缓存有效时间
+		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
+		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2 / 1000);
+		obj.put("token", token);
+
+		// update-begin--Author:sunjianlei Date:20210802 for：获取用户租户信息
+		String tenantIds = sysUserModel.getRelTenantIds();
+		if (oConvertUtils.isNotEmpty(tenantIds)) {
+			List<Integer> tenantIdList = new ArrayList<>();
+			for(String id: tenantIds.split(SymbolConstant.COMMA)){
+				tenantIdList.add(Integer.valueOf(id));
+			}
+			// 该方法仅查询有效的租户，如果返回0个就说明所有的租户均无效。
+			List<SysTenant> tenantList = sysTenantService.queryEffectiveTenant(tenantIdList);
+			if (tenantList.isEmpty()) {
+				throw new JeecgBootException("与该用户关联的租户均已被冻结，无法登录！");
+			} else {
+				obj.put("tenantList", tenantList);
+			}
+		}
+		// update-end--Author:sunjianlei Date:20210802 for：获取用户租户信息
+
+		//3.设置登录用户信息
+		obj.put("userInfo", sysUserModel);
+
+		//4.设置登录部门
+		List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUserModel.getId());
+		obj.put("departs", departs);
+		if (departs == null || departs.isEmpty()) {
+			obj.put("multi_depart", 0);
+		} else if (departs.size() == 1) {
+			sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
+			obj.put("multi_depart", 1);
+		} else {
+			//查询当前是否有登录部门
+			// update-begin--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
+			SysUser sysUserById = sysUserService.getById(sysUserModel.getId());
+			if(oConvertUtils.isEmpty(sysUserById.getOrgCode())){
+				sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
+			}
+			// update-end--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
+			obj.put("multi_depart", 2);
+		}
+		obj.put("sysAllDictItems", sysDictService.queryAllDictItems());
+		return obj;
 	}
 
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------

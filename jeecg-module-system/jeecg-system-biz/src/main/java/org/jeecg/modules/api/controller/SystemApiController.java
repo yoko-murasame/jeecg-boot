@@ -746,6 +746,18 @@ public class SystemApiController {
         this.sysBaseApi.sendAppChatSocket(userId);
     }
 
+    /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @since 2024/8/6 上午9:41
+     * @param sysUserModel 登录用户信息
+     * @return com.alibaba.fastjson.JSONObject
+     */
+    @PostMapping("/packageUserInfo")
+    public JSONObject packageUserInfo(@RequestBody SysUserModel sysUserModel){
+        return this.sysBaseApi.packageUserInfo(sysUserModel);
+    }
 
     /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
@@ -763,5 +775,5 @@ public class SystemApiController {
         }
         return Result.error("校验失败，sql解析异常！" + msg);
     }
-    
+
 }

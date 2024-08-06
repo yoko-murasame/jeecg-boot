@@ -1,5 +1,6 @@
 package org.jeecg.common.api;
 
+import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.system.vo.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -154,5 +155,13 @@ public interface CommonAPI {
      * @param model 部门实体
      */
     SysDepartModel editSysDepart(@RequestBody SysDepartModel model);
+
+    /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @param sysUserModel 用户登陆实体
+     */
+    JSONObject packageUserInfo(SysUserModel sysUserModel);
 
 }
