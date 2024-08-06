@@ -28,9 +28,12 @@ public class TokenUtils {
      * @return
      */
     public static String getTokenByRequest(HttpServletRequest request) {
-        String token = request.getParameter("token");
+        String token = request.getParameter(CommonConstant.REQUEST_PARAM_NAME_FOR_TOKEN);
         if (token == null) {
-            token = request.getHeader("X-Access-Token");
+            token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+        }
+        if (StringUtils.isBlank(token)) {
+            token = (String) request.getAttribute(CommonConstant.REQUEST_ATTRIBUTE_NAME_FOR_TOKEN);
         }
         return token;
     }

@@ -81,6 +81,12 @@ public interface CommonConstant {
     public static String PREFIX_USER_SHIRO_CACHE  = "shiro:cache:org.jeecg.config.shiro.ShiroRealm.authorizationCache:";
     /** 登录用户Token令牌缓存KEY前缀 */
     String PREFIX_USER_TOKEN  = "prefix_user_token:";
+    /** 非系统微服务登陆时的临时令牌缓存KEY前缀 */
+    String PREFIX_SSO_TEMP_TOKEN  = "prefix_sso_temp_token:";
+    /** 令牌的request attribute中的名称 */
+    String REQUEST_ATTRIBUTE_NAME_FOR_TOKEN = "token";
+    /** 令牌的request param中的名称 */
+    String REQUEST_PARAM_NAME_FOR_TOKEN = "token";
 //    /** Token缓存时间：3600秒即一小时 */
 //    int  TOKEN_EXPIRE_TIME  = 3600;
 
