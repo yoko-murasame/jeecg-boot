@@ -181,24 +181,39 @@ public class TokenUtils {
      * @since 2024/8/6 下午5:24
      * @param redisUtil reids操作类
      * @param tempTokenConsumer 临时token具体使用实现函数
+     * @param time token失效时间（单位：秒）
+     * @param username 指定token的用户名
      */
-    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer) {
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, long time, String username) {
         String uuid = UUID.randomUUID().toString() + System.currentTimeMillis();
-        String token = JWT.create().withClaim("username", uuid).sign(Algorithm.HMAC256(uuid));
+        String token = JWT.create().withClaim("username", StringUtils.isNotBlank(username) ? username : uuid).sign(Algorithm.HMAC256(uuid));
         String tempTokenKey = CommonConstant.PREFIX_SSO_TEMP_TOKEN + token;
         LoginUser tempUser = new LoginUser();
         tempUser.setId(uuid);
         tempUser.setStatus(1);
-        tempUser.setUsername(uuid);
+        tempUser.setUsername(StringUtils.isNotBlank(username) ? username : uuid);
         tempUser.setPassword(uuid);
         String loginUserKey = CacheConstant.SYS_USERS_CACHE + "::" + uuid;
         // 临时token开始
-        redisUtil.set(tempTokenKey, token, 60);
-        redisUtil.set(loginUserKey, tempUser, 60);
+        redisUtil.set(tempTokenKey, token, time);
+        redisUtil.set(loginUserKey, tempUser, time);
         // 在临时token中去调用特殊业务
         tempTokenConsumer.accept(token);
         // 临时token结束
         redisUtil.removeAll(tempTokenKey);
         redisUtil.removeAll(loginUserKey);
     }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, long time) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, time, null);
+    }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, String username) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, 60, username);
+    }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, 60, null);
+    }
+
 }
