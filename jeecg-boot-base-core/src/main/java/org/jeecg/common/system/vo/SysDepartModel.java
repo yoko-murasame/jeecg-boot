@@ -5,11 +5,8 @@ import org.jeecg.common.constant.CommonConstant;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * 部门机构model
@@ -127,26 +124,12 @@ public class SysDepartModel implements Serializable {
      *
      * @param list       完整列表
      * @param comparator 排序
-     * @param rootPid    根节点的parentId的值，默认为空字符串
-     * @return java.util.List<org.jeecg.common.system.vo.SysDepartModel>
-     * @author Yoko
-     * @since 2024/8/7 下午2:56
-     */
-    public static List<SysDepartModel> toRootTree(List<SysDepartModel> list, Comparator<SysDepartModel> comparator, String rootPid) {
-        return toTree(list, comparator).stream().filter(item -> rootPid.equals(item.getParentId())).collect(Collectors.toList());
-    }
-
-    /**
-     * 获取根树
-     *
-     * @param list       完整列表
-     * @param comparator 排序
      * @return java.util.List<org.jeecg.common.system.vo.SysDepartModel>
      * @author Yoko
      * @since 2024/8/7 下午2:56
      */
     public static List<SysDepartModel> toRootTree(List<SysDepartModel> list, Comparator<SysDepartModel> comparator) {
-        return toTree(list, comparator).stream().filter(item -> CommonConstant.SYS_DEPART_PARENT_ID_ROOT_FLAG.equals(item.getParentId())).collect(Collectors.toList());
+        return toTree(list, comparator, CommonConstant.SYS_DEPART_PARENT_ID_ROOT_FLAG);
     }
 
     /**
@@ -158,7 +141,7 @@ public class SysDepartModel implements Serializable {
      * @since 2024/8/7 下午2:56
      */
     public static List<SysDepartModel> toRootTree(List<SysDepartModel> list) {
-        return toTree(list, SysDepartModel::compareDepartAsc).stream().filter(item -> CommonConstant.SYS_DEPART_PARENT_ID_ROOT_FLAG.equals(item.getParentId())).collect(Collectors.toList());
+        return toTree(list, SysDepartModel::compareDepartAsc, CommonConstant.SYS_DEPART_PARENT_ID_ROOT_FLAG);
     }
 
     /**
@@ -166,34 +149,53 @@ public class SysDepartModel implements Serializable {
      *
      * @param list       完整列表
      * @param comparator 排序
+     * @param rootPid 根节点父ID
      * @return java.util.List<org.jeecg.common.system.vo.SysDepartModel>
-     * @author Yoko
-     * @since 2024/8/7 下午2:56
      */
-    public static List<SysDepartModel> toTree(List<SysDepartModel> list, Comparator<SysDepartModel> comparator) {
+    public static List<SysDepartModel> toTree(List<SysDepartModel> list, Comparator<SysDepartModel> comparator, String rootPid) {
         if (list == null || list.isEmpty()) {
             return new ArrayList<>();
         }
+
+        // 存储 id 到 SysDepartModel 的映射
+        Map<String, SysDepartModel> map = new HashMap<>();
         for (SysDepartModel item : list) {
-            item.children = getChildren(item, list, comparator);
+            map.put(item.getId(), item);
+            item.setChildren(new ArrayList<>()); // 初始化子节点列表
         }
-        if (null != comparator) {
-            list.sort(comparator);
+
+        // 构建树
+        List<SysDepartModel> rootNodes = new ArrayList<>();
+        for (SysDepartModel item : list) {
+            if (Objects.equals(item.getParentId(), rootPid) || !map.containsKey(item.getParentId())) {
+                rootNodes.add(item); // 根节点
+            } else {
+                SysDepartModel parent = map.get(item.getParentId());
+                parent.getChildren().add(item); // 添加到父节点的子节点列表
+            }
         }
-        return list;
+
+        // 对树进行排序
+        if (comparator != null) {
+            sortTree(rootNodes, comparator);
+        }
+
+        return rootNodes;
     }
 
     /**
-     * 获取树-递归
+     * 对树进行排序
+     *
+     * @param tree       树的根节点列表
+     * @param comparator 排序器
      */
-    private static List<SysDepartModel> getChildren(SysDepartModel item, List<SysDepartModel> list, Comparator<SysDepartModel> comparator) {
-        List<SysDepartModel> children = new ArrayList<>();
-        for (SysDepartModel child : list) {
-            if (item.getId().equals(child.getParentId())) {
-                children.add(child);
+    private static void sortTree(List<SysDepartModel> tree, Comparator<SysDepartModel> comparator) {
+        tree.sort(comparator);
+        for (SysDepartModel node : tree) {
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                sortTree(node.getChildren(), comparator);
             }
         }
-        return toTree(children, comparator);
     }
 
     /**
