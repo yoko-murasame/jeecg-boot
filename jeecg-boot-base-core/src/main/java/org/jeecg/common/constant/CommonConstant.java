@@ -594,4 +594,17 @@ public interface CommonConstant {
    public static final String SAAS_MODE_TENANT = "tenant";
    //update-end---author:scott ---date::2023-09-10  for：积木报表常量----
 
+    /**
+     * 部门父id为空标识, root节点的parentId为空
+     */
+    String SYS_DEPART_PARENT_ID_ROOT_FLAG = "";
+    /**
+     * 部门组织类型：1 公司
+     */
+    String SYS_DEPART_ORG_CATEGORY_1 = "1";
+    /**
+     * 部门组织类型：2 组织机构 岗位
+     */
+    String SYS_DEPART_ORG_CATEGORY_2 = "2";
+
 }

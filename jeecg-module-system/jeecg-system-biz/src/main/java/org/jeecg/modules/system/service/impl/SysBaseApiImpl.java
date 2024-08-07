@@ -1214,7 +1214,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	@Override
 	public List<SysDepartModel> getAllSysDepart(String id) {
 		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
-		query.eq(SysDepart::getDelFlag, 0);
+		query.eq(SysDepart::getDelFlag, "0");
 		query.orderByAsc(SysDepart::getOrgCode);
 		if(oConvertUtils.isNotEmpty(id)){
 			String[] arr = id.split(",");
