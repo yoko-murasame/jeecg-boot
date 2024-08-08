@@ -1211,10 +1211,11 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return sysDictService.queryTableDictTextByKeys(table, text, code, Arrays.asList(keys.split(",")));
 	}
 
+
 	@Override
-	public List<SysDepartModel> getAllSysDepart(String id) {
+	public List<SysDepartModel> getAllSysDepart(String id, String delFlag) {
 		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
-		query.eq(SysDepart::getDelFlag, "0");
+		query.eq(StringUtils.isNotBlank(delFlag), SysDepart::getDelFlag, delFlag);
 		query.orderByAsc(SysDepart::getOrgCode);
 		if(oConvertUtils.isNotEmpty(id)){
 			String[] arr = id.split(",");

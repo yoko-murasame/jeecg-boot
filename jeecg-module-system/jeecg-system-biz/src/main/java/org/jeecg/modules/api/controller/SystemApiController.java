@@ -754,8 +754,9 @@ public class SystemApiController {
      * 查询所有部门
      */
     @GetMapping("/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart(@RequestParam(required = false, value = "id")String id){
-        return sysBaseApi.getAllSysDepart(id);
+    public List<SysDepartModel> getAllSysDepart(@RequestParam(required = false, value = "id") String id,
+                                                @RequestParam(required = false, value = "delFlag") String delFlag){
+        return sysBaseApi.getAllSysDepart(id, delFlag);
     }
 
     /**

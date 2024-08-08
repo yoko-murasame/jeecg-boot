@@ -226,7 +226,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * @return
      */
     @GetMapping("/sys/api/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id);
+    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id, @RequestParam("delFlag")String delFlag);
 
     /**
      * 24查找父级部门

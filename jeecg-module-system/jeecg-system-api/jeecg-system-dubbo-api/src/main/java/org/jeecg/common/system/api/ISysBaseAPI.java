@@ -184,7 +184,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * 24查询所有部门
      * @return
      */
-    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id);
+    public List<SysDepartModel> getAllSysDepart(String id, String delFlag);
 
     /**
      * 25查找父级部门

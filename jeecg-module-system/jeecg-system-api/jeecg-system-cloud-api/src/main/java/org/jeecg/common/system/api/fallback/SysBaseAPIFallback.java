@@ -144,7 +144,7 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
-    public List<SysDepartModel> getAllSysDepart(String id) {
+    public List<SysDepartModel> getAllSysDepart(String id, String delFlag) {
         return Collections.emptyList();
     }
 
