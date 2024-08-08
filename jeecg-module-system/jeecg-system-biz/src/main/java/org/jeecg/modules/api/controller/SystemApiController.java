@@ -221,6 +221,16 @@ public class SystemApiController {
     }
 
     /**
+     * 通过用户账号Id查询角色Id集合
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getRoleIdsByUserId")
+    public List<String> getRoleIdsByUserId(@RequestParam("userId")String userId){
+        return sysBaseApi.getRoleIdsByUserId(userId);
+    }
+
+    /**
      * 通过部门编号查询部门id
      * @param orgCode
      * @return

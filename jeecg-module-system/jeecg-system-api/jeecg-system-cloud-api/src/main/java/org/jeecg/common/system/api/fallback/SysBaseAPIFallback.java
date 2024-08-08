@@ -139,6 +139,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<String> getRoleIdsByUserId(String userId) {
+        return null;
+    }
+
+    @Override
     public String getDepartIdsByOrgCode(String orgCode) {
         return null;
     }

@@ -214,6 +214,14 @@ public interface ISysBaseAPI extends CommonAPI {
     public List<String> getRoleIdsByUsername(@RequestParam("username")String username);
 
     /**
+     * 22-1通过用户账号id查询角色Id集合
+     * @param userId
+     * @return
+     */
+    @GetMapping("/sys/api/getRoleIdsByUsername")
+    public List<String> getRoleIdsByUserId(@RequestParam("userId")String userId);
+
+    /**
      * 22通过部门编号查询部门id
      * @param orgCode
      * @return

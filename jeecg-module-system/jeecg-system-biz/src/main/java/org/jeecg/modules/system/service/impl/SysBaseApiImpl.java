@@ -730,6 +730,11 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
+	public List<String> getRoleIdsByUserId(String userId) {
+		return sysUserRoleMapper.getRoleIdByUserId(userId);
+	}
+
+	@Override
 	public String getDepartIdsByOrgCode(String orgCode) {
 		return departMapper.queryDepartIdByOrgCode(orgCode);
 	}
