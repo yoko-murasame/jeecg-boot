@@ -1,6 +1,5 @@
 package org.jeecg.modules.system.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,6 +23,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
 import org.jeecg.modules.system.entity.SysDict;
 import org.jeecg.modules.system.entity.SysDictItem;
+import org.jeecg.modules.system.entity.SysDictTableEnum;
 import org.jeecg.modules.system.mapper.SysDictItemMapper;
 import org.jeecg.modules.system.mapper.SysDictMapper;
 import org.jeecg.modules.system.model.DuplicateCheckVo;
@@ -31,8 +31,8 @@ import org.jeecg.modules.system.model.TreeSelectModel;
 import org.jeecg.modules.system.security.DictQueryBlackListHandler;
 import org.jeecg.modules.system.service.ISysDictService;
 import org.mybatis.spring.MyBatisSystemException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +59,15 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     private SysDictItemMapper sysDictItemMapper;
 	@Autowired
 	private DictQueryBlackListHandler dictQueryBlackListHandler;
+
+	/**
+	 * 严格模式，严格模式下只允许SysDictTableEnum.java中定义的表名作为动态字典数据源
+	 *
+	 * @author Yoko
+	 * @since 2024/8/12 上午8:50
+	 */
+	@Value(value = "${jeecg.dict.strict:false}")
+	private Boolean strict;
 
 	@Override
 	public boolean duplicateCheckData(DuplicateCheckVo duplicateCheckVo) {
@@ -246,6 +255,16 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		text = SqlInjectionUtil.getSqlInjectField(text);
 		code = SqlInjectionUtil.getSqlInjectField(code);
 
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				return opt.get().getDictModels(text, code, null, filterSql);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		}
+
 		//return sysDictMapper.queryTableDictItemsByCode(tableFilterSql,text,code);
 		return sysDictMapper.queryTableDictWithFilter(table,text,code,filterSql);
 	}
@@ -271,6 +290,16 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		table = SqlInjectionUtil.getSqlInjectTableName(table);
 		text = SqlInjectionUtil.getSqlInjectField(text);
 		code = SqlInjectionUtil.getSqlInjectField(code);
+
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				return opt.get().getDictModels(text, code, null, filterSql);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		}
 
 		return sysDictMapper.queryTableDictWithFilter(table,text,code,filterSql);
 	}
@@ -303,7 +332,18 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		text = SqlInjectionUtil.getSqlInjectField(text);
 		code = SqlInjectionUtil.getSqlInjectField(code);
 
-		List<DictModel> dictModeList = sysDictMapper.queryTableDictByKeysAndFilterSql(table, text, code, null, Arrays.asList(key));
+		List<String> keys = Arrays.asList(key.split(","));
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				return opt.get().getDictModels(text, code, keys, null).get(0).getText();
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		}
+
+		List<DictModel> dictModeList = sysDictMapper.queryTableDictByKeysAndFilterSql(table, text, code, null, keys);
 		if(CollectionUtils.isEmpty(dictModeList)){
 			return null;
 		}else{
@@ -339,6 +379,16 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		table = SqlInjectionUtil.getSqlInjectTableName(table);
 		text = SqlInjectionUtil.getSqlInjectField(text);
 		code = SqlInjectionUtil.getSqlInjectField(code);
+
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				return opt.get().getDictModels(text, code, codeValues, filterSql);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		}
 
 		return sysDictMapper.queryTableDictByKeysAndFilterSql(table, text, code, filterSql, codeValues);
 		//update-end-author:taoyan date:20220113 for: @dict注解支持 dicttable 设置where条件
@@ -397,11 +447,23 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
 		//字典条件值
 		String[] codeValues = codeValuesStr.split(",");
-		// 5.查询字典数据
-		List<DictModel> dicts = sysDictMapper.queryTableDictByKeysAndFilterSql(SqlInjectionUtil.getSqlInjectTableName(table),
-				SqlInjectionUtil.getSqlInjectField(text), SqlInjectionUtil.getSqlInjectField(code), filterSql, Arrays.asList(codeValues));
 
-		List<String> texts = new ArrayList<>(dicts.size());
+		// 5.查询字典数据
+		List<DictModel> dicts;
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				dicts = opt.get().getDictModels(text, code, Arrays.asList(codeValues), filterSql);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		} else {
+			dicts = sysDictMapper.queryTableDictByKeysAndFilterSql(SqlInjectionUtil.getSqlInjectTableName(table),
+					SqlInjectionUtil.getSqlInjectField(text), SqlInjectionUtil.getSqlInjectField(code), filterSql, Arrays.asList(codeValues));
+		}
+
+        List<String> texts = new ArrayList<>(dicts.size());
 		// 6.查询出来的顺序可能是乱的，需要排个序
 		for (String conditionalVal : codeValues) {
 			List<DictModel> res = dicts.stream().filter(i -> conditionalVal.equals(i.getValue())).collect(Collectors.toList());
@@ -477,7 +539,18 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		String filterSql = getFilterSql(tableSql, text, code, condition, keyword);
 
 		// 3. 返回表字典数据
-		IPage<DictModel> pageList = baseMapper.queryPageTableDictWithFilter(page, table, text, code, filterSql);
+		IPage<DictModel> pageList;
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				pageList = opt.get().getDictModelsPage(text, code, null, filterSql, page);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		} else {
+            pageList = baseMapper.queryPageTableDictWithFilter(page, table, text, code, filterSql);
+        }
 		return pageList.getRecords();
 	}
 
@@ -565,8 +638,21 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		text = SqlInjectionUtil.getSqlInjectField(text);
 		code = SqlInjectionUtil.getSqlInjectField(code);
 
-		List<DictModel> ls = baseMapper.queryTableDictWithFilter(table, text, code, filterSql);
-    	return ls;
+		List<DictModel> ls;
+
+		// 严格模式下，启用表字典查询限制
+		if (strict) {
+			// 限制字典表枚举
+			Optional<SysDictTableEnum> opt = SysDictTableEnum.of(table);
+			if (opt.isPresent()) {
+				ls = opt.get().getDictModels(text, code, null, filterSql);
+			}
+			throw new JeecgBootException("不支持的字典table策略：" + table);
+		} else {
+			ls = baseMapper.queryTableDictWithFilter(table, text, code, filterSql);
+		}
+
+        return ls;
 	}
 
 	@Override
