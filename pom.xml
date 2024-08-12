@@ -68,7 +68,7 @@
 		<!--activity-->
 		<activiti.version>5.22.0</activiti.version>
 		<!--小版本最新-->
-		<tomcat.version>9.0.88</tomcat.version>
+		<tomcat.version>9.0.93</tomcat.version>
 	</properties>
 
 	<modules>
