@@ -3,6 +3,8 @@ package org.jeecg.modules.system.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.DictQuery;
+import org.jeecg.common.system.vo.DictTreeModel;
+import org.jeecg.common.system.vo.DictTreeQuery;
 import org.jeecg.modules.system.entity.SysDict;
 import org.jeecg.modules.system.entity.SysDictItem;
 import org.jeecg.modules.system.model.DuplicateCheckVo;
@@ -269,5 +271,15 @@ public interface ISysDictService extends IService<SysDict> {
      * @return
      */
     List<DictModel> loadDict(String dictCode, String keyword, Integer pageSize);
+
+	/**
+	 * 查询字典表数据
+	 *
+	 * @author Yoko
+	 * @since 2024/8/12 下午12:15
+	 * @param queryForm 查询表单
+	 * @return java.util.List<org.jeecg.common.system.vo.DictTreeModel>
+	 */
+	List<DictTreeModel> treeDictItems(DictTreeQuery queryForm);
 
 }

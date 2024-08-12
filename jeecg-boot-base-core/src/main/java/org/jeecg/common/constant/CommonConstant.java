@@ -607,4 +607,8 @@ public interface CommonConstant {
      */
     String SYS_DEPART_ORG_CATEGORY_2 = "2";
 
+    /**
+     * 系统树型字典 根节点标识
+     */
+    String SYS_DICT_ITEM_ROOT_FLAG = "";
 }

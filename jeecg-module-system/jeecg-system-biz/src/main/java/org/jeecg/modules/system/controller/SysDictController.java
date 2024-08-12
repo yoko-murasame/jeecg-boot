@@ -8,17 +8,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.system.vo.DictModel;
-import org.jeecg.common.system.vo.DictQuery;
-import org.jeecg.common.system.vo.LoginUser;
-import org.jeecg.common.util.*;
+import org.jeecg.common.system.vo.*;
+import org.jeecg.common.util.ImportExcelUtil;
+import org.jeecg.common.util.RedisUtil;
+import org.jeecg.common.util.SqlInjectionUtil;
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
 import org.jeecg.modules.system.entity.SysDict;
 import org.jeecg.modules.system.entity.SysDictItem;
@@ -681,6 +681,19 @@ public class SysDictController {
 			return Result.error("校验失败，sql解析异常！");
 		}
 		return Result.error("校验失败，sql解析异常！" + msg);
+	}
+
+	/**
+	 * 获取树形字典数据
+	 *
+	 * @author Yoko
+	 * @since 2024/8/12 下午4:18
+	 * @param queryForm 查询条件
+	 * @return org.jeecg.common.api.vo.Result<java.util.List < org.jeecg.common.system.vo.DictTreeModel>>
+	 */
+	@RequestMapping(value = "/treeDictItems", method = RequestMethod.POST)
+	public Result<List<DictTreeModel>> treeDictItems(@RequestBody DictTreeQuery queryForm) {
+		return Result.ok(sysDictService.treeDictItems(queryForm));
 	}
 
 }

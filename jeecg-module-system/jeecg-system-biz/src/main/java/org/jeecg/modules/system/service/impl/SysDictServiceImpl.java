@@ -2,6 +2,7 @@ package org.jeecg.modules.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,7 @@ import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.ResourceUtil;
-import org.jeecg.common.system.vo.DictModel;
-import org.jeecg.common.system.vo.DictModelMany;
-import org.jeecg.common.system.vo.DictQuery;
+import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
@@ -36,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -53,10 +53,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> implements ISysDictService {
 
-    @Autowired
-    private SysDictMapper sysDictMapper;
-    @Autowired
-    private SysDictItemMapper sysDictItemMapper;
+	@Autowired
+	private SysDictMapper sysDictMapper;
+	@Autowired
+	private SysDictItemMapper sysDictItemMapper;
 	@Autowired
 	private DictQueryBlackListHandler dictQueryBlackListHandler;
 
@@ -463,7 +463,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 					SqlInjectionUtil.getSqlInjectField(text), SqlInjectionUtil.getSqlInjectField(code), filterSql, Arrays.asList(codeValues));
 		}
 
-        List<String> texts = new ArrayList<>(dicts.size());
+		List<String> texts = new ArrayList<>(dicts.size());
 		// 6.查询出来的顺序可能是乱的，需要排个序
 		for (String conditionalVal : codeValues) {
 			List<DictModel> res = dicts.stream().filter(i -> conditionalVal.equals(i.getValue())).collect(Collectors.toList());
@@ -476,28 +476,28 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		return texts;
 	}
 
-    /**
-     * 根据字典类型id删除关联表中其对应的数据
-     */
-    @Override
-    public boolean deleteByDictId(SysDict sysDict) {
-        sysDict.setDelFlag(CommonConstant.DEL_FLAG_1);
-        return  this.updateById(sysDict);
-    }
+	/**
+	 * 根据字典类型id删除关联表中其对应的数据
+	 */
+	@Override
+	public boolean deleteByDictId(SysDict sysDict) {
+		sysDict.setDelFlag(CommonConstant.DEL_FLAG_1);
+		return  this.updateById(sysDict);
+	}
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Integer saveMain(SysDict sysDict, List<SysDictItem> sysDictItemList) {
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Integer saveMain(SysDict sysDict, List<SysDictItem> sysDictItemList) {
 		int insert=0;
-    	try{
-			 insert = sysDictMapper.insert(sysDict);
+		try{
+			insert = sysDictMapper.insert(sysDict);
 			if (sysDictItemList != null) {
 				for (SysDictItem entity : sysDictItemList) {
-                    //update-begin---author:wangshuai ---date:20220211  for：[JTC-1168]如果字典项值为空，则字典项忽略导入------------
-				    if(oConvertUtils.isEmpty(entity.getItemValue())){
-				        return -1;
-                    }
-                    //update-end---author:wangshuai ---date:20220211  for：[JTC-1168]如果字典项值为空，则字典项忽略导入------------
+					//update-begin---author:wangshuai ---date:20220211  for：[JTC-1168]如果字典项值为空，则字典项忽略导入------------
+					if(oConvertUtils.isEmpty(entity.getItemValue())){
+						return -1;
+					}
+					//update-end---author:wangshuai ---date:20220211  for：[JTC-1168]如果字典项值为空，则字典项忽略导入------------
 					entity.setDictId(sysDict.getId());
 					entity.setStatus(1);
 					sysDictItemMapper.insert(entity);
@@ -507,7 +507,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			return insert;
 		}
 		return insert;
-    }
+	}
 
 	@Override
 	public List<DictModel> queryAllDepartBackDictModel() {
@@ -519,14 +519,14 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		return baseMapper.queryAllUserBackDictModel();
 	}
 
-//	@Override
-//	public List<DictModel> queryTableDictItems(String table, String text, String code, String keyword) {
-//		return baseMapper.queryTableDictItems(table, text, code, "%"+keyword+"%");
-//	}
+	//	@Override
+	//	public List<DictModel> queryTableDictItems(String table, String text, String code, String keyword) {
+	//		return baseMapper.queryTableDictItems(table, text, code, "%"+keyword+"%");
+	//	}
 
 	@Override
 	public List<DictModel> queryLittleTableDictItems(String tableSql, String text, String code, String condition, String keyword, int pageSize) {
-    	Page<DictModel> page = new Page<DictModel>(1, pageSize);
+		Page<DictModel> page = new Page<DictModel>(1, pageSize);
 		page.setSearchCount(false);
 
 		//为了防止sql（jeecg提供了防注入的方法，可以在拼接 SQL 语句时自动对参数进行转义，避免SQL注入攻击）
@@ -549,8 +549,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			}
 			throw new JeecgBootException("不支持的字典table策略：" + table);
 		} else {
-            pageList = baseMapper.queryPageTableDictWithFilter(page, table, text, code, filterSql);
-        }
+			pageList = baseMapper.queryPageTableDictWithFilter(page, table, text, code, filterSql);
+		}
 		return pageList.getRecords();
 	}
 
@@ -569,8 +569,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 		String sqlWhere = "where ";
 
 		//【JTC-631】判断如果 table 携带了 where 条件，那么就使用 and 查询，防止报错
-        if (tableSql.toLowerCase().contains(sqlWhere)) {
-            sqlWhere = CommonUtils.getFilterSqlByTableSql(tableSql) + " and ";
+		if (tableSql.toLowerCase().contains(sqlWhere)) {
+			sqlWhere = CommonUtils.getFilterSqlByTableSql(tableSql) + " and ";
 		}
 
 		// 下拉搜索组件 支持传入排序信息 查询排序
@@ -652,7 +652,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			ls = baseMapper.queryTableDictWithFilter(table, text, code, filterSql);
 		}
 
-        return ls;
+		return ls;
 	}
 
 	@Override
@@ -808,5 +808,76 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			return null;
 		}
 	}
+
+	/**
+	 * 查询字典表数据
+	 *
+	 * @author Yoko
+	 * @since 2024/8/12 下午12:15
+	 * @param queryForm 查询表单
+	 * @return java.util.List<org.jeecg.common.system.vo.DictTreeModel>
+	 */
+	@Override
+	public List<DictTreeModel> treeDictItems(DictTreeQuery queryForm) {
+		Assert.hasText(queryForm.getDictCode(), "字典Code不能为空");
+		LambdaQueryWrapper<SysDict> dw = Wrappers.lambdaQuery(SysDict.class).select(Arrays.asList(SysDict::getId, SysDict::getDictCode)).eq(SysDict::getDictCode, queryForm.getDictCode());
+		SysDict sysDict = sysDictMapper.selectOne(dw);
+		if (sysDict == null) {
+			return Collections.emptyList();
+		}
+		LambdaQueryWrapper<SysDictItem> wrapper = Wrappers.lambdaQuery(new SysDictItem())
+				.eq(SysDictItem::getDictId, sysDict.getId())
+				.likeRight(StringUtils.isNotBlank(queryForm.getStructCode()), SysDictItem::getItemValue, queryForm.getStructCode())
+				.orderByAsc(SysDictItem::getSortOrder);
+		List<DictTreeModel> treeModels = sysDictItemMapper.selectList(wrapper).stream().map(item -> {
+			DictTreeModel model = new DictTreeModel();
+			model.setId(item.getId());
+			model.setParentId(item.getParentId());
+			model.setItemText(item.getItemText());
+			model.setItemValue(item.getItemValue());
+			model.setSortOrder(item.getSortOrder());
+			return model;
+		}).collect(Collectors.toList());
+		return buildTree(treeModels, queryForm);
+	}
+
+	public List<DictTreeModel> buildTree(List<DictTreeModel> dictItems, DictTreeQuery queryForm) {
+		List<DictTreeModel> roots = dictItems.stream()
+				.filter(item -> null == item.getParentId() || Objects.equals(item.getParentId(), CommonConstant.SYS_DICT_ITEM_ROOT_FLAG) || Objects.equals(item.getItemValue(), queryForm.getStructCode()))
+				.collect(Collectors.toList());
+		roots.forEach(root -> buildTreeRecursively(root, dictItems, new HashSet<>()));
+		return roots;
+	}
+
+	private void buildTreeRecursively(DictTreeModel parent, List<DictTreeModel> dictItems, Set<String> addedValues) {
+		for (DictTreeModel dictItem : dictItems) {
+			// 父子id关联
+			boolean flag = !Objects.equals(dictItem.getParentId(), CommonConstant.SYS_DICT_ITEM_ROOT_FLAG) && Objects.equals(parent.getId(), dictItem.getParentId());
+			// 实体码结构关联
+			// flag = flag || dictItem.getItemValue().startsWith(parent.getItemValue() + "-");
+			if (flag && addedValues.add(dictItem.getItemValue())) {
+				if (parent.getChildren() == null) {
+					parent.setChildren(new ArrayList<>());
+				}
+				if (!isNodeAlreadyAdded(parent, dictItem)) {
+					parent.getChildren().add(dictItem);
+					buildTreeRecursively(dictItem, dictItems, addedValues);
+				}
+			}
+		}
+	}
+
+	private boolean isNodeAlreadyAdded(DictTreeModel parent, DictTreeModel node) {
+		if (parent.getChildren() != null) {
+			for (DictTreeModel child : parent.getChildren()) {
+				if (child.getItemValue().equals(node.getItemValue())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+
 
 }

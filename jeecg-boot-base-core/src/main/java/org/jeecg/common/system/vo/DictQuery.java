@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Data
 public class DictQuery implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -498347664251529142L;
 
     /**
      * 表名

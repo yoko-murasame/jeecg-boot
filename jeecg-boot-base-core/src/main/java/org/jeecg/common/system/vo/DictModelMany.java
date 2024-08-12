@@ -13,7 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 public class DictModelMany extends DictModel implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5108245823479838824L;
 
     /**
      * 字典code，根据多个字段code查询时才用到，用于区分不同的字典选项

@@ -1,17 +1,18 @@
 package org.jeecg.modules.system.entity;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.jeecg.common.aspect.annotation.Dict;
 import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 @Accessors(chain = true)
 public class SysDictItem implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 6586907017067001830L;
 
     /**
      * id
@@ -78,5 +79,15 @@ public class SysDictItem implements Serializable {
 
     private Date updateTime;
 
+    /**
+     * 父级数据id
+     */
+    @TableField(value = "parent_id")
+    @ApiModelProperty(value = "父级数据id", name = "parentId", notes = "父级数据id")
+    private String parentId;
+
+    @ApiModelProperty(value = "子字典", name = "children", notes = "子字典")
+    @TableField(exist = false)
+    private List<SysDictItem> children;
 
 }
