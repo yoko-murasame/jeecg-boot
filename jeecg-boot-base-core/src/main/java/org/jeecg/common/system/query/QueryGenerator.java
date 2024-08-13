@@ -156,14 +156,20 @@ public class QueryGenerator {
 
 		//区间条件组装 模糊查询 高级查询组装 简单排序 权限查询
 		PropertyDescriptor[] origDescriptors = PropertyUtils.getPropertyDescriptors(searchObj);
-		Map<String,SysPermissionDataRuleModel> ruleMap = getRuleMap();
+		Map<String,List<SysPermissionDataRuleModel>> ruleMap = getRulesMap();
 
 		//权限规则自定义SQL表达式
-		for (String c : ruleMap.keySet()) {
-			if(oConvertUtils.isNotEmpty(c) && c.startsWith(SQL_RULES_COLUMN)){
-				queryWrapper.and(i ->i.apply(getSqlRuleValue(ruleMap.get(c).getRuleValue())));
+		queryWrapper.and(andWrapper -> {
+			for (String c : ruleMap.keySet()) {
+				if(oConvertUtils.isNotEmpty(c) && c.startsWith(SQL_RULES_COLUMN)){
+					// 每个自定义sql片段是唯一的
+					SysPermissionDataRuleModel sqlRule = ruleMap.get(c).get(0);
+					andWrapper.apply(getSqlRuleValue(sqlRule.getRuleValue()));
+					// 多个自定义sql以并集查询
+					andWrapper.or();
+				}
 			}
-		}
+		});
 
 		String name, type, column;
 		// update-begin--Author:taoyan  Date:20200923 for：issues/1671 如果字段加注解了@TableField(exist = false),不走DB查询-------
@@ -187,7 +193,7 @@ public class QueryGenerator {
 				fieldColumnMap.put(name,column);
 				//数据权限查询
 				if(ruleMap.containsKey(name)) {
-					addRuleToQueryWrapper(ruleMap.get(name), column, origDescriptors[i].getPropertyType(), queryWrapper);
+					addRulesToQueryWrapper(ruleMap.get(name), column, origDescriptors[i].getPropertyType(), queryWrapper);
 				}
 				//区间查询
 				doIntervalQuery(queryWrapper, parameterMap, type, name, column);
@@ -796,7 +802,7 @@ public class QueryGenerator {
 				throw new RuntimeException(e);
 			}
 		}
-		if(list != null&&list.size()>0){
+		if(list != null&& !list.isEmpty()){
 			if(list.get(0)==null){
 				return ruleMap;
 			}
@@ -813,6 +819,45 @@ public class QueryGenerator {
 
 	/**
 	 * 获取请求对应的数据权限规则
+	 * @date 20240813 改造成相同列权限多个支持，此时为并集条件
+	 * @return
+	 */
+	public static Map<String, List<SysPermissionDataRuleModel>> getRulesMap() {
+		Map<String, List<SysPermissionDataRuleModel>> ruleMap = new HashMap<>(5);
+		List<SysPermissionDataRuleModel> list = null;
+		try {
+			// 集成进第三方时，禁用数据权限
+			if (QueryGenerator.disableConverRuleValue) {
+				return ruleMap;
+			}
+			list = JeecgDataAutorUtils.loadDataSearchConditon();
+		} catch (Exception e) {
+			if (RpcContext.getContext() != null) {
+				log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
+		if(list != null&& !list.isEmpty()){
+			if(list.get(0)==null){
+				return ruleMap;
+			}
+			for (SysPermissionDataRuleModel rule : list) {
+				String column = rule.getRuleColumn();
+				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
+					column = SQL_RULES_COLUMN+rule.getId();
+				}
+				List<SysPermissionDataRuleModel> orDefault = ruleMap.getOrDefault(column, new ArrayList<>());
+				ruleMap.putIfAbsent(column, orDefault);
+				orDefault.add(rule);
+			}
+		}
+		return ruleMap;
+	}
+
+	/**
+	 * 获取请求对应的数据权限规则
+	 * FIXME 相同列权限多个 有问题
 	 * @return
 	 */
 	public static Map<String, SysPermissionDataRuleModel> getRuleMap(List<SysPermissionDataRuleModel> list) {
@@ -871,6 +916,37 @@ public class QueryGenerator {
 				addEasyQuery(queryWrapper, name, rule, NumberUtils.parseNumber(dataRule.getRuleValue(), propertyType));
 			}
 		}
+	}
+
+	private static void addRulesToQueryWrapper(List<SysPermissionDataRuleModel> dataRules, String name, Class propertyType, QueryWrapper<?> queryWrapper) {
+		queryWrapper.and(andWrapper -> {
+			for (SysPermissionDataRuleModel dataRule : dataRules) {
+				QueryRuleEnum rule = QueryRuleEnum.getByValue(dataRule.getRuleConditions());
+				if(rule.equals(QueryRuleEnum.IN) && ! propertyType.equals(String.class)) {
+					String[] values = dataRule.getRuleValue().split(",");
+					Object[] objs = new Object[values.length];
+					for (int i = 0; i < values.length; i++) {
+						objs[i] = NumberUtils.parseNumber(values[i], propertyType);
+					}
+					addEasyQuery(andWrapper, name, rule, objs);
+				}else {
+					if (propertyType.equals(String.class)) {
+						addEasyQuery(andWrapper, name, rule, converRuleValue(dataRule.getRuleValue()));
+					}else if (propertyType.equals(Date.class)) {
+						String dateStr =converRuleValue(dataRule.getRuleValue());
+						int length = 10;
+						if(dateStr.length()==length){
+							addEasyQuery(andWrapper, name, rule, DateUtils.str2Date(dateStr,DateUtils.date_sdf.get()));
+						}else{
+							addEasyQuery(andWrapper, name, rule, DateUtils.str2Date(dateStr,DateUtils.datetimeFormat.get()));
+						}
+					}else {
+						addEasyQuery(andWrapper, name, rule, NumberUtils.parseNumber(dataRule.getRuleValue(), propertyType));
+					}
+				}
+				andWrapper.or();
+			}
+		});
 	}
 
 	public static String converRuleValue(String ruleValue) {
