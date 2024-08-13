@@ -1,15 +1,16 @@
 spring:
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    validate-on-migrate: true
-    # flyway 的 clean 命令会删除指定 schema 下的所有 table, 生产务必禁掉。这个默认值是
-    # false 理论上作为默认配置是不科学的。
-    clean-disabled: true
-    # 如果数据库不是空表，需要设置成 true，否则启动报错
-    baseline-on-migrate: true
-    # 版本控制日志表，默认flyway_schema_history,不同系统建议修改数据
-    # table: flyway_schema_history
+  # 拆分到单独的配置文件：jeecg-flyway-system-dev.yaml，方便和业务表区分
+  # flyway:
+  #   enabled: true
+  #   locations: classpath:db/migration
+  #   validate-on-migrate: true
+  #   # flyway 的 clean 命令会删除指定 schema 下的所有 table, 生产务必禁掉。这个默认值是
+  #   # false 理论上作为默认配置是不科学的。
+  #   clean-disabled: true
+  #   # 如果数据库不是空表，需要设置成 true，否则启动报错
+  #   baseline-on-migrate: true
+  #   # 版本控制日志表，默认flyway_schema_history,不同系统建议修改数据
+  #   # table: flyway_schema_history
   datasource:
     druid:
       stat-view-servlet:
