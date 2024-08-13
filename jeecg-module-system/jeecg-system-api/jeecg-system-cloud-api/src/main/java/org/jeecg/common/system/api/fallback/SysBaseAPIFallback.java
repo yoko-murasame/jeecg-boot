@@ -255,6 +255,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username) {
+        return null;
+    }
+
+    @Override
     public SysUserCacheInfo getCacheUser(String username) {
         log.error("获取用户信息失败 {}", cause);
         return null;

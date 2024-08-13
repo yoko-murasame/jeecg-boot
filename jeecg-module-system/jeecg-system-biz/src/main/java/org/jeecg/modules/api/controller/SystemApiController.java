@@ -428,6 +428,15 @@ public class SystemApiController {
     }
 
     /**
+     * 查询数据权限
+     * @return
+     */
+    @GetMapping("/queryPermissionDataRuleByPerms")
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username){
+        return sysBaseApi.queryPermissionDataRuleByPerms(perms, username);
+    }
+
+    /**
      * 查询用户信息
      * @param username
      * @return

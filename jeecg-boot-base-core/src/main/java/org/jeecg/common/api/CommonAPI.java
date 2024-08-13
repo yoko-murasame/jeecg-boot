@@ -80,6 +80,13 @@ public interface CommonAPI {
      */
     List<SysPermissionDataRuleModel> queryPermissionDataRule(String component, String requestPath, String username);
 
+    /**
+     * 8.1查询数据权限
+     * @param perms 授权标识，多个逗号分割
+     * @param username 用户名
+     * @return
+     */
+    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username);
 
     /**
      * 9查询用户信息

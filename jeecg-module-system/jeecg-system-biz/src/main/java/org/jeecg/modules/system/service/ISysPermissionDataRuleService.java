@@ -1,10 +1,9 @@
 package org.jeecg.modules.system.service;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.system.entity.SysPermissionDataRule;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import java.util.List;
 
 /**
  * <p>
@@ -18,7 +17,7 @@ public interface ISysPermissionDataRuleService extends IService<SysPermissionDat
 
 	/**
 	 * 根据菜单id查询其对应的权限数据
-	 * 
+	 *
 	 * @param permissionId
      * @return List<SysPermissionDataRule>
 	 */
@@ -30,8 +29,8 @@ public interface ISysPermissionDataRuleService extends IService<SysPermissionDat
 	 * @return
 	 */
 	List<SysPermissionDataRule> queryPermissionRule(SysPermissionDataRule permRule);
-	
-	
+
+
 	/**
 	  * 根据菜单ID和用户名查找数据权限配置信息
 	 * @param permissionId
@@ -39,18 +38,26 @@ public interface ISysPermissionDataRuleService extends IService<SysPermissionDat
 	 * @return
 	 */
 	List<SysPermissionDataRule> queryPermissionDataRules(String username,String permissionId);
-	
+
+	/**
+	 * 根据菜单ID和用户名查找数据权限配置信息
+	 * @param permissionIds
+	 * @param username
+	 * @return
+	 */
+	List<SysPermissionDataRule> queryPermissionDataRulesMulti(String username, List<String> permissionIds);
+
 	/**
 	 * 新增菜单权限配置 修改菜单rule_flag
 	 * @param sysPermissionDataRule
 	 */
 	public void savePermissionDataRule(SysPermissionDataRule sysPermissionDataRule);
-	
+
 	/**
 	 * 删除菜单权限配置 判断菜单还有无权限
 	 * @param dataRuleId
 	 */
 	public void deletePermissionDataRule(String dataRuleId);
-	
-	
+
+
 }

@@ -414,6 +414,16 @@ public interface ISysBaseAPI extends CommonAPI {
     List<SysPermissionDataRuleModel> queryPermissionDataRule(@RequestParam("component") String component, @RequestParam("requestPath")String requestPath, @RequestParam("username") String username);
 
     /**
+     * 42.1查询数据权限
+     * @param perms 授权标识，多个用逗号分隔
+     * @param username 用户姓名
+     * @return
+     */
+    @Override
+    @GetMapping("/sys/api/queryPermissionDataRuleByPerms")
+    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username);
+
+    /**
      * 43查询用户信息
      * @param username
      * @return

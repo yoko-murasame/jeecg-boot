@@ -206,6 +206,23 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return null;
 	}
 
+	public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username) {
+        // 通过注解属性perms 获取菜单
+		LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>();
+		query.eq(SysPermission::getDelFlag,0);
+		query.in(SysPermission::getPerms, Arrays.asList(perms.split(",")));
+        List<SysPermission> currentSyspermission = sysPermissionMapper.selectList(query);
+		// 获取规则
+		if(currentSyspermission!=null && !currentSyspermission.isEmpty()){
+			List<String> ids = currentSyspermission.stream().map(SysPermission::getId).collect(Collectors.toList());
+			List<SysPermissionDataRule> temp = sysPermissionDataRuleService.queryPermissionDataRulesMulti(username, ids);
+			if(temp != null && !temp.isEmpty()) {
+				return oConvertUtils.entityListToModelList(temp,SysPermissionDataRuleModel.class);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * 匹配前端传过来的地址 匹配成功返回正则地址
 	 * AntPathMatcher匹配地址

@@ -20,6 +20,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
@@ -53,14 +54,30 @@ public class PermissionDataAspect {
         MethodSignature signature = (MethodSignature) point.getSignature();
         Method method = signature.getMethod();
         PermissionData pd = method.getAnnotation(PermissionData.class);
-        String component = pd.pageComponent();
+        installDataRuleFromComponent(request, pd.pageComponent());
+        installDataRuleFromPerms(request, pd.perms());
+        return point.proceed();
+    }
+
+    /**
+     * 从component参数注入数据规则
+     *
+     * @author Yoko
+     * @since 2024/8/13 下午3:39
+     * @param request 请求上下文
+     * @param component 组件名称
+     */
+    private void installDataRuleFromComponent(HttpServletRequest request, String component) {
+        if (!StringUtils.hasText(component)) {
+            return;
+        }
         String requestMethod = request.getMethod();
         String requestPath = request.getRequestURI().substring(request.getContextPath().length());
         requestPath = filterUrl(requestPath);
         //update-begin-author:taoyan date:20211027 for:JTC-132【online报表权限】online报表带参数的菜单配置数据权限无效
         //先判断是否online报表请求
         // TODO 参数顺序调整有隐患
-        if(requestPath.indexOf(UrlMatchEnum.CGREPORT_DATA.getMatchUrl())>=0){
+        if(requestPath.contains(UrlMatchEnum.CGREPORT_DATA.getMatchUrl())){
             // 获取地址栏参数
             String urlParamString = request.getParameter(CommonConstant.ONL_REP_URL_PARAM_STR);
             if(oConvertUtils.isNotEmpty(urlParamString)){
@@ -68,19 +85,58 @@ public class PermissionDataAspect {
             }
         }
         //update-end-author:taoyan date:20211027 for:JTC-132【online报表权限】online报表带参数的菜单配置数据权限无效
-        log.info("拦截请求 >> {} ; 请求类型 >> {} . ", requestPath, requestMethod);
+        log.info("component数据权限：拦截请求 >> {} ; 请求类型 >> {} . ", requestPath, requestMethod);
         String username = JwtUtil.getUserNameByToken(request);
         //查询数据权限信息
         //TODO 微服务情况下也得支持缓存机制
         List<SysPermissionDataRuleModel> dataRules = commonApi.queryPermissionDataRule(component, requestPath, username);
-        if(dataRules!=null && dataRules.size()>0) {
+        if(dataRules!=null && !dataRules.isEmpty()) {
             //临时存储
             JeecgDataAutorUtils.installDataSearchConditon(request, dataRules);
             //TODO 微服务情况下也得支持缓存机制
             SysUserCacheInfo userinfo = commonApi.getCacheUser(username);
             JeecgDataAutorUtils.installUserInfo(request, userinfo);
         }
-        return  point.proceed();
+    }
+
+    /**
+     * 从perms参数注入数据规则
+     *
+     * @author Yoko
+     * @since 2024/8/13 下午3:39
+     * @param request 请求上下文
+     * @param perms 授权标识
+     */
+    private void installDataRuleFromPerms(HttpServletRequest request, String perms) {
+        if (!StringUtils.hasText(perms)) {
+            return;
+        }
+        String requestMethod = request.getMethod();
+        String requestPath = request.getRequestURI().substring(request.getContextPath().length());
+        requestPath = filterUrl(requestPath);
+        //update-begin-author:taoyan date:20211027 for:JTC-132【online报表权限】online报表带参数的菜单配置数据权限无效
+        //先判断是否online报表请求
+        // TODO 参数顺序调整有隐患
+        if(requestPath.contains(UrlMatchEnum.CGREPORT_DATA.getMatchUrl())){
+            // 获取地址栏参数
+            String urlParamString = request.getParameter(CommonConstant.ONL_REP_URL_PARAM_STR);
+            if(oConvertUtils.isNotEmpty(urlParamString)){
+                requestPath+="?"+urlParamString;
+            }
+        }
+        //update-end-author:taoyan date:20211027 for:JTC-132【online报表权限】online报表带参数的菜单配置数据权限无效
+        log.info("perms数据权限：拦截请求 >> {} ; 请求类型 >> {} . ", requestPath, requestMethod);
+        String username = JwtUtil.getUserNameByToken(request);
+        //查询数据权限信息
+        //TODO 微服务情况下也得支持缓存机制
+        List<SysPermissionDataRuleModel> dataRules = commonApi.queryPermissionDataRuleByPerms(perms, username);
+        if(dataRules!=null && !dataRules.isEmpty()) {
+            //临时存储
+            JeecgDataAutorUtils.installDataSearchConditon(request, dataRules);
+            //TODO 微服务情况下也得支持缓存机制
+            SysUserCacheInfo userinfo = commonApi.getCacheUser(username);
+            JeecgDataAutorUtils.installUserInfo(request, userinfo);
+        }
     }
 
     private String filterUrl(String requestPath){
