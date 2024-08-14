@@ -159,17 +159,20 @@ public class QueryGenerator {
 		Map<String,List<SysPermissionDataRuleModel>> ruleMap = getRulesMap();
 
 		//权限规则自定义SQL表达式
-		queryWrapper.and(andWrapper -> {
-			for (String c : ruleMap.keySet()) {
-				if(oConvertUtils.isNotEmpty(c) && c.startsWith(SQL_RULES_COLUMN)){
-					// 每个自定义sql片段是唯一的
+		List<String> sqlRulesKey = ruleMap.keySet().stream()
+				.filter(e -> oConvertUtils.isNotEmpty(e) && e.startsWith(SQL_RULES_COLUMN))
+				.collect(Collectors.toList());
+		if (!sqlRulesKey.isEmpty()) {
+			queryWrapper.and(andWrapper -> {
+				for (String c : sqlRulesKey) {
+					// 每个自定义sql片段一定是唯一的
 					SysPermissionDataRuleModel sqlRule = ruleMap.get(c).get(0);
 					andWrapper.apply(getSqlRuleValue(sqlRule.getRuleValue()));
 					// 多个自定义sql以并集查询
 					andWrapper.or();
 				}
-			}
-		});
+			});
+		}
 
 		String name, type, column;
 		// update-begin--Author:taoyan  Date:20200923 for：issues/1671 如果字段加注解了@TableField(exist = false),不走DB查询-------
