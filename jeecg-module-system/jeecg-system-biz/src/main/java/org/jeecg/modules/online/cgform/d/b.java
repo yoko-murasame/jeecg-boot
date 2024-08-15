@@ -20,6 +20,7 @@ import org.jeecg.common.util.jsonschema.CommonProperty;
 import org.jeecg.common.util.jsonschema.JsonSchemaDescrip;
 import org.jeecg.common.util.jsonschema.JsonschemaUtil;
 import org.jeecg.common.util.jsonschema.validate.*;
+import org.jeecg.modules.online.cgform.CgformDB;
 import org.jeecg.modules.online.cgform.entity.*;
 import org.jeecg.modules.online.cgform.enums.CgformConstant;
 import org.jeecg.modules.online.cgform.enums.CgformValidPatternEnum;
@@ -175,30 +176,31 @@ public class b {
     }
 
     // 组装查询条件
-    public static String assembleQuery(List<OnlCgformField> list, Map<String, Object> map, List<String> needList, List<SysPermissionDataRuleModel> list3) {
+    public static String assembleQuery(List<OnlCgformField> list, Map<String, Object> map, List<String> needList, List<SysPermissionDataRuleModel> ruleModels) {
         String str;
-        StringBuffer stringBuffer = new StringBuffer();
-        String str2 = "";
+        StringBuffer finalSqlCondition = new StringBuffer();
+        String databaseType = "";
         try {
-            str2 = org.jeecg.modules.online.config.b.d.getDatabaseType();
+            databaseType = org.jeecg.modules.online.config.b.d.getDatabaseType();
         } catch (SQLException e2) {
             e2.printStackTrace();
         } catch (DBException e3) {
             e3.printStackTrace();
         }
-        Map<String, SysPermissionDataRuleModel> ruleMap = QueryGenerator.getRuleMap(list3);
-        for (String str3 : ruleMap.keySet()) {
-            if (oConvertUtils.isNotEmpty(str3) && str3.startsWith("SQL_RULES_COLUMN")) {
-                stringBuffer.append(" AND (" + QueryGenerator.getSqlRuleValue(((SysPermissionDataRuleModel) ruleMap.get(str3)).getRuleValue()) + ")");
-            }
-        }
+        Map<String, List<SysPermissionDataRuleModel>> rulesMap = QueryGenerator.getRulesMap(ruleModels);
+
+        // 处理自定义sql片段
+        CgformDB.handleDataRulesForCustomSql(rulesMap, finalSqlCondition);
+
+        // 组装查询条件
         for (OnlCgformField onlCgformField : list) {
             String dbFieldName = onlCgformField.getDbFieldName();
             String dbType = onlCgformField.getDbType();
-            if (ruleMap.containsKey(dbFieldName)) {
-                a(str2, (SysPermissionDataRuleModel) ruleMap.get(dbFieldName), dbFieldName, dbType, stringBuffer);
-            } else if (ruleMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
-                a(str2, (SysPermissionDataRuleModel) ruleMap.get(dbFieldName), dbFieldName, dbType, stringBuffer);
+            // 统一调用：为一个字段应用多个数据规则，相同字段的规则会拼接OR关系
+            if (rulesMap.containsKey(dbFieldName)) {
+                CgformDB.handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
+            } else if (rulesMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
+                CgformDB.handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
             }
             if (needList != null && needList.contains(dbFieldName)) {
                 onlCgformField.setIsQuery(1);
@@ -223,44 +225,44 @@ public class b {
                                 }
                                 str4 = str;
                             }
-                            stringBuffer.append(" AND (" + str4 + ")");
+                            finalSqlCondition.append(" AND (" + str4 + ")");
                         }
                         if (POPUP.equals(onlCgformField.getFieldShowType())) {
-                            stringBuffer.append(" AND (" + b(dbFieldName, obj.toString()) + ")");
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
-                            stringBuffer.append(AND + dbFieldName + EQ + a(obj.toString()));
+                            finalSqlCondition.append(" AND (" + b(dbFieldName, obj.toString()) + ")");
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            finalSqlCondition.append(AND + dbFieldName + EQ + a(obj.toString()));
                         } else {
                             // FIXME 主要是这里调用了默认的构造入口
-                            stringBuffer.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, !k.isNumber(dbType)));
+                            finalSqlCondition.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, !k.isNumber(dbType)));
                         }
                     }
                 } else {
                     Object obj2 = map.get(dbFieldName + "_begin");
                     if (obj2 != null) {
-                        stringBuffer.append(AND + dbFieldName + GE);
+                        finalSqlCondition.append(AND + dbFieldName + GE);
                         if (k.isNumber(dbType)) {
-                            stringBuffer.append(obj2.toString());
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
-                            stringBuffer.append(a(obj2.toString()));
+                            finalSqlCondition.append(obj2.toString());
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            finalSqlCondition.append(a(obj2.toString()));
                         } else {
-                            stringBuffer.append(sz + obj2.toString() + sz);
+                            finalSqlCondition.append(sz + obj2.toString() + sz);
                         }
                     }
                     Object obj3 = map.get(dbFieldName + "_end");
                     if (obj3 != null) {
-                        stringBuffer.append(AND + dbFieldName + LE);
+                        finalSqlCondition.append(AND + dbFieldName + LE);
                         if (k.isNumber(dbType)) {
-                            stringBuffer.append(obj3.toString());
-                        } else if ("ORACLE".equals(str2) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
-                            stringBuffer.append(a(obj3.toString()));
+                            finalSqlCondition.append(obj3.toString());
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            finalSqlCondition.append(a(obj3.toString()));
                         } else {
-                            stringBuffer.append(sz + obj3.toString() + sz);
+                            finalSqlCondition.append(sz + obj3.toString() + sz);
                         }
                     }
                 }
             }
         }
-        return stringBuffer.toString();
+        return finalSqlCondition.toString();
     }
 
     public static String assembleSuperQuery(Map<String, Object> map) {
@@ -1126,53 +1128,6 @@ public class b {
             }
         }
         return "(" + StringUtils.join(arrayList, DOT_STRING) + ")";
-    }
-
-    private static void a(String str, SysPermissionDataRuleModel sysPermissionDataRuleModel, String str2, String str3, StringBuffer stringBuffer) {
-        QueryRuleEnum byValue = QueryRuleEnum.getByValue(sysPermissionDataRuleModel.getRuleConditions());
-        String a2 = a(sysPermissionDataRuleModel.getRuleValue(), !k.isNumber(str3), byValue);
-        if (a2 == null || byValue == null) {
-            return;
-        }
-        if ("ORACLE".equalsIgnoreCase(str) && "Date".equals(str3)) {
-            String replace = a2.replace(sz, "");
-            a2 = replace.length() == 10 ? b(replace) : a(replace);
-        }
-        switch (AnonymousClass4.a[byValue.ordinal()]) {
-            case 1:
-                stringBuffer.append(AND + str2 + GT + a2);
-                return;
-            case 2:
-                stringBuffer.append(AND + str2 + GE + a2);
-                return;
-            case 3:
-                stringBuffer.append(AND + str2 + sp + a2);
-                return;
-            case 4:
-                stringBuffer.append(AND + str2 + LE + a2);
-                return;
-            case 5:
-                stringBuffer.append(AND + str2 + " <> " + a2);
-                return;
-            case 6:
-                stringBuffer.append(AND + str2 + " IN " + a2);
-                return;
-            case 7:
-                stringBuffer.append(AND + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + "%'");
-                return;
-            case 8:
-                stringBuffer.append(AND + str2 + " LIKE '%" + QueryGenerator.trimSingleQuote(a2) + sz);
-                return;
-            case 9:
-                stringBuffer.append(AND + str2 + " LIKE '" + QueryGenerator.trimSingleQuote(a2) + "%'");
-                return;
-            case 10:
-                stringBuffer.append(AND + str2 + EQ + a2);
-                return;
-            default:
-                ay.info("--查询规则未匹配到---");
-                return;
-        }
     }
 
     public static String a(String str, JSONObject jSONObject) {

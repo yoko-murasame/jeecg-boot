@@ -49,6 +49,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.jeecg.common.system.query.QueryGenerator.getSqlRuleValue;
+
 @Service
 public class CgformDB {
     private static final Logger ay = LoggerFactory.getLogger(CgformDB.class);
@@ -173,11 +175,11 @@ public class CgformDB {
         var2.append(" FROM " + f(var0));
     }
 
-    public static String a(String var0) {
+    public static String toDatetime(String var0) {
         return " to_date('" + var0 + "','yyyy-MM-dd HH24:mi:ss')";
     }
 
-    public static String b(String var0) {
+    public static String toDate(String var0) {
         return " to_date('" + var0 + "','yyyy-MM-dd')";
     }
 
@@ -193,129 +195,148 @@ public class CgformDB {
         }
     }
 
-    public static String a(List<OnlCgformField> var0, Map<String, Object> var1, List<String> var2) {
-        return a((List)var0, (Map)var1, (List)var2, (List)null);
+    public static String getSqlCondition(List<OnlCgformField> cgformFields, Map<String, Object> queryParam, List<String> var2) {
+        return getSqlCondition(cgformFields, queryParam, var2, null);
     }
 
-    public static String a(List<OnlCgformField> var0, Map<String, Object> var1, List<String> var2, List<SysPermissionDataRuleModel> var3) {
-        StringBuffer var4 = new StringBuffer();
-        String var5 = "";
+    public static String getSqlCondition(List<OnlCgformField> cgformFields, Map<String, Object> queryParam, List<String> var2, List<SysPermissionDataRuleModel> permissionDataRuleModels) {
+        StringBuffer finalSqlCondition = new StringBuffer();
+        String databaseType = "";
 
         try {
-            var5 = org.jeecg.modules.online.config.b.d.getDatabaseType();
-        } catch (SQLException var15) {
-            var15.printStackTrace();
-        } catch (DBException var16) {
-            var16.printStackTrace();
+            databaseType = org.jeecg.modules.online.config.b.d.getDatabaseType();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (DBException e1) {
+            e1.printStackTrace();
         }
 
-        Map var6 = QueryGenerator.getRuleMap(var3);
-        Iterator var7 = var6.keySet().iterator();
+        Map<String, List<SysPermissionDataRuleModel>> rulesMap = QueryGenerator.getRulesMap(permissionDataRuleModels);
 
-        while(var7.hasNext()) {
-            String var8 = (String)var7.next();
-            if (oConvertUtils.isNotEmpty(var8) && var8.startsWith("SQL_RULES_COLUMN")) {
-                var4.append(" AND (" + QueryGenerator.getSqlRuleValue(((SysPermissionDataRuleModel)var6.get(var8)).getRuleValue()) + ")");
-            }
-        }
+        // 处理自定义sql片段
+        handleDataRulesForCustomSql(rulesMap, finalSqlCondition);
 
-        var7 = var0.iterator();
+        Iterator<OnlCgformField> cgformFieldIterator = cgformFields.iterator();
 
         while(true) {
             while(true) {
-                String var9;
-                String var10;
+                String dbFieldName;
+                String dbType;
                 Object var11;
-                OnlCgformField var17;
+                OnlCgformField onlCgformField;
                 do {
                     while(true) {
                         do {
-                            if (!var7.hasNext()) {
-                                return var4.toString();
+                            if (!cgformFieldIterator.hasNext()) {
+                                return finalSqlCondition.toString();
                             }
 
-                            var17 = (OnlCgformField)var7.next();
-                            var9 = var17.getDbFieldName();
-                            var10 = var17.getDbType();
-                            if (var6.containsKey(var9)) {
-                                a(var5, (SysPermissionDataRuleModel)var6.get(var9), var9, var10, var4);
-                            } else if (var6.containsKey(oConvertUtils.camelNames(var9))) {
-                                a(var5, (SysPermissionDataRuleModel)var6.get(var9), var9, var10, var4);
+                            onlCgformField = cgformFieldIterator.next();
+                            dbFieldName = onlCgformField.getDbFieldName();
+                            dbType = onlCgformField.getDbType();
+                            if (rulesMap.containsKey(dbFieldName)) {
+                                handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
+                            } else if (rulesMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
+                                handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
                             }
 
-                            if (var2 != null && var2.contains(var9)) {
-                                var17.setIsQuery(1);
-                                var17.setQueryMode("single");
+                            if (var2 != null && var2.contains(dbFieldName)) {
+                                onlCgformField.setIsQuery(1);
+                                onlCgformField.setQueryMode("single");
                             }
 
-                            if (oConvertUtils.isNotEmpty(var17.getMainField()) && oConvertUtils.isNotEmpty(var17.getMainTable())) {
-                                var17.setIsQuery(1);
-                                var17.setQueryMode("single");
+                            if (oConvertUtils.isNotEmpty(onlCgformField.getMainField()) && oConvertUtils.isNotEmpty(onlCgformField.getMainTable())) {
+                                onlCgformField.setIsQuery(1);
+                                onlCgformField.setQueryMode("single");
                             }
 
                             // 添加逻辑 可以筛选id
-                            if ("id".equals(var17.getDbFieldName())) {
-                                var17.setIsQuery(1);
-                                var17.setQueryMode("single");
+                            if ("id".equals(onlCgformField.getDbFieldName())) {
+                                onlCgformField.setIsQuery(1);
+                                onlCgformField.setQueryMode("single");
                             }
-                        } while(1 != var17.getIsQuery());
+                        } while(1 != onlCgformField.getIsQuery());
 
-                        if ("single".equals(var17.getQueryMode())) {
-                            var11 = var1.get(var9);
+                        if ("single".equals(onlCgformField.getQueryMode())) {
+                            var11 = queryParam.get(dbFieldName);
                             break;
                         }
 
-                        var11 = var1.get(var9 + "_begin");
+                        var11 = queryParam.get(dbFieldName + "_begin");
                         if (var11 != null) {
-                            var4.append(" AND " + var9 + ">=");
-                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var10)) {
-                                var4.append(var11.toString());
-                            } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
-                                var4.append(a(var11.toString()));
+                            finalSqlCondition.append(" AND " + dbFieldName + ">=");
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(dbType)) {
+                                finalSqlCondition.append(var11.toString());
+                            } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf("date") >= 0) {
+                                finalSqlCondition.append(toDatetime(var11.toString()));
                             } else {
-                                var4.append("'" + var11.toString() + "'");
+                                finalSqlCondition.append("'" + var11.toString() + "'");
                             }
                         }
 
-                        Object var12 = var1.get(var9 + "_end");
+                        Object var12 = queryParam.get(dbFieldName + "_end");
                         if (var12 != null) {
-                            var4.append(" AND " + var9 + "<=");
-                            if (org.jeecg.modules.online.cgform.d.k.isNumber(var10)) {
-                                var4.append(var12.toString());
-                            } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
-                                var4.append(a(var12.toString()));
+                            finalSqlCondition.append(" AND " + dbFieldName + "<=");
+                            if (org.jeecg.modules.online.cgform.d.k.isNumber(dbType)) {
+                                finalSqlCondition.append(var12.toString());
+                            } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf("date") >= 0) {
+                                finalSqlCondition.append(toDatetime(var12.toString()));
                             } else {
-                                var4.append("'" + var12.toString() + "'");
+                                finalSqlCondition.append("'" + var12.toString() + "'");
                             }
                         }
                     }
                 } while(var11 == null);
 
                 String var13;
-                if ("list_multi".equals(var17.getFieldShowType())) {
+                if ("list_multi".equals(onlCgformField.getFieldShowType())) {
                     String[] var18 = var11.toString().split(",");
                     var13 = "";
 
                     for(int var14 = 0; var14 < var18.length; ++var14) {
                         if (oConvertUtils.isNotEmpty(var13)) {
-                            var13 = var13 + " or " + var9 + " like " + "'%" + var18[var14] + ",%'" + " or " + var9 + " like " + "'%," + var18[var14] + "%'";
+                            var13 = var13 + " or " + dbFieldName + " like " + "'%" + var18[var14] + ",%'" + " or " + dbFieldName + " like " + "'%," + var18[var14] + "%'";
                         } else {
-                            var13 = var9 + " like " + "'%" + var18[var14] + ",%'" + " or " + var9 + " like " + "'%," + var18[var14] + "%'";
+                            var13 = dbFieldName + " like " + "'%" + var18[var14] + ",%'" + " or " + dbFieldName + " like " + "'%," + var18[var14] + "%'";
                         }
                     }
 
-                    var4.append(" AND (" + var13 + ")");
+                    finalSqlCondition.append(" AND (" + var13 + ")");
                 }
 
-                if ("popup".equals(var17.getFieldShowType())) {
-                    var4.append(" AND (" + b(var9, var11.toString()) + ")");
-                } else if ("ORACLE".equals(var5) && var10.toLowerCase().indexOf("date") >= 0) {
-                    var4.append(" AND " + var9 + "=" + a(var11.toString()));
+                if ("popup".equals(onlCgformField.getFieldShowType())) {
+                    finalSqlCondition.append(" AND (" + b(dbFieldName, var11.toString()) + ")");
+                } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf("date") >= 0) {
+                    finalSqlCondition.append(" AND " + dbFieldName + "=" + toDatetime(var11.toString()));
                 } else {
-                    boolean var19 = !org.jeecg.modules.online.cgform.d.k.isNumber(var10);
-                    var13 = QueryGenerator.getSingleQueryConditionSql(var9, "", var11, var19);
-                    var4.append(" AND " + var13);
+                    boolean var19 = !org.jeecg.modules.online.cgform.d.k.isNumber(dbType);
+                    var13 = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", var11, var19);
+                    finalSqlCondition.append(" AND " + var13);
                 }
+            }
+        }
+    }
+
+    // 处理自定义sql片段
+    public static void handleDataRulesForCustomSql(Map<String, List<SysPermissionDataRuleModel>> rulesMap, StringBuffer finalSqlCondition) {
+        List<String> sqlRulesKey = rulesMap.keySet().stream()
+                .filter(e -> oConvertUtils.isNotEmpty(e) && e.startsWith("SQL_RULES_COLUMN"))
+                .collect(Collectors.toList());
+        if (!sqlRulesKey.isEmpty()) {
+            // online表单里的自定义sql数据权限，和编码方式有所区别，sqlRulesKey其实是唯一的，这里以列表形式展开防止特殊情况
+            for (String sqlRuleKey : sqlRulesKey) {
+                finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.AND);
+                finalSqlCondition.append("(");
+                // 每个自定义sql片段一定是唯一的
+                for (int i1 = 0; i1 < rulesMap.get(sqlRuleKey).size(); i1++) {
+                    SysPermissionDataRuleModel sqlRule = rulesMap.get(sqlRuleKey).get(i1);
+                    if (i1 == 0) {
+                        finalSqlCondition.append("(").append(getSqlRuleValue(sqlRule.getRuleValue())).append(")");
+                    } else {
+                        finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.OR).append("(").append(getSqlRuleValue(sqlRule.getRuleValue())).append(")");
+                    }
+                }
+                finalSqlCondition.append(")");
             }
         }
     }
@@ -421,9 +442,9 @@ public class CgformDB {
         if ("date".equals(var4) && "ORACLE".equalsIgnoreCase(getDatabseType())) {
             var3 = var3.replace("'", "");
             if (var3.length() == 10) {
-                var3 = b(var3);
+                var3 = toDate(var3);
             } else {
-                var3 = a(var3);
+                var3 = toDatetime(var3);
             }
         }
 
@@ -1213,15 +1234,15 @@ public class CgformDB {
         });
     }
 
-    private static String a(String var0, boolean var1, QueryRuleEnum var2) {
-        if (var2 == QueryRuleEnum.IN) {
-            return a(var0, var1);
+    private static String handleRuleValue(String var0, boolean isString, QueryRuleEnum ruleEnum) {
+        if (ruleEnum == QueryRuleEnum.IN) {
+            return handleRuleValue(var0, isString);
         } else {
-            return var1 ? "'" + QueryGenerator.converRuleValue(var0) + "'" : QueryGenerator.converRuleValue(var0);
+            return isString ? "'" + QueryGenerator.converRuleValue(var0) + "'" : QueryGenerator.converRuleValue(var0);
         }
     }
 
-    private static String a(String var0, boolean var1) {
+    private static String handleRuleValue(String var0, boolean var1) {
         if (var0 != null && var0.length() != 0) {
             var0 = QueryGenerator.converRuleValue(var0);
             String[] var2 = var0.split(",");
@@ -1246,55 +1267,73 @@ public class CgformDB {
         }
     }
 
-    private static void a(String var0, SysPermissionDataRuleModel var1, String var2, String var3, StringBuffer var4) {
-        QueryRuleEnum var5 = QueryRuleEnum.getByValue(var1.getRuleConditions());
-        boolean var6 = !org.jeecg.modules.online.cgform.d.k.isNumber(var3);
-        String var7 = a(var1.getRuleValue(), var6, var5);
-        if (var7 != null && var5 != null) {
-            if ("ORACLE".equalsIgnoreCase(var0) && "Date".equals(var3)) {
-                var7 = var7.replace("'", "");
-                if (var7.length() == 10) {
-                    var7 = b(var7);
-                } else {
-                    var7 = a(var7);
+    // 为一个字段应用多个数据规则，相同字段的规则会拼接OR关系
+    public static void handleDataRulesForOneField(String databaseType, List<SysPermissionDataRuleModel> ruleModels, String dbFieldName, String dbType, StringBuffer buffer) {
+        if (!ruleModels.isEmpty()) {
+            buffer.append(org.jeecg.modules.online.cgform.d.b.AND);
+            buffer.append("(");
+            for (int roleModelIndex = 0; roleModelIndex < ruleModels.size(); roleModelIndex++) {
+                SysPermissionDataRuleModel ruleModel = ruleModels.get(roleModelIndex);
+                handleDataRuleToPerSql(databaseType, dbFieldName, dbType, buffer, ruleModel, false);
+                if (ruleModels.size() > 1 && roleModelIndex != ruleModels.size() - 1) {
+                    buffer.append(org.jeecg.modules.online.cgform.d.b.OR);
                 }
             }
+            buffer.append(")");
+        }
+    }
 
-            switch(var5) {
+    // 拼接查询条件
+    public static void handleDataRuleToPerSql(String databaseType, String dbFieldName, String dbType, StringBuffer buffer, SysPermissionDataRuleModel ruleModel, boolean needPreAnd) {
+        QueryRuleEnum ruleEnum = QueryRuleEnum.getByValue(ruleModel.getRuleConditions());
+        boolean isString = !org.jeecg.modules.online.cgform.d.k.isNumber(dbType);
+        String ruleValue = handleRuleValue(ruleModel.getRuleValue(), isString, ruleEnum);
+        if (ruleValue != null && ruleEnum != null) {
+            if ("ORACLE".equalsIgnoreCase(databaseType) && "Date".equals(dbType)) {
+                ruleValue = ruleValue.replace("'", "");
+                if (ruleValue.length() == 10) {
+                    ruleValue = toDate(ruleValue);
+                } else {
+                    ruleValue = toDatetime(ruleValue);
+                }
+            }
+            if (needPreAnd) {
+                buffer.append(org.jeecg.modules.online.cgform.d.b.AND);
+            }
+            switch(ruleEnum) {
                 case GT:
-                    var4.append(" AND " + var2 + ">" + var7);
+                    buffer.append(dbFieldName).append(">").append(ruleValue);
                     break;
                 case GE:
-                    var4.append(" AND " + var2 + ">=" + var7);
+                    buffer.append(dbFieldName).append(">=").append(ruleValue);
                     break;
                 case LT:
-                    var4.append(" AND " + var2 + "<" + var7);
+                    buffer.append(dbFieldName).append("<").append(ruleValue);
                     break;
                 case LE:
-                    var4.append(" AND " + var2 + "<=" + var7);
+                    buffer.append(dbFieldName).append("<=").append(ruleValue);
                     break;
                 case NE:
-                    var4.append(" AND " + var2 + " <> " + var7);
+                    buffer.append(dbFieldName).append(" <> ").append(ruleValue);
                     break;
                 case IN:
-                    var4.append(" AND " + var2 + " IN " + var7);
+                    buffer.append(dbFieldName).append(" IN ").append(ruleValue);
                     break;
                 case LIKE:
-                    var4.append(" AND " + var2 + " LIKE '%" + QueryGenerator.trimSingleQuote(var7) + "%'");
+                    buffer.append(dbFieldName).append(" LIKE '%").append(QueryGenerator.trimSingleQuote(ruleValue)).append("%'");
                     break;
                 case LEFT_LIKE:
-                    var4.append(" AND " + var2 + " LIKE '%" + QueryGenerator.trimSingleQuote(var7) + "'");
+                    buffer.append(dbFieldName).append(" LIKE '%").append(QueryGenerator.trimSingleQuote(ruleValue)).append("'");
                     break;
                 case RIGHT_LIKE:
-                    var4.append(" AND " + var2 + " LIKE '" + QueryGenerator.trimSingleQuote(var7) + "%'");
+                    buffer.append(dbFieldName).append(" LIKE '").append(QueryGenerator.trimSingleQuote(ruleValue)).append("%'");
                     break;
                 case EQ:
-                    var4.append(" AND " + var2 + "=" + var7);
+                    buffer.append(dbFieldName).append("=").append(ruleValue);
                     break;
                 default:
                     ay.info("--查询规则未匹配到---");
             }
-
         }
     }
 

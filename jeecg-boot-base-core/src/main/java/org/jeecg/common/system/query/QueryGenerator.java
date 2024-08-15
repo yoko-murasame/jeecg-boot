@@ -861,8 +861,9 @@ public class QueryGenerator {
 	/**
 	 * 获取请求对应的数据权限规则
 	 * FIXME 相同列权限多个 有问题
-	 * @return
+	 * @deprecated 20240815 改造成相同列权限多个支持，此时为并集条件，参考方法：getRulesMap
 	 */
+	@Deprecated
 	public static Map<String, SysPermissionDataRuleModel> getRuleMap(List<SysPermissionDataRuleModel> list) {
 		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<String, SysPermissionDataRuleModel>();
 		if(list==null){
@@ -890,6 +891,44 @@ public class QueryGenerator {
 					column = SQL_RULES_COLUMN+rule.getId();
 				}
 				ruleMap.put(column, rule);
+			}
+		}
+		return ruleMap;
+	}
+
+	/**
+	 * 获取请求对应的数据权限规则
+	 * @date 20240815 改造成相同列权限多个支持，此时为并集条件
+	 */
+	public static Map<String, List<SysPermissionDataRuleModel>> getRulesMap(List<SysPermissionDataRuleModel> list) {
+		Map<String, List<SysPermissionDataRuleModel>> ruleMap = new HashMap<String, List<SysPermissionDataRuleModel>>();
+		if(list==null){
+			try {
+				// 集成进第三方时，禁用数据权限
+				if (QueryGenerator.disableConverRuleValue) {
+					return ruleMap;
+				}
+				list = JeecgDataAutorUtils.loadDataSearchConditon();
+			} catch (Exception e) {
+				if (RpcContext.getContext() != null) {
+					log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				} else {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		if(list != null&& !list.isEmpty()){
+			if(list.get(0)==null){
+				return ruleMap;
+			}
+			for (SysPermissionDataRuleModel rule : list) {
+				String column = rule.getRuleColumn();
+				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
+					column = SQL_RULES_COLUMN+rule.getId();
+				}
+				List<SysPermissionDataRuleModel> orDefault = ruleMap.getOrDefault(column, new ArrayList<>());
+				ruleMap.putIfAbsent(column, orDefault);
+				orDefault.add(rule);
 			}
 		}
 		return ruleMap;
