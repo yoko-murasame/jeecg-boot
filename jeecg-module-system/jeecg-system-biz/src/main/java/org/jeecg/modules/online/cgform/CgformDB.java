@@ -33,6 +33,7 @@ import org.jeecg.modules.online.config.exception.DBException;
 import org.jeecgframework.poi.excel.entity.params.ExcelExportEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -48,6 +49,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Service
 public class CgformDB {
     private static final Logger ay = LoggerFactory.getLogger(CgformDB.class);
     public static final String a = "SELECT ";
@@ -128,6 +130,12 @@ public class CgformDB {
     public static final String ax = "showLength";
     private static final String az = "beforeAdd,beforeEdit,afterAdd,afterEdit,beforeDelete,afterDelete,mounted,created";
     private static String aA;
+
+    private static String MYBATIS_LOGIC_DELETE_FIELD= "del_flag";
+
+    private static Integer MYBATIS_LOGIC_DELETE_FIELD_VAL = 1;
+
+    private static Integer MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL = 0;
 
     public CgformDB() {
     }
@@ -1060,6 +1068,13 @@ public class CgformDB {
                 }
             }
 
+            if(var6.getDbFieldName().toUpperCase().equals(MYBATIS_LOGIC_DELETE_FIELD.toUpperCase())){
+                //规定的删除字段
+                var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
+                var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL, var9);
+                var3.append(" AND " + var10);
+            }
+
             if (var6.getIsQuery() == 1) {
                 if ("single".equals(var6.getQueryMode())) {
                     if (var2.get(var7) != null) {
@@ -1093,10 +1108,14 @@ public class CgformDB {
             }
         }
 
+        String whereCondition = var3.toString();
+        if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
+            whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
+        }
         // return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where 1=1  " + var3.toString();
         // 去除 WHERE 1=1
-        if (StringUtils.isNotBlank(var3.toString())) {
-            return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where " + var3.toString();
+        if (StringUtils.isNotBlank(whereCondition.toString())) {
+            return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where " + whereCondition.toString();
         } else {
             return "SELECT id" + var4.toString() + " FROM " + f(var0);
         }

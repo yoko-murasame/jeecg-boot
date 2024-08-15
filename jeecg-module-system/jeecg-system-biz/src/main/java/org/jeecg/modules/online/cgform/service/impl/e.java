@@ -937,8 +937,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead == null) {
             throw new BusinessException("未找到表配置信息");
         }
-        String f = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead.getTableName());
-        Map<String, Object> queryOneByTableNameAndId = ((OnlCgformHeadMapper) this.baseMapper).queryOneByTableNameAndId(f, dataId);
+        String tableName = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead.getTableName());
+        Map<String, Object> queryOneByTableNameAndId = ((OnlCgformHeadMapper) this.baseMapper).queryOneByTableNameAndId(tableName, dataId);
         if (queryOneByTableNameAndId == null) {
             throw new BusinessException("未找到数据信息");
         }
@@ -948,7 +948,10 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead.getTableType().intValue() == 2) {
             this.fieldService.deleteAutoListMainAndSub(onlCgformHead, dataId);
         } else {
-            ((OnlCgformHeadMapper) this.baseMapper).deleteOne("delete from " + f + " where id = '" + dataId + org.jeecg.modules.online.cgform.d.b.sz);
+            // 走判断逻辑删
+            this.fieldService.deleteAutoListById(tableName, dataId);
+            // 原先为物理删
+            // ((OnlCgformHeadMapper) this.baseMapper).deleteOne("delete from " + tableName + " where id = '" + dataId + org.jeecg.modules.online.cgform.d.b.sz);
         }
         executeEnhanceSql("delete", formId, parseObject);
         executeEnhanceJava("delete", "end", onlCgformHead, parseObject);

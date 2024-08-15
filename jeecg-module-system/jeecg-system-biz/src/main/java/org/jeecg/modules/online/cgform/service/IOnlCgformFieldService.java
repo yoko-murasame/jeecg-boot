@@ -4,17 +4,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.online.cgform.a.a;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
 import org.jeecg.modules.online.cgform.model.TreeModel;
 
+import java.util.List;
+import java.util.Map;
+
 public abstract interface IOnlCgformFieldService extends IService<OnlCgformField>
 {
   public abstract Map<String, Object> queryAutolistPage(String paramString1, String paramString2, Map<String, Object> paramMap, List<String> paramList);
+
+  // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+  Map<String, Object> queryAutoExportlist(String tbname, String headId, Map<String, Object> params, List<String> needList);
 
   public abstract Map<String, Object> queryAutoTreeNoPage(String paramString1, String paramString2, Map<String, Object> paramMap, List<String> paramList, String paramString3);
 
@@ -25,6 +29,9 @@ public abstract interface IOnlCgformFieldService extends IService<OnlCgformField
   public abstract void deleteAutoList(String paramString1, String paramString2, String paramString3);
 
   public abstract void saveFormData(String paramString1, String paramString2, JSONObject paramJSONObject, boolean paramBoolean);
+
+  // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+  void saveFormDataForCyclePlan(String code, String tbname, JSONObject json, boolean isCrazy);
 
   public abstract void saveTreeFormData(String paramString1, String paramString2, JSONObject paramJSONObject, String paramString3, String paramString4);
 
@@ -61,6 +68,9 @@ public abstract interface IOnlCgformFieldService extends IService<OnlCgformField
   public abstract List<OnlCgformField> queryAvailableFields(String paramString, boolean paramBoolean, List<OnlCgformField> paramList, List<String> paramList1);
 
   public abstract List<OnlCgformField> queryAvailableFields(String paramString1, String paramString2, boolean paramBoolean, List<OnlCgformField> paramList, List<String> paramList1);
+
+  // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+  List<OnlCgformField> queryAvailableExportFields(String cgformId, String tbname, boolean isList, List<OnlCgformField> List, List<String> needList);
 
   public abstract void executeInsertSQL(Map<String, Object> paramMap);
 

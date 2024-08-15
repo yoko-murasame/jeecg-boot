@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.design.core.tool.utils.ObjectUtil;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.LoginUser;
@@ -16,7 +17,6 @@ import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
-import org.jeecg.modules.online.cgform.d.b;
 import org.jeecg.modules.online.cgform.d.c;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
@@ -27,6 +27,7 @@ import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,15 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     private ISysBaseAPI sysBaseAPI;
     private static final String b = "0";
 
+    @Value("${mybatis-plus.global-config.db-config.logic-delete-field:del_flag}")
+    private String MYBATIS_LOGIC_DELETE_FIELD;
+
+    @Value("${mybatis-plus.global-config.db-config.logic-delete-value:1}")
+    private String MYBATIS_LOGIC_DELETE_FIELD_VAL;
+
+    @Value("${mybatis-plus.global-config.db-config.logic-not-delete-value:0}")
+    private String MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL;
+
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList) {
         HashMap hashMap = new HashMap();
@@ -63,6 +73,87 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         org.jeecg.modules.online.cgform.d.b.assembleSelect(tbname, queryAvailableFields, stringBuffer);
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), headId);
+        if (ObjectUtil.isNotEmpty(queryOwnerAuth)) {
+            JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
+        }
+        // 检查sql注入
+        String[] arr1 = new String[]{};
+        arr1 = params.toString().split(",");
+        SqlInjectionUtil.filterContent(arr1);
+
+
+        // 组装WHERE
+        String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
+
+        //判断字段中是否包含逻辑删除字段
+        String logicDelflagSql = " AND del_flag=" + MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL + " ";
+        Optional<OnlCgformField> delFlagOptional = list.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
+        if(delFlagOptional.isPresent()){
+            whereCondition = whereCondition + logicDelflagSql;
+        }
+        if (StringUtils.isNotBlank(whereCondition)) {
+            // stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + whereCondition);
+            // 去除第一个and
+            if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
+                whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
+            }
+            stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE + whereCondition);
+        }
+        // 组装ORDER BY
+        Object obj = params.get("column");
+        if (obj != null) {
+            String obj2 = obj.toString();
+            String obj3 = params.get("order").toString();
+            if (a(obj2, list)) {
+                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY + oConvertUtils.camelToUnderline(obj2));
+                if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
+                    stringBuffer.append(" asc");
+                } else {
+                    stringBuffer.append(" desc");
+                }
+            }
+        }
+        // 检查sql注入（这里会影响online列表getData的查询）
+        // SqlInjectionUtil.filterContent(stringBuffer.toString());
+        Integer valueOf = Integer.valueOf(params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString()));
+        System.out.println(stringBuffer.toString());
+        if (valueOf.intValue() == -521) {
+            List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
+            a.debug("---Online查询sql 不分页 :>>" + stringBuffer.toString());
+            if (queryListBySql == null || queryListBySql.size() == 0) {
+                hashMap.put("total", 0);
+                hashMap.put("fieldList", queryAvailableFields);
+            } else {
+                hashMap.put("total", Integer.valueOf(queryListBySql.size()));
+                hashMap.put("fieldList", queryAvailableFields);
+                hashMap.put("records", org.jeecg.modules.online.cgform.d.b.d(queryListBySql));
+            }
+        } else {
+            Page<Map<String, Object>> page = new Page<>(Integer.valueOf(params.get("pageNo") == null ? 1 : Integer.parseInt(params.get("pageNo").toString())).intValue(), valueOf.intValue());
+            a.debug("---Online查询sql:>>" + stringBuffer.toString());
+            IPage<Map<String, Object>> selectPageBySql = this.onlCgformFieldMapper.selectPageBySql(page, stringBuffer.toString());
+            hashMap.put("total", Long.valueOf(selectPageBySql.getTotal()));
+            hashMap.put("records", org.jeecg.modules.online.cgform.d.b.d(selectPageBySql.getRecords()));
+        }
+        return hashMap;
+    }
+
+
+    @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+    public Map<String, Object> queryAutoExportlist(String tbname, String headId, Map<String, Object> params, List<String> needList) {
+        HashMap hashMap = new HashMap();
+        LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
+        lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, headId);
+        lambdaQueryWrapper.orderByAsc(OnlCgformField::getOrderNum);
+        List list = list(lambdaQueryWrapper);
+        //老版本是根据列表或表单字段去调出
+        //新版本根据字段配置获取到字段列表
+        List<OnlCgformField> queryAvailableFields = queryAvailableExportFields(headId, tbname, true, list, needList);
+        StringBuffer stringBuffer = new StringBuffer();
+        // 组装SELECT
+        org.jeecg.modules.online.cgform.d.b.assembleSelect(tbname, queryAvailableFields, stringBuffer);
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), headId);
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
             JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
         }
@@ -70,8 +161,17 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         String[] arr1 = new String[]{};
         arr1 = params.toString().split(",");
         SqlInjectionUtil.filterContent(arr1);
+
+
         // 组装WHERE
         String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
+
+        //判断字段中是否包含逻辑删除字段
+        String logicDelflagSql = " AND del_flag=" + MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL + " ";
+        Optional<OnlCgformField> delFlagOptional = list.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
+        if(delFlagOptional.isPresent()){
+            whereCondition = whereCondition + logicDelflagSql;
+        }
         if (StringUtils.isNotBlank(whereCondition)) {
             // stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + whereCondition);
             // 去除第一个and
@@ -223,6 +323,21 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         }
     }
 
+    /**
+     * 去掉用户相关操作
+     */
+    @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+    public void saveFormDataForCyclePlan(String code, String tbname, JSONObject json, boolean isCrazy) {
+        // LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
+        // lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
+        // List list = list(lambdaQueryWrapper);
+        // if (isCrazy) {
+        //     ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.getCrazyFormDataForCyclePlan(tbname, list, json));
+        // } else {
+        //     ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.getFormDataForCyclePlan(tbname, list, json));
+        // }
+    }
+
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public void saveTreeFormData(String code, String tbname, JSONObject json, String hasChildField, String pidField) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
@@ -343,7 +458,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     @Transactional(rollbackFor = {Exception.class})
     public void deleteAutoListMainAndSub(OnlCgformHead head, String ids) {
         String[] split;
-        List list;
+        List list = new ArrayList();
         if (head.getTableType().intValue() == 2) {
             String id = head.getId();
             String tableName = head.getTableName();
@@ -354,7 +469,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                             .eq(OnlCgformHead::getTableName, str));
                     if (onlCgformHead != null &&
                             (list = list(new LambdaQueryWrapper<OnlCgformField>()
-                                    .eq( OnlCgformField::getCgformHeadId, onlCgformHead.getId())
+                                    .eq(OnlCgformField::getCgformHeadId, onlCgformHead.getId())
                                     .eq(OnlCgformField::getMainTable, head.getTableName()))) != null &&
                             list.size() != 0) {
                         OnlCgformField onlCgformField = (OnlCgformField) list.get(0);
@@ -387,6 +502,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 }
             }
             deleteAutoListById(head.getTableName(), ids);
+
         }
     }
 
@@ -395,8 +511,42 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         deleteAutoList(tbname, "id", ids);
     }
 
+
+    public void logicDeleteAutoListById(String tbname, String ids) {
+        logicDeleteAutoList(tbname, "id", ids);
+    }
+
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public void deleteAutoList(String tbname, String linkField, String linkValue) {
+        if (linkValue != null && !"".equals(linkValue)) {
+            OnlCgformHead onlCgformHead = (OnlCgformHead) this.cgformHeadMapper.selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
+                    .eq(OnlCgformHead::getTableName, tbname));
+            List<OnlCgformField> fields = this.onlCgformFieldMapper.selectList(new LambdaQueryWrapper<OnlCgformField>()
+                    .eq(OnlCgformField::getCgformHeadId, onlCgformHead.getId()));
+            Optional<OnlCgformField> delFlagOptional = fields.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
+            String[] split = linkValue.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
+            StringBuffer stringBuffer = new StringBuffer();
+            for (String str : split) {
+                if (str != null && !"".equals(str)) {
+                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.sz + str + "',");
+                }
+            }
+            String stringBuffer2 = stringBuffer.toString();
+            String str2 = "";
+            if (delFlagOptional.isPresent()) {
+                str2 = "UPDATE " + org.jeecg.modules.online.cgform.d.b.f(tbname) + " set " + MYBATIS_LOGIC_DELETE_FIELD + " = " + MYBATIS_LOGIC_DELETE_FIELD_VAL + " where " + linkField + " in(" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + ")";
+            } else {
+                str2 = "DELETE FROM " + org.jeecg.modules.online.cgform.d.b.f(tbname) + " where " + linkField + " in(" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + ")";
+            }
+
+            // str2 += " OR " + linkField + " like '%" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + "%'";
+            a.debug("--删除sql-->" + str2);
+            this.onlCgformFieldMapper.deleteAutoList(str2);
+        }
+    }
+
+
+    public void logicDeleteAutoList(String tbname, String linkField, String linkValue) {
         if (linkValue != null && !"".equals(linkValue)) {
             String[] split = linkValue.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
             StringBuffer stringBuffer = new StringBuffer();
@@ -406,7 +556,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 }
             }
             String stringBuffer2 = stringBuffer.toString();
-            String str2 = "DELETE FROM " + org.jeecg.modules.online.cgform.d.b.f(tbname) + " where " + linkField + " in(" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + ")";
+            String str2 = "UPDATE " + org.jeecg.modules.online.cgform.d.b.f(tbname) + " set " + MYBATIS_LOGIC_DELETE_FIELD + " = " + MYBATIS_LOGIC_DELETE_FIELD_VAL + " where " + linkField + " in(" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + ")";
             // str2 += " OR " + linkField + " like '%" + stringBuffer2.substring(0, stringBuffer2.length() - 1) + "%'";
             a.debug("--删除sql-->" + str2);
             this.onlCgformFieldMapper.deleteAutoList(str2);
@@ -477,7 +627,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public List<OnlCgformField> queryFormFields(String code, boolean isform) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper<OnlCgformField>()
-        .eq(OnlCgformField::getCgformHeadId, code);
+                .eq(OnlCgformField::getCgformHeadId, code);
         if (isform) {
             lambdaQueryWrapper.eq(OnlCgformField::getIsShowForm, 1);
         }
@@ -486,8 +636,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public List<OnlCgformField> queryFormFieldsByTableName(String tableName) {
-        OnlCgformHead onlCgformHead=this.cgformHeadMapper.selectOne(new LambdaQueryWrapper<OnlCgformHead>()
-                .eq(OnlCgformHead::getTableName,tableName));
+        OnlCgformHead onlCgformHead = this.cgformHeadMapper.selectOne(new LambdaQueryWrapper<OnlCgformHead>()
+                .eq(OnlCgformHead::getTableName, tableName));
 
         if (onlCgformHead != null) {
             LambdaQueryWrapper lambdaQueryWrapper = new LambdaQueryWrapper<OnlCgformField>()
@@ -499,8 +649,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public OnlCgformField queryFormFieldByTableNameAndField(String tableName, String fieldName) {
-        OnlCgformHead onlCgformHead=this.cgformHeadMapper.selectOne(new LambdaQueryWrapper<OnlCgformHead>()
-                .eq(OnlCgformHead::getTableName,tableName));
+        OnlCgformHead onlCgformHead = this.cgformHeadMapper.selectOne(new LambdaQueryWrapper<OnlCgformHead>()
+                .eq(OnlCgformHead::getTableName, tableName));
         if (onlCgformHead != null) {
             LambdaQueryWrapper lambdaQueryWrapper = new LambdaQueryWrapper<OnlCgformField>()
                     .eq(OnlCgformField::getCgformHeadId, onlCgformHead.getId())
@@ -536,10 +686,10 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public List<OnlCgformField> queryAvailableFields(String cgFormId, String tbname, String taskId, boolean isList) {
         List<String> selectFlowAuthColumns;
-        List<OnlCgformField> list = list( new LambdaQueryWrapper<OnlCgformField>()
+        List<OnlCgformField> list = list(new LambdaQueryWrapper<OnlCgformField>()
                 .eq(OnlCgformField::getCgformHeadId, cgFormId)
-                .eq(OnlCgformField::getIsShowList,1)
-                .eq(OnlCgformField::getIsShowForm,1)
+                .eq(OnlCgformField::getIsShowList, 1)
+                .eq(OnlCgformField::getIsShowForm, 1)
                 .orderByAsc(OnlCgformField::getOrderNum));
         String str = "online:" + tbname + "%";
         String id = ((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId();
@@ -604,6 +754,11 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         return a(this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId), isList, List, needList);
     }
 
+    @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
+    public List<OnlCgformField> queryAvailableExportFields(String cgformId, String tbname, boolean isList, List<OnlCgformField> List, List<String> needList) {
+        return aExport(this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId), isList, List, needList);
+    }
+
     private List<OnlCgformField> a(List<String> var1, boolean var2, List<OnlCgformField> var3, List<String> var4) {
         ArrayList var5 = new ArrayList();
         boolean var6 = true;
@@ -613,14 +768,15 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
         Iterator var7 = var3.iterator();
 
-        while(true) {
-            while(var7.hasNext()) {
-                OnlCgformField var8 = (OnlCgformField)var7.next();
+        while (true) {
+            while (var7.hasNext()) {
+                OnlCgformField var8 = (OnlCgformField) var7.next();
                 String var9 = var8.getDbFieldName();
                 if (var4 != null && var4.contains(var9)) {
                     var8.setIsQuery(1);
                     var5.add(var8);
                 } else {
+
                     if (var2) {
                         if (var8.getIsShowList() != 1) {
                             if (org.jeecg.modules.online.cgform.d.c.b(var8.getMainTable()) && c.b(var8.getMainField())) {
@@ -642,6 +798,33 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 }
             }
 
+            return var5;
+        }
+    }
+
+
+    //根据配置的数据获取可导出的字段
+    private List<OnlCgformField> aExport(List<String> var1, boolean var2, List<OnlCgformField> var3, List<String> var4) {
+        ArrayList var5 = new ArrayList();
+        boolean var6 = true;
+        if (var1 == null || var1.size() == 0 || var1.get(0) == null) {
+            var6 = false;
+        }
+
+        Iterator var7 = var3.iterator();
+
+        while (true) {
+            while (var7.hasNext()) {
+                OnlCgformField var8 = (OnlCgformField) var7.next();
+                // fixme 后续引入此功能时，再判断是否为限制导出列
+                var5.add(var8);
+//                 if (var8.getIsExport() == 1) {
+// //                        if (org.jeecg.modules.online.cgform.d.c.b(var8.getMainTable()) && c.b(var8.getMainField())) {
+//                     var5.add(var8);
+// //                        }
+//                     continue;
+//                 }
+            }
             return var5;
         }
     }
