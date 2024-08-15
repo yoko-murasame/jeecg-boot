@@ -336,6 +336,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public void updateSysUserWithDefaultOrgCode() {
+
+    }
+
+    @Override
     public void sendTemplateMessage(MessageDTO message) {
     }
 

@@ -1,7 +1,6 @@
 package org.jeecg.modules.system.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -67,15 +66,15 @@ public interface ISysUserService extends IService<SysUser> {
      * @return SysUser
      */
 	public SysUser getUserByName(String username);
-	
+
 	/**
 	 * 添加用户和用户角色关系
 	 * @param user
 	 * @param roles
 	 */
 	public void addUserWithRole(SysUser user,String roles);
-	
-	
+
+
 	/**
 	 * 修改用户和用户角色关系
 	 * @param user
@@ -98,7 +97,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return
 	 */
 	public SysRoleIndex getDynamicIndexByUserRole(String username,String version);
-	
+
 	/**
 	  * 查询用户信息包括 部门信息
 	 * @param username
@@ -178,14 +177,14 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return 权限集合
 	 */
 	Set<String> getUserPermissionsSet(String username);
-	
+
 	/**
 	 * 根据用户名设置部门ID
 	 * @param username
 	 * @param orgCode
 	 */
 	void updateUserDepart(String username,String orgCode);
-	
+
 	/**
 	 * 根据手机号获取用户名和密码
      * @param phone 手机号
@@ -215,7 +214,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @param departs
 	 */
 	void editUserWithDepart(SysUser user, String departs);
-	
+
 	/**
 	   * 校验用户是否有效
 	 * @param sysUser
@@ -302,5 +301,10 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return
 	 */
 	LoginUser getEncodeUserInfo(String username);
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+    void updateSysUserWithDefaultOrgCode();
 
 }

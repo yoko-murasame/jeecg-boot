@@ -182,4 +182,21 @@
 			and username != #{username}
 		</if>
 	</select>
+
+	<update id="updateSysUserWithDefaultOrgCode">
+		WITH tmp AS (
+			select b.depart_name, b.org_code, c.username, c.realname, c.id
+			from sys_user_depart a
+					 join sys_depart b on a.dep_id = b.id
+					 join sys_user c on a.user_id = c.id
+		)
+		UPDATE sys_user SET org_code = tmp.org_code
+		FROM tmp
+		WHERE
+			sys_user.id = tmp.id
+		  AND sys_user.username IS NOT NULL
+		  AND sys_user.username != ''
+		  AND sys_user.org_code IS NULL
+		;
+    </update>
 </mapper>

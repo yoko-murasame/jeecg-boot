@@ -200,4 +200,9 @@ public interface CommonAPI {
      */
     SysUserModel deleteSysUser(SysUserModel model);
 
+    /**
+     * 为用户设置默认的orgCode字段
+     */
+    void updateSysUserWithDefaultOrgCode();
+
 }

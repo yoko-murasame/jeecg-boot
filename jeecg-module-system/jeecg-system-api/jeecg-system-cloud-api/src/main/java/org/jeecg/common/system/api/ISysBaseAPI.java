@@ -645,4 +645,10 @@ public interface ISysBaseAPI extends CommonAPI {
     @PostMapping("/sys/api/deleteSysUser")
     SysUserModel deleteSysUser(@RequestBody SysUserModel model);
 
+    /**
+     * 为用户设置默认的orgCode字段
+     */
+    @PostMapping("/sys/api/updateSysUserWithDefaultOrgCode")
+    void updateSysUserWithDefaultOrgCode();
+
 }

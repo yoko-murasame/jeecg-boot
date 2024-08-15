@@ -61,22 +61,22 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return
 	 */
 	IPage<SysUser> getUserByRoleId(Page page, @Param("roleId") String roleId, @Param("username") String username);
-	
+
 	/**
 	 * 根据用户名设置部门ID
 	 * @param username
 	 * @param orgCode
 	 */
 	void updateUserDepart(@Param("username") String username,@Param("orgCode") String orgCode);
-	
+
 	/**
 	 * 根据手机号查询用户信息
 	 * @param phone
 	 * @return
 	 */
 	public SysUser getUserByPhone(@Param("phone") String phone);
-	
-	
+
+
 	/**
 	 * 根据邮箱查询用户信息
 	 * @param email
@@ -149,7 +149,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     @Deprecated
     int updateNullByEmptyString(@Param("fieldName") String fieldName);
-    
+
 	/**
 	 *  根据部门Ids,查询部门下用户信息
 	 * @param departIds
@@ -157,4 +157,10 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return
 	 */
 	List<SysUser> queryByDepIds(@Param("departIds")List<String> departIds,@Param("username") String username);
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+    void updateSysUserWithDefaultOrgCode();
+
 }

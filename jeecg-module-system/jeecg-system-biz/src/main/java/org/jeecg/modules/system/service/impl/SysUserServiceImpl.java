@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService {
-	
+
 	@Autowired
 	private SysUserMapper userMapper;
 	@Autowired
@@ -125,8 +125,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	public SysUser getUserByName(String username) {
 		return userMapper.getUserByName(username);
 	}
-	
-	
+
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void addUserWithRole(SysUser user, String roles) {
@@ -187,7 +187,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 				roleIndex = list.get(0);
 			}
 		}
-		
+
 		//如果componentUrl为空，则返回空
 		if(oConvertUtils.isEmpty(roleIndex.getComponent())){
 			return null;
@@ -253,7 +253,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			info.setSysUserName(sysUser.getRealname());
 			info.setSysOrgCode(sysUser.getOrgCode());
 		}
-		
+
 		//多部门支持in查询
 		List<SysDepart> list = sysDepartMapper.queryUserDeparts(sysUser.getId());
 		List<String> sysMultiOrgCode = new ArrayList<String>();
@@ -269,7 +269,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			}
 		}
 		info.setSysMultiOrgCode(sysMultiOrgCode);
-		
+
 		return info;
 	}
 
@@ -611,4 +611,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		BeanUtils.copyProperties(sysUser, loginUser);
 		return loginUser;
 	}
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	@CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+	public void updateSysUserWithDefaultOrgCode() {
+		userMapper.updateSysUserWithDefaultOrgCode();
+	}
+
 }

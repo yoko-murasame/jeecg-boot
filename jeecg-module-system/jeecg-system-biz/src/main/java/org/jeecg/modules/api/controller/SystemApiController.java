@@ -829,6 +829,14 @@ public class SystemApiController {
     }
 
     /**
+     * 为用户设置默认的orgCode字段
+     */
+    @PostMapping("/updateSysUserWithDefaultOrgCode")
+    public void updateSysUserWithDefaultOrgCode() {
+        sysBaseApi.updateSysUserWithDefaultOrgCode();
+    }
+
+    /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
      * 部分特殊函数 可以将查询结果混夹在错误信息中，导致数据库的信息暴露
      * @param e

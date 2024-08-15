@@ -1413,6 +1413,14 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return obj;
 	}
 
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+	@Override
+	public void updateSysUserWithDefaultOrgCode() {
+		sysUserService.updateSysUserWithDefaultOrgCode();
+	}
+
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------
 	@Autowired
 	private QywxSendMsgHandle qywxSendMsgHandle;
