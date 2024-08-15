@@ -155,32 +155,32 @@ public class OnlCgformApiController {
     @PermissionData
     @OnlineAuth("getData")
     @GetMapping({"/getData/{code}"})
-    public Result<Map<String, Object>> a(@PathVariable("code") String var1, HttpServletRequest var2) {
-        Result var3 = new Result();
-        OnlCgformHead var4 = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
-        if (var4 == null) {
-            var3.error500("实体不存在");
-            return var3;
+    public Result<Map<String, Object>> a(@PathVariable("code") String code, HttpServletRequest var2) {
+        Result<Map<String, Object>> res = new Result<>();
+        OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
+        if (cgformHead == null) {
+            res.error500("实体不存在");
+            return res;
         } else {
             try {
-                String var5 = var4.getTableName();
-                Map var6 = CgformDB.a(var2);
+                String tableName = cgformHead.getTableName();
+                String dataRulePerms = cgformHead.getDataRulePerms();
+                Map<String, Object> params = CgformDB.a(var2);
                 List<String> needLists = null;
                 String needList = var2.getParameter("needList");
                 if (StringUtils.hasText(needList)) {
                     String[] arr = needList.split(",");
                     needLists = Arrays.asList(arr);
                 }
-                Map var7 = this.onlCgformFieldService.queryAutolistPage(var5, var1, var6, needLists);
-                this.a(var4, var7);
-                var3.setResult(var7);
+                Map<String, Object> pageMap = this.onlCgformFieldService.queryAutolistPage(tableName, code, params, needLists, dataRulePerms);
+                this.enhanceList(cgformHead, pageMap);
+                res.setResult(pageMap);
             } catch (Exception var8) {
                 a.error(var8.getMessage(), var8);
-                var3.error500("数据库查询失败，" + var8.getMessage());
+                res.error500("数据库查询失败，" + var8.getMessage());
             }
-
-            var3.setOnlTable(var4.getTableName());
-            return var3;
+            res.setOnlTable(cgformHead.getTableName());
+            return res;
         }
     }
 
@@ -457,56 +457,51 @@ public class OnlCgformApiController {
 
     /**
      * 导出有点问题
-     * @param var1
-     * @param var2
-     * @param var3
+     * @param code
+     * @param request
+     * @param response
      */
     @OnlineAuth("exportXls")
     @PermissionData
     @GetMapping({"/exportXls/{code}"})
-    public void a(@PathVariable("code") String var1, HttpServletRequest var2, HttpServletResponse var3) {
-        OnlCgformHead var4 = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
-        if (var4 != null) {
-            String var5 = var4.getTableTxt();
-            String var6 = var2.getParameter("paramsStr");
-            Object var7 = new HashMap();
+    public void a(@PathVariable("code") String code, HttpServletRequest request, HttpServletResponse response) {
+        OnlCgformHead cgformHead = (OnlCgformHead)this.onlCgformHeadService.getById(code);
+        if (cgformHead != null) {
+            String tableTxt = cgformHead.getTableTxt();
+            String paramsStr = request.getParameter("paramsStr");
+            Map pageResult = new HashMap<>();
             Object var8 = null;
-            if (oConvertUtils.isNotEmpty(var6)) {
-                var7 = (Map)JSONObject.parseObject(var6, Map.class);
+            if (oConvertUtils.isNotEmpty(paramsStr)) {
+                pageResult = JSONObject.parseObject(paramsStr, Map.class);
             }
 
-            ((Map)var7).put("pageSize", -521);
-            Map<String, Object> var9 = this.onlCgformFieldService.queryAutolistPage(var4.getTableName(), var4.getId(), (Map)var7, (List)null);
-            List var10 = (List)var9.get("fieldList");
-            List<Map<String, Object>> var11 = (List<Map<String, Object>>)var9.get("records");
-            Object var12 = new ArrayList();
-            String var13 = ((Map)var7).get("selections") == null ? null : ((Map)var7).get("selections").toString();
-            List var14;
-            if (CgformDC.b(var13)) {
-                var14 = Arrays.asList(var13.split(","));
-                List finalVar1 = var14;
-                var12 = (var11).stream().filter((var1x) -> {
-                    return finalVar1.contains(var1x.get("id"));
-                }).collect(Collectors.toList());
+            pageResult.put("pageSize", -521);
+            Map<String, Object> autolistPage = this.onlCgformFieldService.queryAutolistPage(cgformHead.getTableName(), cgformHead.getId(), pageResult, null, cgformHead.getDataRulePerms());
+            List<OnlCgformField> fieldList = (List<OnlCgformField>)autolistPage.get("fieldList");
+            List<Map<String, Object>> records = (List<Map<String, Object>>)autolistPage.get("records");
+            List exportRecords = new ArrayList();
+            String selections = (pageResult).get("selections") == null ? null : (pageResult).get("selections").toString();
+            if (CgformDC.b(selections)) {
+                List<String> finalVar1 = Arrays.asList(selections.split(","));
+                exportRecords = (records).stream().filter((var1x) -> finalVar1.contains(var1x.get("id"))).collect(Collectors.toList());
             } else {
-                if (var11 == null) {
-                    var11 = new ArrayList();
+                if (records == null) {
+                    records = new ArrayList();
                 }
-
-                ((List)var12).addAll((Collection)var11);
+                exportRecords.addAll(records);
             }
 
-            org.jeecg.modules.online.cgform.converter.b.a(1, (List)var12, var10);
+            org.jeecg.modules.online.cgform.converter.b.a(1, exportRecords, fieldList);
 
             try {
-                this.onlCgformHeadService.executeEnhanceExport(var4, (List)var12);
+                this.onlCgformHeadService.executeEnhanceExport(cgformHead, exportRecords);
             } catch (BusinessException var31) {
                 a.error("导出java增强处理出错", var31.getMessage());
             }
 
-            var14 = this.a(var10, "id");
-            if (var4.getTableType() == 2 && oConvertUtils.isEmpty(((Map)var7).get("exportSingleOnly"))) {
-                String var15 = var4.getSubTableStr();
+            List<ExcelExportEntity> exportEntities = this.getExcelExportEntities(fieldList, "id");
+            if (cgformHead.getTableType() == 2 && oConvertUtils.isEmpty(pageResult.get("exportSingleOnly"))) {
+                String var15 = cgformHead.getSubTableStr();
                 if (oConvertUtils.isNotEmpty(var15)) {
                     String[] var16 = var15.split(",");
                     String[] var17 = var16;
@@ -514,28 +509,28 @@ public class OnlCgformApiController {
 
                     for(int var19 = 0; var19 < var18; ++var19) {
                         String var20 = var17[var19];
-                        this.a(var20, (Map)var7, (List)var12, var14);
+                        this.a(var20, (Map)pageResult, (List)exportRecords, exportEntities);
                     }
                 }
             }
 
-            Workbook var33 = ExcelExportUtil.exportExcel(new ExportParams((String)null, var5), var14, (Collection)var12);
+            Workbook var33 = ExcelExportUtil.exportExcel(new ExportParams((String)null, tableTxt), exportEntities, (Collection)exportRecords);
             ServletOutputStream var34 = null;
 
             try {
-                var3.setContentType("application/x-msdownload;charset=utf-8");
-                String var35 = BrowserUtils.checkBrowse(var2);
-                String var36 = var4.getTableTxt() + "-v" + var4.getTableVersion();
+                response.setContentType("application/x-msdownload;charset=utf-8");
+                String var35 = BrowserUtils.checkBrowse(request);
+                String var36 = cgformHead.getTableTxt() + "-v" + cgformHead.getTableVersion();
                 if ("MSIE".equalsIgnoreCase(var35.substring(0, 4))) {
-                    var3.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(var36, "UTF-8") + ".xls");
+                    response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(var36, "UTF-8") + ".xls");
                 } else {
                     String var37 = new String(var36.getBytes("UTF-8"), "ISO8859-1");
-                    var3.setHeader("content-disposition", "attachment;filename=" + var37 + ".xls");
+                    response.setHeader("content-disposition", "attachment;filename=" + var37 + ".xls");
                 }
 
-                var34 = var3.getOutputStream();
+                var34 = response.getOutputStream();
                 var33.write(var34);
-                var3.flushBuffer();
+                response.flushBuffer();
             } catch (Exception var30) {
                 a.error("--通过流的方式获取文件异常--" + var30.getMessage(), var30);
             } finally {
@@ -842,39 +837,39 @@ public class OnlCgformApiController {
         }
     }
 
-    private List<ExcelExportEntity> a(List<OnlCgformField> var1, String var2) {
-        ArrayList var3 = new ArrayList();
+    private List<ExcelExportEntity> getExcelExportEntities(List<OnlCgformField> cgformFields, String idDbFieldName) {
+        ArrayList<ExcelExportEntity> result = new ArrayList<>();
 
-        for(int var4 = 0; var4 < var1.size(); ++var4) {
-            if ((null == var2 || !var2.equals(((OnlCgformField)var1.get(var4)).getDbFieldName())) && ((OnlCgformField)var1.get(var4)).getIsShowList() == 1) {
-                String var5 = ((OnlCgformField)var1.get(var4)).getDbFieldName();
-                ExcelExportEntity var6 = new ExcelExportEntity(((OnlCgformField)var1.get(var4)).getDbFieldTxt(), var5);
-                if ("image".equals(((OnlCgformField)var1.get(var4)).getFieldShowType())) {
-                    var6.setType(2);
-                    var6.setExportImageType(3);
-                    var6.setImageBasePath(this.upLoadPath);
-                    var6.setHeight(50.0D);
-                    var6.setWidth(60.0D);
+        for(int idx = 0; idx < cgformFields.size(); ++idx) {
+            if ((null == idDbFieldName || !idDbFieldName.equals(((OnlCgformField)cgformFields.get(idx)).getDbFieldName())) && ((OnlCgformField)cgformFields.get(idx)).getIsShowList() == 1) {
+                String var5 = ((OnlCgformField)cgformFields.get(idx)).getDbFieldName();
+                ExcelExportEntity excelExportEntity = new ExcelExportEntity(((OnlCgformField)cgformFields.get(idx)).getDbFieldTxt(), var5);
+                if ("image".equals(((OnlCgformField)cgformFields.get(idx)).getFieldShowType())) {
+                    excelExportEntity.setType(2);
+                    excelExportEntity.setExportImageType(3);
+                    excelExportEntity.setImageBasePath(this.upLoadPath);
+                    excelExportEntity.setHeight(50.0D);
+                    excelExportEntity.setWidth(60.0D);
                 } else {
-                    int var7 = ((OnlCgformField)var1.get(var4)).getDbLength() == 0 ? 12 : (((OnlCgformField)var1.get(var4)).getDbLength() > 30 ? 30 : ((OnlCgformField)var1.get(var4)).getDbLength());
-                    if (((OnlCgformField)var1.get(var4)).getFieldShowType().equals("date")) {
-                        var6.setFormat("yyyy-MM-dd");
-                    } else if (((OnlCgformField)var1.get(var4)).getFieldShowType().equals("datetime")) {
-                        var6.setFormat("yyyy-MM-dd HH:mm:ss");
+                    int var7 = ((OnlCgformField)cgformFields.get(idx)).getDbLength() == 0 ? 12 : (((OnlCgformField)cgformFields.get(idx)).getDbLength() > 30 ? 30 : ((OnlCgformField)cgformFields.get(idx)).getDbLength());
+                    if (((OnlCgformField)cgformFields.get(idx)).getFieldShowType().equals("date")) {
+                        excelExportEntity.setFormat("yyyy-MM-dd");
+                    } else if (((OnlCgformField)cgformFields.get(idx)).getFieldShowType().equals("datetime")) {
+                        excelExportEntity.setFormat("yyyy-MM-dd HH:mm:ss");
                     }
 
                     if (var7 < 10) {
                         var7 = 10;
                     }
 
-                    var6.setWidth((double)var7);
+                    excelExportEntity.setWidth((double)var7);
                 }
 
-                var3.add(var6);
+                result.add(excelExportEntity);
             }
         }
 
-        return var3;
+        return result;
     }
 
     private void a(String var1, Map<String, Object> var2, List<Map<String, Object>> var3, List<ExcelExportEntity> var4) {
@@ -897,7 +892,7 @@ public class OnlCgformApiController {
         }
 
         ExcelExportEntity var14 = new ExcelExportEntity(var5.getTableTxt(), var1);
-        var14.setList(this.a(var7, "id"));
+        var14.setList(this.getExcelExportEntities(var7, "id"));
         var4.add(var14);
 
         for(int var15 = 0; var15 < var3.size(); ++var15) {
@@ -1053,7 +1048,7 @@ public class OnlCgformApiController {
 
                 var9.put(var6, (Object)null);
                 Map var11 = this.onlCgformFieldService.queryAutoTreeNoPage(var5, var1, var9, var8, var7);
-                this.a(var4, var11);
+                this.enhanceList(var4, var11);
                 var3.setResult(var11);
             } catch (Exception var12) {
                 a.error(var12.getMessage(), var12);
@@ -1065,9 +1060,9 @@ public class OnlCgformApiController {
         }
     }
 
-    private void a(OnlCgformHead var1, Map<String, Object> var2) throws BusinessException {
-        List var3 = (List)var2.get("records");
-        this.onlCgformHeadService.executeEnhanceList(var1, "query", var3);
+    private void enhanceList(OnlCgformHead onlCgformHead, Map<String, Object> pageMap) throws BusinessException {
+        List<Map<String, Object>> records = (List<Map<String, Object>>)pageMap.get("records");
+        this.onlCgformHeadService.executeEnhanceList(onlCgformHead, "query", records);
     }
 
     @PostMapping({"/crazyForm/{name}"})

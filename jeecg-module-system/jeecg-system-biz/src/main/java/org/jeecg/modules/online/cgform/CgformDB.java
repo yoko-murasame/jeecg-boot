@@ -234,10 +234,11 @@ public class CgformDB {
                             onlCgformField = cgformFieldIterator.next();
                             dbFieldName = onlCgformField.getDbFieldName();
                             dbType = onlCgformField.getDbType();
+                            String camelDbFieldName = oConvertUtils.camelNames(dbFieldName);
                             if (rulesMap.containsKey(dbFieldName)) {
                                 handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
-                            } else if (rulesMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
-                                handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
+                            } else if (rulesMap.containsKey(camelDbFieldName)) {
+                                handleDataRulesForOneField(databaseType, rulesMap.get(camelDbFieldName), dbFieldName, dbType, finalSqlCondition);
                             }
 
                             if (var2 != null && var2.contains(dbFieldName)) {
@@ -324,9 +325,10 @@ public class CgformDB {
                 .collect(Collectors.toList());
         if (!sqlRulesKey.isEmpty()) {
             // online表单里的自定义sql数据权限，和编码方式有所区别，sqlRulesKey其实是唯一的，这里以列表形式展开防止特殊情况
-            for (String sqlRuleKey : sqlRulesKey) {
-                finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.AND);
-                finalSqlCondition.append("(");
+            finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.AND);
+            finalSqlCondition.append("(");
+            for (int idx = 0; idx < sqlRulesKey.size(); idx++) {
+                String sqlRuleKey = sqlRulesKey.get(idx);
                 // 每个自定义sql片段一定是唯一的
                 for (int i1 = 0; i1 < rulesMap.get(sqlRuleKey).size(); i1++) {
                     SysPermissionDataRuleModel sqlRule = rulesMap.get(sqlRuleKey).get(i1);
@@ -336,8 +338,11 @@ public class CgformDB {
                         finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.OR).append("(").append(getSqlRuleValue(sqlRule.getRuleValue())).append(")");
                     }
                 }
-                finalSqlCondition.append(")");
+                if (sqlRulesKey.size() > 1 && idx < sqlRulesKey.size() - 1) {
+                    finalSqlCondition.append(org.jeecg.modules.online.cgform.d.b.OR);
+                }
             }
+            finalSqlCondition.append(")");
         }
     }
 

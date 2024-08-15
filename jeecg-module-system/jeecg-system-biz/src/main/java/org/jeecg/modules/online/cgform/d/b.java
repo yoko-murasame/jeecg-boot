@@ -197,10 +197,11 @@ public class b {
             String dbFieldName = onlCgformField.getDbFieldName();
             String dbType = onlCgformField.getDbType();
             // 统一调用：为一个字段应用多个数据规则，相同字段的规则会拼接OR关系
+            String camelDbFieldName = oConvertUtils.camelNames(dbFieldName);
             if (rulesMap.containsKey(dbFieldName)) {
                 CgformDB.handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
-            } else if (rulesMap.containsKey(oConvertUtils.camelNames(dbFieldName))) {
-                CgformDB.handleDataRulesForOneField(databaseType, rulesMap.get(dbFieldName), dbFieldName, dbType, finalSqlCondition);
+            } else if (rulesMap.containsKey(camelDbFieldName)) {
+                CgformDB.handleDataRulesForOneField(databaseType, rulesMap.get(camelDbFieldName), dbFieldName, dbType, finalSqlCondition);
             }
             if (needList != null && needList.contains(dbFieldName)) {
                 onlCgformField.setIsQuery(1);

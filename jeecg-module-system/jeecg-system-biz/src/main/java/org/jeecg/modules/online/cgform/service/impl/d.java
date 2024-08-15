@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.design.core.tool.utils.ObjectUtil;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.LoginUser;
@@ -30,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,26 +61,36 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     private String MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL;
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList) {
-        HashMap hashMap = new HashMap();
-        LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
+    public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList, String dataRulePerms) {
+        Map<String, Object> resultMap = new HashMap<>();
+        LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, headId);
         lambdaQueryWrapper.orderByAsc(OnlCgformField::getOrderNum);
-        List list = list(lambdaQueryWrapper);
+        List<OnlCgformField> list = list(lambdaQueryWrapper);
         List<OnlCgformField> queryAvailableFields = queryAvailableFields(headId, tbname, true, list, needList);
         StringBuffer stringBuffer = new StringBuffer();
         // 组装SELECT
         org.jeecg.modules.online.cgform.d.b.assembleSelect(tbname, queryAvailableFields, stringBuffer);
+
+        // 数据权限规则
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), headId);
-        if (ObjectUtil.isNotEmpty(queryOwnerAuth)) {
+        // 数据权限规则-全局perms
+        if (StringUtils.isNotBlank(dataRulePerms)) {
+            List<SysPermissionDataRuleModel> dataRules = this.sysBaseAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername());
+            if (dataRules != null && !dataRules.isEmpty()) {
+                queryOwnerAuth.addAll(dataRules);
+            }
+        }
+        // 注入请求上下文的当前用户
+        if (!CollectionUtils.isEmpty(queryOwnerAuth)) {
             JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
         }
+
         // 检查sql注入
         String[] arr1 = new String[]{};
         arr1 = params.toString().split(",");
         SqlInjectionUtil.filterContent(arr1);
-
 
         // 组装WHERE
         String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
@@ -97,7 +107,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
                 whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
             }
-            stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE + whereCondition);
+            stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE).append(whereCondition);
         }
         // 组装ORDER BY
         Object obj = params.get("column");
@@ -105,7 +115,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             String obj2 = obj.toString();
             String obj3 = params.get("order").toString();
             if (a(obj2, list)) {
-                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY + oConvertUtils.camelToUnderline(obj2));
+                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY).append(oConvertUtils.camelToUnderline(obj2));
                 if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
                     stringBuffer.append(" asc");
                 } else {
@@ -115,27 +125,27 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         }
         // 检查sql注入（这里会影响online列表getData的查询）
         // SqlInjectionUtil.filterContent(stringBuffer.toString());
-        Integer valueOf = Integer.valueOf(params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString()));
+        int valueOf = params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString());
         System.out.println(stringBuffer.toString());
-        if (valueOf.intValue() == -521) {
+        if (valueOf == -521) {
             List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
-            a.debug("---Online查询sql 不分页 :>>" + stringBuffer.toString());
-            if (queryListBySql == null || queryListBySql.size() == 0) {
-                hashMap.put("total", 0);
-                hashMap.put("fieldList", queryAvailableFields);
+            a.debug("---Online查询sql 不分页 :>>" + stringBuffer);
+            if (queryListBySql == null || queryListBySql.isEmpty()) {
+                resultMap.put("total", 0);
+                resultMap.put("fieldList", queryAvailableFields);
             } else {
-                hashMap.put("total", Integer.valueOf(queryListBySql.size()));
-                hashMap.put("fieldList", queryAvailableFields);
-                hashMap.put("records", org.jeecg.modules.online.cgform.d.b.d(queryListBySql));
+                resultMap.put("total", queryListBySql.size());
+                resultMap.put("fieldList", queryAvailableFields);
+                resultMap.put("records", org.jeecg.modules.online.cgform.d.b.d(queryListBySql));
             }
         } else {
-            Page<Map<String, Object>> page = new Page<>(Integer.valueOf(params.get("pageNo") == null ? 1 : Integer.parseInt(params.get("pageNo").toString())).intValue(), valueOf.intValue());
-            a.debug("---Online查询sql:>>" + stringBuffer.toString());
+            Page<Map<String, Object>> page = new Page<>(params.get("pageNo") == null ? 1 : Integer.parseInt(params.get("pageNo").toString()), valueOf);
+            a.debug("---Online查询sql:>>" + stringBuffer);
             IPage<Map<String, Object>> selectPageBySql = this.onlCgformFieldMapper.selectPageBySql(page, stringBuffer.toString());
-            hashMap.put("total", Long.valueOf(selectPageBySql.getTotal()));
-            hashMap.put("records", org.jeecg.modules.online.cgform.d.b.d(selectPageBySql.getRecords()));
+            resultMap.put("total", selectPageBySql.getTotal());
+            resultMap.put("records", org.jeecg.modules.online.cgform.d.b.d(selectPageBySql.getRecords()));
         }
-        return hashMap;
+        return resultMap;
     }
 
 
