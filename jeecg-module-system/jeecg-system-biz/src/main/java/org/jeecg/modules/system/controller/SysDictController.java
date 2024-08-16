@@ -38,6 +38,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -176,6 +177,11 @@ public class SysDictController {
 		}
 		//update-end-author:taoyan date:20220317 for: VUEN-222【安全机制】字典接口、online报表、online图表等接口，加一些安全机制
 		try {
+			// 获取header中的sql筛选
+			String filterSql = request.getHeader(CommonConstant.X_FILTER_SQL);
+			if (dictCode.split(",").length == 3 && StringUtils.hasText(filterSql)) {
+				dictCode = dictCode + "," + QueryGenerator.convertSystemVariables(filterSql);
+			}
 			List<DictModel> ls = sysDictService.getDictItems(dictCode);
 			if (ls == null) {
 				result.error500("字典Code格式不正确！");

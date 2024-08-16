@@ -324,6 +324,7 @@ public interface CommonConstant {
     String X_ACCESS_TOKEN = "X-Access-Token";
     String X_SIGN = "X-Sign";
     String X_TIMESTAMP = "X-TIMESTAMP";
+    String X_FILTER_SQL = "X-FILTER-SQL";
     /** 租户请求头 更名为：X-Tenant-Id */
     String TENANT_ID = "X-Tenant-Id";
     /** 简流接口请求头，用于排除不支持的控件字段  */
