@@ -199,4 +199,29 @@
 		  AND sys_user.org_code IS NULL
 		;
     </update>
+
+	<select id="queryCurrentUserPerms" resultType="java.lang.String">
+		SELECT
+			e.perms
+		FROM sys_user a,
+			 sys_user_role b,
+			 sys_role c,
+			 sys_role_permission d,
+			 sys_permission e
+			<where>
+				<if test="username != null and username != ''">
+					AND a.username = #{username}
+				</if>
+				<if test="userid != null and userid != ''">
+					AND a.id = #{userid}
+				</if>
+				AND a.id = b.user_id
+				AND b.role_id = c.id
+				AND c.id = d.role_id
+				AND d.permission_id = e.id
+				<if test="permsLimitPrefix != null and permsLimitPrefix != ''">
+					AND e.perms LIKE CONCAT(#{permsLimitPrefix}::text, '%')
+				</if>
+			</where>
+	</select>
 </mapper>

@@ -208,16 +208,16 @@ public class QueryGenerator {
 					final String field = oConvertUtils.camelToUnderline(column);
 					if(vals.length>1) {
 						queryWrapper.and(j -> {
-                            log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
+                            log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
 							j = j.like(field,vals[0]);
 							for (int k=1;k<vals.length;k++) {
 								j = j.or().like(field,vals[k]);
-								log.info("---查询过滤器，Query规则 .or()---field:{}, rule:{}, value:{}", field, "like", vals[k]);
+								log.debug("---查询过滤器，Query规则 .or()---field:{}, rule:{}, value:{}", field, "like", vals[k]);
 							}
 							//return j;
 						});
 					}else {
-						log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
+						log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
 						queryWrapper.and(j -> j.like(field,vals[0]));
 					}
 				}else {
@@ -723,7 +723,7 @@ public class QueryGenerator {
 			return;
 		}
 		name = oConvertUtils.camelToUnderline(name);
-		log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}",name,rule.getValue(),value);
+		log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}",name,rule.getValue(),value);
 		switch (rule) {
 		case GT:
 			queryWrapper.gt(name, value);
@@ -800,7 +800,7 @@ public class QueryGenerator {
 			list = JeecgDataAutorUtils.loadDataSearchConditon();
 		} catch (Exception e) {
 			if (RpcContext.getContext() != null) {
-				log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
 			} else {
 				throw new RuntimeException(e);
 			}
@@ -836,7 +836,7 @@ public class QueryGenerator {
 			list = JeecgDataAutorUtils.loadDataSearchConditon();
 		} catch (Exception e) {
 			if (RpcContext.getContext() != null) {
-				log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
 			} else {
 				throw new RuntimeException(e);
 			}
@@ -875,7 +875,7 @@ public class QueryGenerator {
 				list = JeecgDataAutorUtils.loadDataSearchConditon();
 			} catch (Exception e) {
 				if (RpcContext.getContext() != null) {
-					log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+					log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
 				} else {
 					throw new RuntimeException(e);
 				}
@@ -911,7 +911,7 @@ public class QueryGenerator {
 				list = JeecgDataAutorUtils.loadDataSearchConditon();
 			} catch (Exception e) {
 				if (RpcContext.getContext() != null) {
-					log.info("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+					log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
 				} else {
 					throw new RuntimeException(e);
 				}

@@ -307,4 +307,15 @@ public interface ISysUserService extends IService<SysUser> {
 	 */
     void updateSysUserWithDefaultOrgCode();
 
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+    List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix);
 }

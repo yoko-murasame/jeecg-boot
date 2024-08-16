@@ -341,6 +341,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void sendTemplateMessage(MessageDTO message) {
     }
 

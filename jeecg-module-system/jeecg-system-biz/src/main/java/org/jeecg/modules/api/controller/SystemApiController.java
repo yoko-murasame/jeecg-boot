@@ -837,6 +837,23 @@ public class SystemApiController {
     }
 
     /**
+     * 获取当前用户的所有权限标识
+     *
+     * @author Yoko
+     * @since 2024/8/16 上午11:00
+     * @param username 用户名
+     * @param userid 用户id
+     * @param permsLimitPrefix 权限前缀
+     * @return java.util.List<java.lang.String>
+     */
+    @GetMapping("/queryCurrentUserPerms")
+    List<String> queryCurrentUserPerms(@RequestParam(value = "username", required = false)String username,
+                                       @RequestParam(value = "userid", required = false)String userid,
+                                       @RequestParam(value = "permsLimitPrefix", required = false)String permsLimitPrefix) {
+        return sysBaseApi.queryCurrentUserPerms(username, userid, permsLimitPrefix);
+    }
+
+    /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
      * 部分特殊函数 可以将查询结果混夹在错误信息中，导致数据库的信息暴露
      * @param e

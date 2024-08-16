@@ -651,4 +651,19 @@ public interface ISysBaseAPI extends CommonAPI {
     @PostMapping("/sys/api/updateSysUserWithDefaultOrgCode")
     void updateSysUserWithDefaultOrgCode();
 
+    /**
+     * 获取当前用户的所有权限标识
+     *
+     * @author Yoko
+     * @since 2024/8/16 上午11:00
+     * @param username 用户名
+     * @param userid 用户id
+     * @param permsLimitPrefix 权限前缀
+     * @return java.util.List<java.lang.String>
+     */
+    @GetMapping("/sys/api/queryCurrentUserPerms")
+    List<String> queryCurrentUserPerms(@RequestParam(value = "username", required = false)String username,
+                                       @RequestParam(value = "userid", required = false)String userid,
+                                       @RequestParam(value = "permsLimitPrefix", required = false)String permsLimitPrefix);
+
 }

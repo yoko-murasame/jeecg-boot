@@ -1421,6 +1421,21 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		sysUserService.updateSysUserWithDefaultOrgCode();
 	}
 
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+	@Override
+	public List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix) {
+		return sysUserService.queryCurrentUserPerms(username, userid, permsLimitPrefix);
+	}
+
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------
 	@Autowired
 	private QywxSendMsgHandle qywxSendMsgHandle;

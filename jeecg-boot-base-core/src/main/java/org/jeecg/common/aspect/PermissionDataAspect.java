@@ -24,7 +24,11 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 数据权限切面处理类
@@ -55,7 +59,7 @@ public class PermissionDataAspect {
         Method method = signature.getMethod();
         PermissionData pd = method.getAnnotation(PermissionData.class);
         installDataRuleFromComponent(request, pd.pageComponent());
-        installDataRuleFromPerms(request, pd.perms());
+        installDataRuleFromPerms(request, pd);
         return point.proceed();
     }
 
@@ -105,10 +109,12 @@ public class PermissionDataAspect {
      * @author Yoko
      * @since 2024/8/13 下午3:39
      * @param request 请求上下文
-     * @param perms 授权标识
+     * @param pd 权限注解
      */
-    private void installDataRuleFromPerms(HttpServletRequest request, String perms) {
-        if (!StringUtils.hasText(perms)) {
+    private void installDataRuleFromPerms(HttpServletRequest request, PermissionData pd) {
+        String perms = pd.perms();
+        boolean autoPermsByCurrentUser = pd.autoPermsByCurrentUser();
+        if (!StringUtils.hasText(perms) && !autoPermsByCurrentUser) {
             return;
         }
         String requestMethod = request.getMethod();
@@ -128,8 +134,17 @@ public class PermissionDataAspect {
         log.info("perms数据权限：拦截请求 >> {} ; 请求类型 >> {} . ", requestPath, requestMethod);
         String username = JwtUtil.getUserNameByToken(request);
         //查询数据权限信息
+        // 获取当前用户的所有权限标识
+        if (autoPermsByCurrentUser) {
+            Set<String> newPerms = Arrays.stream(Optional.ofNullable(perms).orElse("").split(",")).collect(Collectors.toSet());
+            List<String> currentUserPerms = commonApi.queryCurrentUserPerms(username, null, pd.autoPermsLimitPrefix());
+            newPerms.addAll(currentUserPerms);
+            perms = newPerms.stream().filter(StringUtils::hasText).collect(Collectors.joining(","));
+        }
+
         //TODO 微服务情况下也得支持缓存机制
         List<SysPermissionDataRuleModel> dataRules = commonApi.queryPermissionDataRuleByPerms(perms, username);
+
         if(dataRules!=null && !dataRules.isEmpty()) {
             //临时存储
             JeecgDataAutorUtils.installDataSearchConditon(request, dataRules);
