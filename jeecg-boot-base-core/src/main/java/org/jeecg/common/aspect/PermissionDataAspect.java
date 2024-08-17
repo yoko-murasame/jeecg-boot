@@ -143,7 +143,7 @@ public class PermissionDataAspect {
         }
 
         //TODO 微服务情况下也得支持缓存机制
-        List<SysPermissionDataRuleModel> dataRules = commonApi.queryPermissionDataRuleByPerms(perms, username);
+        List<SysPermissionDataRuleModel> dataRules = commonApi.queryPermissionDataRuleByPerms(perms, username, QueryRuleEnum.IN);
 
         if(dataRules!=null && !dataRules.isEmpty()) {
             //临时存储

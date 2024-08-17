@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
@@ -77,7 +78,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), headId);
         // 数据权限规则-全局perms
         if (StringUtils.isNotBlank(dataRulePerms)) {
-            List<SysPermissionDataRuleModel> dataRules = this.sysBaseAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername());
+            List<SysPermissionDataRuleModel> dataRules = this.sysBaseAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
             if (dataRules != null && !dataRules.isEmpty()) {
                 queryOwnerAuth.addAll(dataRules);
             }

@@ -7,6 +7,7 @@ import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 
 import java.util.Collections;
@@ -255,7 +256,7 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
-    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username) {
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username, QueryRuleEnum queryMode) {
         return null;
     }
 

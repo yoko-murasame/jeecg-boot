@@ -1,6 +1,7 @@
 package org.jeecg.common.api;
 
 import com.alibaba.fastjson.JSONObject;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public interface CommonAPI {
      * @param username 用户名
      * @return
      */
-    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username);
+    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username, QueryRuleEnum queryMode);
 
     /**
      * 9查询用户信息

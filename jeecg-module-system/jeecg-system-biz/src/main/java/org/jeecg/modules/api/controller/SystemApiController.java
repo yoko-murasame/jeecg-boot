@@ -6,6 +6,7 @@ import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.modules.system.security.DictQueryBlackListHandler;
@@ -432,8 +433,8 @@ public class SystemApiController {
      * @return
      */
     @GetMapping("/queryPermissionDataRuleByPerms")
-    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username){
-        return sysBaseApi.queryPermissionDataRuleByPerms(perms, username);
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username, @RequestParam("queryMode") QueryRuleEnum queryMode){
+        return sysBaseApi.queryPermissionDataRuleByPerms(perms, username, queryMode);
     }
 
     /**

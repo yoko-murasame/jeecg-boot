@@ -23,6 +23,7 @@ import org.jeecg.common.desensitization.util.SensitiveInfoUtil;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.*;
@@ -206,11 +207,16 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return null;
 	}
 
-	public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username) {
+	public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username, QueryRuleEnum queryMode) {
         // 通过注解属性perms 获取菜单
 		LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>();
 		query.eq(SysPermission::getDelFlag,0);
-		query.in(SysPermission::getPerms, Arrays.asList(perms.split(",")));
+		if (Objects.equals(queryMode, QueryRuleEnum.IN)) {
+			query.in(SysPermission::getPerms, Arrays.asList(perms.split(",")));
+		} else if (Objects.equals(queryMode, QueryRuleEnum.RIGHT_LIKE)) {
+			query.and(ew -> Arrays.asList(perms.split(",")).forEach(perm -> ew.likeRight(SysPermission::getPerms, perm).or()));
+        }
+
         List<SysPermission> currentSyspermission = sysPermissionMapper.selectList(query);
 		// 获取规则
 		if(currentSyspermission!=null && !currentSyspermission.isEmpty()){

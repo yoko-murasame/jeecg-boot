@@ -7,6 +7,7 @@ import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.system.api.factory.SysBaseAPIFallbackFactory;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -421,7 +422,7 @@ public interface ISysBaseAPI extends CommonAPI {
      */
     @Override
     @GetMapping("/sys/api/queryPermissionDataRuleByPerms")
-    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username);
+    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username, @RequestParam("queryMode") QueryRuleEnum queryMode);
 
     /**
      * 43查询用户信息
