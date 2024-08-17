@@ -69,6 +69,8 @@
 		<activiti.version>5.22.0</activiti.version>
 		<!--小版本最新-->
 		<tomcat.version>9.0.93</tomcat.version>
+		<!--升级Spring框架漏洞 CVE-2024-38808-->
+		<!--<spring-framework.version>5.3.39</spring-framework.version>-->
 	</properties>
 
 	<modules>
