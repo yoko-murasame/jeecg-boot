@@ -17,6 +17,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.ResourceUtil;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.CommonUtils;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
@@ -59,6 +60,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	private SysDictItemMapper sysDictItemMapper;
 	@Autowired
 	private DictQueryBlackListHandler dictQueryBlackListHandler;
+	@Autowired
+	private RedisUtil redisUtil;
 
 	/**
 	 * 严格模式，严格模式下只允许SysDictTableEnum.java中定义的表名作为动态字典数据源
@@ -121,10 +124,26 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	 * @return
 	 */
 	@Override
-	@Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryDictItemsByCode(String code) {
+		// 需要转换系统变量的不走缓存
+		if (code.contains("#{")) {
+			log.debug("无缓存dictCache的时候调用这里！");
+			return this.getDictItems(code);
+		}
+		// 查询字段缓存
+		Object r = redisUtil.get(CacheConstant.SYS_DICT_CACHE + ":" + code);
+		if (null != r) {
+			return (List<DictModel>) r;
+		}
 		log.debug("无缓存dictCache的时候调用这里！");
-		return sysDictMapper.queryDictItemsByCode(code);
+		List<DictModel> dictItems = this.getDictItems(code);
+		if (null == dictItems) {
+			return null;
+		}
+		// 缓存
+		redisUtil.set(CacheConstant.SYS_DICT_CACHE + ":"  + code, dictItems);
+		return dictItems;
 	}
 
 	@Override
@@ -742,6 +761,10 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			}
 
 			if (params.length == 4) {
+				// 转换系统变量
+				if (params[3].contains("#{")) {
+					params[3] = QueryGenerator.convertSystemVariables(params[3]);
+				}
 				ls = this.queryTableDictItemsByCodeAndFilter(params[0], params[1], params[2], params[3]);
 			} else if (params.length == 3) {
 				ls = this.queryTableDictItemsByCode(params[0], params[1], params[2]);
@@ -751,7 +774,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 			}
 		} else {
 			//字典表
-			ls = this.queryDictItemsByCode(dictCode);
+			ls = this.sysDictMapper.queryDictItemsByCode(dictCode);
 		}
 		//update-begin-author:taoyan date:2022-8-30 for: 字典获取可以获取枚举类的数据
 		if (ls == null || ls.size() == 0) {

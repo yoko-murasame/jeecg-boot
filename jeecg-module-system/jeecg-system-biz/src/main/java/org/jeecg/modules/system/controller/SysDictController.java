@@ -180,7 +180,7 @@ public class SysDictController {
 			// 获取header中的sql筛选
 			String filterSql = request.getHeader(CommonConstant.X_FILTER_SQL);
 			if (dictCode.split(",").length == 3 && StringUtils.hasText(filterSql)) {
-				dictCode = dictCode + "," + QueryGenerator.convertSystemVariables(filterSql);
+				dictCode = dictCode + "," + filterSql;
 			}
 			List<DictModel> ls = sysDictService.getDictItems(dictCode);
 			if (ls == null) {
