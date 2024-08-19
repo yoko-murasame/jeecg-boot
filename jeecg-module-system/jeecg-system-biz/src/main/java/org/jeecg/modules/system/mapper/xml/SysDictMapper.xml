@@ -211,7 +211,7 @@
 
 	<!--查询表字典数据，支持关键字和自定义查询条件【已加入SQL注入check】 -->
 	<sql id="queryTableDictWithFilterSqlFragment">
-		select ${text} as "text", ${code} as "value" from ${table}
+		select DISTINCT ${text} as "text", ${code} as "value" from ${table}
 		<if test="filterSql != null and filterSql != ''">
 			where ${filterSql}
 		</if>
