@@ -230,7 +230,7 @@ public class ShiroRealm extends AuthorizingRealm {
 
         // 判断是否时临时token
         String tempToken = String.valueOf(redisUtil.get(CommonConstant.PREFIX_SSO_TEMP_TOKEN + token));
-        if (StringUtils.hasText(tempToken)) {
+        if (oConvertUtils.isNotEmpty(tempToken)) {
             return true;
         }
 
