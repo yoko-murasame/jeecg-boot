@@ -1,9 +1,4 @@
-package org.jeecg.modules.activiti.jeecg.jasper.extbpm.service;
-
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+package org.jeecg.modules.extbpm.process.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -52,8 +47,8 @@ import java.util.Map.Entry;
 
 //ImplK 的
 @Service("extActProcessService")
-public class ExtActProcessService extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implements IExtActProcessService {
-    private static final Logger a = LoggerFactory.getLogger(ExtActProcessService.class);
+public class k extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implements IExtActProcessService {
+    private static final Logger a = LoggerFactory.getLogger(k.class);
     @Autowired
     private ExtActProcessMapper extActProcessMapper;
     @Autowired
@@ -78,7 +73,7 @@ public class ExtActProcessService extends ServiceImpl<ExtActProcessMapper, ExtAc
     @Lazy
     private RedisUtil redisUtil;
 
-    public ExtActProcessService() {
+    public k() {
     }
 
     public List<UserInfo> getBpmUsers() {

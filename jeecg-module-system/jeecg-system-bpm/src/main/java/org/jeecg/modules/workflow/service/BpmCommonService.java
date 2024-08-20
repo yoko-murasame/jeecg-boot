@@ -28,7 +28,6 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.*;
-import org.jeecg.modules.activiti.jeecg.jasper.extbpm.service.ExtActProcessService;
 import org.jeecg.modules.bpm.d.a.k;
 import org.jeecg.modules.bpm.dto.ActHiActinstDTO;
 import org.jeecg.modules.bpm.dto.ProcessHisDTO;
@@ -37,10 +36,7 @@ import org.jeecg.modules.extbpm.process.entity.*;
 import org.jeecg.modules.extbpm.process.exception.BpmException;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.mapper.ExtActTaskNotificationMapper;
-import org.jeecg.modules.extbpm.process.service.IExtActBpmFileService;
-import org.jeecg.modules.extbpm.process.service.IExtActBpmLogService;
-import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
-import org.jeecg.modules.extbpm.process.service.IExtActProcessFormService;
+import org.jeecg.modules.extbpm.process.service.*;
 import org.jeecg.modules.online.desform.entity.DesignFormData;
 import org.jeecg.modules.online.desform.service.IDesignFormDataService;
 import org.jeecg.modules.workflow.entity.TaskDTO;
@@ -98,7 +94,7 @@ public class BpmCommonService {
     @Resource
     private IExtActProcessFormService extActProcessFormService;
     @Resource
-    private ExtActProcessService extActProcessService;
+    private IExtActProcessService extActProcessService;
     @Resource
     private IDesignFormDataService designFormDataService;
     @Resource
