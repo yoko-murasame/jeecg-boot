@@ -10,6 +10,5 @@ rebel.xml
 ## front
 **/*.lock
 /.fastRequest/
-/jeecg-module-system/jeecg-system-bpm/
 *.drawio.bkp
 /*.log

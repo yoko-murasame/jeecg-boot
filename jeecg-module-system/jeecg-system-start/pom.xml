@@ -12,6 +12,11 @@
     <artifactId>jeecg-system-start</artifactId>
 
     <dependencies>
+        <!-- 抽取bpm、online、quartz到单独模块 -->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-bpm</artifactId>
+        </dependency>
         <!-- SYSTEM 系统管理模块 -->
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>

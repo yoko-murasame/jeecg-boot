@@ -194,6 +194,12 @@
 				<version>${jeecgboot.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.jeecgframework.boot</groupId>
+				<artifactId>jeecg-system-bpm</artifactId>
+				<version>${jeecgboot.version}</version>
+			</dependency>
+
 			<!-- jeecg tools -->
 			<dependency>
 				<groupId>org.jeecgframework.boot</groupId>

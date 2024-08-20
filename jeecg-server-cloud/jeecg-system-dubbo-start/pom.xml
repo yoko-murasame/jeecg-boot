@@ -47,6 +47,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 抽取bpm、online、quartz到单独模块 -->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-bpm</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
