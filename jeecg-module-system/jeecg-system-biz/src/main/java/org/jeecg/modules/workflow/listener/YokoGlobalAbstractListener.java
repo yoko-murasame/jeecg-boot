@@ -2,7 +2,6 @@ package org.jeecg.modules.workflow.listener;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,11 @@ import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.task.IdentityLink;
+import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.dto.message.MessageDTO;
-import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.modules.extbpm.listener.execution.ProcessEndListener;
 import org.jeecg.modules.extbpm.process.common.WorkFlowGlobals;
@@ -34,14 +36,6 @@ import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.pojo.DesignFormDataDTO;
 import org.jeecg.modules.extbpm.process.service.IExtActBpmLogService;
 import org.jeecg.modules.extbpm.process.service.IExtActProcessService;
-import org.jeecg.modules.system.entity.SysDepart;
-import org.jeecg.modules.system.entity.SysRole;
-import org.jeecg.modules.system.entity.SysUser;
-import org.jeecg.modules.system.entity.SysUserRole;
-import org.jeecg.modules.system.service.ISysDepartService;
-import org.jeecg.modules.system.service.ISysRoleService;
-import org.jeecg.modules.system.service.ISysUserRoleService;
-import org.jeecg.modules.system.service.ISysUserService;
 import org.jeecg.modules.workflow.service.IOaTodoService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
@@ -132,40 +126,9 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     @Resource
     private IOaTodoService oaTodoInterface;
 
-    /**
-     * 所有的第三方Service，必须采用懒加载方式-------BEGIN--------
-     **/
-    public ISysUserRoleService getSysUserRoleService() {
-        if (null == sysUserRoleService) {
-            sysUserRoleService = SpringContextUtils.getBean(ISysUserRoleService.class);
-        }
-        return sysUserRoleService;
-    }
-
-    public ISysRoleService getSysRoleService() {
-        if (null == sysRoleService) {
-            sysRoleService = SpringContextUtils.getBean(ISysRoleService.class);
-        }
-        return sysRoleService;
-    }
-
-    public ISysUserService getSysUserService() {
-        if (null == sysUserService) {
-            sysUserService = SpringContextUtils.getBean(ISysUserService.class);
-        }
-        return sysUserService;
-    }
-
-    public ISysDepartService getSysDepartService() {
-        if (null == sysDepartService) {
-            sysDepartService = SpringContextUtils.getBean(ISysDepartService.class);
-        }
-        return sysDepartService;
-    }
-
-    public ISysBaseAPI getBaseApi() {
+    public CommonAPI getBaseApi() {
         if (null == baseApi) {
-            baseApi = SpringContextUtils.getBean(ISysBaseAPI.class);
+            baseApi = SpringContextUtils.getBean(CommonAPI.class);
         }
         return baseApi;
     }
@@ -191,15 +154,7 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         return repositoryService;
     }
 
-    private ISysUserRoleService sysUserRoleService;
-
-    private ISysRoleService sysRoleService;
-
-    private ISysUserService sysUserService;
-
-    private ISysDepartService sysDepartService;
-
-    private ISysBaseAPI baseApi;
+    private CommonAPI baseApi;
 
     private TaskService taskService;
 
@@ -665,7 +620,7 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         List<String> usernames = new ArrayList<>(usernameList.size());
         List<String> phones = new ArrayList<>(usernameList.size());
         for (String username : usernameList) {
-            SysUser sysUser = getSysUserService().getUserByName(username);
+            LoginUser sysUser = getBaseApi().getUserByName(username);
             String realname = sysUser.getRealname();
             String phone = sysUser.getPhone();
             if (StringUtils.hasText(realname) && StringUtils.hasText(phone)) {
@@ -823,25 +778,15 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
                     String roleCode = identityLink.getGroupId();
 
                     // 根据角色编码查询用户账号集合 -如没有 需自定义
-                    SysRole sysRole = new LambdaQueryChainWrapper<>(getSysRoleService().getBaseMapper())
-                            .eq(SysRole::getRoleCode, roleCode).oneOpt().get();
-
-                    List<SysUserRole> sysUserRoles = new LambdaQueryChainWrapper<>(getSysUserRoleService().getBaseMapper())
-                            .eq(SysUserRole::getRoleId, sysRole.getId()).list();
-
-                    List<String> usernames = new LambdaQueryChainWrapper<>(getSysUserService().getBaseMapper())
-                            .in(SysUser::getId, sysUserRoles.stream().map(SysUserRole::getUserId).collect(Collectors.toList()))
-                            .list()
-                            .stream()
+                    List<SysUserModel> sysUserModels = getBaseApi().getUserModelByRoleCodes(roleCode);
+                    List<String> usernames = sysUserModels.stream()
                             // 过滤到指定部门，如传入：A01，仅会找到 A01A02、A01A03
                             .filter(sysUser -> {
                                 if (StringUtils.hasText(orgCode)) {
                                     if (StringUtils.hasText(sysUser.getOrgCode())) {
                                         return sysUser.getOrgCode().indexOf(orgCode) == 0;
                                     } else if (StringUtils.hasText(sysUser.getDepartIds())) {
-                                        long count = new LambdaQueryChainWrapper<>(getSysDepartService().getBaseMapper())
-                                                .in(SysDepart::getId, sysUser.getDepartIds())
-                                                .list()
+                                        long count = getBaseApi().getAllSysDepart(sysUser.getDepartIds(), CommonConstant.DEL_FLAG_0 + "")
                                                 .stream()
                                                 .filter(sysDepart -> sysDepart.getOrgCode().indexOf(orgCode) == 0)
                                                 .count();
@@ -852,8 +797,7 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
                                 }
                                 return true;
                             })
-                            .map(SysUser::getUsername).collect(Collectors.toList());
-
+                            .map(SysUserModel::getUsername).collect(Collectors.toList());
                     list.addAll(usernames);
                 } else {
                     // 备选人员
