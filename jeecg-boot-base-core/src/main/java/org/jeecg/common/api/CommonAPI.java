@@ -1,6 +1,7 @@
 package org.jeecg.common.api;
 
 import com.alibaba.fastjson.JSONObject;
+import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 
@@ -13,6 +14,52 @@ import java.util.Set;
  * @author: jeecg-boot
  */
 public interface CommonAPI {
+
+    /**
+     * 1发送系统消息
+     * @param message 使用构造器赋值参数 如果不设置category(消息类型)则默认为2 发送系统消息
+     */
+    void sendSysAnnouncement(MessageDTO message);
+
+    /**
+     * 2发送消息 附带业务参数
+     * @param message 使用构造器赋值参数
+     */
+    void sendBusAnnouncement(BusMessageDTO message);
+
+    /**
+     * 3通过模板发送消息
+     * @param message 使用构造器赋值参数
+     */
+    void sendTemplateAnnouncement(TemplateMessageDTO message);
+
+    /**
+     * 4通过模板发送消息 附带业务参数
+     * @param message 使用构造器赋值参数
+     */
+    void sendBusTemplateAnnouncement(BusTemplateMessageDTO message);
+
+    /**
+     * 5通过消息中心模板，生成推送内容
+     * @param templateDTO 使用构造器赋值参数
+     * @return
+     */
+    String parseTemplateByCode(TemplateDTO templateDTO);
+
+    //update-begin---author:taoyan ---date:20220705  for：支持自定义推送类型，邮件、钉钉、企业微信、系统消息-----------
+    /**
+     * 发送模板消息【新，支持自定义推送类型】
+     * @param message
+     */
+    void sendTemplateMessage(MessageDTO message);
+
+    /**
+     * 根据模板编码获取模板内容【新，支持自定义推送类型】
+     * @param templateCode
+     * @return
+     */
+    String getTemplateContent(String templateCode);
+    //update-begin---author:taoyan ---date:20220705  for：支持自定义推送类型，邮件、钉钉、企业微信、系统消息-----------
 
     /**
      * 1查询用户角色信息
@@ -144,6 +191,11 @@ public interface CommonAPI {
      * @param sysUserModel 用户登陆实体
      */
     JSONObject packageUserInfo(SysUserModel sysUserModel);
+
+    /**
+     * 23查询所有部门
+     */
+    public List<SysDepartModel> getAllSysDepart(String id, String delFlag);
 
     /**
      * 添加部门
