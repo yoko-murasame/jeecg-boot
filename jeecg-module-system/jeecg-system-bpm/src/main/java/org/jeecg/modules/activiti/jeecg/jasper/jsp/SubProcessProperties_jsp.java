@@ -170,7 +170,7 @@ public final class SubProcessProperties_jsp extends HttpJspBase implements JspSo
                             ".activiti_collection=$.trim($('#collection').val());\r\n\tsubProcess.activiti_elementVariable=$.trim($('#elementVariable').val()" +
                             ");\r\n\tsubProcess.completionCondition=$.trim($('#completionCondition').val());\r\n\ttip(\"保存成功!\");" +
                             "\r\n}\r\n\r\n//update--begin---author:scott   date:20191219    for:子流程支持多个参数配置----\r\n");
-                    var8.write("//配置主子流程传递参数\r\nfunction configSubParams(){\r\n   var url = '/main/act/designer/goSubParameterList';\r\n   $.dialog({content:" +
+                    var8.write("//配置主子流程传递参数\r\nfunction configSubParams(){\r\n   var url = '/act/designer/goSubParameterList';\r\n   $.dialog({content:" +
                             " 'url:'+url,\r\n\t   title: '子流程参数配置页面',\r\n\t   lock : true,\r\n\t   parent:windowapi,\r\n\t   width :'600px',\r\n\t   height " +
                             ":'450px',\r\n\t   left :'85%',\r\n\t   top :'65%',\r\n\t   data:{subParams: subProcess.insourceArray?subProcess.insourceArray" +
                             ".concat(subProcess.outsourceArray):null},\r\n\t   opacity : 0.4,\r\n\t   button : [ {name : '确定',callback : clickcallback,focus " +

@@ -245,7 +245,7 @@ public final class TaskProperties_jsp extends HttpJspBase implements JspSourceDe
                             "'<a href=\"#\" onclick=\"delRow('+index+')\">删除</a>';\r\n\t            return d;\r\n\t         }\r\n\t\t}\r\n    ]]\r\n});" +
                             "\r\n\r\n    var windowapi;\r\n    try{\r\n    \twindowapi = frameElement.api, \r\n    \tW = windowapi.opener;\r\n    }catch(e)" +
                             "{}\r\n    \r\n    //选择流程监听\r\n   function selectProcessListener(){\r\n\t   var url = " +
-                            "'/main/act/designer/goListeners?typeid=2&token='+workflow.process.token;\r\n");
+                            "'/act/designer/goListeners?typeid=2&token='+workflow.process.token;\r\n");
                     var8.write("\t   $.dialog({content: 'url:'+url,\r\n\t\t   title: '任务监听列表',\r\n\t\t   lock : true,\r\n\t\t   parent:windowapi,\r\n\t\t   " +
                             "width :'500px',\r\n\t\t   height :'450px',\r\n\t\t   left :'85%',\r\n\t\t   top :'65%',\r\n\t\t   opacity : 0.4,\r\n\t\t   " +
                             "button : [ {name : '确定',\r\n\t\t\t   callback : saveProcessListener,focus : true}, \r\n\t\t\t   {name : '取消',callback : function" +
@@ -253,7 +253,7 @@ public final class TaskProperties_jsp extends HttpJspBase implements JspSourceDe
                             "  function searchSelectUser(){\r\n\t   var selectPerformerType = $('#performerType').combobox('getValue');\r\n\t   if" +
                             "(!selectPerformerType){\r\n\t\t   tip(\"请先选择类型!\");\r\n\t\t   return\r\n\t   }else if(selectPerformerType=='candidateGroups')" +
                             "{\r\n\t\t   tip(\"备选角色类型，不能查询用户!\");\r\n\t\t   return\r\n\t   }\r\n\t\t\r\n\t   var url = " +
-                            "'/main/act/designer/goSearchSelectUser?token='+workflow.process.token;\r\n\t   console.log(\"userid \",$('#expression').val());\r\n\t   $" +
+                            "'/act/designer/goSearchSelectUser?token='+workflow.process.token;\r\n\t   console.log(\"userid \",$('#expression').val());\r\n\t   $" +
                             ".dialog({content: 'url:'+url,\r\n\t\t   title: '选择用户列表',\r\n\t\t   lock : true,\r\n\t\t   parent:windowapi,\r\n\t\t   width " +
                             ":'700px',\r\n\t\t   height :'450px',\r\n\t\t   data:{userids:$('#expression').val()},\r\n");
                     var8.write("\t\t   left :'85%',\r\n\t\t   top :'65%',\r\n\t\t   opacity : 0.4,\r\n\t\t   button : [ {name : '确定',\r\n\t\t\t   callback : " +
@@ -261,7 +261,7 @@ public final class TaskProperties_jsp extends HttpJspBase implements JspSourceDe
                             "clickcallbackUser(){\r\n\t  var iframe = this.iframe.contentWindow;\r\n\t   var userIds=iframe.getselectExpressionListSelections" +
                             "('id');\t\r\n\t   if($('#expression').length>=1){\r\n\t\t   $('#expression').val(userIds);$('#expression').blur();" +
                             "\r\n\t\t}\r\n\t}\r\n   //update--end---author:scott   date:20191219    for:用户支持弹出popup多选，增加保存校验\r\n   \r\n \t//选择表达式\t\r\n   " +
-                            "function selectExpression(){\r\n\t   var url = '/main/act/designer/goExpression?token='+workflow.process.token;\r\n\t   $" +
+                            "function selectExpression(){\r\n\t   var url = '/act/designer/goExpression?token='+workflow.process.token;\r\n\t   $" +
                             ".dialog({content: 'url:'+url,\r\n\t\t   title: '表达式列表',\r\n\t\t   lock : true,\r\n\t\t   parent:windowapi,\r\n\t\t   width " +
                             ":'500px',\r\n\t\t   height :'450px',\r\n\t\t   left :'85%',\r\n\t\t   top :'65%',\r\n\t\t   opacity : 0.4,\r\n\t\t   button : [ " +
                             "{name : '确定',\r\n\t\t\t   callback : clickcallback,focus : true}, \r\n\t\t\t   {name : '取消',callback : function() {}} ]});\r\n\t" +
