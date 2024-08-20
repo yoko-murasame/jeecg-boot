@@ -675,7 +675,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * @param roleCode 角色编码
      * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
      */
-    @GetMapping("/getUserModelByRoleCodes")
+    @GetMapping("/sys/api/getUserModelByRoleCodes")
     List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode);
 
 }

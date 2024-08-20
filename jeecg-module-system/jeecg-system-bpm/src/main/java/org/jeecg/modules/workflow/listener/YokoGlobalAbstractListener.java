@@ -61,14 +61,14 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
-     * 当前绑定的流程定义名称，使用注解 @YokoListenerAware("支付款") 可自动注入
+     * 当前绑定的流程定义名称，使用注解 @YokoGlobalListener("支付款") 可自动注入
      */
     @Getter
     @Setter
     private String bindProcessDefinitionName;
 
     /**
-     * 当前绑定的流程编码，使用注解 @YokoListenerAware("支付款") 可自动注入
+     * 当前绑定的流程编码，使用注解 @YokoGlobalListener("支付款") 可自动注入
      */
     @Getter
     @Setter
@@ -192,6 +192,11 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
      * 当前任务的流程变量
      */
     protected Map<String, Object> variables;
+
+    /**
+     * 我的代办跳转按钮html
+     */
+    public final static String A_BUTTON_MY_TODO_HTML = "<br/>请点击“<a href=\"/bpm/task/MyTaskList\">我的待办</a>”处理任务。";
 
     /**
      * 初始化基础流程变量数据<br/>
@@ -505,7 +510,7 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         String key = this.getBindProcessDefinitionKey();
         ProcessDefinition processDefinition =
                 this.getRepositoryService().getProcessDefinition(event.getProcessDefinitionId());
-        if (processDefinition.getName().equals(getBindProcessDefinitionName()) || processDefinition.getKey().equals(getBindProcessDefinitionKey())) {
+        if (name.contains(processDefinition.getName()) || key.contains(processDefinition.getKey())) {
             if (ActivitiEventType.PROCESS_CANCELLED == event.getType()) {
                 log.info("流程名称：{}，流程编码：{}，生命周期:Process流程取消，开始时间：{}", name, key, LocalDateTime.now().format(formatter));
                 this.customProcessCancelledHandler(event);
@@ -588,12 +593,17 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
      * @description 发送站内消息
      */
     protected void sendMessage(TaskEntity taskEntity) {
+        String title = String.format("您有新的任务待审批，流程名称：%s，任务名称：%s，当前环节：%s。", this.getBindProcessDefinitionName(), this.bpm_biz_title, taskEntity.getName());
+        String content = title + A_BUTTON_MY_TODO_HTML;
+        sendMessage(taskEntity, title, content);
+    }
+
+    protected void sendMessage(TaskEntity taskEntity, String title, String content) {
         List<String> userList = this.getUsernameList(taskEntity);
         String taskName = taskEntity.getName();
         MessageDTO msg = new MessageDTO("system", "", "系统提示", " 您有新的任务需要审批!");
-        String title = String.format("您有新的任务待审批，流程名称：%s，任务名称：%s，当前环节：%s。", this.getBindProcessDefinitionName(), this.bpm_biz_title, taskName);
         msg.setTitle(title);
-        msg.setContent(title + "<br/>请在“我的待办”模块处理任务。");
+        msg.setContent(content);
         for (String username : userList) {
             msg.setToUser(username);
             getBaseApi().sendSysAnnouncement(msg);

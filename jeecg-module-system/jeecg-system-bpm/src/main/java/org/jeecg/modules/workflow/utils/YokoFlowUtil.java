@@ -1,13 +1,17 @@
 package org.jeecg.modules.workflow.utils;
 
 import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.CommonAPI;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.modules.extbpm.process.exception.BpmException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 流程表达式通用工具类
@@ -18,10 +22,37 @@ import java.util.Optional;
  */
 @Component("yokoFlowUtil")
 public class YokoFlowUtil {
-    
+
+    @Resource
+    private CommonAPI commonAPI;
+
+    /**
+     * 根据指定角色code获取所有用户名，用于流程会签
+     * e.g.${yokoFlowUtil.getUserListByRoleCodes('admin','没有配置处理人员，请检查角色配置！')}
+     * e.g.接着在人员配置这里选择：处理人，表达式：${assigneeUserId}
+     *
+     * @author Yoko
+     * @since 2024/8/20 20:17
+     * @param roleCodes 角色编码
+     * @param errorMsg 自定义错误信息
+     * @return java.util.List<java.lang.String>
+     */
+    public List<String> getUserListByRoleCodes(String roleCodes, String errorMsg) {
+        if (StringUtils.isEmpty(roleCodes)) {
+            throw new BpmException("getUserListByRoleCodes方法必须传入角色编码！");
+        }
+        List<SysUserModel> userModelByRoleCodes = commonAPI.getUserModelByRoleCodes(roleCodes);
+        if (userModelByRoleCodes.isEmpty()) {
+            errorMsg = Optional.ofNullable(errorMsg).orElse("角色编码：" + roleCodes + "没有配置人员，请检查角色配置！");
+            throw new BpmException(errorMsg);
+        }
+        return userModelByRoleCodes.stream().map(SysUserModel::getUsername).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+    }
+
     /**
      * 自定义的会签人员转换方法，支持抛出自定义异常<br/>
      * e.g.${yokoFlowUtil.stringToList(assigneeUserIdList,'请选择部室会签人员、财政审核人员！')}
+     * e.g.接着在人员配置这里选择：处理人，表达式：${assigneeUserId}
      *
      * @param assigneeUserIdList 会签人员,分割的字符串
      * @param errorMsg 错误时的提示，注意流程配置的时候，需要使用单引号引起来，双引号会导致xml报错，销毁整个流程！
@@ -37,7 +68,7 @@ public class YokoFlowUtil {
             return Arrays.asList(arr);
         }
     }
-    
+
     /**
      * 判断绝对值小于等于指定数字
      *
@@ -50,7 +81,7 @@ public class YokoFlowUtil {
         double newVal = Optional.ofNullable(value).orElse(new BigDecimal(0)).abs().doubleValue();
         return newVal <= number;
     }
-    
+
     /**
      * 判断绝对值大于指定数字
      *
@@ -63,5 +94,5 @@ public class YokoFlowUtil {
         double newVal = Optional.ofNullable(value).orElse(new BigDecimal(0)).abs().doubleValue();
         return newVal > number;
     }
-    
+
 }

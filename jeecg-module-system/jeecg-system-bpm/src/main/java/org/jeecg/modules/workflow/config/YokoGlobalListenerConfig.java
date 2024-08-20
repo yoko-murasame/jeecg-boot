@@ -52,8 +52,11 @@ public class YokoGlobalListenerConfig implements ApplicationListener, Applicatio
             YokoGlobalAbstractListener listener = (YokoGlobalAbstractListener) entry.getValue();
             Class<?> clazz = listener.getClass();
             YokoGlobalListener yokoGlobalListener = AnnotationUtils.findAnnotation(clazz, YokoGlobalListener.class);
-            if (StringUtils.isEmpty(yokoGlobalListener.processDefinitionKey()) && StringUtils.isEmpty(yokoGlobalListener.processDefinitionName())) {
-                log.error("监听器注册失败：{}，关联流程为空，请检查注解@YokoListenerAware配置！", clazz.getName());
+            if (null == yokoGlobalListener) {
+                continue;
+            }
+            if (!StringUtils.hasText(yokoGlobalListener.processDefinitionKey()) && !StringUtils.hasText(yokoGlobalListener.processDefinitionName())) {
+                log.error("监听器注册失败：{}，关联流程为空，请检查注解@YokoGlobalListener配置！", clazz.getName());
                 System.exit(0);
             }
             listener.setBindProcessDefinitionKey(yokoGlobalListener.processDefinitionKey());
@@ -69,7 +72,7 @@ public class YokoGlobalListenerConfig implements ApplicationListener, Applicatio
                 configuration.setEventDispatcher(new YokoActivitiEventDispatcherImpl());
                 configuration.setEnableEventDispatcher(true);
             }
-            /**
+            /*
              * 监听类型注册
              * 默认提供：TASK_CREATED、TASK_COMPLETED、PROCESS_COMPLETED
              * 目前实现：TASK_CREATED、TASK_COMPLETED、PROCESS_COMPLETED、PROCESS_CANCELLED、ACTIVITY_CANCELLED
