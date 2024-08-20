@@ -855,6 +855,19 @@ public class SystemApiController {
     }
 
     /**
+     * 获取指定角色下的所有用户
+     *
+     * @author Yoko
+     * @since 2024/8/20 10:05
+     * @param roleCode 角色编码
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/getUserModelByRoleCodes")
+    List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode) {
+        return sysBaseApi.getUserModelByRoleCodes(roleCode);
+    }
+
+    /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
      * 部分特殊函数 可以将查询结果混夹在错误信息中，导致数据库的信息暴露
      * @param e

@@ -218,4 +218,13 @@ public interface CommonAPI {
      */
     List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix);
 
+    /**
+     * 获取指定角色下的所有用户
+     *
+     * @author Yoko
+     * @since 2024/8/20 09:53
+     * @param roleCode 角色编码
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    List<SysUserModel> getUserModelByRoleCodes(String roleCode);
 }

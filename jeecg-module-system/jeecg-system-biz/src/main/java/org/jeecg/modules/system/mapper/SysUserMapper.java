@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
 import org.jeecg.modules.system.vo.SysUserDepVo;
@@ -174,4 +175,14 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return java.util.List<java.lang.String>
 	 */
 	List<String> queryCurrentUserPerms(@Param("username") String username, @Param("userid") String userid, @Param("permsLimitPrefix") String permsLimitPrefix);
+
+	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+    List<SysUserModel> getUserModelByRoleCode(@Param("roleCodes") List<String> roleCodes);
 }

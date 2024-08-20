@@ -13,6 +13,7 @@ import org.jeecg.common.constant.enums.RoleIndexConfigEnum;
 import org.jeecg.common.desensitization.annotation.SensitiveEncode;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysUserCacheInfo;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.common.util.UUIDGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -339,6 +340,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	@Override
 	public IPage<SysUser> getUserByRoleId(Page<SysUser> page, String roleId, String username) {
 		return userMapper.getUserByRoleId(page,roleId,username);
+	}
+
+	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByRoleCodes(List<String> roleCodes) {
+		return userMapper.getUserModelByRoleCode(roleCodes);
 	}
 
 

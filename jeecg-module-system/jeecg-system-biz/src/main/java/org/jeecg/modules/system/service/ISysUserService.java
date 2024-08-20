@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysUserCacheInfo;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.modules.system.entity.SysRoleIndex;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
@@ -179,6 +180,16 @@ public interface ISysUserService extends IService<SysUser> {
 	Set<String> getUserPermissionsSet(String username);
 
 	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+    List<SysUserModel> getUserModelByRoleCodes(List<String> roleCodes);
+
+    /**
 	 * 根据用户名设置部门ID
 	 * @param username
 	 * @param orgCode

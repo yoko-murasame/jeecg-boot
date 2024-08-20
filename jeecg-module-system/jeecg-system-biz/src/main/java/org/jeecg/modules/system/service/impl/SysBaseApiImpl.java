@@ -1442,6 +1442,19 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return sysUserService.queryCurrentUserPerms(username, userid, permsLimitPrefix);
 	}
 
+	/**
+	 * 获取指定角色下的所有用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:53
+	 * @param roleCode 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByRoleCodes(String roleCode) {
+		return sysUserService.getUserModelByRoleCodes(Arrays.asList(roleCode.split(SymbolConstant.COMMA)));
+	}
+
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------
 	@Autowired
 	private QywxSendMsgHandle qywxSendMsgHandle;

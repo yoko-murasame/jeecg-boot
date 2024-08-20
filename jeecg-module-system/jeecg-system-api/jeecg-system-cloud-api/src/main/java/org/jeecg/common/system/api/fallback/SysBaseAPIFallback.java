@@ -347,6 +347,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<SysUserModel> getUserModelByRoleCodes(String roleCode) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void sendTemplateMessage(MessageDTO message) {
     }
 

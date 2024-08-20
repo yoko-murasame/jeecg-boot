@@ -667,4 +667,15 @@ public interface ISysBaseAPI extends CommonAPI {
                                        @RequestParam(value = "userid", required = false)String userid,
                                        @RequestParam(value = "permsLimitPrefix", required = false)String permsLimitPrefix);
 
+    /**
+     * 获取指定角色下的所有用户
+     *
+     * @author Yoko
+     * @since 2024/8/20 10:05
+     * @param roleCode 角色编码
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/getUserModelByRoleCodes")
+    List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode);
+
 }
