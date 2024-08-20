@@ -71,12 +71,12 @@
 
 	<!--通过查询指定table的 text code 获取字典-->
 	<select id="queryTableDictItemsByCode" parameterType="String"  resultType="org.jeecg.common.system.vo.DictModel">
-		   select ${text} as "text",${code} as "value" from ${table}
+		   select DISTINCT ${text} as "text",${code} as "value" from ${table}
 	</select>
 
 	<!--通过查询指定table的 text code 获取字典（指定查询条件）-->
 	<select id="queryTableDictItemsByCodeAndFilter" parameterType="String"  resultType="org.jeecg.common.system.vo.DictModel">
-		   select ${text} as "text",${code} as "value" from ${table}
+		   select DISTINCT ${text} as "text",${code} as "value" from ${table}
 		<if test="filterSql != null and filterSql != ''">
 			where ${filterSql}
 		</if>
@@ -84,7 +84,7 @@
 
 	<!--通过查询指定table的 text code key 获取字典值-->
 	<select id="queryTableDictTextByKey" parameterType="String" resultType="String">
-		   select ${text} as "text" from ${table} where ${code}= #{key}
+		   select DISTINCT ${text} as "text" from ${table} where ${code}= #{key}
 	</select>
 
 	<!--通过查询指定table的 text code key 获取字典值，可批量查询
@@ -227,7 +227,7 @@
 
 	<!-- 查询表字典的数据, 支持设置过滤条件和code值 精确匹配查询【已加入SQL注入check】 -->
 	<select id="queryTableDictByKeysAndFilterSql" parameterType="String" resultType="org.jeecg.common.system.vo.DictModel">
-		select ${text} as "text", ${code} as "value" from ${table}
+		select DISTINCT ${text} as "text", ${code} as "value" from ${table}
 		where ${code} IN (
 		<foreach item="key" collection="codeValues" separator=",">
 			#{key}
