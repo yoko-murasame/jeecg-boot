@@ -19,6 +19,7 @@ import org.jeecg.modules.extbpm.process.service.IExtActProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Aspect
 @Component("sysUserAspect")
+@ConditionalOnClass(name = "org.jeecg.modules.system.controller.SysUserController")
 public class SysUserAspect {
     private static final Logger log = LoggerFactory.getLogger(SysUserAspect.class);
     @Autowired
