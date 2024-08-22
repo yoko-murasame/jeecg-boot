@@ -262,7 +262,7 @@ public class BpmCommonService {
         QueryWrapper<ExtActProcessForm> qw = QueryGenerator.initQueryWrapper(param, new HashMap<>());
         List<ExtActProcessForm> list = extActProcessFormService.list(qw);
         if (list.size() > 1) {
-            throw new RuntimeException("存在多个匹配结果，请缩小范围！");
+            throw new RuntimeException("存在多个匹配结果，请检查流程配置并缩小范围！");
         }
         ExtActProcess process = null;
         try {
@@ -270,7 +270,7 @@ public class BpmCommonService {
             String processId = extActProcessForm.getProcessId();
             process = extActProcessService.getById(processId);
         } catch (Exception e) {
-            throw new RuntimeException("请检查流程是否正确配置，online表单的请以 onl_ 开头，具体格式：onl_表名!");
+            throw new RuntimeException("请检查流程是否正确配置，online表单的请以 onl_ 开头，具体格式：onl_表名；kform设计器的表单以 desform_ 开头，具体格式：desform_表名！");
         }
         return Result.OK(process);
     }
