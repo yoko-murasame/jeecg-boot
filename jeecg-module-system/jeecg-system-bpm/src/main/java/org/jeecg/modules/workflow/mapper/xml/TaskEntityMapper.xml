@@ -76,6 +76,15 @@
                        AND a.task_id = b.id_
                        AND a.task_assignee = b.assignee_
                      group by task_id),
+            ext_process AS (select a.id AS process_form_id,
+                                   a.form_table_name,
+                                   a.relation_code,
+                                   a.form_type,
+                                   a.flow_status_col,
+                                   b.process_key,
+                                   b.process_name
+                            from ext_act_process_form a
+                                     left join ext_act_process b on a.process_id = b.id),
             result AS (SELECT task_view.*,
                               task_view.create_time_                          AS create_time,
                               efd.form_data_id,
@@ -96,14 +105,21 @@
                               arv.text_                                       AS bpm_biz_title,
                               efd.form_data_id                                AS business_id,
                               efd.bpm_status                                  AS bpm_status,
-                              CASE WHEN urge_num > 0 THEN true ELSE false END AS task_urge
+                              CASE WHEN urge_num > 0 THEN true ELSE false END AS task_urge,
+                              ep.form_table_name                              AS form_table_name,
+                              ep.relation_code                                AS relation_code,
+                              ep.form_type                                    AS form_type,
+                              ep.flow_status_col                              AS flow_status_col,
+                              ep.process_key                                  AS process_key,
+                              ep.process_name                                 AS process_name
                        FROM task_view
                                 LEFT JOIN efd ON task_view.proc_inst_id_ = efd.process_inst_id
                                 LEFT JOIN arv ON task_view.proc_inst_id_ = arv.proc_inst_id_
                                 LEFT JOIN sys_user u1 ON task_view.assignee_ = u1.username
                                 LEFT JOIN hi_procinst hip ON task_view.proc_inst_id_ = hip.proc_inst_id_
                                 LEFT JOIN sys_user u2 ON u2.username = hip.start_user_id_
-                                LEFT JOIN urge ON urge.task_id = task_view.id_)
+                                LEFT JOIN urge ON urge.task_id = task_view.id_
+                                LEFT JOIN ext_process ep ON efd.process_form_id = ep.process_form_id)
         SELECT *
         FROM result ${ew.customSqlSegment}
     </select>

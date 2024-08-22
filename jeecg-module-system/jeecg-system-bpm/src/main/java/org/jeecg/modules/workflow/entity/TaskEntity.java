@@ -3,12 +3,14 @@ package org.jeecg.modules.workflow.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
+@ApiModel(value = "TaskEntity对象", description = "流程任务对象")
 @Data
 public class TaskEntity {
     @TableId("id_")
@@ -171,6 +173,25 @@ public class TaskEntity {
     @TableField("process_definition_name")
     @ApiModelProperty(value = "流程定义Name")
     private String processDefinitionName;
+
+    @TableField("form_table_name")
+    @ApiModelProperty(value = "业务表名")
+    private String formTableName;
+    @TableField(value = "relation_code")
+    @ApiModelProperty("流程-业务表关联code")
+    private String relationCode;
+    @TableField(value = "form_type")
+    @ApiModelProperty("业务表类型：1.online 2.designform 3.code")
+    private String formType;
+    @TableField("flow_status_col")
+    @ApiModelProperty(value = "流程状态字段名")
+    private String flowStatusCol;
+    @TableField("process_key")
+    @ApiModelProperty(value = "流程实际Key")
+    private String processKey;
+    @TableField("process_name")
+    @ApiModelProperty(value = "流程实际名称")
+    private String processName;
 
     public String dealTimeFromNum(long time) {
         StringBuilder var3 = new StringBuilder();
