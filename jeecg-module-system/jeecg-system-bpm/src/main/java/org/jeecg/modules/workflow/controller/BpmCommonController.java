@@ -57,8 +57,10 @@ public class BpmCommonController {
 
     @ApiOperation("获取Biz流程节点信息")
     @GetMapping({"/getBizHisProcessNodeInfo"})
-    public Result<Map<String, Object>> getBizHisProcessNodeInfo(@RequestParam(name = "flowCode") String flowCode, @RequestParam(name = "dataId") String dataId) {
-        Map<String, Object> res = bpmCommonService.getBizHisProcessNodeInfo(flowCode, dataId);
+    public Result<Map<String, Object>> getBizHisProcessNodeInfo(@RequestParam(name = "flowCode") String flowCode,
+                                                                @RequestParam(name = "dataId") String dataId,
+                                                                @RequestParam(name = "throwEx", required = false, defaultValue = "true") Boolean throwEx) {
+        Map<String, Object> res = bpmCommonService.getBizHisProcessNodeInfo(flowCode, dataId, throwEx);
         return Result.OK(res);
     }
 

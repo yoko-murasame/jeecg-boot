@@ -568,34 +568,34 @@ public class ActTaskController {
     }
 
     @PostMapping({"processComplete"})
-    public Result<Object> a(@RequestBody HashMap<String, String> var1, HttpServletRequest var2) {
+    public Result<Object> processComplete(@RequestBody HashMap<String, String> params, HttpServletRequest request) {
         Result var3 = new Result();
 
-        Throwable var5;
-        Throwable var6;
+        Throwable throwable;
+        Throwable throwable1;
         try {
-            var2.setAttribute("data", var1);
-            String var4 = oConvertUtils.getString((String)var1.get("taskId"));
-            String var25 = oConvertUtils.getString((String)var1.get("nextnode"));
-            Integer var26 = oConvertUtils.getInt((String)var1.get("nextCodeCount"));
-            String var7 = oConvertUtils.getString((String)var1.get("processModel"));
-            String var8 = oConvertUtils.getString((String)var1.get("nextUserId"));
-            String var9 = oConvertUtils.getString((String)var1.get("rejectModelNode"));
-            HashMap var10 = new HashMap();
-            Task var11 = this.activitiService.getTask(var4);
-            String var12 = var11.getProcessInstanceId();
-            this.runtimeService.setVariable(var12, org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.d);
-            boolean var13 = this.b(var4, var25);
-            if (var13) {
-                var1.put(org.jeecg.modules.extbpm.process.common.a.y, var8);
-                this.runtimeService.setVariable(var12, org.jeecg.modules.extbpm.process.common.a.y, var8);
+            request.setAttribute("data", params);
+            String taskId = oConvertUtils.getString((String)params.get("taskId"));
+            String nextnode = oConvertUtils.getString((String)params.get("nextnode"));
+            int nextCodeCount = oConvertUtils.getInt((String)params.get("nextCodeCount"));
+            String processModel = oConvertUtils.getString((String)params.get("processModel"));
+            String nextUserId = oConvertUtils.getString((String)params.get("nextUserId"));
+            String rejectModelNode = oConvertUtils.getString((String)params.get("rejectModelNode"));
+            HashMap<String, Object> variables = new HashMap<>();
+            Task task = this.activitiService.getTask(taskId);
+            String processInstanceId = task.getProcessInstanceId();
+            this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.d);
+            boolean isUserTask = this.b(taskId, nextnode);
+            if (isUserTask) {
+                params.put(org.jeecg.modules.extbpm.process.common.a.y, nextUserId);
+                this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.y, nextUserId);
             }
 
-            if (StringUtils.isNotBlank(var11.getOwner())) {
-                DelegationState var14 = var11.getDelegationState();
-                switch(var14) {
+            if (StringUtils.isNotBlank(task.getOwner())) {
+                DelegationState delegationState = task.getDelegationState();
+                switch(delegationState) {
                     case PENDING:
-                        this.taskService.resolveTask(var4);
+                        this.taskService.resolveTask(taskId);
                     case RESOLVED:
                 }
             }
@@ -605,29 +605,29 @@ public class ActTaskController {
             int var18;
             String var19;
             String var32;
-            if ("1".equals(var7)) {
-                boolean var28 = this.c(var11.getProcessDefinitionId(), var25);
-                if ("end".equals(var25)) {
-                    if (var26 != 1 && !var28) {
-                        this.activitiService.goProcessTaskNode(var4, var25, var10);
+            if ("1".equals(processModel)) {
+                boolean var28 = this.c(task.getProcessDefinitionId(), nextnode);
+                if ("end".equals(nextnode)) {
+                    if (nextCodeCount != 1 && !var28) {
+                        this.activitiService.goProcessTaskNode(taskId, nextnode, variables);
                     } else {
-                        this.taskService.complete(var4, var10);
+                        this.taskService.complete(taskId, variables);
                     }
                 } else {
-                    if (var26 != 1 && !var28) {
-                        this.activitiService.goProcessTaskNode(var4, var25, var10);
+                    if (nextCodeCount != 1 && !var28) {
+                        this.activitiService.goProcessTaskNode(taskId, nextnode, variables);
                     } else {
-                        this.taskService.complete(var4, var10);
+                        this.taskService.complete(taskId, variables);
                     }
 
-                    if (!var13) {
-                        String var30 = this.activitiService.getTaskIdByProins(var12, var25);
-                        if (oConvertUtils.isNotEmpty(var8) && oConvertUtils.isNotEmpty(var30)) {
-                            if (var8.indexOf(",") < 0) {
-                                this.taskService.setAssignee(var30, var8);
+                    if (!isUserTask) {
+                        String var30 = this.activitiService.getTaskIdByProins(processInstanceId, nextnode);
+                        if (oConvertUtils.isNotEmpty(nextUserId) && oConvertUtils.isNotEmpty(var30)) {
+                            if (nextUserId.indexOf(",") < 0) {
+                                this.taskService.setAssignee(var30, nextUserId);
                             } else {
                                 this.taskService.setAssignee(var30, (String)null);
-                                String[] var33 = var8.split(",");
+                                String[] var33 = nextUserId.split(",");
                                 var18 = var33.length;
 
                                 for(int var36 = 0; var36 < var18; ++var36) {
@@ -640,18 +640,18 @@ public class ActTaskController {
                         }
                     }
                 }
-            } else if ("2".equals(var7)) {
-                this.taskService.complete(var4, var10);
+            } else if ("2".equals(processModel)) {
+                this.taskService.complete(taskId, variables);
             } else {
-                this.runtimeService.setVariable(var12, org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.B);
-                this.activitiService.goProcessTaskNode(var4, var9, var10);
-                var15 = this.activitiService.getTaskIdByProins(var12, var9);
-                if (oConvertUtils.isNotEmpty(var8)) {
-                    if (var8.indexOf(",") < 0) {
-                        this.taskService.setAssignee(var15, var8);
+                this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.B);
+                this.activitiService.goProcessTaskNode(taskId, rejectModelNode, variables);
+                var15 = this.activitiService.getTaskIdByProins(processInstanceId, rejectModelNode);
+                if (oConvertUtils.isNotEmpty(nextUserId)) {
+                    if (nextUserId.indexOf(",") < 0) {
+                        this.taskService.setAssignee(var15, nextUserId);
                     } else {
                         this.taskService.setAssignee(var15, (String)null);
-                        String[] var16 = var8.split(",");
+                        String[] var16 = nextUserId.split(",");
                         int var17 = var16.length;
 
                         for(var18 = 0; var18 < var17; ++var18) {
@@ -664,21 +664,21 @@ public class ActTaskController {
                 }
 
                 Task var29 = this.activitiService.getTask(var15);
-                var32 = var11.getAssignee();
-                LoginUser var34 = this.sysBaseAPI.getUserByName(var11.getAssignee());
+                var32 = task.getAssignee();
+                LoginUser var34 = this.sysBaseAPI.getUserByName(task.getAssignee());
                 if (var34 != null) {
                     var32 = var34.getRealname();
                 }
 
-                var27 = var32 + "驳回任务 〔" + var11.getName() + "〕 →〔" + var29.getName() + "〕 ";
+                var27 = var32 + "驳回任务 〔" + task.getName() + "〕 →〔" + var29.getName() + "〕 ";
             }
 
-            var15 = JwtUtil.getUserNameByToken(var2);
+            var15 = JwtUtil.getUserNameByToken(request);
             LoginUser var31 = this.sysBaseAPI.getUserByName(var15);
-            var32 = oConvertUtils.getString((String)var1.get("ccUserIds"));
-            this.a(var32, var11, var15);
-            ProcessInstance var35 = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(var12).singleResult();
-            var19 = oConvertUtils.getString((String)var1.get("reason"));
+            var32 = oConvertUtils.getString((String)params.get("ccUserIds"));
+            this.a(var32, task, var15);
+            ProcessInstance var35 = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            var19 = oConvertUtils.getString((String)params.get("reason"));
             ExtActBpmLog var37 = new ExtActBpmLog();
             if (var35 != null) {
                 var37.setBusinessKey(var35.getBusinessKey());
@@ -691,17 +691,17 @@ public class ActTaskController {
                 var37.setOpUserName(var31.getRealname());
             }
 
-            var37.setProcInstId(var12);
+            var37.setProcInstId(processInstanceId);
             if (oConvertUtils.isNotEmpty(var27)) {
                 var19 = var19 + "       『 " + var27 + " 』";
             }
 
             var37.setRemarks(var19);
-            var37.setTaskDefKey(var11.getTaskDefinitionKey());
-            var37.setTaskId(var4);
-            var37.setTaskName(var11.getName());
+            var37.setTaskDefKey(task.getTaskDefinitionKey());
+            var37.setTaskId(taskId);
+            var37.setTaskName(task.getName());
             this.extActBpmLogService.save(var37);
-            String var21 = oConvertUtils.getString((String)var1.get("fileList"));
+            String var21 = oConvertUtils.getString((String)params.get("fileList"));
             this.a(var37.getId(), var21);
         } catch (BpmException var22) {
             var3.error500("任务执行失败:" + var22.getMessage());
@@ -709,21 +709,21 @@ public class ActTaskController {
         } catch (ActivitiException var23) {
             var3.error500("任务执行失败:" + var23.getMessage());
             var23.printStackTrace();
-            var5 = var23.getCause();
-            if (var5 != null) {
-                var6 = (Throwable)var5;
-                if (var6.getCause() != null && var6.getCause() instanceof BpmException) {
-                    var3.error500("任务执行失败:" + var6.getCause().getMessage());
+            throwable = var23.getCause();
+            if (throwable != null) {
+                throwable1 = (Throwable)throwable;
+                if (throwable1.getCause() != null && throwable1.getCause() instanceof BpmException) {
+                    var3.error500("任务执行失败:" + throwable1.getCause().getMessage());
                 }
             }
         } catch (Exception var24) {
             var3.error500("任务执行失败:" + var24.getMessage());
             var24.printStackTrace();
-            var5 = var24.getCause();
-            if (var5 != null) {
-                var6 = (Throwable)var5;
-                if (var6.getCause() != null && var6.getCause() instanceof BpmException) {
-                    var3.error500("任务执行失败:" + var6.getCause().getMessage());
+            throwable = var24.getCause();
+            if (throwable != null) {
+                throwable1 = (Throwable)throwable;
+                if (throwable1.getCause() != null && throwable1.getCause() instanceof BpmException) {
+                    var3.error500("任务执行失败:" + throwable1.getCause().getMessage());
                 }
             }
         }

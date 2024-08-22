@@ -1246,13 +1246,14 @@ public class BpmCommonService {
      * @param dataId 表单id
      * @return java.util.HashMap<java.lang.String, java.lang.Object>
      */
-    public Map<String, Object> getBizHisProcessNodeInfo(String flowCode, String dataId) {
+    public Map<String, Object> getBizHisProcessNodeInfo(String flowCode, String dataId, Boolean throwEx) {
         Map<String, Object> result = null;
         try {
             LambdaQueryWrapper<ExtActFlowData> wrapper = new LambdaQueryWrapper<ExtActFlowData>();
             wrapper.eq(ExtActFlowData::getRelationCode, flowCode);
             wrapper.eq(ExtActFlowData::getFormDataId, dataId);
-            ExtActFlowData extActFlowData = (ExtActFlowData)this.extActFlowDataService.getOne(wrapper);
+            wrapper.orderByDesc(ExtActFlowData::getCreateTime);
+            ExtActFlowData extActFlowData = this.extActFlowDataService.getOne(wrapper, throwEx);
             String hisVarinst = this.activitiService.getHisVarinst("BPM_FORM_CONTENT_URL", extActFlowData.getProcessInstId());
             String formTableName = extActFlowData.getFormTableName();
             Map<String, Object> records = new HashMap<String, Object>();
