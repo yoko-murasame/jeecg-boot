@@ -238,13 +238,23 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
          * PS：如果是会签节点，会多出一个变量：String assigneeUserId = data.get("assigneeUserIdList");
          */
         Optional.ofNullable(SpringContextUtils.getHttpServletRequest()).flatMap(request -> Optional.ofNullable((Map<String, String>) request.getAttribute("data"))).ifPresent(data -> {
+            String assignee = taskEntity.getAssignee();
             String nextUserId = data.get("nextUserId");
+            /*
+             * bugfix: 20240825 发现会签节点重复进入后，处理人异常问题，定位会签任务创建源码：org.activiti.engine.impl.bpmn.behavior.MultiInstanceActivityBehavior.executeOriginalBehavior
+             * 发现下面默认处理了：注入目标节点的历史处理人，这里导致会签节点处理人异常了
+             * 当前端选择人为空时，需要先判断默认的assignee是否已存在，有的话直接给nextUserId赋值
+             */
+            if (!StringUtils.hasText(nextUserId)) {
+                nextUserId = assignee;
+            }
+
             // 注入会签人发起人
-            if (StringUtils.isEmpty(nextUserId)) {
+            if (!StringUtils.hasText(nextUserId)) {
                 nextUserId = data.get(taskEntity.getTaskDefinitionKey() + "_sign");
             }
             // 注入目标节点的历史处理人
-            if (StringUtils.isEmpty(nextUserId)) {
+            if (!StringUtils.hasText(nextUserId)) {
                 nextUserId = data.get(taskEntity.getTaskDefinitionKey() + "_historic");
             }
             // 是否用前端选择后的处理人，覆盖默认配置的处理人
@@ -272,9 +282,8 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
                 }
             }
             // 最终的默认人判断
-            String assignee = taskEntity.getAssignee();
             Set<IdentityLink> candidates = taskEntity.getCandidates();
-            if (StringUtils.hasText(nextUserId) && StringUtils.isEmpty(assignee) && candidates.size() == 0) {
+            if (StringUtils.hasText(nextUserId) && !StringUtils.hasText(assignee) && candidates.isEmpty()) {
                 String[] userIds = nextUserId.split(",");
                 taskEntity.setAssignee(userIds[0]);
             }
