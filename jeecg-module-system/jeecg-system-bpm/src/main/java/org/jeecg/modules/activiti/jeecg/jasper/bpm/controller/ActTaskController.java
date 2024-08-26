@@ -30,6 +30,7 @@ import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
@@ -1038,7 +1039,7 @@ public class ActTaskController {
             String var4 = oConvertUtils.getString((String)var1.get("processInstanceId"));
             ProcessInstance var5 = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(var4).singleResult();
             this.runtimeService.setVariable(var5.getProcessInstanceId(), org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.z);
-            this.runtimeService.deleteProcessInstance(var4, "发起人流程追回");
+            this.runtimeService.deleteProcessInstance(var4, CommonConstant.BPM_REASON_CALLBACK);
             var3.success("追回成功");
         } catch (Exception var6) {
             var6.printStackTrace();
@@ -1062,7 +1063,7 @@ public class ActTaskController {
             String var8 = var7.getProcessInstId();
             ProcessInstance var9 = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(var8).singleResult();
             this.runtimeService.setVariable(var9.getProcessInstanceId(), org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.z);
-            this.runtimeService.deleteProcessInstance(var8, "发起人流程追回");
+            this.runtimeService.deleteProcessInstance(var8, CommonConstant.BPM_REASON_CALLBACK);
             var3.success("追回成功");
         } catch (Exception var10) {
             var10.printStackTrace();

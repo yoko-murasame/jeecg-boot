@@ -12,6 +12,7 @@ import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.ActivitiEventType;
 import org.activiti.engine.delegate.event.impl.ActivitiEntityEventImpl;
+import org.activiti.engine.delegate.event.impl.ActivitiProcessCancelledEventImpl;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
@@ -35,13 +36,14 @@ import org.jeecg.modules.extbpm.process.mapper.ExtActFlowDataMapper;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
 import org.jeecg.modules.extbpm.process.pojo.DesignFormDataDTO;
 import org.jeecg.modules.extbpm.process.service.IExtActBpmLogService;
+import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
 import org.jeecg.modules.extbpm.process.service.IExtActProcessService;
 import org.jeecg.modules.workflow.service.IOaTodoService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
@@ -154,6 +156,13 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         return repositoryService;
     }
 
+    public IExtActFlowDataService getExtActFlowDataService() {
+        if (null == extActFlowDataService) {
+            extActFlowDataService = SpringContextUtils.getBean(IExtActFlowDataService.class);
+        }
+        return extActFlowDataService;
+    }
+
     private CommonAPI baseApi;
 
     private TaskService taskService;
@@ -161,6 +170,8 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     private RuntimeService runtimeService;
 
     private RepositoryService repositoryService;
+
+    private IExtActFlowDataService extActFlowDataService;
     /**所有的第三方Service，必须采用懒加载方式-------END--------**/
 
     /**流程中可能会需要使用到的变量数据-----BEGIN-----**/
@@ -215,6 +226,16 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         this.installNextUserIdAfterHistoric(taskEntity, eventImpl);
         // 节点创建时，从request域读取并注入处理人
         this.installNextUserIdByDefault(taskEntity, eventImpl);
+    }
+
+    protected void installVariables(ExecutionEntity execution) {
+        this.BPM_DATA_ID = execution.getBusinessKey();
+        this.businessKey = execution.getBusinessKey();
+        this.variables = execution.getVariables();
+        this.BPM_FORM_KEY = (String) execution.getVariable(WorkFlowGlobals.BPM_FORM_KEY);
+        this.BPM_FORM_BUSINESSKEY = (String) execution.getVariable(WorkFlowGlobals.BPM_FORM_BUSINESSKEY);
+        this.bpm_biz_title = (String) execution.getVariable(WorkFlowGlobals.BPM_BIZ_TITLE);
+        this.BPM_FORM_CONTENT_URL = (String) execution.getVariable(WorkFlowGlobals.BPM_FORM_CONTENT_URL);
     }
 
     /**
@@ -435,16 +456,13 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
             TaskEntity taskEntity = (TaskEntity) eventImpl.getEntity();
             String processDefinitionName = taskEntity.getProcessInstance().getProcessDefinition().getName();
             String processDefinitionKey = taskEntity.getProcessInstance().getProcessDefinition().getKey();
-            if (StringUtils.hasText(name) && processDefinitionName.contains(name)) {
-                log.info("流程名称：{}，生命周期:任务创建，开始时间：{}", name, LocalDateTime.now().format(formatter));
+            if ((StringUtils.hasText(name) && processDefinitionName.contains(name)) || (StringUtils.hasText(key) && processDefinitionKey.contains(key))) {
+                StopWatch watch = new StopWatch();
+                watch.start();
                 this.installVariables(taskEntity, eventImpl);
                 this.customTaskCreatedHandler(taskEntity);
-                log.info("流程名称：{}，生命周期:任务创建，结束时间：{}", name, LocalDateTime.now().format(formatter));
-            } else if (StringUtils.hasText(key) && processDefinitionKey.contains(key)) {
-                log.info("流程名称：{}，生命周期:任务创建，开始时间：{}", name, LocalDateTime.now().format(formatter));
-                this.installVariables(taskEntity, eventImpl);
-                this.customTaskCreatedHandler(taskEntity);
-                log.info("流程名称：{}，生命周期:任务创建，结束时间：{}", name, LocalDateTime.now().format(formatter));
+                watch.stop();
+                log.info("流程名称：{}，{} === 实例ID：{} === 任务创建：{}，处理人：{} === 耗时：{} 毫秒", name, key, taskEntity.getProcessInstanceId(), taskEntity.getName(), taskEntity.getAssignee(), watch.getTotalTimeMillis());
             }
         }
     }
@@ -464,16 +482,13 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
             TaskEntity taskEntity = (TaskEntity) eventImpl.getEntity();
             String processDefinitionName = taskEntity.getProcessInstance().getProcessDefinition().getName();
             String processDefinitionKey = taskEntity.getProcessInstance().getProcessDefinition().getKey();
-            if (StringUtils.hasText(name) && processDefinitionName.contains(name)) {
-                log.info("流程名称：{}，生命周期:任务完成，开始时间：{}", name, LocalDateTime.now().format(formatter));
+            if ((StringUtils.hasText(name) && processDefinitionName.contains(name)) || (StringUtils.hasText(key) && processDefinitionKey.contains(key))) {
+                StopWatch watch = new StopWatch();
+                watch.start();
                 this.installVariables(taskEntity, eventImpl);
                 this.customTaskCompletedHandler(taskEntity);
-                log.info("流程名称：{}，生命周期:任务完成，结束时间：{}", name, LocalDateTime.now().format(formatter));
-            } else if (StringUtils.hasText(key) && processDefinitionKey.contains(key)) {
-                log.info("流程名称：{}，生命周期:任务完成，开始时间：{}", name, LocalDateTime.now().format(formatter));
-                this.installVariables(taskEntity, eventImpl);
-                this.customTaskCompletedHandler(taskEntity);
-                log.info("流程名称：{}，生命周期:任务完成，结束时间：{}", name, LocalDateTime.now().format(formatter));
+                watch.stop();
+                log.info("流程名称：{}，{} === 实例ID：{} === 任务完成：{}，处理人：{} === 耗时：{} 毫秒", name, key, taskEntity.getProcessInstanceId(), taskEntity.getName(), taskEntity.getAssignee(), watch.getTotalTimeMillis());
             }
         }
     }
@@ -493,16 +508,16 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
             ExecutionEntity executionEntity = (ExecutionEntity) eventImpl.getEntity();
             String processDefinitionName = executionEntity.getProcessDefinition().getName();
             String processDefinitionKey = executionEntity.getProcessDefinition().getKey();
-            if (StringUtils.hasText(name) && processDefinitionName.contains(name)) {
-                log.info("流程名称：{}，生命周期:流程完成，开始时间：{}", name, LocalDateTime.now().format(formatter));
+            // 设置变量
+            ExecutionEntity execution = (ExecutionEntity) this.getRuntimeService().createExecutionQuery().executionId(event.getExecutionId()).singleResult();
+            this.installVariables(execution);
+            if ((StringUtils.hasText(name) && processDefinitionName.contains(name)) || (StringUtils.hasText(key) && processDefinitionKey.contains(key))) {
+                StopWatch watch = new StopWatch();
+                watch.start();
                 this.customProcessCompletedHandler(executionEntity);
                 this.doUpdateStatus(executionEntity);
-                log.info("流程名称：{}，生命周期:流程完成，结束时间：{}", name, LocalDateTime.now().format(formatter));
-            } else if (StringUtils.hasText(key) && processDefinitionKey.contains(key)) {
-                log.info("流程名称：{}，生命周期:流程完成，开始时间：{}", name, LocalDateTime.now().format(formatter));
-                this.customProcessCompletedHandler(executionEntity);
-                this.doUpdateStatus(executionEntity);
-                log.info("流程名称：{}，生命周期:流程完成，结束时间：{}", name, LocalDateTime.now().format(formatter));
+                watch.stop();
+                log.info("流程名称：{}，{} === 实例ID：{} === 流程完成 === 耗时：{} 毫秒", name, key, event.getProcessInstanceId(), watch.getTotalTimeMillis());
             }
         }
     }
@@ -519,17 +534,48 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         String key = this.getBindProcessDefinitionKey();
         ProcessDefinition processDefinition =
                 this.getRepositoryService().getProcessDefinition(event.getProcessDefinitionId());
-        if (name.contains(processDefinition.getName()) || key.contains(processDefinition.getKey())) {
-            if (ActivitiEventType.PROCESS_CANCELLED == event.getType()) {
-                log.info("流程名称：{}，流程编码：{}，生命周期:Process流程取消，开始时间：{}", name, key, LocalDateTime.now().format(formatter));
-                this.customProcessCancelledHandler(event);
-                log.info("流程名称：{}，流程编码：{}，生命周期:Process流程取消，结束时间：{}", name, key, LocalDateTime.now().format(formatter));
+        if (null == processDefinition) {
+            log.warn("流程名称：{}，{} === 实例ID：{} === Process流程取消 === 流程不存在", name, key, event.getProcessInstanceId());
+            return;
+        }
+        String processDefinitionName = processDefinition.getName();
+        String processDefinitionKey = processDefinition.getKey();
+        if ((StringUtils.hasText(name) && processDefinitionName.contains(name)) || (StringUtils.hasText(key) && processDefinitionKey.contains(key)))  {
 
+            if (ActivitiEventType.PROCESS_CANCELLED == event.getType()) {
+                // 由于快速完成流程、取回流程也会进入这个生命周期钩子，因此需要根据原因去执行特定逻辑
+                String reason = ((ActivitiProcessCancelledEventImpl) event).getCause().toString();
+                ExecutionEntity execution = (ExecutionEntity) this.getRuntimeService().createExecutionQuery().executionId(event.getExecutionId()).singleResult();
+                // 设置变量
+                this.installVariables(execution);
+                // 流程追回执行自定义业务后，强制删除extFlowData的关联记录
+                StopWatch watch = new StopWatch();
+                watch.start();
+                if (reason.contains(CommonConstant.BPM_REASON_CALLBACK)) {
+
+                    this.customProcessCancelledHandler(event);
+                    // 虽然取回接口里有逻辑，但是防止非取回接口中调用的流程取回为更新关联extFlowData表
+                    LambdaQueryWrapper<ExtActFlowData> lqr = new LambdaQueryWrapper<ExtActFlowData>()
+                            .eq(ExtActFlowData::getProcessInstId, event.getProcessInstanceId());
+                    this.getExtActFlowDataService().remove(lqr);
+                    watch.stop();
+                    log.info("流程名称：{}，{} === 实例ID：{} === 流程追回 === 耗时：{} 毫秒", name, key, event.getProcessInstanceId(), watch.getTotalTimeMillis());
+                } // 快速完成流程，走流程完成的调用
+                else if (reason.contains(CommonConstant.BPM_REASON_QUICK_FINISH)) {
+                    watch.stop();
+                    // 走流程完成逻辑
+                    this.customProcessCompletedHandler(execution);
+                    log.info("流程名称：{}，{} === 实例ID：{} === 快速完成流程 === 耗时：{} 毫秒", name, key, event.getProcessInstanceId(), watch.getTotalTimeMillis());
+                } else {
+                    // 走默认的流程取消逻辑
+                    this.customProcessCancelledHandler(event);
+                    watch.stop();
+                    log.info("流程名称：{}，{} === 实例ID：{} === Process流程取消 === 耗时：{} 毫秒", name, key, event.getProcessInstanceId(), watch.getTotalTimeMillis());
+                }
             }
+            // TODO 暂时没有被默认注册事件，待实现
             if (ActivitiEventType.ACTIVITY_CANCELLED == event.getType()) {
-                log.info("流程名称：{}，流程编码：{}，生命周期:Activity流程取消，开始时间：{}", name, key, LocalDateTime.now().format(formatter));
                 this.customProcessCancelledHandler(event);
-                log.info("流程名称：{}，流程编码：{}，生命周期:Activity流程取消，结束时间：{}", name, key, LocalDateTime.now().format(formatter));
             }
         }
     }

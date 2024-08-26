@@ -612,4 +612,15 @@ public interface CommonConstant {
      * 系统树型字典 根节点标识
      */
     String SYS_DICT_ITEM_ROOT_FLAG = "";
+
+    /**
+     * 流程取回原因
+     */
+    String BPM_REASON_CALLBACK = "发起人流程追回";
+
+    /**
+     * 流程直接完成原因
+     */
+    String BPM_REASON_QUICK_FINISH = "直接完成流程";
+
 }

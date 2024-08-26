@@ -23,6 +23,7 @@ import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.jeecg.common.api.dto.message.BusTemplateMessageDTO;
 import org.jeecg.common.api.dto.message.TemplateDTO;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
@@ -690,25 +691,24 @@ public class BpmCommonService {
                 extActFlowDataService.list(new LambdaQueryWrapper<ExtActFlowData>().eq(ExtActFlowData::getFormDataId,
                         id));
 
-        try {
-            if (!extActFlowData.isEmpty()) {
-                for (ExtActFlowData flowData : extActFlowData) {
-                    String processInstId = flowData.getProcessInstId();
-                    RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
-                    ProcessInstance processInstance =
-                            runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
-                    if (null != processInstance) {
-                        runtimeService.setVariable(processInstance.getProcessInstanceId(),
-                                org.jeecg.modules.extbpm.process.common.a.q,
-                                org.jeecg.modules.extbpm.process.common.a.e);
-                        runtimeService.deleteProcessInstance(processInstId, "管理员-直接完成流程");
-                        // 清除OA待办消息
-                        // SpringContextUtils.getBean(RsaUtils.class).finishTodo(processInstId);
-                    }
+        if (!extActFlowData.isEmpty()) {
+            for (ExtActFlowData flowData : extActFlowData) {
+                // 先删流程示例
+                String processInstId = flowData.getProcessInstId();
+                RuntimeService runtimeService = SpringContextUtils.getBean(RuntimeService.class);
+                ProcessInstance processInstance =
+                        runtimeService.createProcessInstanceQuery().processInstanceId(processInstId).singleResult();
+                if (null != processInstance) {
+                    runtimeService.setVariable(processInstance.getProcessInstanceId(),
+                            org.jeecg.modules.extbpm.process.common.a.q,
+                            org.jeecg.modules.extbpm.process.common.a.e);
+                    // 流程示例删除失败，异常就抛出去
+                    runtimeService.deleteProcessInstance(processInstId, CommonConstant.BPM_REASON_QUICK_FINISH);
+                    // 清除OA待办消息
+                    // SpringContextUtils.getBean(RsaUtils.class).finishTodo(processInstId);
                 }
             }
-        } catch (Exception e) {}
-
+        }
         // 再完成jeecg里的流转数据
         if (!extActFlowData.isEmpty()) {
             // 新的逻辑：更新流转数据bpm状态值，然后更新业务数据表
@@ -718,7 +718,7 @@ public class BpmCommonService {
             // 业务表
             String formTableName = flowData.getFormTableName();
             String bpmStatusField = flowData.getBpmStatusField();
-            if (StringUtils.isEmpty(bpmStatusField)) {
+            if (!StringUtils.hasText(bpmStatusField)) {
                 bpmStatusField = "bpm_status";
             }
             extActProcessMapper.updateBpmStatusById(formTableName, id, bpmStatusField, "3");
@@ -754,7 +754,7 @@ public class BpmCommonService {
                     runtimeService.setVariable(processInstance.getProcessInstanceId(),
                             org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.z);
                     try {
-                        runtimeService.deleteProcessInstance(processInstId, "发起人流程追回");
+                        runtimeService.deleteProcessInstance(processInstId, CommonConstant.BPM_REASON_CALLBACK);
                     } catch (Exception e) {
                         log.error(e.getMessage());
                     }
