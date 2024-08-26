@@ -357,7 +357,7 @@ public class BpmCommonService {
             result.setResult(processInstance.getProcessInstanceId());
         } catch (ActivitiException exception) {
             activitiException = exception;
-            String msg = "启动流程失败";
+            String msg = "启动流程失败！";
             if (exception.getMessage().contains("no processes deployed with key")) {
                 msg = "没有部署流程!,请在流程配置中部署流程!";
             } else if (exception.getMessage().contains("Error while evaluating expression")) {
@@ -367,6 +367,8 @@ public class BpmCommonService {
                     msg = msg + activitiException.getCause().getCause().getMessage();
                 } catch (Exception ignored) {
                 }
+            } else if (StringUtils.hasText(exception.getMessage())) {
+                msg = msg + exception.getMessage();
             } else {
                 msg = "启动流程失败!请确认流程和表单是否关联!";
             }
