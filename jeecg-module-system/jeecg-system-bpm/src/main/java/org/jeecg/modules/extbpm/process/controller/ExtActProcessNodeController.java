@@ -18,6 +18,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.bpm.service.ActivitiService;
@@ -26,10 +27,7 @@ import org.jeecg.modules.extbpm.process.entity.ExtActProcessNode;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcessNodeDeployment;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcessNodePermission;
 import org.jeecg.modules.extbpm.process.pojo.BizTaskDTO;
-import org.jeecg.modules.extbpm.process.service.IExtActFlowDataService;
-import org.jeecg.modules.extbpm.process.service.IExtActProcessNodeDeploymentService;
-import org.jeecg.modules.extbpm.process.service.IExtActProcessNodePermissionService;
-import org.jeecg.modules.extbpm.process.service.IExtActProcessNodeService;
+import org.jeecg.modules.extbpm.process.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +42,8 @@ public class ExtActProcessNodeController {
     private static final Logger a = LoggerFactory.getLogger(ExtActProcessNodeController.class);
     @Autowired
     private IExtActProcessNodeService extActProcessNodeService;
+    @Autowired
+    private IExtActProcessFormService extActProcessFormService;
     @Autowired
     private ActivitiService activitiService;
     @Autowired
@@ -157,6 +157,12 @@ public class ExtActProcessNodeController {
         variables.put("BPM_PROC_DEF_ID", processDefinitionId);
         String BPM_FORM_CONTENT_URL = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.o);
         String BPM_FORM_CONTENT_URL_MOBILE = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.p);
+        String BPM_FORM_TYPE = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.t);
+        // 如果组件类型是KForm，默认给KForm的组件
+        if (Objects.equals(BPM_FORM_TYPE, CommonConstant.DESIGN_FORM_TYPE_SUB + "")) {
+            BPM_FORM_CONTENT_URL = CommonConstant.KFORM_DESIGN_MODULE;
+        }
+
         LambdaQueryWrapper<ExtActProcessNodeDeployment> deploymentLambdaQueryWrapper;
         ExtActProcessNodeDeployment deployment;
         if (oConvertUtils.isEmpty(BPM_FORM_CONTENT_URL) || oConvertUtils.isEmpty(BPM_FORM_CONTENT_URL_MOBILE)) {

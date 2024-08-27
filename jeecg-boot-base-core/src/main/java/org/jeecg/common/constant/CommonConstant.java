@@ -623,4 +623,9 @@ public interface CommonConstant {
      */
     String BPM_REASON_QUICK_FINISH = "直接完成流程";
 
+    /**
+     * KForm设计器流程审批表单
+     */
+    String KFORM_DESIGN_MODULE = "modules/online/cgform/auto/KFormBpmForm";
+
 }
