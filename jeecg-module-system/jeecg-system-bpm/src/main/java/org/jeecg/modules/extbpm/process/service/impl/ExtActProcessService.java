@@ -47,8 +47,8 @@ import java.util.Map.Entry;
 
 //ImplK 的
 @Service("extActProcessService")
-public class k extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implements IExtActProcessService {
-    private static final Logger a = LoggerFactory.getLogger(k.class);
+public class ExtActProcessService extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implements IExtActProcessService {
+    private static final Logger a = LoggerFactory.getLogger(ExtActProcessService.class);
     @Autowired
     private ExtActProcessMapper extActProcessMapper;
     @Autowired
@@ -73,7 +73,7 @@ public class k extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implement
     @Lazy
     private RedisUtil redisUtil;
 
-    public k() {
+    public ExtActProcessService() {
     }
 
     public List<UserInfo> getBpmUsers() {
@@ -92,26 +92,30 @@ public class k extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implement
             rollbackFor = {Exception.class}
     )
     public void deployProcess(ExtActProcess extActProcess) throws Exception {
-        Deployment var2 = this.repositoryService.createDeployment().addInputStream(extActProcess.getProcessKey() + ".bpmn", MyStreamUtils.byteTOInputStream(extActProcess.getProcessXml())).name(extActProcess.getProcessKey()).deploy();
+        Deployment actDeployment = this.repositoryService.createDeployment().addInputStream(extActProcess.getProcessKey() + ".bpmn", MyStreamUtils.byteTOInputStream(extActProcess.getProcessXml())).name(extActProcess.getProcessKey()).deploy();
         extActProcess.setProcessStatus(org.jeecg.modules.extbpm.process.common.a.b);
-        LambdaQueryWrapper<ExtActProcessNode> var3 = new LambdaQueryWrapper<>();
-        var3.eq(ExtActProcessNode::getProcessId, extActProcess.getId());
-        List var4 = this.extActProcessNodeMapper.selectList(var3);
-        if (var4 != null && var4.size() > 0) {
-            Iterator var5 = var4.iterator();
-
-            while(var5.hasNext()) {
-                ExtActProcessNode var6 = (ExtActProcessNode)var5.next();
-                ExtActProcessNodeDeployment var7 = new ExtActProcessNodeDeployment();
-                var7.setDeploymentId(var2.getId());
-                var7.setFormId(var6.getFormId());
-                var7.setModelAndView(var6.getModelAndView());
-                var7.setModelAndViewMobile(var6.getModelAndViewMobile());
-                var7.setNodeTimeout(var6.getNodeTimeout());
-                var7.setProcessId(var6.getProcessId());
-                var7.setProcessNodeCode(var6.getProcessNodeCode());
-                var7.setProcessNodeName(var6.getProcessNodeName());
-                this.extActProcessNodeDeploymentMapper.insert(var7);
+        LambdaQueryWrapper<ExtActProcessNode> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ExtActProcessNode::getProcessId, extActProcess.getId());
+        List<ExtActProcessNode> extActProcessNodes = this.extActProcessNodeMapper.selectList(queryWrapper);
+        if (extActProcessNodes != null && !extActProcessNodes.isEmpty()) {
+            for (ExtActProcessNode node : extActProcessNodes) {
+                ExtActProcessNodeDeployment deployment = new ExtActProcessNodeDeployment();
+                deployment.setDeploymentId(actDeployment.getId());
+                deployment.setFormId(node.getFormId());
+                deployment.setModelAndView(node.getModelAndView());
+                deployment.setModelAndViewMobile(node.getModelAndViewMobile());
+                deployment.setNodeTimeout(node.getNodeTimeout());
+                deployment.setProcessId(node.getProcessId());
+                deployment.setProcessNodeCode(node.getProcessNodeCode());
+                deployment.setProcessNodeName(node.getProcessNodeName());
+                // 新增online表配置
+                deployment.setModelAndViewType(node.getModelAndViewType());
+                deployment.setShowTask(node.getShowTask());
+                deployment.setShowProcess(node.getShowProcess());
+                deployment.setOnlineCode(node.getOnlineCode());
+                deployment.setOnlineFormConfig(node.getOnlineFormConfig());
+                deployment.setOnlineInitQueryParamGetter(node.getOnlineInitQueryParamGetter());
+                this.extActProcessNodeDeploymentMapper.insert(deployment);
             }
         }
 
@@ -430,90 +434,97 @@ public class k extends ServiceImpl<ExtActProcessMapper, ExtActProcess> implement
         return this.extActProcessMapper.getProcessKeysByProcessName(processName);
     }
 
+    /**
+     * 保存流程
+     *
+     * @author Yoko
+     * @since 2024/8/27 11:12
+     * @param request 请求
+     * @return org.jeecgframework.designer.vo.AjaxJson
+     */
     @Transactional(
             rollbackFor = {Exception.class}
     )
     public AjaxJson saveProcess(HttpServletRequest request) throws Exception {
-        AjaxJson var2 = new AjaxJson();
-        String var3 = oConvertUtils.getString(request.getParameter("processDefinitionId"));
-        String var4 = oConvertUtils.getString(request.getParameter("processDescriptor"));
-        String var5 = oConvertUtils.getString(request.getParameter("processName"));
-        String var6 = oConvertUtils.getString(request.getParameter("processkey"));
-        String var7 = oConvertUtils.getString(request.getParameter("params"));
-        String var8 = oConvertUtils.getString(request.getParameter("nodes"));
-        String var9 = oConvertUtils.getString(request.getParameter("typeid"));
-        String var10 = oConvertUtils.getString(request.getParameter("token"));
-        a.info(" saveProcess 登录令牌token： " + var10);
+        AjaxJson result = new AjaxJson();
+        String processDefinitionId = oConvertUtils.getString(request.getParameter("processDefinitionId"));
+        String processDescriptor = oConvertUtils.getString(request.getParameter("processDescriptor"));
+        String processName = oConvertUtils.getString(request.getParameter("processName"));
+        String processKey = oConvertUtils.getString(request.getParameter("processkey"));
+        String params = oConvertUtils.getString(request.getParameter("params"));
+        String nodes = oConvertUtils.getString(request.getParameter("nodes"));
+        String typeid = oConvertUtils.getString(request.getParameter("typeid"));
+        String token = oConvertUtils.getString(request.getParameter("token"));
+        a.info(" saveProcess 登录令牌token： " + token);
         TokenUtils.verifyToken(request, this.sysBaseAPI, this.redisUtil);
-        DesUtils.checkNodeDuplicate(var8);
-        a.info(" processDefinitionId ：" + var3);
-        a.info(" processDescriptor ：" + var4);
-        ExtActProcess var11 = (ExtActProcess)this.extActProcessMapper.selectById(var3);
-        LambdaQueryWrapper<ExtActProcess> var12;
-        if ("0".equals(var3) && var11 == null) {
-            var12 = new LambdaQueryWrapper<>();
-            var12.eq(ExtActProcess::getProcessKey, var6);
-            var11 = (ExtActProcess)this.extActProcessMapper.selectOne(var12);
+        DesUtils.checkNodeDuplicate(nodes);
+        a.info(" processDefinitionId ：" + processDefinitionId);
+        a.info(" processDescriptor ：" + processDescriptor);
+        ExtActProcess extActProcess = (ExtActProcess)this.extActProcessMapper.selectById(processDefinitionId);
+        LambdaQueryWrapper<ExtActProcess> queryWrapper;
+        if ("0".equals(processDefinitionId) && extActProcess == null) {
+            queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ExtActProcess::getProcessKey, processKey);
+            extActProcess = (ExtActProcess)this.extActProcessMapper.selectOne(queryWrapper);
         }
 
-        if (var11 != null) {
-            var11.setProcessName(var5);
-            var11.setProcessKey(var6);
-            var12 = new LambdaQueryWrapper();
-            var12.eq(ExtActProcess::getProcessKey, var6);
-            ExtActProcess var13 = (ExtActProcess)this.extActProcessMapper.selectOne(var12);
-            if (var13 != null && !"0".equals(var3) && oConvertUtils.isNotEmpty(var3) && !var3.equals(var13.getId())) {
-                var2.setMsg("保存流程失败，流程ID重复！");
-                var2.setSuccess(false);
-                return var2;
+        if (extActProcess != null) {
+            extActProcess.setProcessName(processName);
+            extActProcess.setProcessKey(processKey);
+            queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ExtActProcess::getProcessKey, processKey);
+            ExtActProcess process = (ExtActProcess)this.extActProcessMapper.selectOne(queryWrapper);
+            if (process != null && !"0".equals(processDefinitionId) && oConvertUtils.isNotEmpty(processDefinitionId) && !processDefinitionId.equals(process.getId())) {
+                result.setMsg("保存流程失败，流程ID重复！");
+                result.setSuccess(false);
+                return result;
             }
 
-            if (StringUtils.isNotEmpty(var9)) {
-                var11.setProcessType(var9);
+            if (StringUtils.isNotEmpty(typeid)) {
+                extActProcess.setProcessType(typeid);
             }
 
-            var11.setProcessXml(MyStreamUtils.StringTObyte(var4));
-            this.extActProcessMapper.updateById(var11);
-            var2.setMsg("流程修改成功");
+            extActProcess.setProcessXml(MyStreamUtils.StringTObyte(processDescriptor));
+            this.extActProcessMapper.updateById(extActProcess);
+            result.setMsg("流程修改成功");
         } else {
-            var11 = new ExtActProcess();
-            var11.setProcessName(var5);
-            var11.setProcessKey(var6);
-            if (StringUtils.isNotEmpty(var9)) {
-                var11.setProcessType(var9);
+            extActProcess = new ExtActProcess();
+            extActProcess.setProcessName(processName);
+            extActProcess.setProcessKey(processKey);
+            if (StringUtils.isNotEmpty(typeid)) {
+                extActProcess.setProcessType(typeid);
             }
 
-            var11.setProcessXml(MyStreamUtils.StringTObyte(var4));
-            var11.setProcessStatus(org.jeecg.modules.extbpm.process.common.a.a);
-            this.extActProcessMapper.insert(var11);
-            var2.setMsg("流程创建成功");
-            var2.setObj(var11.getId());
+            extActProcess.setProcessXml(MyStreamUtils.StringTObyte(processDescriptor));
+            extActProcess.setProcessStatus(org.jeecg.modules.extbpm.process.common.a.a);
+            this.extActProcessMapper.insert(extActProcess);
+            result.setMsg("流程创建成功");
+            result.setObj(extActProcess.getId());
         }
 
-        if (var8 != null && var8.length() > 3) {
-            String[] var18 = var8.split("@@@");
-
-            for(int var19 = 0; var19 < var18.length; ++var19) {
-                ExtActProcessNode var14 = null;
-                String[] var15 = var18[var19].split("###");
-                String var16 = var15[0].substring(3);
-                String var17 = var15[1].substring(9);
-                var14 = this.extActProcessNodeMapper.queryByNodeCodeAndProcessKey(var6, var16);
-                if (var14 == null) {
-                    var14 = new ExtActProcessNode();
-                    var14.setProcessNodeCode(var16);
-                    var14.setProcessNodeName(var17);
-                    var14.setProcessId(var11.getId());
-                    this.extActProcessNodeMapper.insert(var14);
+        if (nodes != null && nodes.length() > 3) {
+            String[] nodesText = nodes.split("@@@");
+            // 同步流程图的节点到extActProcessNode
+            for(int idx = 0; idx < nodesText.length; ++idx) {
+                ExtActProcessNode node = null;
+                String[] codeAndName = nodesText[idx].split("###");
+                String nodeCode = codeAndName[0].substring(3);
+                String nodeName = codeAndName[1].substring(9);
+                node = this.extActProcessNodeMapper.queryByNodeCodeAndProcessKey(processKey, nodeCode);
+                if (node == null) {
+                    node = new ExtActProcessNode();
+                    node.setProcessNodeCode(nodeCode);
+                    node.setProcessNodeName(nodeName);
+                    node.setProcessId(extActProcess.getId());
+                    this.extActProcessNodeMapper.insert(node);
                 } else {
-                    var14.setProcessNodeCode(var16);
-                    var14.setProcessNodeName(var17);
-                    var14.setProcessId(var11.getId());
-                    this.extActProcessNodeMapper.updateById(var14);
+                    node.setProcessNodeCode(nodeCode);
+                    node.setProcessNodeName(nodeName);
+                    node.setProcessId(extActProcess.getId());
+                    this.extActProcessNodeMapper.updateById(node);
                 }
             }
         }
-
-        return var2;
+        return result;
     }
 }

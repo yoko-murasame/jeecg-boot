@@ -442,11 +442,15 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
 		//1.分割sql获取表名 和 条件sql
 		String filterSql = null;
-		if(table.toLowerCase().indexOf("where")!=-1){
-			String[] arr = table.split(" (?i)where ");
-			table = arr[0];
-			filterSql = arr[1];
-		}
+		if(table.toLowerCase().contains("where")){
+            try {
+                String[] arr = table.split(" (?i)where ");
+                table = arr[0];
+                filterSql = arr[1];
+            } catch (Exception e) {
+                throw new RuntimeException("字典查询::queryTableDictByKeys::table参数格式错误: " + table, e.getCause());
+            }
+        }
 
 		// 2.SQL注入check
 		SqlInjectionUtil.filterContent(table, text, code);

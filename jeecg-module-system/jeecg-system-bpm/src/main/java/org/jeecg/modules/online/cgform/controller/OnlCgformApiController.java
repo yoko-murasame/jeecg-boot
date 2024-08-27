@@ -122,7 +122,7 @@ public class OnlCgformApiController {
     @OnlineAuth("getColumns")
     @GetMapping({"/getColumns/{code}"})
     public Result<OnlComplexModel> a(@PathVariable("code") String var1) {
-        Result result = new Result();
+        Result<OnlComplexModel> result = new Result<>();
         OnlCgformHead onlCgformHead = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
         if (onlCgformHead == null) {
             result.error500("实体不存在");
@@ -137,10 +137,9 @@ public class OnlCgformApiController {
                     .eq(ExtActProcessForm::getFormTableName,onlCgformHead.getTableName()));
             if(extActProcessForm!=null){
                 onlComplexModel.setBpmCirculate(extActProcessForm.getCirculate());
-            }else {
+            } else {
                 onlComplexModel.setBpmCirculate(false);
             }
-
             result.setResult(onlComplexModel);
             result.setOnlTable(onlCgformHead.getTableName());
             return result;

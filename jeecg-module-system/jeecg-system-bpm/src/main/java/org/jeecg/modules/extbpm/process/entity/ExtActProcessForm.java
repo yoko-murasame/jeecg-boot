@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 @TableName("ext_act_process_form")
 public class ExtActProcessForm implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -14940371239459038L;
     @TableId(
             type = IdType.ASSIGN_ID
     )
@@ -23,6 +23,7 @@ public class ExtActProcessForm implements Serializable {
     private String titleExp;
     private String formDealStyle;
     private String flowStatusCol;
+    // 是否循环发起流程
     private Boolean circulate;
 
 }
