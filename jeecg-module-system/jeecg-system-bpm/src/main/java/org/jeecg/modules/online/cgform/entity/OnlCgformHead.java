@@ -73,4 +73,12 @@ public class OnlCgformHead implements Serializable {
      */
     private String dataRulePerms;
 
+    /**
+     * 数据初始化JS增强
+     *
+     * @author Yoko
+     * @since 2024/8/28 10:12
+     */
+    private String onlineInitQueryParamGetter;
+
 }

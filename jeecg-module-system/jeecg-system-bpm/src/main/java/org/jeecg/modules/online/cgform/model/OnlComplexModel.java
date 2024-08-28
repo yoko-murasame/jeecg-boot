@@ -37,4 +37,7 @@ public class OnlComplexModel implements Serializable {
     // 是否循环发起流程
     private Boolean bpmCirculate;
 
+    // 数据初始化JS增强
+    private String onlineInitQueryParamGetter;
+
 }

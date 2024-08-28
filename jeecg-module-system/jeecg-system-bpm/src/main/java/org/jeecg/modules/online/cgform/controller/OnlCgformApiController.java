@@ -140,6 +140,8 @@ public class OnlCgformApiController {
             } else {
                 onlComplexModel.setBpmCirculate(false);
             }
+            // 数据初始化JS增强
+            onlComplexModel.setOnlineInitQueryParamGetter(onlCgformHead.getOnlineInitQueryParamGetter());
             result.setResult(onlComplexModel);
             result.setOnlTable(onlCgformHead.getTableName());
             return result;
