@@ -37,5 +37,9 @@ public class ExtActProcessNodeDeployment implements Serializable {
     private String onlineFormConfig;
     // Online查询筛选参数获取器（JS增强支持await）
     private String onlineInitQueryParamGetter;
+    // 是否显示驳回按钮
+    private Boolean showReject;
+    // 自定义任务处理模块
+    private String customTaskModule;
 
 }

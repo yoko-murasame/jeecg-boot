@@ -228,13 +228,15 @@ public class ExtActProcessNodeController {
             resMap.put("showTask", deployment.getShowTask());
             resMap.put("showProcess", deployment.getShowProcess());
             resMap.put("onlineCode", deployment.getOnlineCode());
-            resMap.put("onlineInitQueryParamGetter", deployment.getOnlineInitQueryParamGetter());
             try {
                 resMap.put("onlineFormConfig", JSON.parse(deployment.getOnlineFormConfig()));
             } catch (Exception e) {
                 resMap.put("onlineFormConfig", new HashMap<String, Object>());
                 a.warn("onlineFormConfig解析JSON失败: {}", deployment.getOnlineFormConfig());
             }
+            resMap.put("onlineInitQueryParamGetter", deployment.getOnlineInitQueryParamGetter());
+            resMap.put("showReject", deployment.getShowReject());
+            resMap.put("customTaskModule", deployment.getCustomTaskModule());
         }
 
         result.setResult(resMap);

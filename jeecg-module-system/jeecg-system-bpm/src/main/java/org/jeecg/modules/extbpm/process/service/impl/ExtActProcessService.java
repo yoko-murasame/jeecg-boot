@@ -115,6 +115,8 @@ public class ExtActProcessService extends ServiceImpl<ExtActProcessMapper, ExtAc
                 deployment.setOnlineCode(node.getOnlineCode());
                 deployment.setOnlineFormConfig(node.getOnlineFormConfig());
                 deployment.setOnlineInitQueryParamGetter(node.getOnlineInitQueryParamGetter());
+                deployment.setShowReject(node.getShowReject());
+                deployment.setCustomTaskModule(node.getCustomTaskModule());
                 this.extActProcessNodeDeploymentMapper.insert(deployment);
             }
         }
@@ -516,6 +518,9 @@ public class ExtActProcessService extends ServiceImpl<ExtActProcessMapper, ExtAc
                     node.setProcessNodeCode(nodeCode);
                     node.setProcessNodeName(nodeName);
                     node.setProcessId(extActProcess.getId());
+                    node.setShowProcess(true);
+                    node.setShowTask(true);
+                    node.setShowReject(false);
                     this.extActProcessNodeMapper.insert(node);
                 } else {
                     node.setProcessNodeCode(nodeCode);
