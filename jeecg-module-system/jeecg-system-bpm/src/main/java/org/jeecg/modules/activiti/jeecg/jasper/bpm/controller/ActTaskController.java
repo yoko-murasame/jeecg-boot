@@ -153,7 +153,10 @@ public class ActTaskController {
 
             while(var6.hasNext()) {
                 Map var7 = (Map)var6.next();
-                var7.put("Transition", "确认提交");
+                // 在没有配置文本时，才给默认值
+                if (StringUtils.isEmpty((String) var7.get("Transition"))) {
+                    var7.put("Transition", "确认提交");
+                }
             }
         }
 
