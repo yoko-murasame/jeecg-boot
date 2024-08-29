@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 
 /* compiled from: EnhanceJsUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/d.class */
-public class d {
-    private static final Logger a = LoggerFactory.getLogger(d.class);
+public class EnhanceJsUtil {
+    private static final Logger a = LoggerFactory.getLogger(EnhanceJsUtil.class);
     private static final String strb = "beforeSubmit,beforeAdd,beforeEdit,afterAdd,afterEdit,beforeDelete,afterDelete,mounted,created,show,loaded";
     private static final String c = "\\}\\s*\r*\n*\\s*";
     private static final String d = ",";
@@ -25,6 +25,9 @@ public class d {
         String str4 = "(" + str2 + "\\s*\\(row\\)\\s*\\{)";
         String str5 = str2 + ":function(that,row){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;";
         String b2 = b(str, c + str4, "}," + str5);
+        // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
+        // String str5 = str2 + "(that,row){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;";
+        // String b2 = b(str, c + str4, "}" + str5);
         if (b2 == null) {
             str3 = c(str, str4, str5);
         } else {
@@ -38,6 +41,9 @@ public class d {
         String str5 = "(" + oConvertUtils.getString(str3) + str2 + "\\s*\\(\\)\\s*\\{)";
         String str6 = str2 + ":function(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;";
         String b2 = b(str, c + str5, "}," + str6);
+        // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
+        // String str6 = str2 + "(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;";
+        // String b2 = b(str, c + str5, "}" + str6);
         if (b2 == null) {
             str4 = c(str, str5, str6);
         } else {
@@ -72,6 +78,9 @@ public class d {
         String str4 = "(\\s+" + str2 + "\\s*\\(\\)\\s*\\{)";
         String str5 = str2 + ":function(that,event){";
         String b2 = b(str, c + str4, "}," + str5);
+        // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
+        // String str5 = str2 + "(that,event){";
+        // String b2 = b(str, c + str4, "}" + str5);
         if (b2 == null) {
             str3 = c(str, str4, str5);
         } else {
@@ -82,12 +91,16 @@ public class d {
 
     public static String a(String str) {
         String str2 = "function OnlineEnhanceJs(getAction,postAction,deleteAction){return {_getAction:getAction,_postAction:postAction,_deleteAction:deleteAction," + str + "}}";
+        // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
+        // String str2 = "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + str + "}";
         a.info("最终的增强JS", str2);
         return str2;
     }
 
     public static String b(String str, List<OnlCgformButton> list) {
         String str2 = "function OnlineEnhanceJs(getAction,postAction,deleteAction){return {_getAction:getAction,_postAction:postAction,_deleteAction:deleteAction," + c(str, list) + "}}";
+        // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
+        // String str2 = "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + c(str, list) + "}";
         a.info("最终的增强JS", str2);
         return str2;
     }

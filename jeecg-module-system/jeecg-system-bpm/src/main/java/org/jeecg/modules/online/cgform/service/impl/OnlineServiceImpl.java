@@ -9,6 +9,7 @@ import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
+import org.jeecg.modules.online.cgform.d.EnhanceJsUtil;
 import org.jeecg.modules.online.cgform.d.j;
 import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
 import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJs;
@@ -156,7 +157,7 @@ public class OnlineServiceImpl implements IOnlineService {
         onlComplexModel.setCgButtonList(arrayList6);
         OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(id, org.jeecg.modules.online.cgform.d.b.aj);
         if (queryEnhanceJs != null && oConvertUtils.isNotEmpty(queryEnhanceJs.getCgJs())) {
-            onlComplexModel.setEnhanceJs(org.jeecg.modules.online.cgform.d.d.b(queryEnhanceJs.getCgJs(), queryButtonList));
+            onlComplexModel.setEnhanceJs(EnhanceJsUtil.b(queryEnhanceJs.getCgJs(), queryButtonList));
         }
         if ("Y".equals(head.getIsTree())) {
             onlComplexModel.setPidField(head.getTreeParentIdField());
@@ -206,7 +207,7 @@ public class OnlineServiceImpl implements IOnlineService {
                 arrayList.addAll(queryDisabledFields);
             }
         }
-        org.jeecg.modules.online.cgform.d.d.a(onlCgformEnhanceJs, head.getTableName(), queryAvailableFields);
+        EnhanceJsUtil.a(onlCgformEnhanceJs, head.getTableName(), queryAvailableFields);
         org.jeecg.modules.online.cgform.model.d dVar = null;
         if ("Y".equals(head.getIsTree())) {
             dVar = new org.jeecg.modules.online.cgform.model.d();
@@ -228,8 +229,8 @@ public class OnlineServiceImpl implements IOnlineService {
             jSONObject.put("cgButtonList", queryFormValidButton);
         }
         if (onlCgformEnhanceJs != null && oConvertUtils.isNotEmpty(onlCgformEnhanceJs.getCgJs())) {
-            onlCgformEnhanceJs.setCgJs(org.jeecg.modules.online.cgform.d.d.c(onlCgformEnhanceJs.getCgJs(), queryFormValidButton));
-            jSONObject.put("enhanceJs", org.jeecg.modules.online.cgform.d.d.a(onlCgformEnhanceJs.getCgJs()));
+            onlCgformEnhanceJs.setCgJs(EnhanceJsUtil.c(onlCgformEnhanceJs.getCgJs(), queryFormValidButton));
+            jSONObject.put("enhanceJs", EnhanceJsUtil.a(onlCgformEnhanceJs.getCgJs()));
         }
         return jSONObject;
     }
@@ -301,7 +302,7 @@ public class OnlineServiceImpl implements IOnlineService {
         String str = "";
         OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(code, type);
         if (queryEnhanceJs != null && oConvertUtils.isNotEmpty(queryEnhanceJs.getCgJs())) {
-            str = org.jeecg.modules.online.cgform.d.d.b(queryEnhanceJs.getCgJs(), (List<OnlCgformButton>) null);
+            str = EnhanceJsUtil.b(queryEnhanceJs.getCgJs(), (List<OnlCgformButton>) null);
         }
         return str;
     }
@@ -347,7 +348,7 @@ public class OnlineServiceImpl implements IOnlineService {
                     });
                     for (OnlCgformHead onlCgformHead3 : arrayList) {
                         List<OnlCgformField> queryAvailableFields = this.onlCgformFieldService.queryAvailableFields(onlCgformHead3.getId(), onlCgformHead3.getTableName(), onlCgformHead.getTaskId(), false);
-                        org.jeecg.modules.online.cgform.d.d.b(queryEnhanceJs, onlCgformHead3.getTableName(), queryAvailableFields);
+                        EnhanceJsUtil.b(queryEnhanceJs, onlCgformHead3.getTableName(), queryAvailableFields);
                         JSONObject jSONObject2 = new JSONObject();
                         new ArrayList();
                         if (oConvertUtils.isNotEmpty(onlCgformHead.getTaskId())) {
@@ -374,7 +375,7 @@ public class OnlineServiceImpl implements IOnlineService {
                 }
             }
             if (queryEnhanceJs != null && oConvertUtils.isNotEmpty(queryEnhanceJs.getCgJs())) {
-                queryOnlineFormObj.put("enhanceJs", org.jeecg.modules.online.cgform.d.d.a(queryEnhanceJs.getCgJs()));
+                queryOnlineFormObj.put("enhanceJs", EnhanceJsUtil.a(queryEnhanceJs.getCgJs()));
             }
         }
         return queryOnlineFormObj;
