@@ -9,3 +9,8 @@ alter table onl_cgform_head
     add if not exists online_init_query_param_getter varchar(2000);
 
 comment on column onl_cgform_head.online_init_query_param_getter is '数据初始化JS增强';
+
+alter table onl_cgform_head
+    add if not exists online_vue_watch_js_str varchar(2000);
+
+comment on column onl_cgform_head.online_vue_watch_js_str is 'Vue2监听器JS增强';

@@ -39,5 +39,7 @@ public class OnlComplexModel implements Serializable {
 
     // 数据初始化JS增强
     private String onlineInitQueryParamGetter;
+    // Vue2监听器JS增强
+    private String onlineVueWatchJsStr;
 
 }

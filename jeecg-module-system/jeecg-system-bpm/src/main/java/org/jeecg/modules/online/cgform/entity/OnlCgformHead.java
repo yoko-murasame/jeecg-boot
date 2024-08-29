@@ -81,4 +81,12 @@ public class OnlCgformHead implements Serializable {
      */
     private String onlineInitQueryParamGetter;
 
+    /**
+     * Vue2监听器JS增强
+     *
+     * @author Yoko
+     * @since 2024/8/29 15:59
+     */
+    private String onlineVueWatchJsStr;
+
 }
