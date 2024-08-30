@@ -126,8 +126,8 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	@Override
 	// @Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryDictItemsByCode(String code) {
-		// 需要转换系统变量的不走缓存
-		if (code.contains("#{")) {
+		// 需要转换系统变量的不走缓存、带查询条件的也不走缓存（table_name,text,id,condition）
+		if (code.contains("#{") || code.split(SymbolConstant.COMMA).length == 4) {
 			log.debug("无缓存dictCache的时候调用这里！");
 			return this.getDictItems(code);
 		}

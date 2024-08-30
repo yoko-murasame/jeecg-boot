@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
@@ -15,6 +16,7 @@ import org.jeecg.modules.online.cgform.entity.OnlCgformButton;
 import org.jeecg.modules.online.cgform.entity.OnlCgformEnhanceJs;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
+import org.jeecg.modules.online.cgform.model.HrefSlots;
 import org.jeecg.modules.online.cgform.model.OnlColumn;
 import org.jeecg.modules.online.cgform.model.OnlComplexModel;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
@@ -45,65 +47,67 @@ public class OnlineServiceImpl implements IOnlineService {
     public OnlComplexModel queryOnlineConfig(OnlCgformHead head, String username) {
         JSONObject parseObject;
         String id = head.getId();
-        List<OnlCgformField> a2 = getCgformField(id);
+        List<OnlCgformField> onlCgformFields = getCgformField(id);
         List<String> queryHideCode = this.onlAuthPageService.queryHideCode(id, true);
-        ArrayList arrayList = new ArrayList();
-        HashMap hashMap = new HashMap();
-        ArrayList arrayList2 = new ArrayList();
-        ArrayList arrayList3 = new ArrayList();
-        ArrayList arrayList4 = new ArrayList();
-        for (OnlCgformField onlCgformField : a2) {
+        List<OnlColumn> columns = new ArrayList<>();
+        Map<String, List<DictModel>> dictOptions = new HashMap<>();
+        List<HrefSlots> fieldHrefSlots = new ArrayList<>();
+        List<org.jeecg.modules.online.cgform.model.b> foreignKeys = new ArrayList<>();
+        List arrayList4 = new ArrayList();
+        for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             String mainTable = onlCgformField.getMainTable();
             String mainField = onlCgformField.getMainField();
             if (oConvertUtils.isNotEmpty(mainField) && oConvertUtils.isNotEmpty(mainTable)) {
-                arrayList3.add(new org.jeecg.modules.online.cgform.model.b(dbFieldName, mainField));
+                foreignKeys.add(new org.jeecg.modules.online.cgform.model.b(dbFieldName, mainField));
             }
-            if (1 == onlCgformField.getIsShowList().intValue() && !"id".equals(dbFieldName) && !queryHideCode.contains(dbFieldName) && !arrayList4.contains(dbFieldName)) {
+            if (1 == onlCgformField.getIsShowList() && !"id".equals(dbFieldName) && !queryHideCode.contains(dbFieldName) && !arrayList4.contains(dbFieldName)) {
                 OnlColumn onlColumn = new OnlColumn(onlCgformField.getDbFieldTxt(), dbFieldName);
                 String dictField = onlCgformField.getDictField();
                 String fieldShowType = onlCgformField.getFieldShowType();
                 if (oConvertUtils.isNotEmpty(dictField) && !org.jeecg.modules.online.cgform.d.b.POPUP.equals(fieldShowType)) {
-                    ArrayList arrayList5 = new ArrayList();
+                    List<DictModel> dictModels = new ArrayList<>();
+                    // TODO 这里字典转换后期量大效率太低，需要改进，可以固定字典的走这里，表字典跟前端走
                     if (oConvertUtils.isNotEmpty(onlCgformField.getDictTable())) {
-                        arrayList5 = (ArrayList) this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), dictField);
+                        dictModels = this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), dictField);
                     } else if (oConvertUtils.isNotEmpty(onlCgformField.getDictField())) {
-                        arrayList5 = (ArrayList) this.sysBaseAPI.queryDictItemsByCode(dictField);
+                        // FIXME 如果表字典配置到这里，但是没有加#{}规则，会有缓存问题，请注意！暂时先让带条件的表字典配置（table_name,text,id,condition 即4长度）不走缓存
+                        dictModels = this.sysBaseAPI.queryDictItemsByCode(dictField);
                     }
-                    hashMap.put(dbFieldName, arrayList5);
+                    dictOptions.put(dbFieldName, dictModels);
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if (org.jeecg.modules.online.cgform.d.b.sI.equals(fieldShowType)) {
-                    hashMap.put(dbFieldName, org.jeecg.modules.online.cgform.d.b.a(onlCgformField));
+                    dictOptions.put(dbFieldName, org.jeecg.modules.online.cgform.d.b.a(onlCgformField));
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if (org.jeecg.modules.online.cgform.d.b.sP.equals(fieldShowType)) {
-                    org.jeecg.modules.online.cgform.a.a aVar = (org.jeecg.modules.online.cgform.a.a) JSONObject.parseObject(onlCgformField.getDictTable(), org.jeecg.modules.online.cgform.a.a.class);
-                    hashMap.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(aVar.getTable(), aVar.getTxt(), aVar.getKey()));
+                    org.jeecg.modules.online.cgform.a.a aVar = JSONObject.parseObject(onlCgformField.getDictTable(), org.jeecg.modules.online.cgform.a.a.class);
+                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(aVar.getTable(), aVar.getTxt(), aVar.getKey()));
                     onlColumn.setCustomRender(dbFieldName);
-                    arrayList.add(onlColumn);
-                    getCgformField(a2, arrayList4, arrayList, dbFieldName, aVar.getLinkField());
+                    columns.add(onlColumn);
+                    getCgformField(onlCgformFields, arrayList4, columns, dbFieldName, aVar.getLinkField());
                 }
                 if (org.jeecg.modules.online.cgform.d.b.sN.equals(fieldShowType)) {
                     String[] split = onlCgformField.getDictText().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
-                    hashMap.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), split[2], split[0]));
+                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), split[2], split[0]));
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if (org.jeecg.modules.online.cgform.d.b.CAT_TREE.equals(fieldShowType)) {
                     String dictText = onlCgformField.getDictText();
                     if (oConvertUtils.isEmpty(dictText)) {
-                        hashMap.put(dbFieldName, this.sysBaseAPI.queryFilterTableDictInfo(org.jeecg.modules.online.cgform.d.b.sW, org.jeecg.modules.online.cgform.d.b.sX, "ID", org.jeecg.modules.online.cgform.d.b.e(onlCgformField.getDictField())));
+                        dictOptions.put(dbFieldName, this.sysBaseAPI.queryFilterTableDictInfo(org.jeecg.modules.online.cgform.d.b.sW, org.jeecg.modules.online.cgform.d.b.sX, "ID", org.jeecg.modules.online.cgform.d.b.e(onlCgformField.getDictField())));
                         onlColumn.setCustomRender(dbFieldName);
                     } else {
                         onlColumn.setCustomRender("_replace_text_" + dictText);
                     }
                 }
                 if ("sel_depart".equals(fieldShowType)) {
-                    hashMap.put(dbFieldName, this.sysBaseAPI.queryAllDepartBackDictModel());
+                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryAllDepartBackDictModel());
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if ("sel_user".equals(onlCgformField.getFieldShowType())) {
-                    hashMap.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.sQ, org.jeecg.modules.online.cgform.d.b.sR, org.jeecg.modules.online.cgform.d.b.S));
+                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.sQ, org.jeecg.modules.online.cgform.d.b.sR, org.jeecg.modules.online.cgform.d.b.S));
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if (fieldShowType.indexOf("file") >= 0) {
@@ -128,7 +132,7 @@ public class OnlineServiceImpl implements IOnlineService {
                     onlColumn.setShowLength(oConvertUtils.getInt(parseObject.get(org.jeecg.modules.online.cgform.d.b.ax)).intValue());
                 }
                 if (!org.jeecg.modules.online.cgform.d.b.sP.equals(fieldShowType)) {
-                    arrayList.add(onlColumn);
+                    columns.add(onlColumn);
                 }
             }
         }
@@ -142,19 +146,19 @@ public class OnlineServiceImpl implements IOnlineService {
         onlComplexModel.setCheckboxFlag(head.getIsCheckbox());
         onlComplexModel.setScrollFlag(head.getScroll());
         onlComplexModel.setRelationType(head.getRelationType());
-        onlComplexModel.setColumns(arrayList);
-        onlComplexModel.setDictOptions(hashMap);
-        onlComplexModel.setFieldHrefSlots(arrayList2);
-        onlComplexModel.setForeignKeys(arrayList3);
+        onlComplexModel.setColumns(columns);
+        onlComplexModel.setDictOptions(dictOptions);
+        onlComplexModel.setFieldHrefSlots(fieldHrefSlots);
+        onlComplexModel.setForeignKeys(foreignKeys);
         onlComplexModel.setHideColumns(queryHideCode);
         List<OnlCgformButton> queryButtonList = this.onlCgformHeadService.queryButtonList(id, true);
-        ArrayList arrayList6 = new ArrayList();
+        List<OnlCgformButton> cgButtonList = new ArrayList<>();
         for (OnlCgformButton onlCgformButton : queryButtonList) {
             if (!queryHideCode.contains(onlCgformButton.getButtonCode())) {
-                arrayList6.add(onlCgformButton);
+                cgButtonList.add(onlCgformButton);
             }
         }
-        onlComplexModel.setCgButtonList(arrayList6);
+        onlComplexModel.setCgButtonList(cgButtonList);
         OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(id, org.jeecg.modules.online.cgform.d.b.aj);
         if (queryEnhanceJs != null && oConvertUtils.isNotEmpty(queryEnhanceJs.getCgJs())) {
             onlComplexModel.setEnhanceJs(EnhanceJsUtil.b(queryEnhanceJs.getCgJs(), queryButtonList));
