@@ -286,9 +286,10 @@ public class BpmCommonService {
      * @param formUrl 表单地址
      * @param formUrlMobile 移动表单地址
      * @param username 用户名
+     * @param bpmVariables 传进来的流程变量
      * @return org.jeecg.common.api.vo.Result<java.lang.String>
      */
-    public Result<String> startMutilProcess(String flowCode, String id, String formUrl, String formUrlMobile, String username) {
+    public Result<String> startMutilProcess(String flowCode, String id, String formUrl, String formUrlMobile, String username, Map<String, Object> bpmVariables) {
 
         Result<String> result = new Result<String>();
         result.setMessage("流程发起成功！");
@@ -319,40 +320,45 @@ public class BpmCommonService {
             activitiException = null;
 
             ExtActProcessForm extActProcessForm;
-            Map<String, Object> variables;
+            Map<String, Object> processVariables;
             try {
                 extActProcessForm = this.extActProcessFormService.getOne(Wrappers.lambdaQuery(ExtActProcessForm.class).eq(ExtActProcessForm::getRelationCode, flowCode));
                 String formTableName = extActProcessForm.getFormTableName();
                 // 流程变量 所有表中的数据
-                variables = this.extActProcessService.getDataById(formTableName, id);
+                processVariables = this.extActProcessService.getDataById(formTableName, id);
                 // 流程变量 BPM_DATA_ID
-                variables.put(org.jeecg.modules.extbpm.process.common.a.l, id);
+                processVariables.put(org.jeecg.modules.extbpm.process.common.a.l, id);
                 // 流程变量 BPM_FORM_CONTENT_URL
-                variables.put(org.jeecg.modules.extbpm.process.common.a.o, formUrl);
+                processVariables.put(org.jeecg.modules.extbpm.process.common.a.o, formUrl);
                 // 流程变量 BPM_FORM_CONTENT_URL_MOBILE
                 if (oConvertUtils.isNotEmpty(formUrlMobile)) {
-                    variables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrlMobile);
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrlMobile);
                 } else {
-                    variables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrl);
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.p, formUrl);
                 }
                 //  BPM_DES_DATA_ID
                 // 先找是否存在设计器表单数据，找到直接注入
                 DesignFormData designFormData = designFormDataService.getOne(Wrappers.lambdaQuery(DesignFormData.class).eq(DesignFormData::getOnlineFormDataId, id));
                 if (null != designFormData) {
                     // 流程变量 BPM_DES_DATA_ID
-                    variables.put(org.jeecg.modules.extbpm.process.common.a.n, designFormData.getId());
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.n, designFormData.getId());
                     // 流程变量 BPM_DES_FORM_CODE
-                    variables.put(org.jeecg.modules.extbpm.process.common.a.m, designFormData.getDesformCode());
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.m, designFormData.getDesformCode());
                 }
 
                 // 流程变量 BPM_FORM_KEY
-                variables.put(org.jeecg.modules.extbpm.process.common.a.h, formTableName);
+                processVariables.put(org.jeecg.modules.extbpm.process.common.a.h, formTableName);
+
+                // 注入用户传进来的流程变量
+                if (bpmVariables != null) {
+                    processVariables.putAll(bpmVariables);
+                }
             } catch (Exception var14) {
                 var14.printStackTrace();
                 throw new BpmException("获取流程信息异常");
             }
 
-            ProcessInstance processInstance = this.extActProcessService.startMutilProcess(username, id, variables, extActProcessForm);
+            ProcessInstance processInstance = this.extActProcessService.startMutilProcess(username, id, processVariables, extActProcessForm);
             log.info("启动成功流程实例 ProcessInstance: {}", processInstance);
             result.setResult(processInstance.getProcessInstanceId());
         } catch (ActivitiException exception) {

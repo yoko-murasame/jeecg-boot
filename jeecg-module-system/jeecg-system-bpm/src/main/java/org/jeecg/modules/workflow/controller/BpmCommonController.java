@@ -221,13 +221,14 @@ public class BpmCommonController {
 
     @ApiOperation(value = "发起流程", notes = "发起流程")
     @PostMapping({"startMutilProcess"})
-    public Result<String> startMutilProcess(@RequestBody HashMap<String, String> param, HttpServletRequest request) {
+    public Result<String> startMutilProcess(@RequestBody HashMap<String, Object> param, HttpServletRequest request) {
         String flowCode = (String)param.get("flowCode");
         String id = (String)param.get("id");
         String formUrl = (String)param.get("formUrl");
         String formUrlMobile = (String)param.get("formUrlMobile");
+        Map<String, Object> bpmVariables = (Map<String, Object>) param.get("bpmVariables");
         String username = JwtUtil.getUserNameByToken(request);
-        return this.bpmCommonService.startMutilProcess(flowCode, id, formUrl, formUrlMobile, username);
+        return this.bpmCommonService.startMutilProcess(flowCode, id, formUrl, formUrlMobile, username, bpmVariables);
     }
 
     @ApiOperation(value = "任务委派", notes = "任务委派")
