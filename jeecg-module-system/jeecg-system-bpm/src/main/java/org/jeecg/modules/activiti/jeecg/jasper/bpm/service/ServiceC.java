@@ -524,85 +524,78 @@ public class ServiceC implements ActivitiService {
             rollbackFor = {Exception.class}
     )
     public synchronized void goProcessTaskNode(String taskId, String nextTaskId, Map<String, Object> variables) throws Exception {
-        List var4 = this.a(this.a(taskId).getId(), this.c(taskId).getTaskDefinitionKey());
-        Iterator var5 = var4.iterator();
-
-        while(var5.hasNext()) {
-            Task var6 = (Task)var5.next();
-            if (taskId.equals(var6.getId())) {
-                this.a(var6.getId(), variables, nextTaskId);
+        List<Task> tasks = this.getTaskByInstIdAndDefKey(this.getProcessInstanceByTaskId(taskId).getId(), this.getTaskEntityById(taskId).getTaskDefinitionKey());
+        for (Task task : tasks) {
+            if (taskId.equals(task.getId())) {
+                this.completeTask(task.getId(), variables, nextTaskId);
             }
         }
-
     }
 
-    private List<Task> a(String var1, String var2) {
-        return ((TaskQuery)((TaskQuery)this.taskService.createTaskQuery().processInstanceId(var1)).taskDefinitionKey(var2)).list();
+    private List<Task> getTaskByInstIdAndDefKey(String instId, String defKey) {
+        return ((TaskQuery)((TaskQuery)this.taskService.createTaskQuery().processInstanceId(instId)).taskDefinitionKey(defKey)).list();
     }
 
-    private void a(String var1, Map<String, Object> var2, String var3) throws Exception {
-        if (oConvertUtils.isEmpty(var3)) {
-            this.taskService.complete(var1, var2);
+    private void completeTask(String taskId, Map<String, Object> variables, String nextNodeId) throws Exception {
+        if (oConvertUtils.isEmpty(nextNodeId)) {
+            this.taskService.complete(taskId, variables);
         } else {
-            this.a(var1, var3, var2);
+            this.completeTaskWithNextNodeId(taskId, nextNodeId, variables);
         }
-
     }
 
-    public ProcessInstance a(String var1) throws Exception {
-        ProcessInstance var2 = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(this.c(var1).getProcessInstanceId()).singleResult();
-        if (var2 == null) {
+    public ProcessInstance getProcessInstanceByTaskId(String taskId) throws Exception {
+        ProcessInstance processInstance = (ProcessInstance)this.runtimeService.createProcessInstanceQuery().processInstanceId(this.getTaskEntityById(taskId).getProcessInstanceId()).singleResult();
+        if (processInstance == null) {
             throw new Exception("流程实例未找到!");
         } else {
-            return var2;
+            return processInstance;
         }
     }
 
-    private void a(String var1, String var2, Map<String, Object> var3) throws Exception {
-        ActivityImpl var4 = this.b(var1, (String)null);
-        List var5 = this.a(var4);
-        TransitionImpl var6 = var4.createOutgoingTransition();
-        ActivityImpl var7 = this.b(var1, var2);
+    private void completeTaskWithNextNodeId(String taskId, String nextNodeId, Map<String, Object> variables) throws Exception {
+        ActivityImpl activityImpl = this.getActivityImpl(taskId, (String)null);
+        List<PvmTransition> pvmTransitions = this.getPvmTransitions(activityImpl);
+        TransitionImpl transition = activityImpl.createOutgoingTransition();
+        ActivityImpl impl = this.getActivityImpl(taskId, nextNodeId);
 
         try {
-            var6.setDestination(var7);
-            Iterator var8 = var5.iterator();
+            transition.setDestination(impl);
+            Iterator var8 = pvmTransitions.iterator();
 
             while(true) {
                 if (var8.hasNext()) {
                     PvmTransition var9 = (PvmTransition)var8.next();
-                    if (!var2.equals(var9.getDestination().getId())) {
+                    if (!nextNodeId.equals(var9.getDestination().getId())) {
                         continue;
                     }
 
                     TransitionImpl var10 = (TransitionImpl)var9;
                     if (var10.getExecutionListeners() != null && var10.getExecutionListeners().size() > 0) {
-                        var6.setExecutionListeners(var10.getExecutionListeners());
+                        transition.setExecutionListeners(var10.getExecutionListeners());
                     }
                 }
 
-                this.taskService.complete(var1, var3);
+                this.taskService.complete(taskId, variables);
                 return;
             }
         } catch (Exception var14) {
             throw var14;
         } finally {
-            var7.getIncomingTransitions().remove(var6);
-            this.a(var4, var5);
+            impl.getIncomingTransitions().remove(transition);
+            this.a(activityImpl, pvmTransitions);
         }
     }
 
-    private ActivityImpl b(String var1, String var2) throws Exception {
-        ProcessDefinitionEntity var3 = this.b(var1);
+    private ActivityImpl getActivityImpl(String taskId, String var2) throws Exception {
+        ProcessDefinitionEntity var3 = this.b(taskId);
         if (oConvertUtils.isEmpty(var2)) {
-            var2 = this.c(var1).getTaskDefinitionKey();
+            var2 = this.getTaskEntityById(taskId).getTaskDefinitionKey();
         }
 
         if (var2.toUpperCase().equals("END")) {
-            Iterator var4 = var3.getActivities().iterator();
 
-            while(var4.hasNext()) {
-                ActivityImpl var5 = (ActivityImpl)var4.next();
+            for (ActivityImpl var5 : var3.getActivities()) {
                 List var6 = var5.getOutgoingTransitions();
                 if (var6.isEmpty()) {
                     return var5;
@@ -615,7 +608,7 @@ public class ServiceC implements ActivitiService {
     }
 
     public ProcessDefinitionEntity b(String var1) throws Exception {
-        ProcessDefinitionEntity var2 = (ProcessDefinitionEntity)((RepositoryServiceImpl)this.repositoryService).getDeployedProcessDefinition(this.c(var1).getProcessDefinitionId());
+        ProcessDefinitionEntity var2 = (ProcessDefinitionEntity)((RepositoryServiceImpl)this.repositoryService).getDeployedProcessDefinition(this.getTaskEntityById(var1).getProcessDefinitionId());
         if (var2 == null) {
             throw new Exception("流程定义未找到!");
         } else {
@@ -623,16 +616,16 @@ public class ServiceC implements ActivitiService {
         }
     }
 
-    private TaskEntity c(String var1) throws Exception {
-        TaskEntity var2 = (TaskEntity)((TaskQuery)this.taskService.createTaskQuery().taskId(var1)).singleResult();
-        if (var2 == null) {
+    private TaskEntity getTaskEntityById(String taskId) throws Exception {
+        TaskEntity taskEntity = (TaskEntity)((TaskQuery)this.taskService.createTaskQuery().taskId(taskId)).singleResult();
+        if (taskEntity == null) {
             throw new Exception("任务实例未找到!");
         } else {
-            return var2;
+            return taskEntity;
         }
     }
 
-    private List<PvmTransition> a(ActivityImpl var1) {
+    private List<PvmTransition> getPvmTransitions(ActivityImpl var1) {
         ArrayList var2 = new ArrayList();
         List var3 = var1.getOutgoingTransitions();
         Iterator var4 = var3.iterator();

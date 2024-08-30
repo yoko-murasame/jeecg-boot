@@ -142,84 +142,82 @@ public class ActTaskController {
         return var4;
     }
 
+    /**
+     * 获取任务流转信息
+     *
+     * @author Yoko
+     * @since 2024/8/30 09:33
+     * @param taskId
+     * @return org.jeecg.common.api.vo.Result<java.util.Map < java.lang.String, java.lang.Object>>
+     */
     @GetMapping({"/getProcessTaskTransInfo"})
-    public Result<Map<String, Object>> a(@RequestParam(name = "taskId",required = true) String var1) {
-        Result var2 = new Result();
-        Task var3 = this.activitiService.getTask(var1);
-        HashMap var4 = new HashMap();
-        List var5 = this.activitiService.getOutTransitions(var1);
-        if (var5.size() == 1) {
-            Iterator var6 = var5.iterator();
-
-            while(var6.hasNext()) {
-                Map var7 = (Map)var6.next();
-                // 在没有配置文本时，才给默认值
-                if (StringUtils.isEmpty((String) var7.get("Transition"))) {
-                    var7.put("Transition", "确认提交");
-                }
+    public Result<Map<String, Object>> a(@RequestParam(name = "taskId",required = true) String taskId) {
+        Result<Map<String, Object>> result = new Result<>();
+        Task task = this.activitiService.getTask(taskId);
+        HashMap<String, Object> data = new HashMap<>();
+        List outTransitions = this.activitiService.getOutTransitions(taskId);
+        if (outTransitions.size() == 1) {
+            // 两个参数：nextnode、Transition
+            Map trac = (Map) outTransitions.get(0);
+            // 在没有配置文本时，才给默认值
+            if (StringUtils.isEmpty((String) trac.get("Transition"))) {
+                trac.put("Transition", "确认提交");
             }
         }
-
-        var4.put("transitionList", var5);
-        var4.put("nextCodeCount", var5 == null ? 0 : var5.size());
-        List var16 = this.activitiService.getHistTaskNodeList(var3.getProcessInstanceId());
-        var4.put("histListNode", var16);
-        var4.put("histListSize", var16.size());
-        String var17 = this.a(var3, var16);
-        a.info("turnbackTaskId======>" + var17);
-        var4.put("turnbackTaskId", var17);
-        var4.put("taskId", var1);
-        var4.put("taskName", var3.getName());
-        String var8 = "";
-        String var9 = "";
-        if (var3 != null && ExtbpmA.b(var3.getAssignee())) {
-            LoginUser var10 = this.sysBaseAPI.getUserByName(var3.getAssignee());
+        data.put("transitionList", outTransitions);
+        data.put("nextCodeCount", outTransitions == null ? 0 : outTransitions.size());
+        List<Map<String, Object>> histTaskNodeList = this.activitiService.getHistTaskNodeList(task.getProcessInstanceId());
+        data.put("histListNode", histTaskNodeList);
+        data.put("histListSize", histTaskNodeList.size());
+        String turnbackTaskId = this.getTurnbackTaskId(task, histTaskNodeList);
+        a.info("turnbackTaskId======>" + turnbackTaskId);
+        data.put("turnbackTaskId", turnbackTaskId);
+        data.put("taskId", taskId);
+        data.put("taskName", task.getName());
+        String taskAssigneeName = "";
+        String taskNameStartTime = "";
+        if (ExtbpmA.b(task.getAssignee())) {
+            LoginUser var10 = this.sysBaseAPI.getUserByName(task.getAssignee());
             if (var10 != null) {
-                var8 = var10.getRealname();
+                taskAssigneeName = var10.getRealname();
             }
 
-            var9 = var3.getCreateTime() == null ? "" : DateUtils.formatDate(var3.getCreateTime(), "YYYY-MM-dd HH:mm:ss");
+            taskNameStartTime = task.getCreateTime() == null ? "" : DateUtils.formatDate(task.getCreateTime(), "YYYY-MM-dd HH:mm:ss");
         }
 
-        var4.put("taskAssigneeName", var8);
-        var4.put("taskNameStartTime", var9);
-        new ArrayList();
+        data.put("taskAssigneeName", taskAssigneeName);
+        data.put("taskNameStartTime", taskNameStartTime);
         LambdaQueryWrapper<ExtActBpmLog> var11 = new LambdaQueryWrapper<>();
-        var11.eq(ExtActBpmLog::getProcInstId, var3.getProcessInstanceId());
+        var11.eq(ExtActBpmLog::getProcInstId, task.getProcessInstanceId());
         var11.ne(ExtActBpmLog::getOpUserId, "System Job");
         var11.orderByAsc(ExtActBpmLog::getOpTime);
-        List var18 = this.extActBpmLogService.list(var11);
-        List var12 = null;
-        Iterator var13 = var18.iterator();
+        List<ExtActBpmLog> extActBpmLogs = this.extActBpmLogService.list(var11);
 
-        while(var13.hasNext()) {
-            ExtActBpmLog var14 = (ExtActBpmLog)var13.next();
-            LambdaQueryWrapper<ExtActBpmFile> var15 = new LambdaQueryWrapper<>();
-            var15.eq(ExtActBpmFile::getBpmLogId, var14.getId());
-            var12 = this.extActBpmFileService.list(var15);
-            var14.setBpmFiles(var12);
+        for (ExtActBpmLog bpmLog : extActBpmLogs) {
+            LambdaQueryWrapper<ExtActBpmFile> qw = new LambdaQueryWrapper<>();
+            qw.eq(ExtActBpmFile::getBpmLogId, bpmLog.getId());
+            List<ExtActBpmFile> bpmFiles = this.extActBpmFileService.list(qw);
+            bpmLog.setBpmFiles(bpmFiles);
         }
 
-        boolean var19 = false;
-        boolean var21 = false;
-        int var20;
-        int var22;
-        if (var18.size() - 3 > 0) {
-            var20 = var18.size() - 3;
-            var22 = var18.size();
+        int pre;
+        int cur;
+        if (extActBpmLogs.size() - 3 > 0) {
+            pre = extActBpmLogs.size() - 3;
+            cur = extActBpmLogs.size();
         } else {
-            var20 = 0;
-            var22 = var18.size();
+            pre = 0;
+            cur = extActBpmLogs.size();
         }
 
-        List var23 = var18.subList(var20, var22);
-        var4.put("bpmLogList", var18);
-        var4.put("bpmLogListCount", var18.size());
-        var4.put("bpmLogStepList", var23);
-        var4.put("bpmLogStepListCount", var23.size());
-        var2.setResult(var4);
-        var2.setSuccess(true);
-        return var2;
+        List<ExtActBpmLog> bpmLogStepList = extActBpmLogs.subList(pre, cur);
+        data.put("bpmLogList", extActBpmLogs);
+        data.put("bpmLogListCount", extActBpmLogs.size());
+        data.put("bpmLogStepList", bpmLogStepList);
+        data.put("bpmLogStepListCount", bpmLogStepList.size());
+        result.setResult(data);
+        result.setSuccess(true);
+        return result;
     }
 
     @GetMapping({"/getHisProcessTaskTransInfo"})
@@ -305,7 +303,7 @@ public class ActTaskController {
         return var2;
     }
 
-    private String a(Task var1, List<Map<String, Object>> var2) {
+    private String getTurnbackTaskId(Task var1, List<Map<String, Object>> var2) {
         String var3 = "";
         ArrayList var4 = new ArrayList();
         List var5 = this.a(var1);
