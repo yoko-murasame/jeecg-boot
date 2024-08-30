@@ -14,10 +14,14 @@ import org.activiti.engine.delegate.event.ActivitiEventType;
 import org.activiti.engine.delegate.event.impl.ActivitiEntityEventImpl;
 import org.activiti.engine.delegate.event.impl.ActivitiProcessCancelledEventImpl;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmActivity;
 import org.activiti.engine.impl.pvm.PvmTransition;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.task.IdentityLink;
@@ -27,10 +31,12 @@ import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.common.util.SpringContextUtils;
+import org.jeecg.modules.bpm.service.ActivitiService;
 import org.jeecg.modules.extbpm.listener.execution.ProcessEndListener;
 import org.jeecg.modules.extbpm.process.common.WorkFlowGlobals;
 import org.jeecg.modules.extbpm.process.entity.ExtActBpmLog;
 import org.jeecg.modules.extbpm.process.entity.ExtActFlowData;
+import org.jeecg.modules.extbpm.process.exception.BpmException;
 import org.jeecg.modules.extbpm.process.mapper.ExtActDesignFlowDataMapper;
 import org.jeecg.modules.extbpm.process.mapper.ExtActFlowDataMapper;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
@@ -163,6 +169,13 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         return extActFlowDataService;
     }
 
+    public ActivitiService getActivitiService() {
+        if (null == activitiService) {
+            activitiService = SpringContextUtils.getBean(ActivitiService.class);
+        }
+        return activitiService;
+    }
+
     private CommonAPI baseApi;
 
     private TaskService taskService;
@@ -172,6 +185,8 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     private RepositoryService repositoryService;
 
     private IExtActFlowDataService extActFlowDataService;
+
+    private ActivitiService activitiService;
     /**所有的第三方Service，必须采用懒加载方式-------END--------**/
 
     /**流程中可能会需要使用到的变量数据-----BEGIN-----**/
@@ -210,6 +225,11 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     public final static String A_BUTTON_MY_TODO_HTML = "<br/>请点击“<a href=\"/bpm/task/MyTaskList\">我的待办</a>”处理任务。";
 
     /**
+     * 当前任务对象
+     */
+    private TaskEntity currentTask;
+
+    /**
      * 初始化基础流程变量数据<br/>
      * 预处理方法在这里统一调用
      */
@@ -226,6 +246,8 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         this.installNextUserIdAfterHistoric(taskEntity, eventImpl);
         // 节点创建时，从request域读取并注入处理人
         this.installNextUserIdByDefault(taskEntity, eventImpl);
+        // 暂存当前task
+        this.currentTask = taskEntity;
     }
 
     protected void installVariables(ExecutionEntity execution) {
@@ -1034,19 +1056,121 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         }
     }
 
-    /**
-     * @param taskId
-     * @return void
-     * @author Yoko
-     * @date 2022/5/13 10:03
-     * @description 完成任务
-     */
     protected void completeTask(String taskId) {
-        this.getTaskService().complete(taskId);
+        // this.getTaskService().complete(taskId);
+        this.completeTask(taskId, null, this.variables);
     }
 
     protected void completeTask(TaskEntity taskEntity) {
-        this.getTaskService().complete(taskEntity.getId());
+        this.completeTask(taskEntity.getId(), null, this.variables);
+    }
+
+    protected void completeTask(TaskEntity taskEntity, String nextNodeId) {
+        this.completeTask(taskEntity.getId(), nextNodeId, this.variables);
+    }
+
+    protected void completeTask(String taskId, String nextNodeId) {
+        this.completeTask(taskId, nextNodeId, this.variables);
+    }
+
+    /**
+     * 完成流程节点
+     *
+     * @author Yoko
+     * @since 2024/8/30 10:18
+     * @param taskId 节点任务id
+     * @param outgoingName 下一个节点连线名称（按钮label）
+     */
+    protected void completeTaskByOutgoingName(String taskId, String outgoingName) {
+        List<Map<String, String>> outTransitions = this.getOutTransitions(taskId);
+        for (Map<String, String> outTransition : outTransitions) {
+            if (outgoingName.equals(outTransition.get("Transition"))) {
+                this.completeTask(taskId, outTransition.get("nextnode"), this.variables);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 完成流程节点
+     *
+     * @author Yoko
+     * @since 2024/8/30 10:14
+     * @param taskId 节点任务id
+     * @param nextNodeId 下一个节点id，可以不指定
+     * @param variables 流程变量
+     */
+    protected void completeTask(String taskId, String nextNodeId, Map<String, Object> variables) {
+        try {
+            if (null == variables) {
+                variables = new HashMap<>();
+            }
+            // 未指定下个节点，直接完成
+            if (!StringUtils.hasText(nextNodeId)) {
+                // List<Map<String, String>> outTransitions = this.getOutTransitions(taskId);
+                // if (outTransitions.isEmpty()) {
+                //     throw new BpmException("当前任务没有指定下一个节点");
+                // }
+                // nextNodeId = outTransitions.get(0).get("nextnode");
+                this.getTaskService().complete(taskId, variables);
+                return;
+            }
+            // 指定下个节点
+            TaskEntity taskEntity = this.getTaskEntity(taskId);
+            ActivityImpl activityImpl = taskEntity.getExecution().getActivity();
+            List<PvmTransition> targetPvmTransitions = this.getPvmTransitions(activityImpl);
+            TransitionImpl transition = activityImpl.createOutgoingTransition();
+            ActivityImpl destination = this.getNextNodeActivityImpl(taskEntity.getProcessDefinitionId(), nextNodeId);
+            try {
+                transition.setDestination(destination);
+                Iterator<PvmTransition> iterator = targetPvmTransitions.iterator();
+                while(true) {
+                    if (iterator.hasNext()) {
+                        PvmTransition targetPvm = iterator.next();
+                        if (!nextNodeId.equals(targetPvm.getDestination().getId())) {
+                            continue;
+                        }
+                        TransitionImpl transitionImpl = (TransitionImpl)targetPvm;
+                        if (transitionImpl.getExecutionListeners() != null && !transitionImpl.getExecutionListeners().isEmpty()) {
+                            transition.setExecutionListeners(transitionImpl.getExecutionListeners());
+                        }
+                    }
+                    this.getTaskService().complete(taskId, variables);
+                    return;
+                }
+            } catch (Exception e) {
+                throw new BpmException(e);
+            } finally {
+                destination.getIncomingTransitions().remove(transition);
+                List<PvmTransition> outgoingTransitions = activityImpl.getOutgoingTransitions();
+                outgoingTransitions.clear();
+                outgoingTransitions.addAll(targetPvmTransitions);
+            }
+        } catch (Exception e) {
+            throw new BpmException(e);
+        }
+    }
+
+    /**
+     *
+     *
+     * @author Yoko
+     * @since 2024/8/30 12:24
+     * @param processDefinitionId 流程定义id
+     * @param nextNodeId 下个节点id
+     * @return org.activiti.engine.impl.pvm.process.ActivityImpl
+     */
+    protected ActivityImpl getNextNodeActivityImpl(String processDefinitionId, String nextNodeId) {
+        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)((RepositoryServiceImpl)this.getRepositoryService()).getDeployedProcessDefinition(processDefinitionId);
+        if (nextNodeId.equalsIgnoreCase("END")) {
+            for (ActivityImpl activity : processDefinition.getActivities()) {
+                List<PvmTransition> outgoingTransitions = activity.getOutgoingTransitions();
+                if (outgoingTransitions.isEmpty()) {
+                    return activity;
+                }
+            }
+        }
+        return processDefinition.findActivity(nextNodeId);
     }
 
     /**
@@ -1059,6 +1183,73 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
      */
     protected void completeProcess(String processInstanceId, String reason) {
         this.getRuntimeService().deleteProcessInstance(processInstanceId, reason);
+    }
+
+    /**
+     * 获取当前任务
+     *
+     * @author Yoko
+     * @since 2024/8/30 11:25
+     * @param taskId
+     * @return org.activiti.engine.impl.persistence.entity.TaskEntity
+     */
+    protected TaskEntity getTaskEntity(String taskId) {
+        TaskEntity task = currentTask;
+        if (null == task) {
+            task = (TaskEntity) this.getTaskService().createTaskQuery().taskId(taskId).singleResult();;
+        }
+        if (null == task) {
+            throw new BpmException("当前任务不存在，任务id：" + taskId);
+        }
+        return task;
+    }
+
+    /**
+     * 获取当前任务节点的出口（下个节点id、连线id）
+     * 返回参数Map两个值：nextnode、Transition
+     * @author Yoko
+     * @since 2024/8/30 09:55
+     * @param taskId 任务id
+     * @return java.util.List<java.util.Map < java.lang.String, java.lang.String>>
+     */
+    protected List<Map<String, String>> getOutTransitions(String taskId) {
+        List<Map<String, String>>  result = new ArrayList<>();
+        TaskEntity task = this.getTaskEntity(taskId);
+        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)((RepositoryServiceImpl)this.getRepositoryService()).getDeployedProcessDefinition(task.getProcessDefinitionId());
+        List<ActivityImpl> activities = processDefinition.getActivities();
+        String activityId = Optional.of(task.getExecution()).get().getActivityId();
+        if (!StringUtils.hasText(activityId)) {
+            final ExecutionEntity executionEntity = (ExecutionEntity) this.getRuntimeService().createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+            activityId = executionEntity.getActivityId();
+        }
+        if (!StringUtils.hasText(activityId)) {
+            throw new BpmException("activityId为空");
+        }
+        for (ActivityImpl activity : activities) {
+            String actId = activity.getId();
+            if (activityId.equals(actId)) {
+                List<PvmTransition> outgoingTransitions = activity.getOutgoingTransitions();
+                for (PvmTransition pvmTransition : outgoingTransitions) {
+                    if (pvmTransition.getId() != null) {
+                        Map<String, String> reObj = new HashMap<>();
+                        String Transition = (String) (pvmTransition.getProperty("name") != null ? pvmTransition.getProperty("name") : pvmTransition.getId());
+                        reObj.put("Transition", Transition);
+                        PvmActivity destination = pvmTransition.getDestination();
+                        reObj.put("nextnode", destination.getId());
+                        result.add(reObj);
+                    }
+                }
+                return result;
+            }
+        }
+        return result;
+    }
+
+    private List<PvmTransition> getPvmTransitions(ActivityImpl activity) {
+        List<PvmTransition> curTrac = activity.getOutgoingTransitions();
+        List<PvmTransition> newTrac = new ArrayList<>(curTrac);
+        curTrac.clear();
+        return newTrac;
     }
 
     protected void executeAsync(Runnable task) {
