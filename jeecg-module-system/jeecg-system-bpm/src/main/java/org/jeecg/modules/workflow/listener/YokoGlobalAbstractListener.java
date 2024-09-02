@@ -220,9 +220,9 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     protected Map<String, Object> variables;
 
     /**
-     * 我的代办跳转按钮html
+     * 我的代办跳转按钮html，注意如果是子应用部署，href请加上子应用的前缀
      */
-    public final static String A_BUTTON_MY_TODO_HTML = "<br/>请点击“<a href=\"/bpm/task/MyTaskList\">我的待办</a>”处理任务。";
+    protected String A_BUTTON_MY_TODO_HTML = "<br/>请点击“<a href=\"" + "/子路径/bpm/task/MyTaskList" + "\">我的待办</a>”处理任务。";
 
     /**
      * 当前任务对象
