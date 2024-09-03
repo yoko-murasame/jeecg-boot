@@ -835,7 +835,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getButtonCode, buttonCode);
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getCgformHeadId, head.getId());
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getEvent, eventType);
-        Object a2 = a((OnlCgformEnhanceJava) this.onlCgformEnhanceJavaMapper.selectOne(lambdaQueryWrapper));
+        Object a2 = getInstance((OnlCgformEnhanceJava) this.onlCgformEnhanceJavaMapper.selectOne(lambdaQueryWrapper));
         if (a2 != null && (a2 instanceof CgformEnhanceJavaInter)) {
             return ((CgformEnhanceJavaInter) a2).execute(head.getTableName(), json);
         }
@@ -849,18 +849,18 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     public void executeEnhanceList(OnlCgformHead head, String buttonCode, List<Map<String, Object>> dataList) throws BusinessException {
-        Object a2;
+        Object instance;
         LambdaQueryWrapper<OnlCgformEnhanceJava> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getActiveStatus, "1");
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getButtonCode, buttonCode);
         lambdaQueryWrapper.eq(OnlCgformEnhanceJava::getCgformHeadId, head.getId());
-        List selectList = this.onlCgformEnhanceJavaMapper.selectList(lambdaQueryWrapper);
-        if (selectList != null && selectList.size() > 0 && (a2 = a((OnlCgformEnhanceJava) selectList.get(0))) != null && (a2 instanceof CgformEnhanceJavaListInter)) {
-            ((CgformEnhanceJavaListInter) a2).execute(head.getTableName(), dataList);
+        List<OnlCgformEnhanceJava> selectList = this.onlCgformEnhanceJavaMapper.selectList(lambdaQueryWrapper);
+        if (selectList != null && !selectList.isEmpty() && (instance = getInstance(selectList.get(0))) != null && (instance instanceof CgformEnhanceJavaListInter)) {
+            ((CgformEnhanceJavaListInter) instance).execute(head.getTableName(), dataList);
         }
     }
 
-    private Object a(OnlCgformEnhanceJava onlCgformEnhanceJava) {
+    private Object getInstance(OnlCgformEnhanceJava onlCgformEnhanceJava) {
         if (onlCgformEnhanceJava != null) {
             String cgJavaType = onlCgformEnhanceJava.getCgJavaType();
             String cgJavaValue = onlCgformEnhanceJava.getCgJavaValue();
