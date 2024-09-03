@@ -62,14 +62,21 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     private String MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL;
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList, String dataRulePerms) {
+    public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList, String dataRulePerms, String queryAllColumn) {
         Map<String, Object> resultMap = new HashMap<>();
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, headId);
         lambdaQueryWrapper.orderByAsc(OnlCgformField::getOrderNum);
-        List<OnlCgformField> list = list(lambdaQueryWrapper);
-        List<OnlCgformField> queryAvailableFields = queryAvailableFields(headId, tbname, true, list, needList);
+        List<OnlCgformField> allFields = list(lambdaQueryWrapper);
+
         StringBuffer stringBuffer = new StringBuffer();
+
+        // 所有列
+        List<OnlCgformField> queryAvailableFields = allFields;
+        // 如果未传入查询所有列，查找列表显示字段+权限控制字段
+        if (StringUtils.isBlank(queryAllColumn)) {
+            queryAvailableFields = queryAvailableFields(headId, tbname, true, allFields, needList);
+        }
         // 组装SELECT
         org.jeecg.modules.online.cgform.d.b.assembleSelect(tbname, queryAvailableFields, stringBuffer);
 
@@ -94,11 +101,11 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         SqlInjectionUtil.filterContent(arr1);
 
         // 组装WHERE
-        String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(list, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
+        String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(allFields, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
 
         //判断字段中是否包含逻辑删除字段
         String logicDelflagSql = " AND del_flag=" + MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL + " ";
-        Optional<OnlCgformField> delFlagOptional = list.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
+        Optional<OnlCgformField> delFlagOptional = allFields.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
         if(delFlagOptional.isPresent()){
             whereCondition = whereCondition + logicDelflagSql;
         }
@@ -115,7 +122,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (obj != null) {
             String obj2 = obj.toString();
             String obj3 = params.get("order").toString();
-            if (a(obj2, list)) {
+            if (a(obj2, allFields)) {
                 stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY).append(oConvertUtils.camelToUnderline(obj2));
                 if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
                     stringBuffer.append(" asc");
@@ -757,12 +764,13 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public List<OnlCgformField> queryAvailableFields(String tbname, boolean isList, List<OnlCgformField> List, List<String> needList) {
-        return a(((OnlCgformFieldMapper) this.baseMapper).selectOnlineHideColumns(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), "online:" + tbname + "%"), isList, List, needList);
+        return getFieldList(((OnlCgformFieldMapper) this.baseMapper).selectOnlineHideColumns(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), "online:" + tbname + "%"), isList, List, needList);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public List<OnlCgformField> queryAvailableFields(String cgformId, String tbname, boolean isList, List<OnlCgformField> List, List<String> needList) {
-        return a(this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId), isList, List, needList);
+    public List<OnlCgformField> queryAvailableFields(String cgformId, String tbname, boolean isList, List<OnlCgformField> fieldList, List<String> needList) {
+        java.util.List<String> listHideColumn = this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId);
+        return getFieldList(listHideColumn, isList, fieldList, needList);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
@@ -770,28 +778,28 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         return aExport(this.onlAuthPageService.queryListHideColumn(((LoginUser) SecurityUtils.getSubject().getPrincipal()).getId(), cgformId), isList, List, needList);
     }
 
-    private List<OnlCgformField> a(List<String> var1, boolean var2, List<OnlCgformField> var3, List<String> var4) {
-        ArrayList var5 = new ArrayList();
+    private List<OnlCgformField> getFieldList(List<String> listHideColumn, boolean isList, List<OnlCgformField> fieldList, List<String> needList) {
+        List<OnlCgformField> res = new ArrayList<>();
         boolean var6 = true;
-        if (var1 == null || var1.size() == 0 || var1.get(0) == null) {
+        if (listHideColumn == null || listHideColumn.isEmpty() || listHideColumn.get(0) == null) {
             var6 = false;
         }
 
-        Iterator var7 = var3.iterator();
+        Iterator var7 = fieldList.iterator();
 
         while (true) {
             while (var7.hasNext()) {
                 OnlCgformField var8 = (OnlCgformField) var7.next();
                 String var9 = var8.getDbFieldName();
-                if (var4 != null && var4.contains(var9)) {
+                if (needList != null && needList.contains(var9)) {
                     var8.setIsQuery(1);
-                    var5.add(var8);
+                    res.add(var8);
                 } else {
 
-                    if (var2) {
+                    if (isList) {
                         if (var8.getIsShowList() != 1) {
                             if (c.b(var8.getMainTable()) && c.b(var8.getMainField())) {
-                                var5.add(var8);
+                                res.add(var8);
                             }
                             continue;
                         }
@@ -800,16 +808,16 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                     }
 
                     if (var6) {
-                        if (this.b(var9, var1)) {
-                            var5.add(var8);
+                        if (this.b(var9, listHideColumn)) {
+                            res.add(var8);
                         }
                     } else {
-                        var5.add(var8);
+                        res.add(var8);
                     }
                 }
             }
 
-            return var5;
+            return res;
         }
     }
 

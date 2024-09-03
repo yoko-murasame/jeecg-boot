@@ -159,7 +159,7 @@ public class OnlCgformApiController {
     @PermissionData
     @OnlineAuth("getData")
     @GetMapping({"/getData/{code}"})
-    public Result<Map<String, Object>> a(@PathVariable("code") String code, HttpServletRequest var2) {
+    public Result<Map<String, Object>> a(@PathVariable("code") String code, HttpServletRequest request) {
         Result<Map<String, Object>> res = new Result<>();
         OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
         if (cgformHead == null) {
@@ -169,14 +169,16 @@ public class OnlCgformApiController {
             try {
                 String tableName = cgformHead.getTableName();
                 String dataRulePerms = cgformHead.getDataRulePerms();
-                Map<String, Object> params = CgformDB.a(var2);
+                Map<String, Object> params = CgformDB.a(request);
                 List<String> needLists = null;
-                String needList = var2.getParameter("needList");
+                String needList = request.getParameter("needList");
                 if (StringUtils.hasText(needList)) {
                     String[] arr = needList.split(",");
                     needLists = Arrays.asList(arr);
                 }
-                Map<String, Object> pageMap = this.onlCgformFieldService.queryAutolistPage(tableName, code, params, needLists, dataRulePerms);
+                // 查询所有列
+                String queryAllColumn = request.getParameter("queryAllColumn");
+                Map<String, Object> pageMap = this.onlCgformFieldService.queryAutolistPage(tableName, code, params, needLists, dataRulePerms, queryAllColumn);
                 this.enhanceList(cgformHead, pageMap);
                 res.setResult(pageMap);
             } catch (Exception var8) {
@@ -480,7 +482,9 @@ public class OnlCgformApiController {
             }
 
             pageResult.put("pageSize", -521);
-            Map<String, Object> autolistPage = this.onlCgformFieldService.queryAutolistPage(cgformHead.getTableName(), cgformHead.getId(), pageResult, null, cgformHead.getDataRulePerms());
+            // 查询所有列
+            String queryAllColumn = request.getParameter("queryAllColumn");
+            Map<String, Object> autolistPage = this.onlCgformFieldService.queryAutolistPage(cgformHead.getTableName(), cgformHead.getId(), pageResult, null, cgformHead.getDataRulePerms(), queryAllColumn);
             List<OnlCgformField> fieldList = (List<OnlCgformField>)autolistPage.get("fieldList");
             List<Map<String, Object>> records = (List<Map<String, Object>>)autolistPage.get("records");
             List exportRecords = new ArrayList();
