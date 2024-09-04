@@ -16,6 +16,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.activiti.jeecg.commons.lang.MyStreamUtils;
 import org.jeecg.modules.extbpm.process.entity.ExtActListener;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcess;
+import org.jeecg.modules.extbpm.process.pojo.UserInfo;
 import org.jeecg.modules.extbpm.process.service.IExtActExpressionService;
 import org.jeecg.modules.extbpm.process.service.IExtActListenerService;
 import org.jeecg.modules.extbpm.process.service.IExtActProcessService;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -139,16 +141,26 @@ public class DesignerApiController {
             value = {"/getUsers"},
             method = {RequestMethod.POST, RequestMethod.GET}
     )
-    public String d(HttpServletRequest var1) {
-        String var2 = oConvertUtils.getString(var1.getParameter("token"));
-        a.debug(" getUsers 登录令牌token： " + var2);
-        List var3 = this.extActProcessService.getBpmUsers();
-        HashMap var4 = new HashMap();
-        var4.put("total", var3.size());
-        var4.put("rows", var3);
-        JSONObject var5 = new JSONObject(var4);
-        a.info(var5.toJSONString());
-        return var5.toJSONString();
+    public String getUsers(HttpServletRequest request) {
+        String token = oConvertUtils.getString(request.getParameter("token"));
+        a.debug(" getUsers 登录令牌token： " + token);
+        HashMap<String, Object> result = new HashMap<>();
+        // 查完整分页太大了，只查100条
+        // List<UserInfo> users = this.extActProcessService.getBpmUsers();
+        // result.put("total", users.size());
+        // result.put("rows", users);
+        int pageNo = StringUtils.hasText(request.getParameter("pageNo")) ? Integer.parseInt(request.getParameter("pageNo")) : 1;
+        int pageSize = StringUtils.hasText(request.getParameter("pageSize")) ? Integer.parseInt(request.getParameter("pageSize")) : 100;
+        Page<UserInfo> page = new Page<>(pageNo, pageSize);
+        Page<UserInfo> pageBpmUsers = this.extActProcessService.getPageBpmUsers("", "", page);
+        result.put("total", pageBpmUsers.getTotal());
+        result.put("rows", pageBpmUsers.getRecords());
+        result.put("current", pageBpmUsers.getCurrent());
+        result.put("size", pageBpmUsers.getSize());
+        result.put("pages", pageBpmUsers.getPages());
+        // JSONObject var5 = new JSONObject(result);
+        // a.info(var5.toJSONString());
+        return JSONObject.toJSONString(result);
     }
 
     @RequestMapping(
