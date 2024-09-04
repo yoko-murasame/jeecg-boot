@@ -237,6 +237,7 @@ public class ExtActProcessNodeController {
             resMap.put("onlineInitQueryParamGetter", deployment.getOnlineInitQueryParamGetter());
             resMap.put("showReject", deployment.getShowReject());
             resMap.put("customTaskModule", deployment.getCustomTaskModule());
+            resMap.put("showMessageHandle", deployment.getShowMessageHandle());
         }
 
         result.setResult(resMap);

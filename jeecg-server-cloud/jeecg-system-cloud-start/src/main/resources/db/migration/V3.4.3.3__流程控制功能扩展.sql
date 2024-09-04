@@ -44,6 +44,11 @@ alter table ext_act_process_node
 
 comment on column ext_act_process_node.custom_task_module is '自定义任务处理模块';
 
+alter table ext_act_process_node
+    add if not exists show_message_handle boolean;
+
+comment on column ext_act_process_node.show_message_handle is '是否显示处理意见框';
+
 
 -- 流程节点部署表
 comment on table ext_act_process_node_deploy is '流程节点部署表';
@@ -87,3 +92,8 @@ alter table ext_act_process_node_deploy
     add if not exists custom_task_module varchar(500);
 
 comment on column ext_act_process_node_deploy.custom_task_module is '自定义任务处理模块';
+
+alter table ext_act_process_node_deploy
+    add if not exists show_message_handle boolean;
+
+comment on column ext_act_process_node_deploy.show_message_handle is '是否显示处理意见框';

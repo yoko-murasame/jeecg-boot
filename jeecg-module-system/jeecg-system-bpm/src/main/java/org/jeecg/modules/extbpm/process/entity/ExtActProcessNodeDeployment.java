@@ -41,5 +41,7 @@ public class ExtActProcessNodeDeployment implements Serializable {
     private Boolean showReject;
     // 自定义任务处理模块
     private String customTaskModule;
+    // 是否显示处理意见框
+    private Boolean showMessageHandle;
 
 }
