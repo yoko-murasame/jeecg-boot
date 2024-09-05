@@ -129,6 +129,13 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     private boolean overrideNodeDefaultUserByCustomSelect;
 
     /**
+     * 是否在任务完成时更新表单数据到流程变量
+     */
+    @Getter
+    @Setter
+    private boolean updateVariablesAfterTaskComplete;
+
+    /**
      * 对接OA服务
      */
     @Resource
@@ -430,6 +437,21 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
     }
 
     /**
+     * 在任务完成生命周期后，自动更新表单数据到流程变量
+     *
+     * @author Yoko
+     * @since 2024/9/5 21:32
+     * @param taskEntity 任务实体
+     */
+    protected void doUpdateVariablesAfterTaskComplete(TaskEntity taskEntity) {
+        if (this.updateVariablesAfterTaskComplete && StringUtils.hasText(this.BPM_DATA_ID)) {
+            Map<String, Object> formData = this.getFormData();
+            taskEntity.getProcessInstance().setVariables(formData);
+            log.info("表单数据更新到流程变量成功");
+        }
+    }
+
+    /**
      * 获取当前业务数据
      */
     protected Map<String, Object> getFormData() {
@@ -509,6 +531,7 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
                 watch.start();
                 this.installVariables(taskEntity, eventImpl);
                 this.customTaskCompletedHandler(taskEntity);
+                this.doUpdateVariablesAfterTaskComplete(taskEntity);
                 watch.stop();
                 log.info("流程名称：{}，{} === 实例ID：{} === 任务完成：{}，处理人：{} === 耗时：{} 毫秒", name, key, taskEntity.getProcessInstanceId(), taskEntity.getName(), taskEntity.getAssignee(), watch.getTotalTimeMillis());
             }

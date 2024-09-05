@@ -67,6 +67,7 @@ public class YokoGlobalListenerConfig implements ApplicationListener, Applicatio
             listener.setAutoFillHistoricApplyUserId(yokoGlobalListener.autoFillHistoricApplyUserId());
             listener.setAutoFillHistoricRejectApplyUserId(yokoGlobalListener.autoFillHistoricRejectApplyUserId());
             listener.setOverrideNodeDefaultUserByCustomSelect(yokoGlobalListener.overrideNodeDefaultUserByCustomSelect());
+            listener.setUpdateVariablesAfterTaskComplete(yokoGlobalListener.updateVariablesAfterTaskComplete());
             // 直接通过dispatch注册到configuration
             if (null == configuration.getEventDispatcher() || !configuration.getEventDispatcher().getClass().getName().contains("YokoActivitiEventDispatcherImpl")) {
                 configuration.setEventDispatcher(new YokoActivitiEventDispatcherImpl());

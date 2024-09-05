@@ -74,4 +74,10 @@ public @interface YokoGlobalListener {
      * 此配置必须配置忽略的会签节点，否则会签节点创建多个会签子任务时，会导致每次request域的前端选择处理人变成任务候选人进行分配任务
      */
     boolean overrideNodeDefaultUserByCustomSelect() default true;
+
+    /**
+     * 是否在任务完成时更新表单数据到流程变量
+     */
+    boolean updateVariablesAfterTaskComplete() default true;
+
 }
