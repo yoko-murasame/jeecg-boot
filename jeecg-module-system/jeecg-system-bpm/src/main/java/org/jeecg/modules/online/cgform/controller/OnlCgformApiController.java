@@ -169,7 +169,7 @@ public class OnlCgformApiController {
             try {
                 String tableName = cgformHead.getTableName();
                 String dataRulePerms = cgformHead.getDataRulePerms();
-                Map<String, Object> params = CgformDB.a(request);
+                Map<String, Object> params = CgformDB.getRequestParams(request);
                 List<String> needLists = null;
                 String needList = request.getParameter("needList");
                 if (StringUtils.hasText(needList)) {
@@ -437,10 +437,10 @@ public class OnlCgformApiController {
 
     @OnlineAuth("getQueryInfo")
     @GetMapping({"/getQueryInfo/{code}"})
-    public Result<?> b(@PathVariable("code") String var1) {
+    public Result<?> getQueryInfo(@PathVariable("code") String code) {
         try {
-            List var2 = this.onlCgformFieldService.getAutoListQueryInfo(var1);
-            return Result.ok(var2);
+            List<Map<String, String>> res = this.onlCgformFieldService.getAutoListQueryInfo(code);
+            return Result.ok(res);
         } catch (Exception var3) {
             a.error("OnlCgformApiController.getQueryInfo()发生异常：" + var3.getMessage(), var3);
             return Result.error("查询失败");
@@ -517,7 +517,7 @@ public class OnlCgformApiController {
 
                     for(int var19 = 0; var19 < var18; ++var19) {
                         String var20 = var17[var19];
-                        this.a(var20, (Map)pageResult, (List)exportRecords, exportEntities);
+                        this.a(var20, pageResult, exportRecords, exportEntities);
                     }
                 }
             }
@@ -880,36 +880,34 @@ public class OnlCgformApiController {
         return result;
     }
 
-    private void a(String var1, Map<String, Object> var2, List<Map<String, Object>> var3, List<ExcelExportEntity> var4) {
-        OnlCgformHead var5 = (OnlCgformHead)this.onlCgformHeadService.getOne((new LambdaQueryWrapper<OnlCgformHead>()).eq(OnlCgformHead::getTableName, var1));
-        LambdaQueryWrapper<OnlCgformField> var6 = new LambdaQueryWrapper();
-        var6.eq(OnlCgformField::getCgformHeadId, var5.getId());
-        var6.orderByAsc(OnlCgformField::getOrderNum);
-        List var7 = this.onlCgformFieldService.list(var6);
-        String var8 = "";
-        String var9 = "";
-        Iterator var10 = var7.iterator();
+    private void a(String dbFieldName, Map<String, Object> pageResult, List<Map<String, Object>> exportRecords, List<ExcelExportEntity> excelExportEntities) {
+        OnlCgformHead cgformHead = this.onlCgformHeadService.getOne((new LambdaQueryWrapper<OnlCgformHead>()).eq(OnlCgformHead::getTableName, dbFieldName));
+        LambdaQueryWrapper<OnlCgformField> qw = new LambdaQueryWrapper<>();
+        qw.eq(OnlCgformField::getCgformHeadId, cgformHead.getId());
+        qw.orderByAsc(OnlCgformField::getOrderNum);
+        List<OnlCgformField> onlCgformFields = this.onlCgformFieldService.list(qw);
+        String mainField = "";
+        String mainFieldDbName = "";
 
-        while(var10.hasNext()) {
-            OnlCgformField var11 = (OnlCgformField)var10.next();
-            if (oConvertUtils.isNotEmpty(var11.getMainField())) {
-                var8 = var11.getMainField();
-                var9 = var11.getDbFieldName();
+        for (OnlCgformField cgformField : onlCgformFields) {
+            if (oConvertUtils.isNotEmpty(cgformField.getMainField())) {
+                mainField = cgformField.getMainField();
+                mainFieldDbName = cgformField.getDbFieldName();
                 break;
             }
         }
 
-        ExcelExportEntity var14 = new ExcelExportEntity(var5.getTableTxt(), var1);
-        var14.setList(this.getExcelExportEntities(var7, "id"));
-        var4.add(var14);
+        ExcelExportEntity excelExportEntity = new ExcelExportEntity(cgformHead.getTableTxt(), dbFieldName);
+        excelExportEntity.setList(this.getExcelExportEntities(onlCgformFields, "id"));
+        excelExportEntities.add(excelExportEntity);
 
-        for(int var15 = 0; var15 < var3.size(); ++var15) {
-            var2.put(var9, ((Map)var3.get(var15)).get(var8));
-            String var12 = CgformDB.a(var5.getTableName(), var7, var2);
-            a.info("-----------动态列表查询子表sql》》" + var12);
-            List var13 = this.onlCgformHeadService.queryListData(var12);
-            org.jeecg.modules.online.cgform.converter.b.a(1, var13, var7);
-            ((Map)var3.get(var15)).put(var1, CgformDB.d(var13));
+        for (Map<String, Object> subRecord : exportRecords) {
+            pageResult.put(mainFieldDbName, subRecord.get(mainField));
+            String subSql = CgformDB.generateSql(cgformHead.getTableName(), onlCgformFields, pageResult);
+            a.info("-----------动态列表查询子表sql》》" + subSql);
+            List<Map<String, Object>> subList = this.onlCgformHeadService.queryListData(subSql);
+            org.jeecg.modules.online.cgform.converter.b.a(1, subList, onlCgformFields);
+            subRecord.put(dbFieldName, CgformDB.d(subList));
         }
 
     }
@@ -1041,7 +1039,7 @@ public class OnlCgformApiController {
                 String var6 = var4.getTreeIdField();
                 String var7 = var4.getTreeParentIdField();
                 ArrayList var8 = Lists.newArrayList(new String[]{var6, var7});
-                Map var9 = CgformDB.a(var2);
+                Map var9 = CgformDB.getRequestParams(var2);
                 String var10 = null;
                 if (var9.get(var6) != null) {
                     var10 = var9.get(var6).toString();

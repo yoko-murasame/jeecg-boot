@@ -8,11 +8,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.aspect.DictAspect;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
+import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
+import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
@@ -62,10 +66,10 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     private String MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL;
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public Map<String, Object> queryAutolistPage(String tbname, String headId, Map<String, Object> params, List<String> needList, String dataRulePerms, String queryAllColumn) {
+    public Map<String, Object> queryAutolistPage(String tableName, String code, Map<String, Object> params, List<String> needList, String dataRulePerms, String queryAllColumn) {
         Map<String, Object> resultMap = new HashMap<>();
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, headId);
+        lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
         lambdaQueryWrapper.orderByAsc(OnlCgformField::getOrderNum);
         List<OnlCgformField> allFields = list(lambdaQueryWrapper);
 
@@ -75,14 +79,14 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         List<OnlCgformField> queryAvailableFields = allFields;
         // 如果未传入查询所有列，查找列表显示字段+权限控制字段
         if (StringUtils.isBlank(queryAllColumn)) {
-            queryAvailableFields = queryAvailableFields(headId, tbname, true, allFields, needList);
+            queryAvailableFields = queryAvailableFields(code, tableName, true, allFields, needList);
         }
         // 组装SELECT
-        org.jeecg.modules.online.cgform.d.b.assembleSelect(tbname, queryAvailableFields, stringBuffer);
+        org.jeecg.modules.online.cgform.d.b.assembleSelect(tableName, queryAvailableFields, stringBuffer);
 
         // 数据权限规则
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), headId);
+        List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
         // 数据权限规则-全局perms
         if (StringUtils.isNotBlank(dataRulePerms)) {
             List<SysPermissionDataRuleModel> dataRules = this.sysBaseAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
@@ -118,13 +122,13 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE).append(whereCondition);
         }
         // 组装ORDER BY
-        Object obj = params.get("column");
-        if (obj != null) {
-            String obj2 = obj.toString();
-            String obj3 = params.get("order").toString();
-            if (a(obj2, allFields)) {
-                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY).append(oConvertUtils.camelToUnderline(obj2));
-                if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
+        Object column = params.get("column");
+        if (column != null) {
+            String columnString = column.toString();
+            String order = params.get("order").toString();
+            if (hasDbField(columnString, allFields)) {
+                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY).append(oConvertUtils.camelToUnderline(columnString));
+                if (org.jeecg.modules.online.cgform.d.b.ASC.equals(order)) {
                     stringBuffer.append(" asc");
                 } else {
                     stringBuffer.append(" desc");
@@ -134,7 +138,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         // 检查sql注入（这里会影响online列表getData的查询）
         // SqlInjectionUtil.filterContent(stringBuffer.toString());
         int valueOf = params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString());
-        System.out.println(stringBuffer.toString());
+        // System.out.println(stringBuffer);
+        // jeecg作者自己协定的不分页值
         if (valueOf == -521) {
             List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
             a.debug("---Online查询sql 不分页 :>>" + stringBuffer);
@@ -153,9 +158,92 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             resultMap.put("total", selectPageBySql.getTotal());
             resultMap.put("records", org.jeecg.modules.online.cgform.d.b.d(selectPageBySql.getRecords()));
         }
+        // 翻译懒加载字典（主要是表字典的配置，以结果值为准）
+        Map<String, List<DictModel>> dictOptions = this.transferLazyDictOptions((List<Map<String, Object>>) resultMap.get("records"), queryAvailableFields);
+        // 去重
+        for (String key : dictOptions.keySet()) {
+            dictOptions.computeIfPresent(key, (k, dictModels) -> dictModels.stream().distinct().collect(Collectors.toList()));
+        }
+        resultMap.put("dictOptions", dictOptions);
         return resultMap;
     }
 
+    /**
+     * 翻译懒加载字典
+     *
+     * @author Yoko
+     * @since 2024/9/5 15:19
+     * @param records 待翻译结果列表
+     * @param onlCgformFields 表单字段列表
+     * @return 字典数组
+     */
+    public Map<String, List<DictModel>> transferLazyDictOptions(List<Map<String, Object>> records, List<OnlCgformField> onlCgformFields) {
+        Map<String, List<String>> dataListMap = new HashMap<>(5);
+        // 组装字典 {字典code:值列表}
+        for (OnlCgformField onlCgformField : onlCgformFields) {
+            String fieldShowType = onlCgformField.getFieldShowType();
+            String dbFieldName = onlCgformField.getDbFieldName();
+            // 没有设置懒加载的跳过、还有popup组件跳过
+            if (!Objects.equals(1, onlCgformField.getDictLazyLoad()) || org.jeecg.modules.online.cgform.d.b.POPUP.equals(fieldShowType)) {
+                continue;
+            }
+            // 懒加载字典
+            List<String> dicVals = records.stream().map(e -> Optional.ofNullable(e.get(dbFieldName)).orElse("").toString()).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+            // 最终字典key
+            String dictCode = getFinalDictCode(onlCgformField);
+            if (StringUtils.isNotEmpty(dictCode)) {
+                dataListMap.put(dictCode, dicVals);
+            }
+        }
+        // 统一翻译
+        DictAspect dictAspect = SpringContextUtils.getBean(DictAspect.class);
+        Map<String, List<DictModel>> dictOptions = dictAspect.translateAllDict(dataListMap);
+
+        // 翻译结果注入到列表
+        for (Map<String, Object> record : records) {
+            for (OnlCgformField onlCgformField : onlCgformFields) {
+                // 最终字典key
+                String dictCode = getFinalDictCode(onlCgformField);
+                if (StringUtils.isEmpty(dictCode)) {
+                    continue;
+                }
+                String value = (String) record.get(onlCgformField.getDbFieldName());
+                if (oConvertUtils.isNotEmpty(value)) {
+                    List<DictModel> dictModels = dictOptions.get(dictCode);
+                    if (dictModels == null || dictModels.isEmpty()) {
+                        continue;
+                    }
+                    String textValue = dictAspect.translDictText(dictModels, value);
+                    record.put(onlCgformField.getDbFieldName() + CommonConstant.DICT_TEXT_SUFFIX, textValue);
+                }
+            }
+        }
+
+        return dictOptions;
+    }
+
+    private String getFinalDictCode(OnlCgformField onlCgformField) {
+        String dictField = onlCgformField.getDictField();
+        String dictTable = onlCgformField.getDictTable();
+        String dictText = onlCgformField.getDictText();
+        String dictCode = "";
+        if (oConvertUtils.isNotEmpty(dictTable)) {
+            // 表字典
+            dictCode = String.format("%s,%s,%s", dictTable, dictText, dictField);
+        } else if (oConvertUtils.isNotEmpty(dictField)) {
+            String[] dics = dictField.split(",");
+            if (dics.length == 1) {
+                // 系统字典
+                dictCode = dictField;
+            } else if (dics.length == 3 || dics.length == 4) {
+                // 表字典
+                dictCode = String.format("%s,%s,%s", dics[0], dics[1], dics[2]);
+            } else {
+                throw new RuntimeException("字典配置错误，格式为：表名,显示字段,值字段,可选条件");
+            }
+        }
+        return dictCode;
+    }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public Map<String, Object> queryAutoExportlist(String tbname, String headId, Map<String, Object> params, List<String> needList) {
@@ -203,7 +291,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (obj != null) {
             String obj2 = obj.toString();
             String obj3 = params.get("order").toString();
-            if (a(obj2, list)) {
+            if (hasDbField(obj2, list)) {
                 stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY + oConvertUtils.camelToUnderline(obj2));
                 if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
                     stringBuffer.append(" asc");
@@ -256,7 +344,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (obj != null) {
             String obj2 = obj.toString();
             String obj3 = params.get("order").toString();
-            if (a(obj2, list)) {
+            if (hasDbField(obj2, list)) {
                 stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY + oConvertUtils.camelToUnderline(obj2));
                 if (org.jeecg.modules.online.cgform.d.b.ASC.equals(obj3)) {
                     stringBuffer.append(" asc");
@@ -591,7 +679,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         ArrayList arrayList = new ArrayList();
         int i = 0;
         for (OnlCgformField onlCgformField : list) {
-            HashMap hashMap = new HashMap();
+            HashMap<String, Object> hashMap = new HashMap();
             hashMap.put("label", onlCgformField.getDbFieldTxt());
             hashMap.put("field", onlCgformField.getDbFieldName());
             hashMap.put("mode", onlCgformField.getQueryMode());
@@ -862,7 +950,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         return z;
     }
 
-    public boolean a(String str, List<OnlCgformField> list) {
+    public boolean hasDbField(String str, List<OnlCgformField> list) {
         boolean z = false;
         Iterator<OnlCgformField> it = list.iterator();
         while (true) {

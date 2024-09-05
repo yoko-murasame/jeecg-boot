@@ -172,7 +172,7 @@ public class CgformDB {
             var2.append("SELECT id");
         }
 
-        var2.append(" FROM " + f(var0));
+        var2.append(" FROM " + getTableName(var0));
     }
 
     public static String toDatetime(String var0) {
@@ -514,35 +514,28 @@ public class CgformDB {
         }
     }
 
-    public static Map<String, Object> a(HttpServletRequest var0) {
-        Map var1 = var0.getParameterMap();
-        HashMap var2 = new HashMap();
-        Iterator var3 = var1.entrySet().iterator();
-        String var5 = "";
-        String var6 = "";
+    public static Map<String, Object> getRequestParams(HttpServletRequest request) {
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        HashMap<String, Object> params = new HashMap<>();
+        Iterator<Entry<String, String[]>> iterator = parameterMap.entrySet().iterator();
+        String key = "";
+        String value = "";
 
-        for(Object var7 = null; var3.hasNext(); var2.put(var5, var6)) {
-            Entry var4 = (Entry)var3.next();
-            var5 = (String)var4.getKey();
-            var7 = var4.getValue();
-            if (!"_t".equals(var5) && null != var7) {
-                if (!(var7 instanceof String[])) {
-                    var6 = var7.toString();
-                } else {
-                    String[] var8 = (String[])((String[])var7);
-
-                    for(int var9 = 0; var9 < var8.length; ++var9) {
-                        var6 = var8[var9] + ",";
-                    }
-
-                    var6 = var6.substring(0, var6.length() - 1);
+        for(Object tempVal; iterator.hasNext(); params.put(key, value)) {
+            Entry<String, String[]> entry = iterator.next();
+            key = entry.getKey();
+            tempVal = entry.getValue();
+            if (!"_t".equals(key) && null != tempVal) {
+                String[] vals = (String[]) tempVal;
+                for (String string : vals) {
+                    value = string + ",";
                 }
+                value = value.substring(0, value.length() - 1);
             } else {
-                var6 = "";
+                value = "";
             }
         }
-
-        return var2;
+        return params;
     }
 
     public static boolean a(String var0, List<OnlCgformField> var1) {
@@ -875,7 +868,7 @@ public class CgformDB {
                     var8 = a();
                 }
 
-                String var17 = "insert into " + f(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
+                String var17 = "insert into " + getTableName(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
                 var6.put("execute_sql_string", var17);
                 ay.info("--动态表单保存sql-->" + var17);
                 return var6;
@@ -936,7 +929,7 @@ public class CgformDB {
                     var14 = var14.substring(0, var14.length() - 1);
                 }
 
-                String var15 = "update " + f(var0) + " set " + var14 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
+                String var15 = "update " + getTableName(var0) + " set " + var14 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
                 ay.info("--动态表单编辑sql-->" + var15);
                 var4.put("execute_sql_string", var15);
                 return var4;
@@ -971,9 +964,9 @@ public class CgformDB {
         }
         // 去除 WHERE 1=1
         if (StringUtils.isNotBlank(var3)) {
-            var4.append(" FROM " + f(var0) + " where " + var2 + "=" + "'" + var3 + "'");
+            var4.append(" FROM " + getTableName(var0) + " where " + var2 + "=" + "'" + var3 + "'");
         } else {
-            var4.append(" FROM " + f(var0));
+            var4.append(" FROM " + getTableName(var0));
         }
         // var4.append(" FROM " + f(var0) + " where 1=1  " + " AND " + var2 + "=" + "'" + var3 + "'");
         return var4.toString();
@@ -1071,79 +1064,77 @@ public class CgformDB {
         return !a((Object)var0.getTableName(), (Object)var1.getTableName()) || !a((Object)var0.getTableTxt(), (Object)var1.getTableTxt());
     }
 
-    public static String a(String var0, List<OnlCgformField> var1, Map<String, Object> var2) {
-        StringBuffer var3 = new StringBuffer();
-        StringBuffer var4 = new StringBuffer();
-        Iterator var5 = var1.iterator();
+    public static String generateSql(String tableName, List<OnlCgformField> onlCgformFields, Map<String, Object> record) {
+        StringBuffer conditionSb = new StringBuffer();
+        StringBuffer fieldsNameSb = new StringBuffer();
 
-        while(var5.hasNext()) {
-            OnlCgformField var6 = (OnlCgformField)var5.next();
-            String var7 = var6.getDbFieldName();
-            String var8 = var6.getDbType();
-            if (var6.getIsShowList() == 1) {
-                var4.append("," + var7);
+        for (OnlCgformField cgformField : onlCgformFields) {
+            String dbFieldName = cgformField.getDbFieldName();
+            String dbType = cgformField.getDbType();
+            if (cgformField.getIsShowList() == 1) {
+                fieldsNameSb.append("," + dbFieldName);
             }
 
-            boolean var9;
-            String var10;
-            if (oConvertUtils.isNotEmpty(var6.getMainField())) {
-                var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
-                var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", var2.get(var7), var9);
-                if (!"".equals(var10)) {
-                    var3.append(" AND " + var10);
+            boolean isString;
+            String conditionStr;
+            if (oConvertUtils.isNotEmpty(cgformField.getMainField())) {
+                isString = !org.jeecg.modules.online.cgform.d.k.isNumber(dbType);
+                conditionStr = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", record.get(dbFieldName), isString);
+                if (!"".equals(conditionStr)) {
+                    conditionSb.append(" AND " + conditionStr);
                 }
             }
 
-            if(var6.getDbFieldName().toUpperCase().equals(MYBATIS_LOGIC_DELETE_FIELD.toUpperCase())){
+            if (cgformField.getDbFieldName().toUpperCase().equals(MYBATIS_LOGIC_DELETE_FIELD.toUpperCase())) {
                 //规定的删除字段
-                var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
-                var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL, var9);
-                var3.append(" AND " + var10);
+                isString = !org.jeecg.modules.online.cgform.d.k.isNumber(dbType);
+                conditionStr = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL, isString);
+                conditionSb.append(" AND " + conditionStr);
             }
 
-            if (var6.getIsQuery() == 1) {
-                if ("single".equals(var6.getQueryMode())) {
-                    if (var2.get(var7) != null) {
-                        var9 = !org.jeecg.modules.online.cgform.d.k.isNumber(var8);
-                        var10 = QueryGenerator.getSingleQueryConditionSql(var7, "", var2.get(var7), var9);
-                        if (!"".equals(var10)) {
-                            var3.append(" AND " + var10);
+            if (cgformField.getIsQuery() == 1) {
+                if ("single".equals(cgformField.getQueryMode())) {
+                    if (record.get(dbFieldName) != null) {
+                        isString = !org.jeecg.modules.online.cgform.d.k.isNumber(dbType);
+                        conditionStr = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", record.get(dbFieldName), isString);
+                        if (!"".equals(conditionStr)) {
+                            conditionSb.append(" AND " + conditionStr);
                         }
                     }
                 } else {
-                    Object var11 = var2.get(var7 + "_begin");
-                    if (var11 != null) {
-                        var3.append(" AND " + var7 + ">=");
-                        if (org.jeecg.modules.online.cgform.d.k.isNumber(var8)) {
-                            var3.append(var11.toString());
+                    Object beginField = record.get(dbFieldName + "_begin");
+                    if (beginField != null) {
+                        conditionSb.append(" AND " + dbFieldName + ">=");
+                        if (org.jeecg.modules.online.cgform.d.k.isNumber(dbType)) {
+                            conditionSb.append(beginField);
                         } else {
-                            var3.append("'" + var11.toString() + "'");
+                            conditionSb.append("'" + beginField + "'");
                         }
                     }
 
-                    Object var12 = var2.get(var7 + "_end");
-                    if (var12 != null) {
-                        var3.append(" AND " + var7 + "<=");
-                        if (org.jeecg.modules.online.cgform.d.k.isNumber(var8)) {
-                            var3.append(var12.toString());
+                    Object endField = record.get(dbFieldName + "_end");
+                    if (endField != null) {
+                        conditionSb.append(" AND " + dbFieldName + "<=");
+                        if (org.jeecg.modules.online.cgform.d.k.isNumber(dbType)) {
+                            conditionSb.append(endField);
                         } else {
-                            var3.append("'" + var12.toString() + "'");
+                            conditionSb.append("'" + endField + "'");
                         }
                     }
                 }
             }
         }
 
-        String whereCondition = var3.toString();
+        String whereCondition = conditionSb.toString();
         if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
             whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
         }
         // return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where 1=1  " + var3.toString();
         // 去除 WHERE 1=1
-        if (StringUtils.isNotBlank(whereCondition.toString())) {
-            return "SELECT id" + var4.toString() + " FROM " + f(var0) + " where " + whereCondition.toString();
+        if (StringUtils.isNotBlank(whereCondition)) {
+            return "SELECT id" + fieldsNameSb + " FROM " + getTableName(tableName) + " where " + whereCondition;
         } else {
-            return "SELECT id" + var4.toString() + " FROM " + f(var0);
+            return "SELECT id" + fieldsNameSb + " FROM " + getTableName(tableName);
         }
     }
 
@@ -1821,7 +1812,7 @@ public class CgformDB {
                     var8 = a();
                 }
 
-                String var16 = "insert into " + f(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
+                String var16 = "insert into " + getTableName(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
                 var6.put("execute_sql_string", var16);
                 ay.info("--表单设计器表单保存sql-->" + var16);
                 return var6;
@@ -1874,7 +1865,7 @@ public class CgformDB {
                     var13 = var13.substring(0, var13.length() - 1);
                 }
 
-                String var14 = "update " + f(var0) + " set " + var13 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
+                String var14 = "update " + getTableName(var0) + " set " + var13 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
                 ay.info("--表单设计器表单编辑sql-->" + var14);
                 var4.put("execute_sql_string", var14);
                 return var4;
@@ -1884,7 +1875,7 @@ public class CgformDB {
 
     public static Map<String, Object> a(String var0, String var1, String var2) {
         HashMap var3 = new HashMap();
-        String var4 = "update " + f(var0) + " set " + var1 + "=" + "'" + 0 + "'" + " where  " + "id" + "=" + "'" + var2 + "'";
+        String var4 = "update " + getTableName(var0) + " set " + var1 + "=" + "'" + 0 + "'" + " where  " + "id" + "=" + "'" + var2 + "'";
         ay.info("--修改树节点状态：为无子节点sql-->" + var4);
         var3.put("execute_sql_string", var4);
         return var3;
@@ -1894,7 +1885,7 @@ public class CgformDB {
         return var0 != null && !"".equals(var0) && !"0".equals(var0) ? "CODE like '" + var0 + "%" + "'" : "";
     }
 
-    public static String f(String var0) {
+    public static String getTableName(String var0) {
         return Pattern.matches("^[a-zA-z].*\\$\\d+$", var0) ? var0.substring(0, var0.lastIndexOf("$")) : var0;
     }
 

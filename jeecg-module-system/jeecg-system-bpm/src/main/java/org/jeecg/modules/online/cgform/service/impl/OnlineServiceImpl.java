@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
@@ -66,16 +67,32 @@ public class OnlineServiceImpl implements IOnlineService {
                 String dictField = onlCgformField.getDictField();
                 String fieldShowType = onlCgformField.getFieldShowType();
                 if (oConvertUtils.isNotEmpty(dictField) && !org.jeecg.modules.online.cgform.d.b.POPUP.equals(fieldShowType)) {
-                    List<DictModel> dictModels = new ArrayList<>();
-                    // TODO 这里字典转换后期量大效率太低，需要改进，可以固定字典的走这里，表字典跟前端走
-                    if (oConvertUtils.isNotEmpty(onlCgformField.getDictTable())) {
-                        dictModels = this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), dictField);
-                    } else if (oConvertUtils.isNotEmpty(onlCgformField.getDictField())) {
-                        // FIXME 如果表字典配置到这里，但是没有加#{}规则，会有缓存问题，请注意！暂时先让带条件的表字典配置（table_name,text,id,condition 即4长度）不走缓存
-                        dictModels = this.sysBaseAPI.queryDictItemsByCode(dictField);
+                    // 配置了字典懒加载就不在这里立即处理字典
+                    if (Objects.equals(1, onlCgformField.getDictLazyLoad())) {
+                        // 放到自定义渲染字段 OnlAutoListMixin.js 里处理
+                        onlColumn.setCustomRender(dbFieldName + CommonConstant.DICT_TEXT_SUFFIX);
+                    } else {
+                        List<DictModel> dictModels = new ArrayList<>();
+                        // TODO 这里字典转换后期量大效率太低，需要改进，可以固定字典的走这里，表字典跟前端走
+                        if (oConvertUtils.isNotEmpty(onlCgformField.getDictTable())) {
+                            // 配置了懒加载的查询配置，就不在这里统一获取字典
+                            dictModels = this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), dictField);
+                        } else if (oConvertUtils.isNotEmpty(onlCgformField.getDictField())) {
+                            String dField = onlCgformField.getDictField();
+                            String[] dFields = dField.split(",");
+                            // 普通系统字典会走缓存，带条件（table_name,text,id,condition 即4长度）的|需要转换系统变量（#{}）的表字典不走缓存
+                            if (dFields.length == 1 || dFields.length == 4) {
+                                dictModels = this.sysBaseAPI.queryDictItemsByCode(dictField);
+                            }
+                            // 不带条件的表字典，不走缓存
+                            if (dFields.length == 3) {
+                                dictModels = this.sysBaseAPI.queryTableDictItemsByCode(dFields[0], dFields[1], dFields[2]);
+                            }
+                        }
+                        dictOptions.put(dbFieldName, dictModels);
+                        // 放到自定义渲染字段 OnlAutoListMixin.js 里处理
+                        onlColumn.setCustomRender(dbFieldName);
                     }
-                    dictOptions.put(dbFieldName, dictModels);
-                    onlColumn.setCustomRender(dbFieldName);
                 }
                 if (org.jeecg.modules.online.cgform.d.b.sI.equals(fieldShowType)) {
                     dictOptions.put(dbFieldName, org.jeecg.modules.online.cgform.d.b.a(onlCgformField));

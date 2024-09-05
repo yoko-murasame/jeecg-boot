@@ -14,3 +14,8 @@ alter table onl_cgform_head
     add if not exists online_vue_watch_js_str varchar(2000);
 
 comment on column onl_cgform_head.online_vue_watch_js_str is 'Vue2监听器JS增强';
+
+alter table onl_cgform_field
+    add if not exists dict_lazy_load smallint;
+
+comment on column onl_cgform_field.dict_lazy_load is '字典懒加载';

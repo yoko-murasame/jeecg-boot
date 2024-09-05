@@ -15,7 +15,7 @@ import java.util.Map;
 
 public abstract interface IOnlCgformFieldService extends IService<OnlCgformField>
 {
-  public abstract Map<String, Object> queryAutolistPage(String paramString1, String paramString2, Map<String, Object> paramMap, List<String> paramList, String dataRulePerms, String queryAllColumn);
+  public abstract Map<String, Object> queryAutolistPage(String tableName, String code, Map<String, Object> paramMap, List<String> paramList, String dataRulePerms, String queryAllColumn);
 
   // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
   Map<String, Object> queryAutoExportlist(String tbname, String headId, Map<String, Object> params, List<String> needList);

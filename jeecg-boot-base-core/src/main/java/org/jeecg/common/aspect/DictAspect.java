@@ -247,7 +247,7 @@ public class DictAspect {
      * @param dataListMap
      * @return
      */
-    private Map<String, List<DictModel>> translateAllDict(Map<String, List<String>> dataListMap) {
+    public Map<String, List<DictModel>> translateAllDict(Map<String, List<String>> dataListMap) {
         // 翻译后的字典文本，key=dictCode
         Map<String, List<DictModel>> translText = new HashMap<>(5);
         // 需要翻译的数据（有些可以从redis缓存中获取，就不走数据库查询）
@@ -255,14 +255,14 @@ public class DictAspect {
         // step.1 先通过redis中获取缓存字典数据
         for (String dictCode : dataListMap.keySet()) {
             List<String> dataList = dataListMap.get(dictCode);
-            if (dataList.size() == 0) {
+            if (dataList.isEmpty()) {
                 continue;
             }
             // 表字典需要翻译的数据
             List<String> needTranslDataTable = new ArrayList<>();
             for (String s : dataList) {
                 String data = s.trim();
-                if (data.length() == 0) {
+                if (data.isEmpty()) {
                     continue; // 跳过循环
                 }
                 if (dictCode.contains(",")) {
@@ -297,7 +297,7 @@ public class DictAspect {
 
             }
             // step.2 调用数据库翻译表字典
-            if (needTranslDataTable.size() > 0) {
+            if (!needTranslDataTable.isEmpty()) {
                 String[] arr = dictCode.split(",");
                 String table = arr[0], text = arr[1], code = arr[2];
                 String values = String.join(",", needTranslDataTable);
@@ -307,24 +307,23 @@ public class DictAspect {
                 log.debug("translateDictFromTableByKeys.result:" + texts);
                 List<DictModel> list = translText.computeIfAbsent(dictCode, k -> new ArrayList<>());
                 list.addAll(texts);
-
-                // 做 redis 缓存
-                for (DictModel dict : texts) {
-                    String redisKey = String.format("sys:cache:dictTable::SimpleKey [%s,%s]", dictCode, dict.getValue());
-                    try {
-                        // update-begin-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
-                        // 保留5分钟
-                        redisTemplate.opsForValue().set(redisKey, dict.getText(), 300, TimeUnit.SECONDS);
-                        // update-end-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
-                    } catch (Exception e) {
-                        log.warn(e.getMessage(), e);
-                    }
-                }
+                // 做 redis 缓存，表字典不建议缓存
+                // for (DictModel dict : texts) {
+                //     String redisKey = String.format("sys:cache:dictTable::SimpleKey [%s,%s]", dictCode, dict.getValue());
+                //     try {
+                //         // update-begin-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
+                //         // 保留5分钟
+                //         redisTemplate.opsForValue().set(redisKey, dict.getText(), 300, TimeUnit.SECONDS);
+                //         // update-end-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
+                //     } catch (Exception e) {
+                //         log.warn(e.getMessage(), e);
+                //     }
+                // }
             }
         }
 
         // step.3 调用数据库进行翻译普通字典
-        if (needTranslData.size() > 0) {
+        if (!needTranslData.isEmpty()) {
             List<String> dictCodeList = Arrays.asList(dataListMap.keySet().toArray(new String[]{}));
             // 将不包含逗号的字典code筛选出来，因为带逗号的是表字典，而不是普通的数据字典
             List<String> filterDictCodes = dictCodeList.stream().filter(key -> !key.contains(",")).collect(Collectors.toList());
@@ -360,7 +359,7 @@ public class DictAspect {
      * @param values
      * @return
      */
-    private String translDictText(List<DictModel> dictModels, String values) {
+    public String translDictText(List<DictModel> dictModels, String values) {
         List<String> result = new ArrayList<>();
 
         // 允许多个逗号分隔，允许传数组对象
