@@ -339,7 +339,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
-	@Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryEnableDictItemsByCode(String code) {
 		return sysDictService.queryEnableDictItemsByCode(code);
 	}

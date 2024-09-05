@@ -147,10 +147,25 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	}
 
 	@Override
-	@Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryEnableDictItemsByCode(String code) {
+		// 需要转换系统变量的不走缓存、带查询条件的也不走缓存（table_name,text,id,condition）
+		if (code.contains("#{") || code.split(SymbolConstant.COMMA).length == 4) {
+			throw new RuntimeException("字典查询失败，不支持表字典传入！");
+		}
+		// 查询字段缓存
+		Object r = redisUtil.get(CacheConstant.SYS_ENABLE_DICT_CACHE + ":" + code);
+		if (null != r) {
+			return (List<DictModel>) r;
+		}
 		log.debug("无缓存dictCache的时候调用这里！");
-		return sysDictMapper.queryEnableDictItemsByCode(code);
+		List<DictModel> dictItems = sysDictMapper.queryEnableDictItemsByCode(code);
+		if (null == dictItems) {
+			return null;
+		}
+		// 缓存
+		redisUtil.set(CacheConstant.SYS_ENABLE_DICT_CACHE + ":"  + code, dictItems);
+		return dictItems;
 	}
 
 	@Override
@@ -208,10 +223,25 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 	 */
 
 	@Override
-	@Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code+':'+#key", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code+':'+#key", unless = "#result == null ")
 	public String queryDictTextByKey(String code, String key) {
-		log.debug("无缓存dictText的时候调用这里！");
-		return sysDictMapper.queryDictTextByKey(code, key);
+		// 需要转换系统变量的不走缓存、带查询条件的也不走缓存（table_name,text,id,condition）
+		if (code.contains("#{") || code.split(SymbolConstant.COMMA).length == 4) {
+			throw new RuntimeException("字典翻译失败，不支持表字典传入！");
+		}
+		// 查询字段缓存
+		Object r = redisUtil.get(CacheConstant.SYS_DICT_CACHE + ":" + code + ":" + key);
+		if (null != r) {
+			return (String) r;
+		}
+		log.debug("无缓存dictCache的时候调用这里！");
+		String text = sysDictMapper.queryDictTextByKey(code, key);
+		if (null == text) {
+			return null;
+		}
+		// 缓存
+		redisUtil.set(CacheConstant.SYS_DICT_CACHE + ":" + code + ":" + key, text);
+		return text;
 	}
 
 	@Override
