@@ -17,9 +17,11 @@ import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoTransDict;
 import org.jeecg.common.aspect.annotation.Dict;
+import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.enums.TransDictType;
 import org.jeecg.common.system.vo.DictModel;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -28,6 +30,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -46,11 +49,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @ConditionalOnMissingClass("cn.com.hyit.config.DictAspect")
 public class DictAspect {
+
     @Lazy
     @Autowired
     private CommonAPI commonApi;
-    @Autowired
-    public RedisTemplate redisTemplate;
+
+    // @20240905 bug fix 这里出现key乱码，发现是redisTemplate问题，换成redisUtil就好了
+    // @Autowired
+    // public RedisTemplate redisTemplate;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -266,10 +275,10 @@ public class DictAspect {
                     continue; // 跳过循环
                 }
                 if (dictCode.contains(",")) {
-                    String keyString = String.format("sys:cache:dictTable::SimpleKey [%s,%s]", dictCode, data);
-                    if (redisTemplate.hasKey(keyString)) {
+                    String keyString = String.format(CacheConstant.SYS_DICT_TABLE_CACHE + ":SimpleKey [%s,%s]", dictCode, data);
+                    if (redisUtil.hasKey(keyString)) {
                         try {
-                            String text = oConvertUtils.getString(redisTemplate.opsForValue().get(keyString));
+                            String text = oConvertUtils.getString(redisUtil.get(keyString));
                             List<DictModel> list = translText.computeIfAbsent(dictCode, k -> new ArrayList<>());
                             list.add(new DictModel(data, text));
                         } catch (Exception e) {
@@ -280,10 +289,10 @@ public class DictAspect {
                         needTranslDataTable.add(data);
                     }
                 } else {
-                    String keyString = String.format("sys:cache:dict::%s:%s", dictCode, data);
-                    if (redisTemplate.hasKey(keyString)) {
+                    String keyString = String.format(CacheConstant.SYS_DICT_CACHE + ":%s:%s", dictCode, data);
+                    if (redisUtil.hasKey(keyString)) {
                         try {
-                            String text = oConvertUtils.getString(redisTemplate.opsForValue().get(keyString));
+                            String text = oConvertUtils.getString(redisUtil.get(keyString));
                             List<DictModel> list = translText.computeIfAbsent(dictCode, k -> new ArrayList<>());
                             list.add(new DictModel(data, text));
                         } catch (Exception e) {
@@ -307,18 +316,18 @@ public class DictAspect {
                 log.debug("translateDictFromTableByKeys.result:" + texts);
                 List<DictModel> list = translText.computeIfAbsent(dictCode, k -> new ArrayList<>());
                 list.addAll(texts);
-                // 做 redis 缓存，表字典不建议缓存
-                // for (DictModel dict : texts) {
-                //     String redisKey = String.format("sys:cache:dictTable::SimpleKey [%s,%s]", dictCode, dict.getValue());
-                //     try {
-                //         // update-begin-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
-                //         // 保留5分钟
-                //         redisTemplate.opsForValue().set(redisKey, dict.getText(), 300, TimeUnit.SECONDS);
-                //         // update-end-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
-                //     } catch (Exception e) {
-                //         log.warn(e.getMessage(), e);
-                //     }
-                // }
+                // 做 redis 缓存
+                for (DictModel dict : texts) {
+                    String redisKey = String.format(CacheConstant.SYS_DICT_TABLE_CACHE + ":SimpleKey [%s,%s]", dictCode, dict.getValue());
+                    try {
+                        // update-begin-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
+                        // 保留5分钟
+                        redisUtil.set(redisKey, dict.getText(), 300);
+                        // update-end-author:taoyan date:20211012 for: 字典表翻译注解缓存未更新 issues/3061
+                    } catch (Exception e) {
+                        log.warn(e.getMessage(), e);
+                    }
+                }
             }
         }
 
@@ -338,11 +347,11 @@ public class DictAspect {
                 List<DictModel> newList = manyDict.get(dictCode);
                 list.addAll(newList);
 
-                // 做 redis 缓存
+                // 做 redis 缓存，@20240905 bug fix 这里出现key乱码，发现是redisTemplate问题，换成redisUtil就好了
                 for (DictModel dict : newList) {
-                    String redisKey = String.format("sys:cache:dict::%s:%s", dictCode, dict.getValue());
+                    String redisKey = String.format(CacheConstant.SYS_DICT_CACHE + ":%s:%s", dictCode, dict.getValue());
                     try {
-                        redisTemplate.opsForValue().set(redisKey, dict.getText());
+                        redisUtil.set(redisKey, dict.getText());
                     } catch (Exception e) {
                         log.warn(e.getMessage(), e);
                     }
@@ -402,10 +411,10 @@ public class DictAspect {
             // update-begin--Author:scott -- Date:20210531 ----for： !56 优化微服务应用下存在表字段需要字典翻译时加载缓慢问题-----
             if (!StringUtils.isEmpty(table)) {
                 log.debug("--DictAspect------dicTable=" + table + " ,dicText= " + text + " ,dicCode=" + code);
-                String keyString = String.format("sys:cache:dictTable::SimpleKey [%s,%s,%s,%s]", table, text, code, k.trim());
-                if (redisTemplate.hasKey(keyString)) {
+                String keyString = String.format(CacheConstant.SYS_DICT_TABLE_CACHE + ":SimpleKey [%s,%s,%s,%s]", table, text, code, k.trim());
+                if (redisUtil.hasKey(keyString)) {
                     try {
-                        tmpValue = oConvertUtils.getString(redisTemplate.opsForValue().get(keyString));
+                        tmpValue = oConvertUtils.getString(redisUtil.get(keyString));
                     } catch (Exception e) {
                         log.warn(e.getMessage());
                     }
@@ -417,10 +426,10 @@ public class DictAspect {
                     }
                 }
             } else {
-                String keyString = String.format("sys:cache:dict::%s:%s", code, k.trim());
-                if (redisTemplate.hasKey(keyString)) {
+                String keyString = String.format(CacheConstant.SYS_DICT_CACHE + ":%s:%s", code, k.trim());
+                if (redisUtil.hasKey(keyString)) {
                     try {
-                        tmpValue = oConvertUtils.getString(redisTemplate.opsForValue().get(keyString));
+                        tmpValue = oConvertUtils.getString(redisUtil.get(keyString));
                     } catch (Exception e) {
                         log.warn(e.getMessage());
                     }
