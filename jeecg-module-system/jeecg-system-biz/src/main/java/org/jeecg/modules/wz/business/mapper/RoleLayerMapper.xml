@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.wz.business.mapper.RoleLayerMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="roleLayerResultMap" type="org.jeecg.modules.wz.business.entity.RoleLayer">
+        <id column="id" property="id"/>
+        <result column="resource_layer_id" property="resourceLayerId"/>
+        <result column="app_role_id" property="appRoleId"/>
+    </resultMap>
+</mapper>

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,7 +19,12 @@ import java.net.UnknownHostException;
  * 报错提醒: 未集成mongo报错，可以打开启动类上面的注释 exclude={MongoAutoConfiguration.class}
  */
 @Slf4j
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        MongoAutoConfiguration.class
+}, scanBasePackages = {
+        "org.jeecg",
+        "org.design"
+})
 @EnableAsync
 //@EnableAutoConfiguration(exclude={MongoAutoConfiguration.class})
 public class JeecgSystemApplication extends SpringBootServletInitializer {

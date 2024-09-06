@@ -81,7 +81,9 @@
 		<!--核心模块：启动入口、流程、依赖-->
 		<module>jeecg-module-system</module>
 		<!--扩展模块：存放一些新的东西-->
-		<module>jeecg-module-extra</module>
+        <module>jeecg-module-extra</module>
+		<!--其他模块：大屏相关内容，不用可以注释-->
+        <module>jeecg-bigdata-core</module>
 		<!--自定义starter相关依赖-->
 		<module>jeecg-boot-starter-custom</module>
 	</modules>

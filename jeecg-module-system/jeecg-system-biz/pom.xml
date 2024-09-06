@@ -48,10 +48,17 @@
 			<version>${qiniu-java-sdk.version}</version>
 		</dependency>
 
-		<!--flyway 自动对比数据库升级-->
+        <!--flyway 自动对比数据库升级-->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
 		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
+			<groupId>org.jeecgframework.boot</groupId>
+			<artifactId>jeecg-bigdata-core</artifactId>
+			<version>3.4.3</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
