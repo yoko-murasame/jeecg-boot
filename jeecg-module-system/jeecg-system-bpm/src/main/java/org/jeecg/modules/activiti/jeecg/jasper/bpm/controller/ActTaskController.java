@@ -730,7 +730,9 @@ public class ActTaskController {
             }
         }
 
-        var3.setMessage("操作成功");
+        if (var3.isSuccess()) {
+            var3.setMessage("操作成功");
+        }
         return var3;
     }
 
