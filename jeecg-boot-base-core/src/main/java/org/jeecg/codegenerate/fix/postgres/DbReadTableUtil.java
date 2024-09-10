@@ -39,17 +39,23 @@ public class DbReadTableUtil {
             c = b.createStatement(1005, 1007);
             String var3 = b.getCatalog();
             a.info(" connect databaseName : " + var3);
+
+            // mysql mariadb sqlite clickhouse polardb 的查询结构
             if (org.jeecgframework.codegenerate.database.a.a(org.jeecgframework.codegenerate.a.a.c)) {
                 var1 = MessageFormat.format("select distinct table_name from information_schema.columns where table_schema = {0}", org.jeecgframework.codegenerate.generate.util.f.c(var3));
             }
 
+            // oracle9i oracle dm edb 的查询结构
             if (org.jeecgframework.codegenerate.database.a.b(org.jeecgframework.codegenerate.a.a.c)) {
                 var1 = " select distinct colstable.table_name as  table_name from user_tab_cols colstable order by colstable.table_name";
             }
 
+            // postgresql kingbase zenith 的查询结构
+            String pgViewSql = "";
             if (org.jeecgframework.codegenerate.database.a.d(org.jeecgframework.codegenerate.a.a.c)) {
                 if (org.jeecgframework.codegenerate.a.a.a.indexOf(",") == -1) {
                     var1 = MessageFormat.format("select tablename from pg_tables where schemaname in( {0} )", org.jeecgframework.codegenerate.generate.util.f.c(org.jeecgframework.codegenerate.a.a.a));
+                    pgViewSql = MessageFormat.format("select viewname AS tablename from pg_views where schemaname in( {0} )", org.jeecgframework.codegenerate.generate.util.f.c(org.jeecgframework.codegenerate.a.a.a));
                 } else {
                     StringBuffer var4 = new StringBuffer();
                     String[] var5 = org.jeecgframework.codegenerate.a.a.a.split(",");
@@ -62,9 +68,11 @@ public class DbReadTableUtil {
                     }
 
                     var1 = MessageFormat.format("select tablename from pg_tables where schemaname in( {0} )", var4.toString().substring(0, var4.toString().length() - 1));
+                    pgViewSql = MessageFormat.format("select viewname AS tablename from pg_views where schemaname in( {0} )", var4.toString().substring(0, var4.toString().length() - 1));
                 }
             }
 
+            // sqlserver sqlserver2012 derby
             if (org.jeecgframework.codegenerate.database.a.c(org.jeecgframework.codegenerate.a.a.c)) {
                 var1 = "select distinct c.name as  table_name from sys.objects c where c.type = 'U' ";
             }
@@ -75,6 +83,14 @@ public class DbReadTableUtil {
             while(var0.next()) {
                 String var20 = var0.getString(1);
                 var2.add(var20);
+            }
+            // 如果是pg的，查询视图
+            if (StringUtils.isNotEmpty(pgViewSql)) {
+                var0 = c.executeQuery(pgViewSql);
+                while(var0.next()) {
+                    String var21 = var0.getString(1);
+                    var2.add(var21);
+                }
             }
         } catch (Exception var18) {
             var18.printStackTrace();
