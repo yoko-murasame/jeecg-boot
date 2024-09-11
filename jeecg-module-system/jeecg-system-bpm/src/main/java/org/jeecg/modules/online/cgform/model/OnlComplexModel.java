@@ -42,4 +42,7 @@ public class OnlComplexModel implements Serializable {
     // Vue2监听器JS增强
     private String onlineVueWatchJsStr;
 
+    // 是否是视图表
+    private Boolean viewTable;
+
 }

@@ -96,6 +96,12 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (head.getTableType().intValue() == 3 && head.getTabOrderNum() == null) {
             head.setTabOrderNum(1);
         }
+
+        // 如果标记了是视图，则db属性永远不更新
+        if (head.getViewTable() != null && head.getViewTable()) {
+            head.setIsDbSynch("Y");
+        }
+
         super.save(head);
         this.fieldService.saveBatch(fields);
         this.indexService.saveBatch(indexs);
@@ -194,6 +200,12 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             isDbSynch = "N";
             this.fieldService.removeByIds(model.getDeleteFieldIds());
         }
+
+        // 如果标记了是视图，则db属性永远不更新
+        if (head.getViewTable() != null && head.getViewTable()) {
+            isDbSynch = "Y";
+        }
+
         head.setIsDbSynch(isDbSynch);
         super.updateById(head);
         a(head, fields);
@@ -403,6 +415,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setIsDesForm("N");
         onlCgformHead.setScroll(1);
         onlCgformHead.setThemeTemplate(org.jeecg.modules.online.cgform.d.b.sH);
+        onlCgformHead.setViewTable(false);
         String generate = UUIDGenerator.generate();
         onlCgformHead.setId(generate);
         ArrayList arrayList = new ArrayList();
@@ -1310,6 +1323,14 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setSubTableStr(null);
         onlCgformHead.setThemeTemplate(physicTable.getThemeTemplate());
         onlCgformHead.setScroll(physicTable.getScroll());
+        // 新增的属性
+        // 数据初始化JS增强
+        onlCgformHead.setOnlineInitQueryParamGetter(physicTable.getOnlineInitQueryParamGetter());
+        // Vue2监听器JS增强
+        onlCgformHead.setOnlineVueWatchJsStr(physicTable.getOnlineVueWatchJsStr());
+        // 是否是视图表
+        onlCgformHead.setViewTable(physicTable.getViewTable());
+
         for (OnlCgformField onlCgformField : this.fieldService.list(new LambdaQueryWrapper<OnlCgformField>()
                 .eq(OnlCgformField::getCgformHeadId, id))) {
             OnlCgformField onlCgformField2 = new OnlCgformField();

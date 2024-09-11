@@ -15,6 +15,11 @@ alter table onl_cgform_head
 
 comment on column onl_cgform_head.online_vue_watch_js_str is 'Vue2监听器JS增强';
 
+alter table onl_cgform_head
+    add if not exists view_table boolean;
+
+comment on column onl_cgform_head.view_table is '是否为视图表';
+
 alter table onl_cgform_field
     add if not exists dict_lazy_load smallint;
 

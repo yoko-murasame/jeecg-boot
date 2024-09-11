@@ -89,4 +89,9 @@ public class OnlCgformHead implements Serializable {
      */
     private String onlineVueWatchJsStr;
 
+    /**
+     * 是否是视图表
+     */
+    private Boolean viewTable;
+
 }

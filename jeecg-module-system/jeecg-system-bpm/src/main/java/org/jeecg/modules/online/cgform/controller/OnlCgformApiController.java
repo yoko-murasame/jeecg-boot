@@ -144,6 +144,8 @@ public class OnlCgformApiController {
             onlComplexModel.setOnlineInitQueryParamGetter(onlCgformHead.getOnlineInitQueryParamGetter());
             // Vue2监听器JS增强
             onlComplexModel.setOnlineVueWatchJsStr(onlCgformHead.getOnlineVueWatchJsStr());
+            // 是否是视图表
+            onlComplexModel.setViewTable(onlCgformHead.getViewTable());
 
             result.setResult(onlComplexModel);
             result.setOnlTable(onlCgformHead.getTableName());
