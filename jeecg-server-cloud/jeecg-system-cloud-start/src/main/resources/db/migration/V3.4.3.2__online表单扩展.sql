@@ -24,3 +24,8 @@ alter table onl_cgform_field
     add if not exists dict_lazy_load smallint;
 
 comment on column onl_cgform_field.dict_lazy_load is '字典懒加载';
+
+alter table onl_cgform_field
+    add if not exists scoped_slots varchar(255);
+
+comment on column onl_cgform_field.scoped_slots is '自定义scopedSlots插槽';

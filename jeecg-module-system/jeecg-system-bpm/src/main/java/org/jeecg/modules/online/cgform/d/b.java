@@ -1314,6 +1314,7 @@ public class b {
                 }
                 jSONObject.put("defaultValue", onlCgformField.getDbDefaultVal());
                 jSONObject.put("fieldDefaultValue", onlCgformField.getFieldDefaultValue());
+                jSONObject.put("scopedSlots", onlCgformField.getScopedSlots());
                 jSONObject.put("placeholder", "请输入" + onlCgformField.getDbFieldTxt());
                 jSONObject.put("validateRules", b(onlCgformField));
                 if (aj.equals(onlCgformField.getFieldShowType()) || "radio".equals(onlCgformField.getFieldShowType()) || "checkbox_meta".equals(onlCgformField.getFieldShowType()) || "list_multi".equals(onlCgformField.getFieldShowType()) || "sel_search".equals(onlCgformField.getFieldShowType())) {

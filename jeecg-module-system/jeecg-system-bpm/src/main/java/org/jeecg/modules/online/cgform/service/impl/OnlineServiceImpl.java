@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
@@ -127,7 +128,10 @@ public class OnlineServiceImpl implements IOnlineService {
                     dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.sQ, org.jeecg.modules.online.cgform.d.b.sR, org.jeecg.modules.online.cgform.d.b.S));
                     onlColumn.setCustomRender(dbFieldName);
                 }
-                if (fieldShowType.indexOf("file") >= 0) {
+                // 设置自定义scopedSlots插槽
+                if (StringUtils.isNotEmpty(onlCgformField.getScopedSlots())) {
+                    onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(onlCgformField.getScopedSlots()));
+                } else if (fieldShowType.indexOf("file") >= 0) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.a));
                 } else if (fieldShowType.indexOf("image") >= 0) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.b));
