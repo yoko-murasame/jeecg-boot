@@ -16,6 +16,7 @@ import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
+import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
@@ -192,7 +193,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             // 最终字典key
             String dictCode = getFinalDictCode(onlCgformField);
             if (StringUtils.isNotEmpty(dictCode)) {
-                dataListMap.put(dictCode, dicVals);
+                List<String> nowValues = dataListMap.computeIfAbsent(dictCode, k -> new ArrayList<>());
+                nowValues.addAll(dicVals);
             }
         }
         // 统一翻译
@@ -228,15 +230,15 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         String dictText = onlCgformField.getDictText();
         String dictCode = "";
         if (oConvertUtils.isNotEmpty(dictTable)) {
-            // 表字典
-            dictCode = String.format("%s,%s,%s", dictTable, dictText, dictField);
+            // 表字典，去除 dictTable 的条件
+            dictCode = String.format("%s,%s,%s", CommonUtils.getTableNameByTableSql(dictTable), dictText, dictField);
         } else if (oConvertUtils.isNotEmpty(dictField)) {
             String[] dics = dictField.split(",");
             if (dics.length == 1) {
                 // 系统字典
                 dictCode = dictField;
             } else if (dics.length == 3 || dics.length == 4) {
-                // 表字典
+                // 表字典，去除 dictTable 的条件
                 dictCode = String.format("%s,%s,%s", dics[0], dics[1], dics[2]);
             } else {
                 throw new RuntimeException("字典配置错误，格式为：表名,显示字段,值字段,可选条件");
