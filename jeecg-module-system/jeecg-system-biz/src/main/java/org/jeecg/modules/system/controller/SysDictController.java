@@ -209,7 +209,8 @@ public class SysDictController {
 	public Result<List<DictModel>> loadDict(@PathVariable("dictCode") String dictCode,
 											@RequestParam(name="keyword",required = false) String keyword,
 											@RequestParam(value = "sign",required = false) String sign,
-											@RequestParam(value = "pageSize", required = false) Integer pageSize) {
+											@RequestParam(value = "pageSize", required = false) Integer pageSize,
+											HttpServletRequest request) {
 
 		//update-begin-author:taoyan date:2023-5-22 for: /issues/4905 因为中括号(%5)的问题导致的 表单生成器字段配置时，选择关联字段，在进行高级配置时，无法加载数据库列表，提示 Sgin签名校验错误！ #4905 RouteToRequestUrlFilter
 		if(keyword!=null && keyword.indexOf("%5")>=0){
@@ -220,6 +221,12 @@ public class SysDictController {
 			}
 		}
 		//update-end-author:taoyan date:2023-5-22 for: /issues/4905 因为中括号(%5)的问题导致的  表单生成器字段配置时，选择关联字段，在进行高级配置时，无法加载数据库列表，提示 Sgin签名校验错误！ #4905
+
+		// 如果传递的是展位符号#{}，从header获取
+		String filterSql = request.getHeader(CommonConstant.X_FILTER_SQL);
+		if (dictCode.split(",").length == 3 && StringUtils.hasText(filterSql)) {
+			dictCode = dictCode + "," + filterSql;
+		}
 
 		log.info(" 加载字典表数据,加载关键字: "+ keyword);
 		Result<List<DictModel>> result = new Result<List<DictModel>>();
@@ -259,14 +266,15 @@ public class SysDictController {
 			@PathVariable("dictCode") String dictCode,
 			@RequestParam(name = "keyword") String keyword,
 			@RequestParam(value = "sign", required = false) String sign,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize) {
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			HttpServletRequest request) {
 		// 首次查询查出来用户选中的值，并且不分页
-		Result<List<DictModel>> firstRes = this.loadDict(dictCode, keyword, sign, null);
+		Result<List<DictModel>> firstRes = this.loadDict(dictCode, keyword, sign, null, request);
 		if (!firstRes.isSuccess()) {
 			return firstRes;
 		}
 		// 然后再查询出第一页的数据
-		Result<List<DictModel>> result = this.loadDict(dictCode, "", sign, pageSize);
+		Result<List<DictModel>> result = this.loadDict(dictCode, "", sign, pageSize, request);
 		if (!result.isSuccess()) {
 			return result;
 		}
