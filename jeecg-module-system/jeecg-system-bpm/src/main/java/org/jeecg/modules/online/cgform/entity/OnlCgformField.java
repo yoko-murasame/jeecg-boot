@@ -45,6 +45,8 @@ public class OnlCgformField implements Serializable {
     private String fieldDefaultValue;
     // 自定义scopedSlots插槽
     private String scopedSlots;
+    // slot渲染Vue代码
+    private String scopedSlotsRenderCode;
     private Integer isQuery;
     private Integer isShowForm;
     private Integer isShowList;

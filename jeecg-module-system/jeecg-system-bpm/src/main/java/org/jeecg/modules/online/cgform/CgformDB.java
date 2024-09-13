@@ -1587,6 +1587,7 @@ public class CgformDB {
             var7.put("defaultValue", var5.getDbDefaultVal());
             var7.put("fieldDefaultValue", var5.getFieldDefaultValue());
             var7.put("scopedSlots", var5.getScopedSlots());
+            var7.put("scopedSlotsRenderCode", var5.getScopedSlotsRenderCode());
             var7.put("placeholder", "请输入" + var5.getDbFieldTxt());
             var7.put("validateRules", b(var5));
             if ("list".equals(var5.getFieldShowType()) || "radio".equals(var5.getFieldShowType()) || "checkbox_meta".equals(var5.getFieldShowType()) || "list_multi".equals(var5.getFieldShowType()) || "sel_search".equals(var5.getFieldShowType())) {

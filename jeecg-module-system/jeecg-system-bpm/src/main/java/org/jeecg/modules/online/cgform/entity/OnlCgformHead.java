@@ -94,4 +94,9 @@ public class OnlCgformHead implements Serializable {
      */
     private Boolean viewTable;
 
+    /**
+     * 是否隐藏action按钮
+     */
+    private Boolean hideActionButton;
+
 }

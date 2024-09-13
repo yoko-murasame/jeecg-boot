@@ -9,6 +9,7 @@ public class OnlColumn {
     private String align;
     private String customRender;
     private c scopedSlots;
+    private String scopedSlotsRenderCode;
     private String hrefSlotName;
     private int showLength;
     private boolean sorter = false;

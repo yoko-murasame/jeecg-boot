@@ -146,6 +146,8 @@ public class OnlCgformApiController {
             onlComplexModel.setOnlineVueWatchJsStr(onlCgformHead.getOnlineVueWatchJsStr());
             // 是否是视图表
             onlComplexModel.setViewTable(onlCgformHead.getViewTable());
+            // 是否隐藏action按钮
+            onlComplexModel.setHideActionButton(onlCgformHead.getHideActionButton());
 
             result.setResult(onlComplexModel);
             result.setOnlTable(onlCgformHead.getTableName());

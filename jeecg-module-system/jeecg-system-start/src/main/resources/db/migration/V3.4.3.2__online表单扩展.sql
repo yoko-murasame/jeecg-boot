@@ -20,6 +20,11 @@ alter table onl_cgform_head
 
 comment on column onl_cgform_head.view_table is '是否为视图表';
 
+alter table onl_cgform_head
+    add if not exists hide_action_button boolean;
+
+comment on column onl_cgform_head.hide_action_button is '是否隐藏action按钮';
+
 alter table onl_cgform_field
     add if not exists dict_lazy_load smallint;
 
@@ -29,3 +34,8 @@ alter table onl_cgform_field
     add if not exists scoped_slots varchar(255);
 
 comment on column onl_cgform_field.scoped_slots is '自定义scopedSlots插槽';
+
+alter table onl_cgform_field
+    add if not exists scoped_slots_render_code varchar(1000);
+
+comment on column onl_cgform_field.scoped_slots_render_code is 'slot渲染Vue代码';

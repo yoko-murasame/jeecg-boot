@@ -45,4 +45,7 @@ public class OnlComplexModel implements Serializable {
     // 是否是视图表
     private Boolean viewTable;
 
+    // 是否隐藏action按钮
+    private Boolean hideActionButton;
+
 }

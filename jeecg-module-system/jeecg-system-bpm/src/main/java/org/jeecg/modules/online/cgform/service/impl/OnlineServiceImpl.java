@@ -131,6 +131,7 @@ public class OnlineServiceImpl implements IOnlineService {
                 // 设置自定义scopedSlots插槽
                 if (StringUtils.isNotEmpty(onlCgformField.getScopedSlots())) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(onlCgformField.getScopedSlots()));
+                    onlColumn.setScopedSlotsRenderCode(Optional.ofNullable(onlCgformField.getScopedSlotsRenderCode()).orElse("").trim());
                 } else if (fieldShowType.indexOf("file") >= 0) {
                     onlColumn.setScopedSlots(new org.jeecg.modules.online.cgform.model.c(j.a));
                 } else if (fieldShowType.indexOf("image") >= 0) {
