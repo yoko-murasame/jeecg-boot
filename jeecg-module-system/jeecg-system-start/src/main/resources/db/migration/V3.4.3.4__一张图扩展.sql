@@ -10,3 +10,13 @@ alter table cb_resource_layer
     add if not exists online_condition varchar(255);
 
 comment on column cb_resource_layer.online_condition is 'online列表条件';
+
+alter table cb_resource_layer
+    add if not exists layerShowName varchar(255);
+
+comment on column cb_resource_layer.layerShowName is '图层展示名称';
+
+alter table cb_resource_layer
+    add if not exists isDefaultOverlay boolean;
+
+comment on column cb_resource_layer.isDefaultOverlay is '是否默认叠加';

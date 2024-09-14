@@ -319,6 +319,12 @@ public class ResourceLayer extends BaseEntity {
      */
     private  Boolean isTempMap;
 
+    @ApiModelProperty(value = "图层展示名称", name = "layerShowName", notes = "图层展示名称", required = false)
+    private String layerShowName;
+
+    @ApiModelProperty(value = "是否默认叠加", name = "isDefaultOverlay", notes = "是否默认叠加", required = false)
+    private Boolean isDefaultOverlay;
+
     @ApiModelProperty(value = "online列表code")
     private String onlineCode;
 
