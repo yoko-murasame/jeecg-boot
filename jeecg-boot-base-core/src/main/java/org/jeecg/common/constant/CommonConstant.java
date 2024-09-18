@@ -66,6 +66,11 @@ public interface CommonConstant {
 	 */
 	int OPERATE_TYPE_6 = 6;
 
+    /**
+     * 操作日志类型： SMS短信发送
+     */
+	int OPERATE_TYPE_7 = 7;
+
 
 	/** {@code 500 Server Error} (HTTP/1.0 - RFC 1945) */
     Integer SC_INTERNAL_SERVER_ERROR_500 = 500;
