@@ -209,7 +209,14 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 if (StringUtils.isEmpty(dictCode)) {
                     continue;
                 }
-                String value = (String) record.get(onlCgformField.getDbFieldName());
+                // 获取字段值，需要统一转换成字符串，如果是数字需要处理下
+                Object o = record.get(onlCgformField.getDbFieldName());
+                String value;
+                try {
+                    value = oConvertUtils.getString(o);
+                } catch (Exception e) {
+                    throw new RuntimeException("字典值转换失败：" + o.toString(), e.getCause());
+                }
                 if (oConvertUtils.isNotEmpty(value)) {
                     List<DictModel> dictModels = dictOptions.get(dictCode);
                     if (dictModels == null || dictModels.isEmpty()) {
