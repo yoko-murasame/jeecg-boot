@@ -678,4 +678,14 @@ public interface ISysBaseAPI extends CommonAPI {
     @GetMapping("/sys/api/getUserModelByRoleCodes")
     List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode);
 
+    /**
+     * 获取指定用户名的所有用户
+     *
+     * @author Yoko
+     * @param usernames 用户名数组，逗号分隔
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/sys/api/getUserModelByUsername")
+    List<SysUserModel> getUserModelByUsername(@RequestParam(value = "usernames")String usernames);
+
 }

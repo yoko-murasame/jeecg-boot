@@ -279,4 +279,13 @@ public interface CommonAPI {
      * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
      */
     List<SysUserModel> getUserModelByRoleCodes(String roleCode);
+
+    /**
+     * 获取指定用户名的所有用户
+     *
+     * @author Yoko
+     * @param usernames 用户名数组，逗号分隔
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    List<SysUserModel> getUserModelByUsername(String usernames);
 }

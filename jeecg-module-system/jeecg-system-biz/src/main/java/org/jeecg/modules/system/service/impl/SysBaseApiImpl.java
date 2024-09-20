@@ -1455,6 +1455,18 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		return sysUserService.getUserModelByRoleCodes(Arrays.asList(roleCode.split(SymbolConstant.COMMA)));
 	}
 
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByUsername(String usernames) {
+		return sysUserService.getUserModelByUsername(Arrays.asList(usernames.split(SymbolConstant.COMMA)));
+	}
+
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------
 	@Autowired
 	private QywxSendMsgHandle qywxSendMsgHandle;

@@ -868,6 +868,18 @@ public class SystemApiController {
     }
 
     /**
+     * 获取指定用户名的所有用户
+     *
+     * @author Yoko
+     * @param usernames 用户名数组，逗号分隔
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/sys/api/getUserModelByUsername")
+    List<SysUserModel> getUserModelByUsername(@RequestParam(value = "usernames")String usernames) {
+        return sysBaseApi.getUserModelByUsername(usernames);
+    }
+
+    /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
      * 部分特殊函数 可以将查询结果混夹在错误信息中，导致数据库的信息暴露
      * @param e

@@ -355,6 +355,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		return userMapper.getUserModelByRoleCode(roleCodes);
 	}
 
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByUsername(List<String> usernames) {
+		return userMapper.getUserModelByUsername(usernames);
+	}
 
 	@Override
 	@CacheEvict(value= {CacheConstant.SYS_USERS_CACHE}, key="#username")

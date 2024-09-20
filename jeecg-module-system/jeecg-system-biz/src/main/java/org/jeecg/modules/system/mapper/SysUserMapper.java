@@ -185,4 +185,13 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
 	 */
     List<SysUserModel> getUserModelByRoleCode(@Param("roleCodes") List<String> roleCodes);
+
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	List<SysUserModel> getUserModelByUsername(@Param("usernames") List<String> usernames);
 }
