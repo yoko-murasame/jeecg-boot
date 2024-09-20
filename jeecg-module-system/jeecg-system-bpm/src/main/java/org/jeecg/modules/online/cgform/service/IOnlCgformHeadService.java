@@ -54,22 +54,22 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
 
   public abstract JSONObject queryFormItem(OnlCgformHead paramOnlCgformHead, String paramString);
 
-  public abstract String saveManyFormData(String paramString1, JSONObject paramJSONObject, String paramString2)
+  public abstract String saveManyFormData(String code, JSONObject json, String xAccessToken)
     throws DBException, BusinessException;
 
-  public abstract Map<String, Object> queryManyFormData(String paramString1, String paramString2)
+  public abstract Map<String, Object> queryManyFormData(String code, String id)
     throws DBException;
 
-  public abstract List<Map<String, Object>> queryManySubFormData(String paramString1, String paramString2)
+  public abstract List<Map<String, Object>> queryManySubFormData(String table, String mainId)
     throws DBException;
 
-  public abstract Map<String, Object> querySubFormData(String paramString1, String paramString2)
+  public abstract Map<String, Object> querySubFormData(String table, String mainId)
     throws DBException;
 
-  public abstract String editManyFormData(String paramString, JSONObject paramJSONObject)
+  public abstract String editManyFormData(String code, JSONObject json)
     throws DBException, BusinessException;
 
-  public abstract int executeEnhanceJava(String paramString1, String paramString2, OnlCgformHead paramOnlCgformHead, JSONObject paramJSONObject)
+  public abstract int executeEnhanceJava(String buttonCode, String eventType, OnlCgformHead head, JSONObject json)
     throws BusinessException;
 
   public abstract void executeEnhanceExport(OnlCgformHead paramOnlCgformHead, List<Map<String, Object>> paramList)

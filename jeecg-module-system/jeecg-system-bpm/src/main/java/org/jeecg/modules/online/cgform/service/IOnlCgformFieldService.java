@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.online.cgform.a.a;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
+import org.jeecg.modules.online.cgform.model.OnlListDataModel;
+import org.jeecg.modules.online.cgform.model.OnlListQueryModel;
 import org.jeecg.modules.online.cgform.model.TreeModel;
 
 import java.util.List;
@@ -15,12 +17,12 @@ import java.util.Map;
 
 public abstract interface IOnlCgformFieldService extends IService<OnlCgformField>
 {
-  public abstract Map<String, Object> queryAutolistPage(String tableName, String code, Map<String, Object> paramMap, List<String> paramList, String dataRulePerms, String queryAllColumn);
+  OnlListDataModel queryAutolistPage(OnlListQueryModel onlListQueryModel);
 
   // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-  Map<String, Object> queryAutoExportlist(String tbname, String headId, Map<String, Object> params, List<String> needList);
+  OnlListDataModel queryAutoExportlist(OnlListQueryModel onlListQueryModel);
 
-  public abstract Map<String, Object> queryAutoTreeNoPage(String paramString1, String paramString2, Map<String, Object> paramMap, List<String> paramList, String paramString3);
+  OnlListDataModel queryAutoTreeNoPage(OnlListQueryModel onlListQueryModel);
 
   public abstract void deleteAutoListMainAndSub(OnlCgformHead paramOnlCgformHead, String paramString);
 

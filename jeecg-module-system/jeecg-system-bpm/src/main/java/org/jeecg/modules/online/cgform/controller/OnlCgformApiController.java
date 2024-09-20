@@ -3,6 +3,7 @@ package org.jeecg.modules.online.cgform.controller;
 
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -27,9 +28,7 @@ import org.jeecg.modules.online.cgform.CgformDC;
 import org.jeecg.modules.online.cgform.d.e;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 import org.jeecg.modules.online.cgform.entity.OnlCgformHead;
-import org.jeecg.modules.online.cgform.model.OnlComplexModel;
-import org.jeecg.modules.online.cgform.model.OnlGenerateModel;
-import org.jeecg.modules.online.cgform.model.TreeModel;
+import org.jeecg.modules.online.cgform.model.*;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformSqlService;
@@ -163,8 +162,8 @@ public class OnlCgformApiController {
     @PermissionData
     @OnlineAuth("getData")
     @GetMapping({"/getData/{code}"})
-    public Result<Map<String, Object>> a(@PathVariable("code") String code, HttpServletRequest request) {
-        Result<Map<String, Object>> res = new Result<>();
+    public Result<OnlListDataModel> a(@PathVariable("code") String code, HttpServletRequest request) {
+        Result<OnlListDataModel> res = new Result<>();
         OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
         if (cgformHead == null) {
             res.error500("实体不存在");
@@ -180,9 +179,18 @@ public class OnlCgformApiController {
                     String[] arr = needList.split(",");
                     needLists = Arrays.asList(arr);
                 }
+
+                // 查询实体
+                OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+                onlListQueryModel.setTableName(tableName);
+                onlListQueryModel.setCode(code);
+                onlListQueryModel.setParams(params);
+                onlListQueryModel.setNeedList(needLists);
+                onlListQueryModel.setDataRulePerms(dataRulePerms);
                 // 查询所有列
-                String queryAllColumn = request.getParameter("queryAllColumn");
-                Map<String, Object> pageMap = this.onlCgformFieldService.queryAutolistPage(tableName, code, params, needLists, dataRulePerms, queryAllColumn);
+                onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
+
+                OnlListDataModel pageMap = this.onlCgformFieldService.queryAutolistPage(onlListQueryModel);
                 this.enhanceList(cgformHead, pageMap);
                 res.setResult(pageMap);
             } catch (Exception var8) {
@@ -475,24 +483,32 @@ public class OnlCgformApiController {
     @PermissionData
     @GetMapping({"/exportXls/{code}"})
     public void a(@PathVariable("code") String code, HttpServletRequest request, HttpServletResponse response) {
-        OnlCgformHead cgformHead = (OnlCgformHead)this.onlCgformHeadService.getById(code);
+        OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
         if (cgformHead != null) {
             String tableTxt = cgformHead.getTableTxt();
             String paramsStr = request.getParameter("paramsStr");
-            Map pageResult = new HashMap<>();
-            Object var8 = null;
+            Map<String, Object> queryParams = new HashMap<>();
             if (oConvertUtils.isNotEmpty(paramsStr)) {
-                pageResult = JSONObject.parseObject(paramsStr, Map.class);
+                queryParams = JSONObject.parseObject(paramsStr, new TypeReference<HashMap<String, Object>>() {});
             }
+            // 不分页
+            queryParams.put("pageSize", -521);
 
-            pageResult.put("pageSize", -521);
+            // 查询实体
+            OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+            onlListQueryModel.setTableName(cgformHead.getTableName());
+            onlListQueryModel.setCode(cgformHead.getId());
+            onlListQueryModel.setParams(queryParams);
+            onlListQueryModel.setNeedList(null);
+            onlListQueryModel.setDataRulePerms(cgformHead.getDataRulePerms());
             // 查询所有列
-            String queryAllColumn = request.getParameter("queryAllColumn");
-            Map<String, Object> autolistPage = this.onlCgformFieldService.queryAutolistPage(cgformHead.getTableName(), cgformHead.getId(), pageResult, null, cgformHead.getDataRulePerms(), queryAllColumn);
-            List<OnlCgformField> fieldList = (List<OnlCgformField>)autolistPage.get("fieldList");
-            List<Map<String, Object>> records = (List<Map<String, Object>>)autolistPage.get("records");
+            onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
+
+            OnlListDataModel autolistPage = this.onlCgformFieldService.queryAutolistPage(onlListQueryModel);
+            List<OnlCgformField> fieldList = autolistPage.getFieldList();
+            List<Map<String, Object>> records = autolistPage.getRecords();
             List exportRecords = new ArrayList();
-            String selections = (pageResult).get("selections") == null ? null : (pageResult).get("selections").toString();
+            String selections = (queryParams).get("selections") == null ? null : (queryParams).get("selections").toString();
             if (CgformDC.b(selections)) {
                 List<String> finalVar1 = Arrays.asList(selections.split(","));
                 exportRecords = (records).stream().filter((var1x) -> finalVar1.contains(var1x.get("id"))).collect(Collectors.toList());
@@ -512,7 +528,7 @@ public class OnlCgformApiController {
             }
 
             List<ExcelExportEntity> exportEntities = this.getExcelExportEntities(fieldList, "id");
-            if (cgformHead.getTableType() == 2 && oConvertUtils.isEmpty(pageResult.get("exportSingleOnly"))) {
+            if (cgformHead.getTableType() == 2 && oConvertUtils.isEmpty(queryParams.get("exportSingleOnly"))) {
                 String var15 = cgformHead.getSubTableStr();
                 if (oConvertUtils.isNotEmpty(var15)) {
                     String[] var16 = var15.split(",");
@@ -521,7 +537,7 @@ public class OnlCgformApiController {
 
                     for(int var19 = 0; var19 < var18; ++var19) {
                         String var20 = var17[var19];
-                        this.a(var20, pageResult, exportRecords, exportEntities);
+                        this.a(var20, queryParams, exportRecords, exportEntities);
                     }
                 }
             }
@@ -1031,47 +1047,52 @@ public class OnlCgformApiController {
     )
     @GetMapping({"/getTreeData/{code}"})
     @PermissionData
-    public Result<Map<String, Object>> d(@PathVariable("code") String var1, HttpServletRequest var2) {
-        Result var3 = new Result();
-        OnlCgformHead var4 = (OnlCgformHead)this.onlCgformHeadService.getById(var1);
-        if (var4 == null) {
-            var3.error500("实体不存在");
-            return var3;
+    public Result<OnlListDataModel> d(@PathVariable("code") String code, HttpServletRequest request) {
+        Result<OnlListDataModel> result = new Result<>();
+        OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
+        if (cgformHead == null) {
+            result.error500("实体不存在");
+            return result;
         } else {
             try {
-                String var5 = var4.getTableName();
-                String var6 = var4.getTreeIdField();
-                String var7 = var4.getTreeParentIdField();
-                ArrayList var8 = Lists.newArrayList(new String[]{var6, var7});
-                Map var9 = CgformDB.getRequestParams(var2);
-                String var10 = null;
-                if (var9.get(var6) != null) {
-                    var10 = var9.get(var6).toString();
-                }
+                String tableName = cgformHead.getTableName();
+                String idField = cgformHead.getTreeIdField();
+                String pidField = cgformHead.getTreeParentIdField();
+                List<String> needList = Lists.newArrayList(idField, pidField);
+                Map<String, Object> queryParams = CgformDB.getRequestParams(request);
 
-                if (var9.get("hasQuery") != null && "false".equals(var9.get("hasQuery")) && var9.get(var7) == null) {
-                    var9.put(var7, "0");
+                if (queryParams.get("hasQuery") != null && "false".equals(queryParams.get("hasQuery")) && queryParams.get(pidField) == null) {
+                    queryParams.put(pidField, "0");
                 } else {
-                    var9.put("pageSize", -521);
-                    var9.put(var7, var9.get(var7));
+                    queryParams.put("pageSize", -521);
+                    queryParams.put(pidField, queryParams.get(pidField));
                 }
+                queryParams.put(idField, null);
 
-                var9.put(var6, (Object)null);
-                Map var11 = this.onlCgformFieldService.queryAutoTreeNoPage(var5, var1, var9, var8, var7);
-                this.enhanceList(var4, var11);
-                var3.setResult(var11);
+                // 查询实体
+                OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+                onlListQueryModel.setTableName(tableName);
+                onlListQueryModel.setCode(code);
+                onlListQueryModel.setParams(queryParams);
+                onlListQueryModel.setNeedList(needList);
+                onlListQueryModel.setDataRulePerms(cgformHead.getDataRulePerms());
+                onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
+                onlListQueryModel.setPidField(pidField);
+
+                OnlListDataModel onlListDataModel = this.onlCgformFieldService.queryAutoTreeNoPage(onlListQueryModel);
+                this.enhanceList(cgformHead, onlListDataModel);
+                result.setResult(onlListDataModel);
             } catch (Exception var12) {
                 a.error(var12.getMessage(), var12);
-                var3.error500("数据库查询失败" + var12.getMessage());
+                result.error500("数据库查询失败" + var12.getMessage());
             }
-
-            var3.setOnlTable(var4.getTableName());
-            return var3;
+            result.setOnlTable(cgformHead.getTableName());
+            return result;
         }
     }
 
-    private void enhanceList(OnlCgformHead onlCgformHead, Map<String, Object> pageMap) throws BusinessException {
-        List<Map<String, Object>> records = (List<Map<String, Object>>)pageMap.get("records");
+    private void enhanceList(OnlCgformHead onlCgformHead, OnlListDataModel pageMap) throws BusinessException {
+        List<Map<String, Object>> records = (List<Map<String, Object>>)pageMap.getRecords();
         this.onlCgformHeadService.executeEnhanceList(onlCgformHead, "query", records);
     }
 
