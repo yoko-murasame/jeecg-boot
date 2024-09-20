@@ -2,12 +2,14 @@ package org.jeecg.modules.online.cgform.model;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +36,8 @@ public class OnlListDataModel {
             return Collections.emptyList();
         }
         try {
-            TypeReference<List<T>> typeReference = new TypeReference<List<T>>() {};
-            return JSON.parseObject(JSON.toJSONString(this.records), typeReference);
+            Type type = new ParameterizedTypeImpl(new Type[]{clazz}, null, List.class);
+            return JSON.parseObject(JSON.toJSONString(this.records), type);
         } catch (Exception e) {
             throw new RuntimeException("类型转换错误", e);
         }
