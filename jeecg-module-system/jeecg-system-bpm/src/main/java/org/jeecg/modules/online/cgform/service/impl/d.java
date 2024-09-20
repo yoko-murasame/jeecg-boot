@@ -192,6 +192,9 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
      * @return 字典数组
      */
     public Map<String, List<DictModel>> transferLazyDictOptions(List<Map<String, Object>> records, List<OnlCgformField> onlCgformFields) {
+        if (null == records || null == onlCgformFields || onlCgformFields.isEmpty() || records.isEmpty()) {
+            return new HashMap<>(0);
+        }
         Map<String, List<String>> dataListMap = new HashMap<>(5);
         // 组装字典 {字典code:值列表}
         for (OnlCgformField onlCgformField : onlCgformFields) {

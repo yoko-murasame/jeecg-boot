@@ -8,6 +8,7 @@ import lombok.Data;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,9 @@ public class OnlListDataModel {
 
     // 获取records
     public <T> List<T> getRecords(Class<T> clazz) {
+        if (this.records == null || this.records.isEmpty()) {
+            return Collections.emptyList();
+        }
         try {
             TypeReference<List<T>> typeReference = new TypeReference<List<T>>() {};
             return JSON.parseObject(JSON.toJSONString(this.records), typeReference);
