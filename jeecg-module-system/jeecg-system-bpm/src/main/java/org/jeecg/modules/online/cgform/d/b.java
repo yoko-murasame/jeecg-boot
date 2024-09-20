@@ -6,11 +6,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.MatchTypeEnum;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
@@ -694,6 +696,14 @@ public class b {
         boolean z2 = false;
         String str3 = null;
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = SpringContextUtils.getBean(CommonAPI.class).getUserByName(username);
+            }
+        }
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
@@ -754,6 +764,14 @@ public class b {
             e3.printStackTrace();
         }
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = SpringContextUtils.getBean(CommonAPI.class).getUserByName(username);
+            }
+        }
         if (loginUser == null) {
             throw new JeecgBootException("online修改表单数据异常:系统未找到当前登陆用户信息");
         }
@@ -1471,6 +1489,14 @@ public class b {
         boolean z2 = false;
         String str3 = null;
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = SpringContextUtils.getBean(CommonAPI.class).getUserByName(username);
+            }
+        }
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
@@ -1515,6 +1541,14 @@ public class b {
             e3.printStackTrace();
         }
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = SpringContextUtils.getBean(CommonAPI.class).getUserByName(username);
+            }
+        }
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }

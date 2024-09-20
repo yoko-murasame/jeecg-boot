@@ -13,13 +13,11 @@ import org.jeecg.common.aspect.DictAspect;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
+import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysPermissionDataRuleModel;
-import org.jeecg.common.util.CommonUtils;
-import org.jeecg.common.util.SpringContextUtils;
-import org.jeecg.common.util.SqlInjectionUtil;
-import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.common.util.*;
 import org.jeecg.modules.online.auth.mapper.OnlAuthDataMapper;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
 import org.jeecg.modules.online.cgform.d.c;
@@ -93,25 +91,37 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         // 所有列
         List<OnlCgformField> queryAvailableFields = allFields;
         // 如果未传入查询所有列，查找列表显示字段+权限控制字段
-        if (StringUtils.isBlank(queryAllColumn) && Objects.equals("1", queryAllColumn)) {
+        if (StringUtils.isBlank(queryAllColumn) || Objects.equals("0", queryAllColumn) || Objects.equals("false", queryAllColumn)) {
             queryAvailableFields = queryAvailableFields(code, tableName, true, allFields, needList);
         }
         // 组装SELECT
         org.jeecg.modules.online.cgform.d.b.assembleSelect(tableName, queryAvailableFields, stringBuffer);
 
         // 数据权限规则
+        List<SysPermissionDataRuleModel> queryOwnerAuth = new ArrayList<>();
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
-        // 数据权限规则-全局perms
-        if (StringUtils.isNotBlank(dataRulePerms)) {
-            List<SysPermissionDataRuleModel> dataRules = this.commonAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
-            if (dataRules != null && !dataRules.isEmpty()) {
-                queryOwnerAuth.addAll(dataRules);
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = this.commonAPI.getUserByName(username);
             }
         }
-        // 注入请求上下文的当前用户
-        if (!CollectionUtils.isEmpty(queryOwnerAuth)) {
-            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
+        // 必须判断一下是否为空
+        if (loginUser != null) {
+            queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
+            // 数据权限规则-全局perms
+            if (StringUtils.isNotBlank(dataRulePerms)) {
+                List<SysPermissionDataRuleModel> dataRules = this.commonAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
+                if (dataRules != null && !dataRules.isEmpty()) {
+                    queryOwnerAuth.addAll(dataRules);
+                }
+            }
+            // 注入请求上下文的当前用户
+            if (!CollectionUtils.isEmpty(queryOwnerAuth)) {
+                JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
+            }
         }
 
         // 检查sql注入
@@ -363,6 +373,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         String code = onlListQueryModel.getCode();
         Map<String, Object> params = onlListQueryModel.getParams();
         List<String> needList = onlListQueryModel.getNeedList();
+        String dataRulePerms = onlListQueryModel.getDataRulePerms();
         String pidField = onlListQueryModel.getPidField();
         String queryAllColumn = onlListQueryModel.getQueryAllColumn();
         Boolean needPage = onlListQueryModel.getNeedPage();
@@ -378,17 +389,66 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         // 所有列
         List<OnlCgformField> queryAvailableFields = allFields;
         // 如果未传入查询所有列，查找列表显示字段+权限控制字段
-        if (StringUtils.isBlank(queryAllColumn) && Objects.equals("1", queryAllColumn)) {
+        if (StringUtils.isBlank(queryAllColumn) || Objects.equals("0", queryAllColumn) || Objects.equals("false", queryAllColumn)) {
             queryAvailableFields = queryAvailableFields(code, tableName, true, allFields, needList);
         }
         // 组装SELECT
         org.jeecg.modules.online.cgform.d.b.assembleSelect(tableName, queryAvailableFields, stringBuffer);
+
+        // 数据权限规则
+        List<SysPermissionDataRuleModel> queryOwnerAuth = new ArrayList<>();
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
-        if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
-            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
+        // 来自流程服务中的调用时，不存在请求上下文
+        if (loginUser == null) {
+            String token = TokenUtils.getTokenByRequest();
+            if (StringUtils.isNotEmpty(token)) {
+                String username = JwtUtil.getUsername(token);
+                loginUser = this.commonAPI.getUserByName(username);
+            }
         }
-        stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(allFields, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params));
+        // 必须判断一下是否为空
+        if (loginUser != null) {
+            queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
+            // 数据权限规则-全局perms
+            if (StringUtils.isNotBlank(dataRulePerms)) {
+                List<SysPermissionDataRuleModel> dataRules = this.commonAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
+                if (dataRules != null && !dataRules.isEmpty()) {
+                    queryOwnerAuth.addAll(dataRules);
+                }
+            }
+            // 注入请求上下文的当前用户
+            if (!CollectionUtils.isEmpty(queryOwnerAuth)) {
+                JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
+            }
+            // List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
+            // if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
+            //     JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
+            // }
+        }
+
+        // 检查sql注入
+        String[] arr1 = new String[]{};
+        arr1 = params.toString().split(",");
+        SqlInjectionUtil.filterContent(arr1);
+
+        // 组装WHERE
+        String whereCondition = org.jeecg.modules.online.cgform.d.b.assembleQuery(allFields, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params);
+
+        //判断字段中是否包含逻辑删除字段
+        String logicDelflagSql = " AND del_flag=" + MYBATIS_LOGIC_NOT_DELETE_FIELD_VAL + " ";
+        Optional<OnlCgformField> delFlagOptional = allFields.stream().filter(item -> ((OnlCgformField) item).getDbFieldName().equals(MYBATIS_LOGIC_DELETE_FIELD)).findFirst();
+        if(delFlagOptional.isPresent()){
+            whereCondition = whereCondition + logicDelflagSql;
+        }
+        if (StringUtils.isNotBlank(whereCondition)) {
+            // stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + whereCondition);
+            // 去除第一个and
+            if (whereCondition.startsWith(org.jeecg.modules.online.cgform.d.b.AND)) {
+                whereCondition = whereCondition.replaceFirst(org.jeecg.modules.online.cgform.d.b.AND, "");
+            }
+            stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE).append(whereCondition);
+        }
+        // 组装ORDER BY
         Object obj = params.get("column");
         if (obj != null) {
             String obj2 = obj.toString();
