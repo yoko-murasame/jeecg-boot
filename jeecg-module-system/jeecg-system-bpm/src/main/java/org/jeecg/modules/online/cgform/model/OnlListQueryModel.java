@@ -20,7 +20,7 @@ public class OnlListQueryModel {
     private String tableName;
     @ApiModelProperty(value = "总数")
     private String code;
-    @ApiModelProperty(value = "查询参数")
+    @ApiModelProperty(value = "查询参数，需要分页请传入：pageSize、pageNo")
     private Map<String, Object> params;
     @ApiModelProperty(value = "强制需要查询字段(不受列表隐藏影响)")
     private List<String> needList;
@@ -45,9 +45,9 @@ public class OnlListQueryModel {
 
     // jeecg作者自己协定的不分页值
     public void setNeedPageVal(Object pageSize) {
-        int valueOf = pageSize == null ? 10 : Integer.parseInt(pageSize.toString());
+        int finalSize = pageSize == null ? 10 : Integer.parseInt(pageSize.toString());
         // this.isPage = (valueOf != -521);
-        this.needPage = (valueOf > 0);
+        this.needPage = (pageSize != null) && (finalSize > 0);
     }
 
 }

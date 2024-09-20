@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import freemarker.template.TemplateException;
 import org.hibernate.HibernateException;
 import org.jeecg.common.api.vo.Result;
@@ -18,6 +19,8 @@ import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaListInter;
 import org.jeecg.modules.online.cgform.entity.*;
 import org.jeecg.modules.online.cgform.mapper.*;
 import org.jeecg.modules.online.cgform.model.OnlGenerateModel;
+import org.jeecg.modules.online.cgform.model.OnlListDataModel;
+import org.jeecg.modules.online.cgform.model.OnlListQueryModel;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformHeadService;
 import org.jeecg.modules.online.cgform.service.IOnlCgformIndexService;
@@ -1393,6 +1396,121 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 this.fieldService.updateTreeNodeNoChild(f, head.getTreeIdField(), str);
             }
         }
+    }
+
+    /**
+     * 获取Online列表数据
+     *
+     * @author Yoko
+     * @since 2024/9/20 12:25
+     * @param code 表单编码
+     * @param queryParam 查询参数，需要分页请传入：pageSize、pageNo
+     * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+     */
+    @Override
+    public OnlListDataModel getData(String code, Map<String, Object> queryParam) {
+        // 查询实体
+        OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+        onlListQueryModel.setCode(code);
+        onlListQueryModel.setParams(queryParam);
+        onlListQueryModel.setNeedList(Collections.singletonList("id"));
+        // 排序，给默认创建时间降序
+        Object column = queryParam.get("column");
+        if (column == null) {
+            queryParam.put("column", "create_time");
+            queryParam.put("order", "desc");
+        }
+        // 查询所有列
+        onlListQueryModel.setQueryAllColumn("1");
+        return this.getData(onlListQueryModel);
+    }
+
+    /**
+     * 获取Online列表数据
+     *
+     * @author Yoko
+     * @since 2024/9/20 12:25
+     * @param onlListQueryModel 查询实体
+     * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+     */
+    @Override
+    public OnlListDataModel getData(OnlListQueryModel onlListQueryModel) {
+        OnlCgformHead cgformHead = this.getById(onlListQueryModel.getCode());
+        if (cgformHead == null) {
+            return null;
+        }
+        try {
+            String code = cgformHead.getId();
+            String tableName = cgformHead.getTableName();
+            String dataRulePerms = cgformHead.getDataRulePerms();
+            onlListQueryModel.setCode(code);
+            onlListQueryModel.setTableName(tableName);
+            onlListQueryModel.setDataRulePerms(dataRulePerms);
+            // 查询数据
+            OnlListDataModel pageMap = this.fieldService.queryAutolistPage(onlListQueryModel);
+            // Java查询结果增强
+            this.enhanceList(cgformHead, pageMap);
+            return pageMap;
+        } catch (Exception var8) {
+            throw new RuntimeException(var8);
+        }
+    }
+
+    /**
+     * 获取Online列表数据
+     *
+     * @author Yoko
+     * @since 2024/9/20 12:25
+     * @param onlListQueryModel 查询实体
+     * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+     */
+    @Override
+    public OnlListDataModel getTreeData(OnlListQueryModel onlListQueryModel) {
+        OnlCgformHead cgformHead = this.getById(onlListQueryModel.getCode());
+        if (cgformHead == null) {
+            return null;
+        }
+        try {
+            String code = cgformHead.getId();
+            onlListQueryModel.setCode(code);
+
+            String tableName = cgformHead.getTableName();
+            onlListQueryModel.setTableName(tableName);
+
+            String dataRulePerms = cgformHead.getDataRulePerms();
+            onlListQueryModel.setDataRulePerms(dataRulePerms);
+
+
+            String pidField = cgformHead.getTreeParentIdField();
+            onlListQueryModel.setPidField(pidField);
+
+            String idField = cgformHead.getTreeIdField();
+            onlListQueryModel.setNeedList(Lists.newArrayList(idField, pidField));
+
+            Map<String, Object> queryParams = onlListQueryModel.getParams();
+            if (queryParams.get("hasQuery") != null && "false".equals(queryParams.get("hasQuery")) && queryParams.get(pidField) == null) {
+                queryParams.put(pidField, "0");
+            } else {
+                queryParams.put("pageSize", -521);
+                queryParams.put(pidField, queryParams.get(pidField));
+            }
+            queryParams.put(idField, null);
+            // 重设置queryParams触发分页判断
+            onlListQueryModel.setParams(queryParams);
+
+            // 查询数据
+            OnlListDataModel pageMap = this.fieldService.queryAutoTreeNoPage(onlListQueryModel);
+            // Java查询结果增强
+            this.enhanceList(cgformHead, pageMap);
+            return pageMap;
+        } catch (Exception var8) {
+            throw new RuntimeException(var8);
+        }
+    }
+
+    private void enhanceList(OnlCgformHead onlCgformHead, OnlListDataModel pageMap) throws BusinessException {
+        List<Map<String, Object>> records = pageMap.getRecords();
+        this.executeEnhanceList(onlCgformHead, "query", records);
     }
 
     private void b(OnlCgformHead onlCgformHead, List<OnlCgformField> list) {

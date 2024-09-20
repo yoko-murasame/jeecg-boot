@@ -874,7 +874,7 @@ public class SystemApiController {
      * @param usernames 用户名数组，逗号分隔
      * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
      */
-    @GetMapping("/sys/api/getUserModelByUsername")
+    @GetMapping("/getUserModelByUsername")
     List<SysUserModel> getUserModelByUsername(@RequestParam(value = "usernames")String usernames) {
         return sysBaseApi.getUserModelByUsername(usernames);
     }

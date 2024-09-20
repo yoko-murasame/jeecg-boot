@@ -162,44 +162,39 @@ public class OnlCgformApiController {
     @PermissionData
     @OnlineAuth("getData")
     @GetMapping({"/getData/{code}"})
-    public Result<OnlListDataModel> a(@PathVariable("code") String code, HttpServletRequest request) {
-        Result<OnlListDataModel> res = new Result<>();
-        OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
-        if (cgformHead == null) {
-            res.error500("实体不存在");
-            return res;
-        } else {
-            try {
-                String tableName = cgformHead.getTableName();
-                String dataRulePerms = cgformHead.getDataRulePerms();
-                Map<String, Object> params = CgformDB.getRequestParams(request);
-                List<String> needLists = null;
-                String needList = request.getParameter("needList");
-                if (StringUtils.hasText(needList)) {
-                    String[] arr = needList.split(",");
-                    needLists = Arrays.asList(arr);
-                }
-
-                // 查询实体
-                OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
-                onlListQueryModel.setTableName(tableName);
-                onlListQueryModel.setCode(code);
-                onlListQueryModel.setParams(params);
-                onlListQueryModel.setNeedList(needLists);
-                onlListQueryModel.setDataRulePerms(dataRulePerms);
-                // 查询所有列
-                onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
-
-                OnlListDataModel pageMap = this.onlCgformFieldService.queryAutolistPage(onlListQueryModel);
-                this.enhanceList(cgformHead, pageMap);
-                res.setResult(pageMap);
-            } catch (Exception var8) {
-                a.error(var8.getMessage(), var8);
-                res.error500("数据库查询失败，" + var8.getMessage());
+    public Result<OnlListDataModel> getData(@PathVariable("code") String code, HttpServletRequest request) {
+        Result<OnlListDataModel> result = new Result<>();
+        try {
+            // 查询实体
+            OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+            // code
+            onlListQueryModel.setCode(code);
+            // 请求参数
+            onlListQueryModel.setParams(CgformDB.getRequestParams(request));
+            // 查询所有列
+            onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
+            // 特殊列
+            List<String> needLists = null;
+            String needList = request.getParameter("needList");
+            if (StringUtils.hasText(needList)) {
+                String[] arr = needList.split(",");
+                needLists = Arrays.asList(arr);
             }
-            res.setOnlTable(cgformHead.getTableName());
-            return res;
+            onlListQueryModel.setNeedList(needLists);
+
+            // 统一查询接口
+            OnlListDataModel onlListDataModel = this.onlCgformHeadService.getData(onlListQueryModel);
+            if (onlListDataModel == null) {
+                result.error500("实体不存在");
+                return result;
+            }
+            result.setOnlTable(onlListQueryModel.getTableName());
+            result.setResult(onlListDataModel);
+        } catch (Exception var12) {
+            a.error(var12.getMessage(), var12);
+            result.error500("数据库查询失败" + var12.getMessage());
         }
+        return result;
     }
 
     @AutoLog(
@@ -1047,52 +1042,30 @@ public class OnlCgformApiController {
     )
     @GetMapping({"/getTreeData/{code}"})
     @PermissionData
-    public Result<OnlListDataModel> d(@PathVariable("code") String code, HttpServletRequest request) {
+    public Result<OnlListDataModel> getTreeData(@PathVariable("code") String code, HttpServletRequest request) {
         Result<OnlListDataModel> result = new Result<>();
-        OnlCgformHead cgformHead = this.onlCgformHeadService.getById(code);
-        if (cgformHead == null) {
-            result.error500("实体不存在");
-            return result;
-        } else {
-            try {
-                String tableName = cgformHead.getTableName();
-                String idField = cgformHead.getTreeIdField();
-                String pidField = cgformHead.getTreeParentIdField();
-                List<String> needList = Lists.newArrayList(idField, pidField);
-                Map<String, Object> queryParams = CgformDB.getRequestParams(request);
-
-                if (queryParams.get("hasQuery") != null && "false".equals(queryParams.get("hasQuery")) && queryParams.get(pidField) == null) {
-                    queryParams.put(pidField, "0");
-                } else {
-                    queryParams.put("pageSize", -521);
-                    queryParams.put(pidField, queryParams.get(pidField));
-                }
-                queryParams.put(idField, null);
-
-                // 查询实体
-                OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
-                onlListQueryModel.setTableName(tableName);
-                onlListQueryModel.setCode(code);
-                onlListQueryModel.setParams(queryParams);
-                onlListQueryModel.setNeedList(needList);
-                onlListQueryModel.setDataRulePerms(cgformHead.getDataRulePerms());
-                onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
-                onlListQueryModel.setPidField(pidField);
-
-                OnlListDataModel onlListDataModel = this.onlCgformFieldService.queryAutoTreeNoPage(onlListQueryModel);
-                this.enhanceList(cgformHead, onlListDataModel);
-                result.setResult(onlListDataModel);
-            } catch (Exception var12) {
-                a.error(var12.getMessage(), var12);
-                result.error500("数据库查询失败" + var12.getMessage());
+        try {
+            // 查询实体
+            OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
+            onlListQueryModel.setCode(code);
+            onlListQueryModel.setParams(CgformDB.getRequestParams(request));
+            onlListQueryModel.setQueryAllColumn(request.getParameter("queryAllColumn"));
+            // 统一查询接口
+            OnlListDataModel onlListDataModel = this.onlCgformHeadService.getTreeData(onlListQueryModel);
+            if (onlListDataModel == null) {
+                result.error500("实体不存在");
+                return result;
             }
-            result.setOnlTable(cgformHead.getTableName());
-            return result;
+            result.setResult(onlListDataModel);
+        } catch (Exception var12) {
+            a.error(var12.getMessage(), var12);
+            result.error500("数据库查询失败" + var12.getMessage());
         }
+        return result;
     }
 
     private void enhanceList(OnlCgformHead onlCgformHead, OnlListDataModel pageMap) throws BusinessException {
-        List<Map<String, Object>> records = (List<Map<String, Object>>)pageMap.getRecords();
+        List<Map<String, Object>> records = pageMap.getRecords();
         this.onlCgformHeadService.executeEnhanceList(onlCgformHead, "query", records);
     }
 

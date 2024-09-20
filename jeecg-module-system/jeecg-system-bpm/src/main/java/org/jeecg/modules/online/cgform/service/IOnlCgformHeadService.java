@@ -7,6 +7,8 @@ import org.hibernate.HibernateException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.online.cgform.entity.*;
 import org.jeecg.modules.online.cgform.model.OnlGenerateModel;
+import org.jeecg.modules.online.cgform.model.OnlListDataModel;
+import org.jeecg.modules.online.cgform.model.OnlListQueryModel;
 import org.jeecg.modules.online.cgform.model.a;
 import org.jeecg.modules.online.config.exception.BusinessException;
 import org.jeecg.modules.online.config.exception.DBException;
@@ -112,6 +114,37 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
   public abstract void deleteBatch(String paramString1, String paramString2);
 
   public abstract void updateParentNode(OnlCgformHead paramOnlCgformHead, String paramString);
+
+  /**
+   * 获取Online列表数据
+   *
+   * @author Yoko
+   * @since 2024/9/20 12:25
+   * @param code 表单编码
+   * @param queryParam 查询参数，需要分页请传入：pageSize、pageNo
+   * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+   */
+  OnlListDataModel getData(String code, Map<String, Object> queryParam);
+
+  /**
+   * 获取Online列表数据
+   *
+   * @author Yoko
+   * @since 2024/9/20 12:25
+   * @param onlListQueryModel 查询实体
+   * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+   */
+  OnlListDataModel getData(OnlListQueryModel onlListQueryModel);
+
+  /**
+   * 获取Online列表数据
+   *
+   * @author Yoko
+   * @since 2024/9/20 12:25
+   * @param onlListQueryModel 查询实体
+   * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
+   */
+  OnlListDataModel getTreeData(OnlListQueryModel onlListQueryModel);
 }
 
 /* Location:           C:\Users\tx\Desktop\hibernate-common-ol-5.4.74(2).jar

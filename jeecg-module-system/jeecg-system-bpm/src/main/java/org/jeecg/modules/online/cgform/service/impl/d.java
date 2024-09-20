@@ -7,11 +7,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.aspect.DictAspect;
 import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.vo.DictModel;
@@ -36,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -57,7 +57,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     @Autowired
     private IOnlAuthPageService onlAuthPageService;
     @Autowired
-    private ISysBaseAPI sysBaseAPI;
+    @Lazy
+    private CommonAPI commonAPI;
     private static final String b = "0";
 
     @Value("${mybatis-plus.global-config.db-config.logic-delete-field:del_flag}")
@@ -103,14 +104,14 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
         // 数据权限规则-全局perms
         if (StringUtils.isNotBlank(dataRulePerms)) {
-            List<SysPermissionDataRuleModel> dataRules = this.sysBaseAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
+            List<SysPermissionDataRuleModel> dataRules = this.commonAPI.queryPermissionDataRuleByPerms(dataRulePerms, loginUser.getUsername(), QueryRuleEnum.RIGHT_LIKE);
             if (dataRules != null && !dataRules.isEmpty()) {
                 queryOwnerAuth.addAll(dataRules);
             }
         }
         // 注入请求上下文的当前用户
         if (!CollectionUtils.isEmpty(queryOwnerAuth)) {
-            JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
+            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
         }
 
         // 检查sql注入
@@ -289,7 +290,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
-            JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
+            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
         }
         // 检查sql注入
         String[] arr1 = new String[]{};
@@ -382,7 +383,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), code);
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
-            JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
+            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
         }
         stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(allFields, params, needList, queryOwnerAuth) + org.jeecg.modules.online.cgform.d.b.assembleSuperQuery(params));
         Object obj = params.get("column");
@@ -455,7 +456,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         List<SysPermissionDataRuleModel> queryOwnerAuth = this.onlAuthDataMapper.queryOwnerAuth(loginUser.getId(), str3);
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
-            JeecgDataAutorUtils.installUserInfo(this.sysBaseAPI.getCacheUser(loginUser.getUsername()));
+            JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
         }
         stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(list2, hashMap, list, queryOwnerAuth) + "and id='" + str + org.jeecg.modules.online.cgform.d.b.sz);
         List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
