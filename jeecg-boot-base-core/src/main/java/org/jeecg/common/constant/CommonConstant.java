@@ -633,4 +633,13 @@ public interface CommonConstant {
      */
     String KFORM_DESIGN_MODULE = "modules/online/cgform/auto/KFormBpmForm";
 
+    /**
+     * 是否标识-是
+     */
+    Integer YN_YES = 1;
+
+    /**
+     * 是否标识-否
+     */
+    Integer YN_NO = 0;
 }
