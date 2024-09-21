@@ -583,7 +583,8 @@ public class ActTaskController {
             String processModel = oConvertUtils.getString((String)params.get("processModel"));
             String nextUserId = oConvertUtils.getString((String)params.get("nextUserId"));
             String rejectModelNode = oConvertUtils.getString((String)params.get("rejectModelNode"));
-            HashMap<String, Object> variables = new HashMap<>();
+            // 将当前请求的变量全部注入流程
+            HashMap<String, Object> variables = new HashMap<>(params);
             Task task = this.activitiService.getTask(taskId);
             String processInstanceId = task.getProcessInstanceId();
             this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.q, org.jeecg.modules.extbpm.process.common.a.d);
