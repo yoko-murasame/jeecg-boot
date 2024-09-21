@@ -1369,4 +1369,11 @@ public abstract class YokoGlobalAbstractListener implements ActivitiEventListene
         return flag;
     }
 
+    /**
+     * 获取当前流程审批的下一个节点id
+     */
+    protected String getNextNode(TaskEntity taskEntity) {
+        return (String) taskEntity.getVariables().get("nextnode");
+    }
+
 }

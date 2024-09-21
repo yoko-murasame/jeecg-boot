@@ -583,7 +583,7 @@ public class ActTaskController {
             String processModel = oConvertUtils.getString((String)params.get("processModel"));
             String nextUserId = oConvertUtils.getString((String)params.get("nextUserId"));
             String rejectModelNode = oConvertUtils.getString((String)params.get("rejectModelNode"));
-            // 将当前请求的变量全部注入流程
+            // 将当前请求的变量全部注入流程，配合 org.jeecg.modules.workflow.listener.YokoGlobalAbstractListener.getNextNode() 方法可以获取每个流程节点的下一个流向节点id
             HashMap<String, Object> variables = new HashMap<>(params);
             Task task = this.activitiService.getTask(taskId);
             String processInstanceId = task.getProcessInstanceId();
