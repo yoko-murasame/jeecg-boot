@@ -1,15 +1,14 @@
 package org.jeecg.modules.extbpm.process.common;
 
-/**  
-* 项目名称：jeecg
-* 类名称：Globals   
-* 类描述：  全局变量定义
-* 创建人：zhoujf      
-* @version    
-*
+/**
+ * 项目名称：jeecg
+ * 类名称：Globals
+ * 类描述：  全局变量定义
+ * 和这个类一样： TODO 统一
+ * @see org.jeecg.modules.extbpm.process.common.a
  */
 public final class WorkFlowGlobals {
-	
+
 
 
 	 /**
@@ -17,7 +16,7 @@ public final class WorkFlowGlobals {
 	  */
 	public static Integer Process_Deploy_NO=0;//未发布
 	public static Integer Process_Deploy_YES=1;//已发布
-	
+
 	/**
 	 * BPM_BUS_STATUS[流程业务单据状态位]
 	 * 待提交:1/处理中:2/处理完毕:3
@@ -27,8 +26,8 @@ public final class WorkFlowGlobals {
 	public static String BPM_BUS_STATUS_3 = "3";//处理完毕
 	public static String BPM_BUS_STATUS_4 = "4";//流程作废
 	public static String BPM_BUS_STATUS_5 = "5";//流程挂起
-	
-	
+
+
 	/**
 	 * BPM 流程对应的表单KEY
 	 */
@@ -58,7 +57,7 @@ public final class WorkFlowGlobals {
 	 * 自定义表单数据ID
 	 */
 	public static String BPM_DES_DATA_ID = "BPM_DES_DATA_ID";
-	
+
 	/**
 	 * BPM 节点对应的表单URL(全局)
 	 */
@@ -67,7 +66,7 @@ public final class WorkFlowGlobals {
 	 * BPM 节点对应的表单URL(全局) - 移动端
 	 */
 	public static String BPM_FORM_CONTENT_URL_MOBILE = "BPM_FORM_CONTENT_URL_MOBILE";
-	
+
 	/**
 	 * BPM 节点对应的表单URL(全局)
 	 */
@@ -90,7 +89,7 @@ public final class WorkFlowGlobals {
 	public static String BPM_FORM_TYPE_1 = "1";
 	public static String BPM_FORM_TYPE_2 = "2";
 	public static String BPM_FORM_TYPE_3 = "3";
-	
+
 	/**
 	 * BPM 流程对应的流程业务KEY
 	 */
@@ -111,14 +110,14 @@ public final class WorkFlowGlobals {
 	 * 流程驳回状态
 	 */
 	public static String PROCESS_REJECTPROCESS_STATUS = "rejectProcess";
-	
+
 	/**
 	 * BPM 节点对应的表单URL类型--pc电脑端 mobile移动端
 	 */
 	public static String SUFFIX_BPM_FORM_URL = "pc";
 	public static String SUFFIX_BPM_FORM_URL_MOBILE = "mobile";
-	
-	
+
+
 	/**
 	 * BPM_OP_TYPE[流程日志操作类型]
 	 * 普通任务:1/会签任务:2/驳回:3/作废:4/取回:5
