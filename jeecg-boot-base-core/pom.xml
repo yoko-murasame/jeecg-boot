@@ -10,6 +10,36 @@
 
 	<artifactId>jeecg-boot-base-core</artifactId>
 
+	<repositories>
+		<repository>
+			<id>aliyun</id>
+			<name>aliyun Repository</name>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jeecg</id>
+			<name>jeecg Repository</name>
+			<url>https://maven.jeecg.org/nexus/content/repositories/jeecg</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jeecg-snapshots</id>
+			<name>jeecg-snapshots Repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>net.minidev</groupId>
@@ -19,18 +49,8 @@
 		<!--jeecg-tools-->
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
-			<artifactId>jeecg-boot-common</artifactId>
-			<!--升级hutool-->
-			<exclusions>
-				<exclusion>
-					<groupId>cn.hutool</groupId>
-					<artifactId>hutool-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>cn.hutool</groupId>
-					<artifactId>hutool-crypto</artifactId>
-				</exclusion>
-			</exclusions>
+			<!--<artifactId>jeecg-boot-common</artifactId>-->
+			<artifactId>jeecg-boot-common-custom</artifactId>
 		</dependency>
 		<!--集成springmvc框架并实现自动配置 -->
 		<dependency>
@@ -69,7 +89,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>${commons.version}</version>
+			<version>${commons-io.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -132,6 +152,12 @@
 			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- 人大金仓ES V8R6（maven官方库存在jar，阿里云镜像没有）-->
+		<dependency>
+			<groupId>cn.com.kingbase</groupId>
+			<artifactId>kingbase8</artifactId>
+			<version>8.6.0</version>
+		</dependency>
 
 		<!-- Quartz定时任务 -->
 		<dependency>
@@ -163,6 +189,10 @@
 					<artifactId>shiro-core</artifactId>
 				</exclusion>
 				<exclusion>
+					<artifactId>checkstyle</artifactId>
+					<groupId>com.puppycrawl.tools</groupId>
+				</exclusion>
+				<exclusion>
 					<groupId>commons-beanutils</groupId>
 					<artifactId>commons-beanutils</artifactId>
 				</exclusion>
@@ -174,30 +204,35 @@
 		</dependency>
 
 		<!-- knife4j BEGIN -->
+		<!--<dependency>-->
+		<!--	<groupId>com.github.xiaoymin</groupId>-->
+		<!--	<artifactId>knife4j-spring-boot-starter</artifactId>-->
+		<!--	<version>${knife4j-spring-boot-starter.version}</version>-->
+		<!--	<exclusions>-->
+		<!--		<exclusion>-->
+		<!--			<groupId>com.google.guava</groupId>-->
+		<!--			<artifactId>guava</artifactId>-->
+		<!--		</exclusion>-->
+		<!--		<exclusion>-->
+		<!--			<groupId>io.swagger</groupId>-->
+		<!--			<artifactId>swagger-annotations</artifactId>-->
+		<!--		</exclusion>-->
+		<!--	</exclusions>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+		<!--	<groupId>io.swagger</groupId>-->
+		<!--	<artifactId>swagger-annotations</artifactId>-->
+		<!--	<version>1.5.22</version>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>com.github.xiaoymin</groupId>
-			<artifactId>knife4j-spring-boot-starter</artifactId>
+			<artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
 			<version>${knife4j-spring-boot-starter.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>io.swagger</groupId>
-					<artifactId>swagger-annotations</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.22</version>
 		</dependency>
 		<!-- knife4j END-->
 
 		<!-- 代码生成器 -->
-		<!-- 如下载失败，请参考此文档  http://doc.jeecg.com/2043876 -->
+		<!-- 如下载失败，请参考此文档  https://help.jeecg.com/java/setup/maven.html -->
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
 			<artifactId>codegenerate</artifactId>
@@ -214,19 +249,23 @@
 					<groupId>commons-codec</groupId>
 					<artifactId>commons-codec</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>xercesImpl</artifactId>
+					<groupId>xerces</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.12.2</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- mini文件存储服务 -->
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.checkerframework</groupId>
-					<artifactId>checker-qual</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- 阿里云短信 -->
@@ -255,8 +294,11 @@
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-kotlin</artifactId>
 		</dependency>
-
-		<!-- hutool工具类-->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
+		<!--加载hutool-->
 		<dependency>
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-all</artifactId>
@@ -272,6 +314,37 @@
 			<artifactId>hutool-crypto</artifactId>
 			<version>${hutool.version}</version>
 		</dependency>
+
+		<!--commons-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-email</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-langs</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<!-- activiti -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
+		<!-- activiti -->
+
+		<!-- dubbo -->
+		<dependency>
+			<groupId>org.apache.dubbo</groupId>
+			<artifactId>dubbo</artifactId>
+			<version>${dubbo.version}</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

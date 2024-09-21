@@ -1,13 +1,13 @@
 package org.jeecg.modules.system.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysUserCacheInfo;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.modules.system.entity.SysRoleIndex;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
@@ -67,15 +67,15 @@ public interface ISysUserService extends IService<SysUser> {
      * @return SysUser
      */
 	public SysUser getUserByName(String username);
-	
+
 	/**
 	 * 添加用户和用户角色关系
 	 * @param user
 	 * @param roles
 	 */
 	public void addUserWithRole(SysUser user,String roles);
-	
-	
+
+
 	/**
 	 * 修改用户和用户角色关系
 	 * @param user
@@ -98,7 +98,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return
 	 */
 	public SysRoleIndex getDynamicIndexByUserRole(String username,String version);
-	
+
 	/**
 	  * 查询用户信息包括 部门信息
 	 * @param username
@@ -178,14 +178,33 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @return 权限集合
 	 */
 	Set<String> getUserPermissionsSet(String username);
-	
+
 	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+    List<SysUserModel> getUserModelByRoleCodes(List<String> roleCodes);
+
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	List<SysUserModel> getUserModelByUsername(List<String> usernames);
+
+    /**
 	 * 根据用户名设置部门ID
 	 * @param username
 	 * @param orgCode
 	 */
 	void updateUserDepart(String username,String orgCode);
-	
+
 	/**
 	 * 根据手机号获取用户名和密码
      * @param phone 手机号
@@ -215,7 +234,7 @@ public interface ISysUserService extends IService<SysUser> {
 	 * @param departs
 	 */
 	void editUserWithDepart(SysUser user, String departs);
-	
+
 	/**
 	   * 校验用户是否有效
 	 * @param sysUser
@@ -303,4 +322,20 @@ public interface ISysUserService extends IService<SysUser> {
 	 */
 	LoginUser getEncodeUserInfo(String username);
 
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+    void updateSysUserWithDefaultOrgCode();
+
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+    List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix);
 }

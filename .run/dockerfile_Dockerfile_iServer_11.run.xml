@@ -1,0 +1,40 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="dockerfile/Dockerfile_iServer_11" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="iserver:1101" />
+        <option name="containerName" value="iserver-1101" />
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="HOSTNAME" />
+              <option name="value" value="198npm" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="8090" />
+              <option name="hostPort" value="18090" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="sourceFilePath" value="docs/DevOps/dockerfile/Dockerfile_iServer_11" />
+        <option name="volumeBindings">
+          <list>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/supermap/logs" />
+              <option name="hostPath" value="D:\DockerData\supermap\iserver1101\logs" />
+            </DockerVolumeBindingImpl>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/opt/SuperMap/License" />
+              <option name="hostPath" value="D:\DockerData\supermap\iserver1101\License" />
+            </DockerVolumeBindingImpl>
+          </list>
+        </option>
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

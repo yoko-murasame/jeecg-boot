@@ -16,48 +16,33 @@
 * 2023-07-18: 添加分词功能PostgreSQL、各类脚本。
 * 2023-07-20: 添加完整数据库部署教程。
 * 2024-01-24: 添加PostgreSQL运维备份脚本
+* 2024-07-31: 更新PostgreSQL DDL脚本，更新数据库快速安装脚本。
 
 ## PostgreSQL分词版本数据库安装和导入完整步骤
 
 ### 1）安装
 
-1.1）安装Docker，参考[Docker安装](https://docs.docker.com/engine/install/)
+1.1）安装Docker，参考[Docker安装](https://docs.docker.com/engine/install/)，二进制安装脚本：[docker-install.sh](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/shell/docker-install.sh)
 
-1.2）安装Git，clone下面仓库
 ```shell
-git clone https://github.com/yoko-murasame/docker-postgres-12-zhparser-postgis.git
+mkdir -p /home/package /home/docker
+cd /home/package
+wget https://raw.githubusercontent.com/yoko-murasame/jeecg-boot/yoko-3.4.3last/docs/DevOps/shell/docker-install.sh
+wget https://download.docker.com/linux/static/stable/x86_64/docker-20.10.24.tgz
+chmod +x docker-install.sh
+./docker-install.sh
 ```
 
-1.3）修改Dockfile中的pg版本号（默认为12），找到`ARG pg_version=12`改成12、13、14等版本号（目前用过12、13）
+1.2）启动数据库，直接运行脚本：[docker-start-multi-container.sh](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/docs/DevOps/shell/docker-start-multi-container.sh)
 
-1.4）执行构建（最好有外网代理环境，防止某些lib库下载失败）
 ```shell
-docker build -t postgres-13-zhparser-postgis:1.0 .
-```
-
-1.5）导出镜像文件，再导入到服务器（服务器没有外网）
-```shell
-# 导出镜像
-docker save -o postgres-13-zhparser-postgis-v1 postgres-13-zhparser-postgis:1.0
-# 加载镜像
-docker load -i postgres-13-zhparser-postgis-v1
+# 自行修改脚本的数据库配置
+wget https://raw.githubusercontent.com/yoko-murasame/jeecg-boot/yoko-3.4.3last/docs/DevOps/shell/docker-start-multi-container.sh
+chmod +x docker-start-multi-container.sh
+./docker-start-multi-container.sh start
 ````
 
-1.6）启动容器
-```shell
-# 创建存放数据目录
-mkdir -p /root/pgdata
-# 启动容器
-docker run -d \
-  --name postgre-13 \
-	-e POSTGRES_PASSWORD=123456 \
-	-e PGDATA=/var/lib/postgresql/data/pgdata \
-	-p 54321:5432 \
-	-v /root/pgdata:/var/lib/postgresql/data/pgdata \
-	postgres-13-zhparser-postgis:1.0;
-````
-
-1.7）开放远程，开放防火墙端口
+1.3）开放远程，开放防火墙端口
 ```shell
 #############################################
 # 修改远程配置，修改 postgresql.conf
@@ -86,41 +71,32 @@ host    replication     all             ::/0                 md5
 host all all all md5
 #############################################
 # 重启数据库
-docker restart postgre-13
+docker restart postgre-14
 # 开放防火墙
 firewall-cmd --zone=public --add-port=54321/tcp --permanent && firewall-cmd --reload
 ```
 
 ### 2）导入导出数据库
 
-2.1）导出已有的数据库文件（可选）；如果是第一次初始化请用这个：[PostgreSQL初始化数据库备份文件，分为有分词版本和无分词版本，建议使用有分词版的。](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/)
+2.1）**导出已有的数据库文件（可选）**
+
 ```shell
 # 进入容器执行备份，-Fc表示导出为自定义格式
 docker exec -it <容器> pg_dump -h <主机名> -p <端口号> -U <用户名> -W -Fc -f /backup.dump -d <数据库名称>
 # 复制备份到宿主机
 docker cp <容器>:/backup.dump /root/pgbackup/backup.dump
-# 非Docker安装方式的备份导出示例
-# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
-
-# 单表导出示例
-# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
-# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
-# && docker cp postgre-13:/table_a.dump ./table_a.dump \
-# && docker exec -it postgre-13 rm /table_a.dump
-
-# 单表导入示例
-# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
-# docker cp ./table_a.dump postgre-13:/table_a.dump \
-# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
-# && docker exec -it postgre-13 rm /table_a.dump
 ````
 
-2.2）导入数据库备份文件
+2.2）**导入数据库备份文件**
 
-> **注意：导入分词版本备份，需要预先执行下一步骤的“必须执行的脚本”！！！**
+1. 可以直接使用完整的DDL.sql初始化数据库，参考[DDL.sql](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/DDL/DDL.sql)
+
+备注：DDL.sql这个脚本不包含数据，数据位于同级目录下：`DATA.rar`中，解压后导入即可。
+
+2. 可以使用pg_restore导入备份文件（含所有数据），参考下文：
 
 ```shell
-# 选择有分词版数据库备份 db/PostgreSQL/带GIS、带分词DUMP/backup-has-gis-and-text-parser.dump
+# 选择有分词版数据库备份，文件名：backup-has-gis-and-text-parser.dump
 mv ./backup-has-gis-and-text-parser.dump /root/pgbackup/backup.dump
 # 导入到数据库注意需要先创建数据库
 psql -U <用户名> -h <主机名> -p <端口号>
@@ -132,6 +108,30 @@ docker cp /root/pgbackup/backup.dump <容器>:/backup.dump
 # --clean 创建数据库对象前先清理(删除)它们
 # --create 在恢复数据库之前先创建它。如果也声明了--clean， 那么在连接到数据库之前删除并重建目标数据库
 docker exec -it <新容器> pg_restore --verbose -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> <容器内备份文件路径>
+```
+
+2.3）完整的导出导入命令
+
+```shell
+-- 精简化备份（排除某些表）
+pg_dump --verbose -h 47.118.52.119 -T bus.project_iot_* -T bus.*_copy* -T bus.*_bak* -T sys*permission -T bus.sys_log -p 54321 -U postgres -W -Fc -f ./epc_busdb_slim.dump epc_busdb
+
+-- 仅恢复结构
+docker exec -it postgre-13 pg_restore --verbose --schema-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
+
+-- 仅恢复数据（注意原先表的数据不会被清除，测过了）
+docker exec -it postgre-13 pg_restore --verbose --data-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb_slim.dump
+
+-- 恢复结构和数据（注意原先表的数据不会被清除，测过了）
+docker exec -it postgre-13 pg_restore --verbose --if-exists --clean --create -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb epc_busdb_slim.dump
+
+-- 从一无所有恢复
+docker cp ./epc_busdb.dump postgre-13:/epc_busdb.dump
+docker exec -it postgre-13 pg_restore --verbose -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
+docker exec postgre-13 rm /epc_busdb.dump
+
+-- 导入单表并直接指定密码
+docker exec -it postgre-13 bash -c "PGPASSWORD=123456 pg_restore -t table_xxx --verbose -h 127.0.0.1 -p 5432 -U postgres  -d epc_busdb /epc_busdb.dump"
 
 # 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
 docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
@@ -146,9 +146,23 @@ docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W
 # DROP DATABASE <数据库名称>;
 # 查看存在的数据库列表 \l
 # SELECT datname FROM pg_database;
+
+# 归档
+# 非Docker安装方式的备份导出示例
+# pg_dump -h localhost -p 54321 -U postgres -W -Fc -f ./backup.dump -d postgres
+# 单表导出示例
+# pg_dump --verbose -h localhost -p 54321 -U postgres -W -t table_a -Fc -f ./table_a.dump postgres
+# docker exec -it postgre-13 pg_dump --verbose -h localhost -p 5432 -U postgres -W -t table_a -Fc -f /table_a.dump postgres \
+# && docker cp postgre-13:/table_a.dump ./table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
+# 单表导入示例
+# pg_restore --verbose -h localhost -p 54321 -U postgres -W -d postgres -t table_a ./table_a.dump
+# docker cp ./table_a.dump postgre-13:/table_a.dump \
+# && docker exec -it postgre-13 pg_restore --verbose -h localhost -p 5432 -U postgres -W -d postgres -t table_a /table_a.dump \
+# && docker exec -it postgre-13 rm /table_a.dump
 ```
 
-### 3）必须执行的脚本
+### 3）必须执行的脚本（如果通过DDL.sql初始化的数据库就无需执行）
 
 3.1）[特殊报错处理](https://github.com/yoko-murasame/jeecg-boot/blob/yoko-3.4.3last/db/PostgreSQL/特殊报错处理.sql)
 

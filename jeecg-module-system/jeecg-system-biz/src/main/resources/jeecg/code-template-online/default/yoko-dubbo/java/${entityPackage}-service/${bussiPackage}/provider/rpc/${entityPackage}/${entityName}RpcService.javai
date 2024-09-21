@@ -1,0 +1,83 @@
+package ${bussiPackage}.provider.rpc.${entityPackage};
+
+import ${bussiPackage}.core.base.bean.HyitPage;
+import ${bussiPackage}.core.base.bean.RpcResult;
+import ${bussiPackage}.entity.${entityPackage}.${entityName};
+import ${bussiPackage}.form.${entityPackage}.*;
+import ${bussiPackage}.service.${entityPackage}.I${entityName}Service;
+import ${bussiPackage}.vo.${entityPackage}.${entityName}VO;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.BeanUtils;
+
+import javax.annotation.Resource;
+import java.util.Optional;
+
+/**
+ * rpc服务实现类-${tableVo.ftlDescription}-${entityName}
+ */
+@Slf4j
+@DubboService(
+        interfaceClass = I${entityName}Rpc.class,
+        version = "<#noparse>${dubbo.rpc.</#noparse>${entityPackage}<#noparse>.version:2.0.0}</#noparse>",
+        timeout = 3000
+)
+public class ${entityName}RpcService implements I${entityName}Rpc {
+
+    @Resource
+    private I${entityName}Service ${entityName?uncap_first}Service;
+
+    /**
+     * 添加-${entityName}
+     */
+    @Override
+    public RpcResult<String> add${entityName}(${entityName}RpcAddForm form) throws Exception {
+        ${entityName}Form target = new ${entityName}Form();
+        BeanUtils.copyProperties(form, target);
+        String result = ${entityName?uncap_first}Service.add${entityName}(target);
+        RpcResult<String> rpcResult = RpcResult.create();
+        return rpcResult.buildSuccess(result);
+    }
+
+    /**
+     * 修改-${entityName}
+     */
+    @Override
+    public RpcResult<String> edit${entityName}(${entityName}RpcEditForm form) throws Exception {
+        ${entityName}Form target = new ${entityName}Form();
+        BeanUtils.copyProperties(form, target);
+        String result = ${entityName?uncap_first}Service.edit${entityName}(target);
+        RpcResult<String> rpcResult = RpcResult.create();
+        return rpcResult.buildSuccess(result);
+    }
+
+    /**
+     * 删除-${entityName}
+     */
+    @Override
+    public RpcResult<String> delete${entityName}(${entityName}RpcDeleteForm form) throws Exception {
+        ${entityName}DeleteForm target = new ${entityName}DeleteForm();
+        BeanUtils.copyProperties(form, target);
+        String result = ${entityName?uncap_first}Service.delete${entityName}(target);
+        RpcResult<String> rpcResult = RpcResult.create();
+        return rpcResult.buildSuccess(result);
+    }
+
+    /**
+     * 分页查询-${entityName}
+     */
+    @Override
+    public RpcResult<HyitPage<${entityName}VO>> paginQuery${entityName}(${entityName}RpcQueryForm form) throws Exception {
+        ${entityName}QueryForm target = new ${entityName}QueryForm();
+        BeanUtils.copyProperties(form, target);
+        // 1.分页参数
+        HyitPage<${entityName}> page = new HyitPage<>();
+        page.setSize(Optional.ofNullable(form.getPageSize()).orElse(20));
+        page.setCurrent(Optional.ofNullable(form.getPageNum()).orElse(1));
+        // 2.分页查询
+        HyitPage<${entityName}VO> pageResult = ${entityName?uncap_first}Service.paginQuery(target, page);
+        RpcResult<HyitPage<${entityName}VO>> rpcResult = RpcResult.create();
+        return rpcResult.buildSuccess(pageResult);
+    }
+
+}

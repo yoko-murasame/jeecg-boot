@@ -1,0 +1,59 @@
+server:
+  port: 8002
+
+spring:
+  main:
+    # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
+    allow-circular-references: true
+  #开发环境配置
+  profiles:
+    active: '@profile.name@'
+    superToken: 18988888888
+    superUsername: admin
+  application:
+    name: jeecg-demo-dubbo
+  cloud:
+    nacos:
+      discovery:
+        server-addr: @config.server-addr@
+        namespace: ${spring.cloud.nacos.config.namespace:public} # 服务命名空间
+        username: # nacos # nacos 用户名
+        password: # nacos # nacos 密码
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yaml
+        group: DEFAULT_GROUP # 会读取不同分组下的配置文件
+        username: ${spring.cloud.nacos.discovery.username}
+        password: ${spring.cloud.nacos.discovery.password}
+        context-path: nacos
+        # shared-configs: custom-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        namespace: # Nacos中命名空间的ID，可以用于区分开发环境
+  config:
+    import:
+      - optional:nacos:jeecg.yaml
+      - optional:nacos:jeecg-@profile.name@.yaml
+
+dubbo:
+  protocol: # name:采用的协议名称 port:-1代表自动选择端口，默认是：20880
+    port: ${DUBBO_PORT:-1}
+    name: dubbo
+  scan: # dubbo服务路径
+    basePackages: org.jeecg.modules
+  application:
+    qos-enable: false #关闭dubbo在线运维工具
+  registry:
+    check: true # 注册中心不存在时，是否报错
+    register: false # 是否向此注册中心注册服务，如果设为false，将只订阅，不注册
+    subscribe: true # 是否向此注册中心订阅服务，如果设为false，将只注册，不订阅
+    simplified: true # 注册到注册中心的URL是否采用精简模式的（与低版本兼容）
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+    parameters:
+      group: ${spring.cloud.nacos.config.group:DEFAULT_GROUP}
+      namespace: ${spring.cloud.nacos.config.namespace}
+  cloud:
+    subscribed-services: jeecg-system-dubbo #订阅的服务名称，默认为*订阅所有服务，多个以逗号隔开
+    registry-type: spring-cloud # # issue https://github.com/apache/dubbo/issues/9243
+  consumer: # Dubbo 消费端配置
+    check: false
+    validation: true # 是否启用JSR303标准注解验证, 如果启用, 将对方法参数上的注解进行校验
+    version: 2.0.0 # 默认版本

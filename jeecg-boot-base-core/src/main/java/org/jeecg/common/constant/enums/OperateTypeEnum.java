@@ -37,7 +37,12 @@ public enum OperateTypeEnum {
     /**
      * 导出
      */
-    EXPORT(CommonConstant.OPERATE_TYPE_6, "export");
+    EXPORT(CommonConstant.OPERATE_TYPE_6, "export"),
+
+    /**
+     * SMS短信发送
+     */
+    SMS(CommonConstant.OPERATE_TYPE_7, "sms");
 
     /**
      * 类型 1列表,2新增,3编辑,4删除,5导入,6导出

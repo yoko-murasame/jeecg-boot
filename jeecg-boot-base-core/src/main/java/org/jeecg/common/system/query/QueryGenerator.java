@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.dubbo.rpc.RpcContext;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.DataBaseConstant;
 import org.jeecg.common.constant.SymbolConstant;
@@ -74,6 +75,28 @@ public class QueryGenerator {
 
 	public static QueryRuleEnum STRING_RULE = null;
 
+	/**工具类集成进第三方时，禁用规则值转换*/
+	public static boolean disableConverRuleValue = false;
+
+	/**
+	 * 启用独立模式
+	 * 1.关闭规则值转换
+	 * 2.关闭数据权限规则
+	 * 3.设置默认查询匹配模式
+	 *
+	 * @author Yoko
+	 */
+	public static void standaloneMode(QueryRuleEnum defaultRule) {
+		if (null == defaultRule) {
+			defaultRule = QueryRuleEnum.EQ;
+		}
+		disableConverRuleValue = true;
+		STRING_RULE = defaultRule;
+	}
+	public static void standaloneLikeMode() {
+		standaloneMode(QueryRuleEnum.LIKE);
+	}
+
 	/**
 	 * 根据配置初始化字符类型的查询匹配模式
 	 * 默认为 EQ
@@ -133,13 +156,22 @@ public class QueryGenerator {
 
 		//区间条件组装 模糊查询 高级查询组装 简单排序 权限查询
 		PropertyDescriptor[] origDescriptors = PropertyUtils.getPropertyDescriptors(searchObj);
-		Map<String,SysPermissionDataRuleModel> ruleMap = getRuleMap();
+		Map<String,List<SysPermissionDataRuleModel>> ruleMap = getRulesMap();
 
 		//权限规则自定义SQL表达式
-		for (String c : ruleMap.keySet()) {
-			if(oConvertUtils.isNotEmpty(c) && c.startsWith(SQL_RULES_COLUMN)){
-				queryWrapper.and(i ->i.apply(getSqlRuleValue(ruleMap.get(c).getRuleValue())));
-			}
+		List<String> sqlRulesKey = ruleMap.keySet().stream()
+				.filter(e -> oConvertUtils.isNotEmpty(e) && e.startsWith(SQL_RULES_COLUMN))
+				.collect(Collectors.toList());
+		if (!sqlRulesKey.isEmpty()) {
+			queryWrapper.and(andWrapper -> {
+				for (String c : sqlRulesKey) {
+					// 每个自定义sql片段一定是唯一的
+					SysPermissionDataRuleModel sqlRule = ruleMap.get(c).get(0);
+					andWrapper.apply(getSqlRuleValue(sqlRule.getRuleValue()));
+					// 多个自定义sql以并集查询
+					andWrapper.or();
+				}
+			});
 		}
 
 		String name, type, column;
@@ -164,7 +196,7 @@ public class QueryGenerator {
 				fieldColumnMap.put(name,column);
 				//数据权限查询
 				if(ruleMap.containsKey(name)) {
-					addRuleToQueryWrapper(ruleMap.get(name), column, origDescriptors[i].getPropertyType(), queryWrapper);
+					addRulesToQueryWrapper(ruleMap.get(name), column, origDescriptors[i].getPropertyType(), queryWrapper);
 				}
 				//区间查询
 				doIntervalQuery(queryWrapper, parameterMap, type, name, column);
@@ -176,16 +208,16 @@ public class QueryGenerator {
 					final String field = oConvertUtils.camelToUnderline(column);
 					if(vals.length>1) {
 						queryWrapper.and(j -> {
-                            log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
+                            log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
 							j = j.like(field,vals[0]);
 							for (int k=1;k<vals.length;k++) {
 								j = j.or().like(field,vals[k]);
-								log.info("---查询过滤器，Query规则 .or()---field:{}, rule:{}, value:{}", field, "like", vals[k]);
+								log.debug("---查询过滤器，Query规则 .or()---field:{}, rule:{}, value:{}", field, "like", vals[k]);
 							}
 							//return j;
 						});
 					}else {
-						log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
+						log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
 						queryWrapper.and(j -> j.like(field,vals[0]));
 					}
 				}else {
@@ -691,7 +723,7 @@ public class QueryGenerator {
 			return;
 		}
 		name = oConvertUtils.camelToUnderline(name);
-		log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}",name,rule.getValue(),value);
+		log.debug("---查询过滤器，Query规则---field:{}, rule:{}, value:{}",name,rule.getValue(),value);
 		switch (rule) {
 		case GT:
 			queryWrapper.gt(name, value);
@@ -759,7 +791,96 @@ public class QueryGenerator {
 	 */
 	public static Map<String, SysPermissionDataRuleModel> getRuleMap() {
 		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<>(5);
-		List<SysPermissionDataRuleModel> list =JeecgDataAutorUtils.loadDataSearchConditon();
+		List<SysPermissionDataRuleModel> list = null;
+		try {
+			// 集成进第三方时，禁用数据权限
+			if (QueryGenerator.disableConverRuleValue) {
+				return ruleMap;
+			}
+			list = JeecgDataAutorUtils.loadDataSearchConditon();
+		} catch (Exception e) {
+			if (RpcContext.getContext() != null) {
+				log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
+		if(list != null&& !list.isEmpty()){
+			if(list.get(0)==null){
+				return ruleMap;
+			}
+			for (SysPermissionDataRuleModel rule : list) {
+				String column = rule.getRuleColumn();
+				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
+					column = SQL_RULES_COLUMN+rule.getId();
+				}
+				ruleMap.put(column, rule);
+			}
+		}
+		return ruleMap;
+	}
+
+	/**
+	 * 获取请求对应的数据权限规则
+	 * @date 20240813 改造成相同列权限多个支持，此时为并集条件
+	 * @return
+	 */
+	public static Map<String, List<SysPermissionDataRuleModel>> getRulesMap() {
+		Map<String, List<SysPermissionDataRuleModel>> ruleMap = new HashMap<>(5);
+		List<SysPermissionDataRuleModel> list = null;
+		try {
+			// 集成进第三方时，禁用数据权限
+			if (QueryGenerator.disableConverRuleValue) {
+				return ruleMap;
+			}
+			list = JeecgDataAutorUtils.loadDataSearchConditon();
+		} catch (Exception e) {
+			if (RpcContext.getContext() != null) {
+				log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
+		if(list != null&& !list.isEmpty()){
+			if(list.get(0)==null){
+				return ruleMap;
+			}
+			for (SysPermissionDataRuleModel rule : list) {
+				String column = rule.getRuleColumn();
+				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
+					column = SQL_RULES_COLUMN+rule.getId();
+				}
+				List<SysPermissionDataRuleModel> orDefault = ruleMap.getOrDefault(column, new ArrayList<>());
+				ruleMap.putIfAbsent(column, orDefault);
+				orDefault.add(rule);
+			}
+		}
+		return ruleMap;
+	}
+
+	/**
+	 * 获取请求对应的数据权限规则
+	 * FIXME 相同列权限多个 有问题
+	 * @deprecated 20240815 改造成相同列权限多个支持，此时为并集条件，参考方法：getRulesMap
+	 */
+	@Deprecated
+	public static Map<String, SysPermissionDataRuleModel> getRuleMap(List<SysPermissionDataRuleModel> list) {
+		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<String, SysPermissionDataRuleModel>();
+		if(list==null){
+			try {
+				// 集成进第三方时，禁用数据权限
+				if (QueryGenerator.disableConverRuleValue) {
+					return ruleMap;
+				}
+				list = JeecgDataAutorUtils.loadDataSearchConditon();
+			} catch (Exception e) {
+				if (RpcContext.getContext() != null) {
+					log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				} else {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 		if(list != null&&list.size()>0){
 			if(list.get(0)==null){
 				return ruleMap;
@@ -777,14 +898,26 @@ public class QueryGenerator {
 
 	/**
 	 * 获取请求对应的数据权限规则
-	 * @return
+	 * @date 20240815 改造成相同列权限多个支持，此时为并集条件
 	 */
-	public static Map<String, SysPermissionDataRuleModel> getRuleMap(List<SysPermissionDataRuleModel> list) {
-		Map<String, SysPermissionDataRuleModel> ruleMap = new HashMap<String, SysPermissionDataRuleModel>();
+	public static Map<String, List<SysPermissionDataRuleModel>> getRulesMap(List<SysPermissionDataRuleModel> list) {
+		Map<String, List<SysPermissionDataRuleModel>> ruleMap = new HashMap<String, List<SysPermissionDataRuleModel>>();
 		if(list==null){
-			list =JeecgDataAutorUtils.loadDataSearchConditon();
+			try {
+				// 集成进第三方时，禁用数据权限
+				if (QueryGenerator.disableConverRuleValue) {
+					return ruleMap;
+				}
+				list = JeecgDataAutorUtils.loadDataSearchConditon();
+			} catch (Exception e) {
+				if (RpcContext.getContext() != null) {
+					log.debug("---查询过滤器，Dubbo RPC调用，跳过数据权限规则获取");
+				} else {
+					throw new RuntimeException(e);
+				}
+			}
 		}
-		if(list != null&&list.size()>0){
+		if(list != null&& !list.isEmpty()){
 			if(list.get(0)==null){
 				return ruleMap;
 			}
@@ -793,7 +926,9 @@ public class QueryGenerator {
 				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
 					column = SQL_RULES_COLUMN+rule.getId();
 				}
-				ruleMap.put(column, rule);
+				List<SysPermissionDataRuleModel> orDefault = ruleMap.getOrDefault(column, new ArrayList<>());
+				ruleMap.putIfAbsent(column, orDefault);
+				orDefault.add(rule);
 			}
 		}
 		return ruleMap;
@@ -825,7 +960,42 @@ public class QueryGenerator {
 		}
 	}
 
+	private static void addRulesToQueryWrapper(List<SysPermissionDataRuleModel> dataRules, String name, Class propertyType, QueryWrapper<?> queryWrapper) {
+		queryWrapper.and(andWrapper -> {
+			for (SysPermissionDataRuleModel dataRule : dataRules) {
+				QueryRuleEnum rule = QueryRuleEnum.getByValue(dataRule.getRuleConditions());
+				if(rule.equals(QueryRuleEnum.IN) && ! propertyType.equals(String.class)) {
+					String[] values = dataRule.getRuleValue().split(",");
+					Object[] objs = new Object[values.length];
+					for (int i = 0; i < values.length; i++) {
+						objs[i] = NumberUtils.parseNumber(values[i], propertyType);
+					}
+					addEasyQuery(andWrapper, name, rule, objs);
+				}else {
+					if (propertyType.equals(String.class)) {
+						addEasyQuery(andWrapper, name, rule, converRuleValue(dataRule.getRuleValue()));
+					}else if (propertyType.equals(Date.class)) {
+						String dateStr =converRuleValue(dataRule.getRuleValue());
+						int length = 10;
+						if(dateStr.length()==length){
+							addEasyQuery(andWrapper, name, rule, DateUtils.str2Date(dateStr,DateUtils.date_sdf.get()));
+						}else{
+							addEasyQuery(andWrapper, name, rule, DateUtils.str2Date(dateStr,DateUtils.datetimeFormat.get()));
+						}
+					}else {
+						addEasyQuery(andWrapper, name, rule, NumberUtils.parseNumber(dataRule.getRuleValue(), propertyType));
+					}
+				}
+				andWrapper.or();
+			}
+		});
+	}
+
 	public static String converRuleValue(String ruleValue) {
+		// 工具类集成进第三方时，禁用规则值转换
+		if (QueryGenerator.disableConverRuleValue) {
+			return ruleValue;
+		}
 		String value = JwtUtil.getUserSystemData(ruleValue,null);
 		return value!= null ? value : ruleValue;
 	}

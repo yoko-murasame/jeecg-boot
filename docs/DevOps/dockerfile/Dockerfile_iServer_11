@@ -1,0 +1,42 @@
+# 防火墙：firewall-cmd --zone=public --add-port=8090/tcp --permanent && firewall-cmd --reload
+# 构建容器：docker build -t iserver:1101 -f Dockerfile_iServer_11 .; docker save -o ./iserver-1101 iserver:1101
+# 第一次载入镜像：docker load -i iserver-1101
+# 启动容器：docker run -e HOSTNAME=198npm -e SUPERMAP_PORT=8090 -v /path/to/logs:/supermap/logs:rw -v /path/to/License:/opt/SuperMap/License:rw -v /supermap/webapps/iserver -p 18090:8090 -di --name iserver1101 iserver:1101
+
+# 临时镜像,用于去掉ADD的大文件层(超图包3个G),最后只保留最终镜像
+FROM ubuntu:22.04 AS TMP_IMAGE
+MAINTAINER Yoko
+ADD supermap-iserver-11.1.1a-linux-x64-deploy.tar.gz /supermap
+
+FROM ubuntu:22.04
+WORKDIR /
+
+# 主机名
+ENV HOSTNAME localhost
+# 端口
+ENV SUPERMAP_PORT 8090
+
+# 暴露端口
+EXPOSE $SUPERMAP_PORT/tcp
+
+# 挂载-超图-证书目录（必须）
+VOLUME /opt/SuperMap/License
+# 挂载-日志
+VOLUME /supermap/logs
+# 挂载-配置
+VOLUME /supermap/webapps/iserver
+
+RUN apt --fix-broken install -y
+RUN apt-get update
+RUN apt-get -f install -y tzdata
+# 设置时区为东8区
+ENV TZ=Asia/Shanghai
+
+# 构建
+RUN mkdir -p /opt/SuperMap/License
+COPY --from=TMP_IMAGE /supermap/supermap-iserver-11.1.1a-linux-x64-deploy /supermap
+RUN sed -i 's/sudo //g' /supermap/support/dependencies_check_and_install.sh
+RUN cd /supermap/support/ && ./dependencies_check_and_install.sh install --y
+
+# 启动
+CMD echo $HOSTNAME > /etc/hostname; cat /etc/hostname; cd /supermap/bin && ./startup.sh && sleep 5; tail -f /supermap/logs/iserver.log

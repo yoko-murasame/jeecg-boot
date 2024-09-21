@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
 import org.jeecg.modules.system.vo.SysUserDepVo;
@@ -61,22 +62,22 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return
 	 */
 	IPage<SysUser> getUserByRoleId(Page page, @Param("roleId") String roleId, @Param("username") String username);
-	
+
 	/**
 	 * 根据用户名设置部门ID
 	 * @param username
 	 * @param orgCode
 	 */
 	void updateUserDepart(@Param("username") String username,@Param("orgCode") String orgCode);
-	
+
 	/**
 	 * 根据手机号查询用户信息
 	 * @param phone
 	 * @return
 	 */
 	public SysUser getUserByPhone(@Param("phone") String phone);
-	
-	
+
+
 	/**
 	 * 根据邮箱查询用户信息
 	 * @param email
@@ -149,7 +150,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     @Deprecated
     int updateNullByEmptyString(@Param("fieldName") String fieldName);
-    
+
 	/**
 	 *  根据部门Ids,查询部门下用户信息
 	 * @param departIds
@@ -157,4 +158,40 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 	 * @return
 	 */
 	List<SysUser> queryByDepIds(@Param("departIds")List<String> departIds,@Param("username") String username);
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+    void updateSysUserWithDefaultOrgCode();
+
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+	List<String> queryCurrentUserPerms(@Param("username") String username, @Param("userid") String userid, @Param("permsLimitPrefix") String permsLimitPrefix);
+
+	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+    List<SysUserModel> getUserModelByRoleCode(@Param("roleCodes") List<String> roleCodes);
+
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	List<SysUserModel> getUserModelByUsername(@Param("usernames") List<String> usernames);
 }

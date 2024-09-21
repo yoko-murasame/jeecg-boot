@@ -1,0 +1,88 @@
+<#include "/common/utils.ftl">
+package ${bussiPackage}.form.${entityPackage};
+
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.math.BigDecimal;
+import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.jeecg.common.aspect.annotation.Dict;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
+@ApiModel(value="${entityName}QueryForm", description="${tableVo.ftlDescription}-查询表单")
+public class ${entityName}QueryForm implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+<#assign excel_ignore_arr=['createBy','createTime','updateBy','updateTime','sysOrgCode','del_flag','createdBy','createdTime','updatedBy','updatedTime']>
+<#list originalColumns as po>
+<#--检查实际的ID主键值，规则：1.等于或包含配置的ID字段名（默认为id）2.不以外键命名开头-->
+    <#include "/common/checkId.ftl">
+<#-- 生成字典Code -->
+    <#assign list_field_dictCode="">
+    <#if po.classType='sel_user'>
+        <#assign list_field_dictCode=', dictTable = "sys_user", dicText = "${camelToDashed(po.extendParams.text?default(\"realname\")?trim)}", dicCode = "${camelToDashed(po.extendParams.store?default(\"username\")?trim)}"'>
+    <#elseif po.classType='sel_depart'>
+        <#assign list_field_dictCode=', dictTable = "sys_depart", dicText = "${camelToDashed(po.extendParams.text?default(\"depart_name\")?trim)}", dicCode = "${camelToDashed(po.extendParams.store?default(\"id\")?trim)}"'>
+    <#elseif po.classType=='list' || po.classType=='list_multi' || po.classType=='sel_search' || po.classType=='radio' || po.classType=='checkbox'>
+        <#if po.dictTable?default("")?trim?length gt 1>
+            <#assign list_field_dictCode=', dictTable = "${po.dictTable}", dicText = "${po.dictText}", dicCode = "${po.dictField}"'>
+        <#elseif po.dictField?default("")?trim?length gt 1>
+            <#assign list_field_dictCode=', dicCode = "${po.dictField}"'>
+        </#if>
+    <#elseif po.classType=='sel_tree'>
+        <#assign list_field_dictCode=', dictTable = "${po.dictTable}", dicText = "${po.dictText?split(",")[2]}", dicCode = "${po.dictText?split(",")[0]}"'>
+    </#if>
+    /**
+     * ${po.filedComment}
+     */
+    <#if po.fieldName != primaryKeyField>
+        <#if po.fieldDbType =='Date' || po.fieldDbType =='Datetime'>
+            <#if po.classType=='date'>
+                <#if !excel_ignore_arr?seq_contains("${po.fieldName}")>
+    @Excel(name = "${po.filedComment}", width = 15, format = "yyyy-MM-dd")
+                </#if>
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+            <#else>
+                <#if !excel_ignore_arr?seq_contains("${po.fieldName}")>
+    @Excel(name = "${po.filedComment}", width = 20, format = "yyyy-MM-dd HH:mm:ss")
+                </#if>
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+            </#if>
+        <#else>
+            <#if !excel_ignore_arr?seq_contains("${po.fieldName}")>
+    @Excel(name = "${po.filedComment}", width = 15${list_field_dictCode})
+            </#if>
+        </#if>
+        <#if list_field_dictCode?length gt 1>
+    @Dict(${list_field_dictCode?substring(2)})
+        </#if>
+    </#if>
+    <#assign entityType = "query">
+    <#include "/common/blob.ftl">
+</#list>
+    @ApiModelProperty(value = "每页数量", name = "pageSize", notes = "每页数量,默认20")
+    @TableField(exist = false)
+    private java.lang.Integer pageSize = 20;
+
+    @ApiModelProperty(value = "页码", name = "pageNum", notes = "页码,默认1")
+    @TableField(exist = false)
+    private java.lang.Integer pageNum = 1;
+
+}

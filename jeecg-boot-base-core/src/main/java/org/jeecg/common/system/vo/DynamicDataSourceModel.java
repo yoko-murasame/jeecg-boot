@@ -3,12 +3,17 @@ package org.jeecg.common.system.vo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
+
 /**
  * @Description: 数据源
  * @author: jeecg-boot
  */
 @Data
-public class DynamicDataSourceModel {
+public class DynamicDataSourceModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     public DynamicDataSourceModel() {
 

@@ -1,10 +1,12 @@
 package org.jeecg.common.exception;
 
 import cn.hutool.core.util.ObjectUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.enums.SentinelErrorInfoEnum;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.connection.PoolException;
@@ -16,15 +18,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 异常处理器
- * 
+ *
  * @Author scott
  * @Date 2019
  */
 @RestControllerAdvice
+@ConditionalOnMissingClass("cn.com.hyit.config.EstateExceptionHandler")
 @Slf4j
 public class JeecgBootExceptionHandler {
 
@@ -86,7 +87,7 @@ public class JeecgBootExceptionHandler {
 		//update-end---author:zyf ---date:20220411  for：处理Sentinel限流自定义异常
 		return Result.error("操作失败，"+e.getMessage());
 	}
-	
+
 	/**
 	 * @Author 政辉
 	 * @param e
@@ -110,9 +111,9 @@ public class JeecgBootExceptionHandler {
 		//return Result.error("没有权限，请联系管理员授权");
 		return Result.error(405,sb.toString());
 	}
-	
-	 /** 
-	  * spring默认上传大小100MB 超出大小捕获异常MaxUploadSizeExceededException 
+
+	 /**
+	  * spring默认上传大小100MB 超出大小捕获异常MaxUploadSizeExceededException
 	  */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public Result<?> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
@@ -132,5 +133,25 @@ public class JeecgBootExceptionHandler {
     	log.error(e.getMessage(), e);
         return Result.error("Redis 连接异常!");
     }
+
+
+	/**
+	 * SQL注入风险，全局异常处理
+	 *
+	 * @param exception
+	 * @return
+	 */
+	@ExceptionHandler(JeecgSqlInjectionException.class)
+	public Result<?> handleSQLException(Exception exception) {
+		String msg = exception.getMessage().toLowerCase();
+		final String extractvalue = "extractvalue";
+		final String updatexml = "updatexml";
+		boolean hasSensitiveInformation = msg.indexOf(extractvalue) >= 0 || msg.indexOf(updatexml) >= 0;
+		if (msg != null && hasSensitiveInformation) {
+			log.error("校验失败，存在SQL注入风险！{}", msg);
+			return Result.error("校验失败，存在SQL注入风险！");
+		}
+		return Result.error("校验失败，存在SQL注入风险！" + msg);
+	}
 
 }

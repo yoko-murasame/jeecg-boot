@@ -2,12 +2,16 @@ package org.jeecg.common.api.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @Author taoYan
  * @Date 2022/7/26 14:44
  **/
 @Data
-public class DataLogDTO {
+public class DataLogDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String tableName;
 

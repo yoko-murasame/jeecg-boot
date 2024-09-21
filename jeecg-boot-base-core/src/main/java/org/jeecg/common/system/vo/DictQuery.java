@@ -2,12 +2,17 @@ package org.jeecg.common.system.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 字典查询参数实体
  * @author: jeecg-boot
  */
 @Data
-public class DictQuery {
+public class DictQuery implements Serializable {
+
+    private static final long serialVersionUID = -498347664251529142L;
+
     /**
      * 表名
      */

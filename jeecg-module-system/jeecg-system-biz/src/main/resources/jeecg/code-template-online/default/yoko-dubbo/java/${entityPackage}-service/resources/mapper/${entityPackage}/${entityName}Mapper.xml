@@ -1,0 +1,41 @@
+<#include "/common/utils.ftl">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${bussiPackage}.dao.${entityPackage}.${entityName}Mapper">
+    <sql id="listSql">
+        WITH filter_view AS (
+            SELECT * FROM ${tableName} <#if checkDelFlag(originalColumns)>WHERE del_flag = 0</#if>
+        )
+        SELECT * FROM filter_view
+    </sql>
+    <select id="selectPageCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
+        <include refid="listSql">
+            <property name="queryType" value="page"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            <#noparse>${ew.customSqlSegment}</#noparse>
+        </if>
+    </select>
+    <select id="selectListCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
+        <include refid="listSql">
+            <property name="queryType" value="list"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            <#noparse>${ew.customSqlSegment}</#noparse>
+        </if>
+    </select>
+    <select id="selectOneCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            <#noparse>${ew.customSqlSegment}</#noparse>
+        </if> limit 1
+    </select><#if getRealIdFieldCount(originalColumns) == 1>
+    <select id="selectByIdCustom" resultType="${bussiPackage}.entity.${entityPackage}.${entityName}">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+        </include>
+        WHERE ${getRealIdField(originalColumns)} = <#noparse>#{id}</#noparse> limit 1
+    </select></#if>
+</mapper>

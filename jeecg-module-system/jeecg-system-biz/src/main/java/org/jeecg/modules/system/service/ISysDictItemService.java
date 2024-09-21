@@ -1,7 +1,7 @@
 package org.jeecg.modules.system.service;
 
-import org.jeecg.modules.system.entity.SysDictItem;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.modules.system.entity.SysDictItem;
 
 import java.util.List;
 
@@ -27,4 +27,6 @@ public interface ISysDictItemService extends IService<SysDictItem> {
      * @return
      */
     public List<SysDictItem> selectItemsByCode(String code);
+
+    void buildLazyTree(List<SysDictItem> items);
 }

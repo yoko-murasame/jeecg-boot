@@ -1,5 +1,7 @@
 # Jeecg Yoko's Branch
 
+> Git拉不下来请先执行：`git config --system core.longpaths true`
+
 * 请勿用于商业用途
 * [Jeecg官方文档](https://www.kancloud.cn/zhangdaiscott/jeecg-boot/2043972)
 * [文档模板](./Template.md)
@@ -37,12 +39,18 @@
 * [Oracle数据库安装参考文档](./jeecg-boot-3.4.3last/Oracle数据库安装参考文档.md)
 * [Shiro鉴权扩展](./jeecg-boot-3.4.3last/Shiro鉴权扩展.md)
 * [钉钉集成说明](./jeecg-boot-3.4.3last/钉钉集成说明.md)
+* [Online列表Java增强](./jeecg-boot-3.4.3last/Online列表JS增强.md)
 * Jeecg接口修改
   * [CommonController 系统统一上传接口](./jeecg-boot-3.4.3last/CommonController.md)
   * [DictAspect 字典切面增强类](./jeecg-boot-3.4.3last/DictAspect.md)
   * [LoginController 用户登录接口](./jeecg-boot-3.4.3last/LoginController.md)
   * [QueryGenerator 查询条件构造器](./jeecg-boot-3.4.3last/QueryGenerator.md)
   * [SysUserController 用户管理接口](./jeecg-boot-3.4.3last/SysUserController.md)
+
+## 微服务
+
+* [Jeecg微服务Dubbo版本.md](jeecg-boot-3.4.3last/微服务/Jeecg微服务Dubbo版本.md)
+* [Jeecg微服务部署踩坑.md](jeecg-boot-3.4.3last/微服务/Jeecg微服务部署踩坑.md)
 
 ## 扩展
 

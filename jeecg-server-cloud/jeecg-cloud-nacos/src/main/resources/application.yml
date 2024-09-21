@@ -8,15 +8,30 @@ server:
     basedir: ''
 spring:
   datasource:
-    platform: mysql
+    # mysql模式
+#    platform: mysql
+    # pg模式, postgresql 或 pgsql，看插件的具体实现
+    platform: pgsql
+
 db:
   num: 1
+  # mysql模式
+#  password:
+#    '0': ${MYSQL-PWD:root}
+#  url:
+#    '0': jdbc:mysql://${MYSQL-HOST:jeecg-boot-mysql}:${MYSQL-PORT:3306}/${MYSQL-DB:nacos}?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#  user:
+#    '0': ${MYSQL-USER:root}
+  # pg模式
   password:
-    '0': ${MYSQL-PWD:root}
+    '0': ${POSTGRESQL-PWD:123456}
   url:
-    '0': jdbc:mysql://${MYSQL-HOST:jeecg-boot-mysql}:${MYSQL-PORT:3306}/${MYSQL-DB:nacos}?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    '0': jdbc:postgresql://${POSTGRESQL-HOST:jeecg-boot-postgresql}:${POSTGRESQL-PORT:5432}/${POSTGRESQL-DB:nacos}?stringtype=unspecified
   user:
-    '0': ${MYSQL-USER:root}
+    '0': ${POSTGRESQL-USER:postgres}
+  pool:
+    config:
+      driverClassName: org.postgresql.Driver
 management:
   metrics:
     export:
@@ -27,15 +42,21 @@ management:
 nacos:
   core:
     auth:
+      #是否开启鉴权（JeecgNacosApplication.enabled属性优先级更高）；如果项目中配置了username和password，就需要打开
+      enabled: true
       caching:
         enabled: true
-      default:
-        token:
-          expire:
-            seconds: 18000
-          secret:
-            key: SecretKey012345678901234567890123456789012345678901234567890123456789
-      enabled: false
+      server:
+        identity:
+          key: ${NACOS_IDENTITY_KEY:nacos}
+          value: ${NACOS_IDENTITY_VALUE:nacos}
+      plugin:
+        nacos:
+          token:
+            expire:
+              seconds: 18000
+            secret:
+              key: SecretKeyaabb01234567890123456789012345345678999987654901234567890123456789
       system:
         type: nacos
   istio:

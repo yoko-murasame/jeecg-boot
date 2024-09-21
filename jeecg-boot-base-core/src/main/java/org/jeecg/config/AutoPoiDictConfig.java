@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
  *  举例： @Excel(name = "性别", width = 15, dicCode = "sex")
  * 1、导出的时候会根据字典配置，把值1,2翻译成：男、女;
  * 2、导入的时候，会把男、女翻译成1,2存进数据库;
- * 
- * @Author:scott 
- * @since：2019-04-09 
+ *
+ * @Author:scott
+ * @since：2019-04-09
  * @Version:1.0
  */
 @Slf4j
@@ -36,8 +36,8 @@ public class AutoPoiDictConfig implements AutoPoiDictServiceI {
 
 	/**
 	 * 通过字典查询easypoi，所需字典文本
-	 * 
-	 * @Author:scott 
+	 *
+	 * @Author:scott
 	 * @since：2019-04-09
 	 * @return
 	 */
@@ -59,7 +59,9 @@ public class AutoPoiDictConfig implements AutoPoiDictServiceI {
 
 
 		for (DictModel t : dictList) {
-			if(t!=null){
+			//update-begin---author:liusq   Date:20230517  for：[issues/4917]excel 导出异常---
+			if(t!=null && t.getText()!=null && t.getValue()!=null){
+			//update-end---author:liusq     Date:20230517  for：[issues/4917]excel 导出异常---
 				//update-begin---author:scott   Date:20211220  for：[issues/I4MBB3]@Excel dicText字段的值有下划线时，导入功能不能正确解析---
 				if(t.getValue().contains(EXCEL_SPLIT_TAG)){
 					String val = t.getValue().replace(EXCEL_SPLIT_TAG,TEMP_EXCEL_SPLIT_TAG);

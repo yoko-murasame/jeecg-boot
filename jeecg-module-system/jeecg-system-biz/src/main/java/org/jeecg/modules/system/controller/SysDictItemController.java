@@ -1,35 +1,27 @@
 package org.jeecg.modules.system.controller;
 
 
-import java.util.Arrays;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.system.entity.SysDictItem;
 import org.jeecg.modules.system.service.ISysDictItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * <p>
@@ -47,7 +39,7 @@ public class SysDictItemController {
 
 	@Autowired
 	private ISysDictItemService sysDictItemService;
-	
+
 	/**
 	 * @功能：查询字典数据
 	 * @param sysDictItem
@@ -62,13 +54,17 @@ public class SysDictItemController {
 		Result<IPage<SysDictItem>> result = new Result<IPage<SysDictItem>>();
 		QueryWrapper<SysDictItem> queryWrapper = QueryGenerator.initQueryWrapper(sysDictItem, req.getParameterMap());
 		queryWrapper.orderByAsc("sort_order");
+		queryWrapper.and(ew -> ew.eq("parent_id", CommonConstant.SYS_DICT_ITEM_ROOT_FLAG).or().isNull("parent_id"));
 		Page<SysDictItem> page = new Page<SysDictItem>(pageNo, pageSize);
 		IPage<SysDictItem> pageList = sysDictItemService.page(page, queryWrapper);
+		if (!pageList.getRecords().isEmpty()) {
+			sysDictItemService.buildLazyTree(pageList.getRecords());
+		}
 		result.setSuccess(true);
 		result.setResult(pageList);
 		return result;
 	}
-	
+
 	/**
 	 * @功能：新增
 	 * @return
@@ -88,7 +84,7 @@ public class SysDictItemController {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @功能：编辑
 	 * @param sysDictItem
@@ -112,7 +108,7 @@ public class SysDictItemController {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @功能：删除字典数据
 	 * @param id
@@ -134,7 +130,7 @@ public class SysDictItemController {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @功能：批量删除字典数据
 	 * @param ids
@@ -181,5 +177,5 @@ public class SysDictItemController {
 			return Result.error("该值不可用，系统中已存在！");
 		}
 	}
-	
+
 }

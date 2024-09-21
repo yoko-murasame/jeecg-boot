@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * <p>
  * 部门表 服务实现类
  * <p>
- * 
+ *
  * @Author Steve
  * @Since 2019-01-22
  */
@@ -140,7 +140,9 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 				sysDepart.setParentId("");
 			}
 			//String s = UUID.randomUUID().toString().replace("-", "");
-			sysDepart.setId(IdWorker.getIdStr(sysDepart));
+			if (StringUtils.isEmpty(sysDepart.getId())) {
+				sysDepart.setId(IdWorker.getIdStr(sysDepart));
+			}
 			// 先判断该对象有无父级ID,有则意味着不是最高级,否则意味着是最高级
 			// 获取父级ID
 			String parentId = sysDepart.getParentId();
@@ -164,14 +166,14 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
          }
 
 	}
-	
+
 	/**
 	 * saveDepartData 的调用方法,生成部门编码和部门类型（作废逻辑）
 	 * @deprecated
 	 * @param parentId
 	 * @return
 	 */
-	private String[] generateOrgCode(String parentId) {	
+	private String[] generateOrgCode(String parentId) {
 		//update-begin--Author:Steve  Date:20190201 for：组织机构添加数据代码调整
 				LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
 				LambdaQueryWrapper<SysDepart> query1 = new LambdaQueryWrapper<SysDepart>();
@@ -229,16 +231,16 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 				strArray[1] = orgType;
 				return strArray;
 		//update-end--Author:Steve  Date:20190201 for：组织机构添加数据代码调整
-	} 
+	}
 
-	
+
 	/**
 	 * removeDepartDataById 对应 delete方法 根据ID删除相关部门数据
-	 * 
+	 *
 	 */
 	/*
 	 * @Override
-	 * 
+	 *
 	 * @Transactional public boolean removeDepartDataById(String id) {
 	 * System.out.println("要删除的ID 为=============================>>>>>"+id); boolean
 	 * flag = this.removeById(id); return flag; }
@@ -264,7 +266,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 		}
 
 	}
-	
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteBatchWithChildren(List<String> ids) {
@@ -389,13 +391,13 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 		}
 		return ok;
 	}
-	
+
 	/**
 	 * delete 方法调用
 	 * @param id
 	 * @param idList
 	 */
-	private void checkChildrenExists(String id, List<String> idList) {	
+	private void checkChildrenExists(String id, List<String> idList) {
 		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
 		query.eq(SysDepart::getParentId,id);
 		List<SysDepart> departList = this.list(query);
@@ -637,7 +639,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
             }
         }
     }
-    
+
     //update-begin---author:wangshuai ---date:20200308  for：[JTC-119]在部门管理菜单下设置部门负责人，新增方法添加部门负责人、删除负责部门负责人、查询部门对应的负责人
     /**
      * 通过用户id设置负责部门
@@ -673,7 +675,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
             }
         }
     }
-    
+
     /**
      * 修改用户负责部门
      * @param sysDepart SysDepart对象
@@ -700,7 +702,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
             //找到原来负责部门的用户id与新的负责部门用户id，进行新增
             String addUserIds = Arrays.stream(directorIds.split(",")).filter(item -> !oldDirectorIds.contains(item)).collect(Collectors.joining(","));
             if(oConvertUtils.isNotEmpty(addUserIds)){
-                this.addDepartByUserIds(sysDepart,addUserIds); 
+                this.addDepartByUserIds(sysDepart,addUserIds);
             }
         }
     }
@@ -716,7 +718,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
         query.like(SysUser::getDepartIds,departId);
         //删除全部的情况下用户id不存在
         if(oConvertUtils.isNotEmpty(userId)){
-            query.eq(SysUser::getId,userId); 
+            query.eq(SysUser::getId,userId);
         }
         List<SysUser> userList = sysUserMapper.selectList(query);
         for (SysUser sysUser:userList) {
@@ -751,14 +753,14 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
                     String userIds = map.get(departId) + "," + user.getId();
                     map.put(departId,userIds);
                 }else{
-                    map.put(departId,user.getId());  
+                    map.put(departId,user.getId());
                 }
             }
         }
         //循环部门集合找到部门id对应的负责用户
         for (SysDepart sysDepart:departList) {
             if(map.containsKey(sysDepart.getId())){
-                sysDepart.setDirectorUserIds(map.get(sysDepart.getId()).toString()); 
+                sysDepart.setDirectorUserIds(map.get(sysDepart.getId()).toString());
             }
         }
     }

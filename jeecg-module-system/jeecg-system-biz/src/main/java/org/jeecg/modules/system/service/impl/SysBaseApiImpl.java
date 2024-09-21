@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
@@ -22,6 +23,8 @@ import org.jeecg.common.desensitization.util.SensitiveInfoUtil;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.dynamic.db.FreemarkerParseFactory;
@@ -50,15 +53,19 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * @Description: 底层共通业务API，提供其他独立模块调用
- * @Author: scott
- * @Date:2019-4-20
- * @Version:V1.0
+ * 底层共通业务API，提供其他独立模块调用
+ * 如果是Dubbo微服务启动，默认提供此模块
  */
 @Slf4j
 @Service
+@DubboService(
+		interfaceClass = ISysBaseAPI.class,
+		version = "${dubbo.provider.version:2.0.0}",
+		timeout = 3000
+)
 public class SysBaseApiImpl implements ISysBaseAPI {
 	/** 当前系统数据库类型 */
 	private static String DB_TYPE = "";
@@ -105,6 +112,10 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	private ISysDataLogService sysDataLogService;
 	@Autowired
 	private ISysFilesService sysFilesService;
+	@Autowired
+	private RedisUtil redisUtil;
+	@Autowired
+	private ISysTenantService sysTenantService;
 
 	@Override
 	//@SensitiveDecode
@@ -192,6 +203,28 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 				// update-end--Author:scott Date:20191119 for：数据权限规则编码不规范，项目存在相同包名和类名 #722
 			}
 			return dataRules;
+		}
+		return null;
+	}
+
+	public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username, QueryRuleEnum queryMode) {
+        // 通过注解属性perms 获取菜单
+		LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>();
+		query.eq(SysPermission::getDelFlag,0);
+		if (Objects.equals(queryMode, QueryRuleEnum.IN)) {
+			query.in(SysPermission::getPerms, Arrays.asList(perms.split(",")));
+		} else if (Objects.equals(queryMode, QueryRuleEnum.RIGHT_LIKE)) {
+			query.and(ew -> Arrays.asList(perms.split(",")).forEach(perm -> ew.likeRight(SysPermission::getPerms, perm).or()));
+        }
+
+        List<SysPermission> currentSyspermission = sysPermissionMapper.selectList(query);
+		// 获取规则
+		if(currentSyspermission!=null && !currentSyspermission.isEmpty()){
+			List<String> ids = currentSyspermission.stream().map(SysPermission::getId).collect(Collectors.toList());
+			List<SysPermissionDataRule> temp = sysPermissionDataRuleService.queryPermissionDataRulesMulti(username, ids);
+			if(temp != null && !temp.isEmpty()) {
+				return oConvertUtils.entityListToModelList(temp,SysPermissionDataRuleModel.class);
+			}
 		}
 		return null;
 	}
@@ -300,13 +333,13 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
-	@Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryDictItemsByCode(String code) {
 		return sysDictService.queryDictItemsByCode(code);
 	}
 
 	@Override
-	@Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
+	// @Cacheable(value = CacheConstant.SYS_ENABLE_DICT_CACHE,key = "#code", unless = "#result == null ")
 	public List<DictModel> queryEnableDictItemsByCode(String code) {
 		return sysDictService.queryEnableDictItemsByCode(code);
 	}
@@ -720,20 +753,13 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	}
 
 	@Override
-	public String getDepartIdsByOrgCode(String orgCode) {
-		return departMapper.queryDepartIdByOrgCode(orgCode);
+	public List<String> getRoleIdsByUserId(String userId) {
+		return sysUserRoleMapper.getRoleIdByUserId(userId);
 	}
 
 	@Override
-	public List<SysDepartModel> getAllSysDepart() {
-		List<SysDepartModel> departModelList = new ArrayList<SysDepartModel>();
-		List<SysDepart> departList = departMapper.selectList(new QueryWrapper<SysDepart>().eq("del_flag","0"));
-		for(SysDepart depart : departList){
-			SysDepartModel model = new SysDepartModel();
-			BeanUtils.copyProperties(depart,model);
-			departModelList.add(model);
-		}
-		return departModelList;
+	public String getDepartIdsByOrgCode(String orgCode) {
+		return departMapper.queryDepartIdByOrgCode(orgCode);
 	}
 
 	@Override
@@ -1211,6 +1237,234 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	@Override
 	public List<DictModel> translateDictFromTableByKeys(String table, String text, String code, String keys) {
 		return sysDictService.queryTableDictTextByKeys(table, text, code, Arrays.asList(keys.split(",")));
+	}
+
+
+	@Override
+	public List<SysDepartModel> getAllSysDepart(String id, String delFlag) {
+		LambdaQueryWrapper<SysDepart> query = new LambdaQueryWrapper<SysDepart>();
+		query.eq(StringUtils.isNotBlank(delFlag), SysDepart::getDelFlag, delFlag);
+		query.orderByAsc(SysDepart::getOrgCode);
+		if(oConvertUtils.isNotEmpty(id)){
+			String[] arr = id.split(",");
+			query.in(SysDepart::getId,Arrays.asList(arr));
+		}
+		List<SysDepart> ls = this.sysDepartService.list(query);
+		return ls.stream().map(l -> {
+			SysDepartModel sysDepartModel = new SysDepartModel();
+			BeanUtils.copyProperties(l, sysDepartModel);
+			return sysDepartModel;
+		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public SysDepartModel addSysDepart(SysDepartModel model) {
+		SysDepart sysDepart = new SysDepart();
+		BeanUtils.copyProperties(model, sysDepart);
+		String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+		sysDepart.setCreateBy(username);
+		sysDepartService.saveDepartData(sysDepart, username);
+		//清除部门树内存
+		// FindsDepartsChildrenUtil.clearSysDepartTreeList();
+		// FindsDepartsChildrenUtil.clearDepartIdModel();
+		BeanUtils.copyProperties(sysDepart, model);
+		return model;
+	}
+
+	@Override
+	public SysDepartModel editSysDepart(SysDepartModel model) {
+		SysDepart sysDepartEntity = sysDepartService.getById(model.getId());
+		if (sysDepartEntity == null) {
+			throw new JeecgBootException("未找到对应实体");
+		}
+		SysDepart sysDepart = new SysDepart();
+		BeanUtils.copyProperties(model, sysDepart);
+		String username = JwtUtil.getUserNameByToken(SpringContextUtils.getHttpServletRequest());
+		sysDepart.setUpdateBy(username);
+		sysDepartService.updateDepartDataById(sysDepart, username);
+		//清除部门树内存
+		// FindsDepartsChildrenUtil.clearSysDepartTreeList();
+		// FindsDepartsChildrenUtil.clearDepartIdModel();
+		BeanUtils.copyProperties(sysDepart, model);
+		return model;
+	}
+
+	@Override
+	public SysDepartModel deleteSysDepart(SysDepartModel model) {
+		SysDepart dept = new SysDepart();
+		BeanUtils.copyProperties(model, dept);
+		QueryWrapper<SysDepart> wrapper = QueryGenerator.initQueryWrapper(dept, SpringContextUtils.getHttpServletRequest().getParameterMap());
+		sysDepartService.list(wrapper).stream().map(SysDepart::getId).forEach(sysDepartService::delete);
+		return model;
+	}
+
+	@Override
+	public List<SysUserModel> getAllSysUser(String id) {
+		LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<SysUser>();
+		query.eq(SysUser::getDelFlag, 0);
+		if(oConvertUtils.isNotEmpty(id)){
+			String[] arr = id.split(",");
+			query.in(SysUser::getId,Arrays.asList(arr));
+		}
+		List<SysUser> ls = this.sysUserService.list(query);
+		return ls.stream().map(l -> {
+			SysUserModel sysUserModel = new SysUserModel();
+			BeanUtils.copyProperties(l, sysUserModel);
+			return sysUserModel;
+		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public SysUserModel addSysUser(SysUserModel model, String roleIds, String departIds){
+		SysUser user = new SysUser();
+		BeanUtils.copyProperties(model, user);
+		user.setCreateTime(new Date());//设置创建时间
+		String salt = oConvertUtils.randomGen(8);
+		user.setSalt(salt);
+		String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), salt);
+		user.setPassword(passwordEncode);
+		user.setStatus(1);
+		user.setDelFlag(CommonConstant.DEL_FLAG_0);
+		//用户表字段org_code不能在这里设置他的值
+		user.setOrgCode(null);
+		// 保存用户走一个service 保证事务
+		this.sysUserService.saveUser(user, roleIds, departIds);
+		BeanUtils.copyProperties(user, model);
+		return model;
+	}
+
+	@Override
+	public SysUserModel editSysUser(SysUserModel model, String roleIds, String departIds) {
+		SysUser sysUser = this.sysUserService.getById(model.getId());
+		if(sysUser==null) {
+			throw new JeecgBootException("未找到对应实体");
+		}else {
+			SysUser user = new SysUser();
+			BeanUtils.copyProperties(model, user);
+			user.setUpdateTime(new Date());
+			//String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), sysUser.getSalt());
+			user.setPassword(sysUser.getPassword());
+			//用户表字段org_code不能在这里设置他的值
+			user.setOrgCode(null);
+			// 修改用户走一个service 保证事务
+			sysUserService.editUser(user, roleIds, departIds);
+			BeanUtils.copyProperties(user, model);
+		}
+		return model;
+	}
+
+	@Override
+	public SysUserModel deleteSysUser(SysUserModel model) {
+		SysUser user = new SysUser();
+		BeanUtils.copyProperties(model, user);
+		QueryWrapper<SysUser> wrapper = QueryGenerator.initQueryWrapper(user, SpringContextUtils.getHttpServletRequest().getParameterMap());
+		List<String> ids = sysUserService.list(wrapper).stream().map(SysUser::getId).collect(Collectors.toList());
+		sysUserService.removeLogicDeleted(ids);
+		return model;
+	}
+
+	@Override
+	public JSONObject packageUserInfo(SysUserModel sysUserModel) {
+		String username = sysUserModel.getUsername();
+		String syspassword = sysUserModel.getPassword();
+		// 获取用户部门信息
+		JSONObject obj = new JSONObject(new LinkedHashMap<>());
+
+		//1.生成token
+		String token = JwtUtil.sign(username, syspassword);
+		// 设置token缓存有效时间
+		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
+		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2 / 1000);
+		obj.put("token", token);
+
+		// update-begin--Author:sunjianlei Date:20210802 for：获取用户租户信息
+		String tenantIds = sysUserModel.getRelTenantIds();
+		if (oConvertUtils.isNotEmpty(tenantIds)) {
+			List<Integer> tenantIdList = new ArrayList<>();
+			for(String id: tenantIds.split(SymbolConstant.COMMA)){
+				tenantIdList.add(Integer.valueOf(id));
+			}
+			// 该方法仅查询有效的租户，如果返回0个就说明所有的租户均无效。
+			List<SysTenant> tenantList = sysTenantService.queryEffectiveTenant(tenantIdList);
+			if (tenantList.isEmpty()) {
+				throw new JeecgBootException("与该用户关联的租户均已被冻结，无法登录！");
+			} else {
+				obj.put("tenantList", tenantList);
+			}
+		}
+		// update-end--Author:sunjianlei Date:20210802 for：获取用户租户信息
+
+		//3.设置登录用户信息
+		obj.put("userInfo", sysUserModel);
+
+		//4.设置登录部门
+		List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUserModel.getId());
+		obj.put("departs", departs);
+		if (departs == null || departs.isEmpty()) {
+			obj.put("multi_depart", 0);
+		} else if (departs.size() == 1) {
+			sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
+			obj.put("multi_depart", 1);
+		} else {
+			//查询当前是否有登录部门
+			// update-begin--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
+			SysUser sysUserById = sysUserService.getById(sysUserModel.getId());
+			if(oConvertUtils.isEmpty(sysUserById.getOrgCode())){
+				sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
+			}
+			// update-end--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
+			obj.put("multi_depart", 2);
+		}
+		obj.put("sysAllDictItems", sysDictService.queryAllDictItems());
+		return obj;
+	}
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+	@Override
+	public void updateSysUserWithDefaultOrgCode() {
+		sysUserService.updateSysUserWithDefaultOrgCode();
+	}
+
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+	@Override
+	public List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix) {
+		return sysUserService.queryCurrentUserPerms(username, userid, permsLimitPrefix);
+	}
+
+	/**
+	 * 获取指定角色下的所有用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:53
+	 * @param roleCode 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByRoleCodes(String roleCode) {
+		return sysUserService.getUserModelByRoleCodes(Arrays.asList(roleCode.split(SymbolConstant.COMMA)));
+	}
+
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByUsername(String usernames) {
+		return sysUserService.getUserModelByUsername(Arrays.asList(usernames.split(SymbolConstant.COMMA)));
 	}
 
 	//-------------------------------------流程节点发送模板消息-----------------------------------------------

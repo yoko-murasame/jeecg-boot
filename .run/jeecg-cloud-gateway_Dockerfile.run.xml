@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="jeecg-cloud-gateway/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="jeecg:gateway" />
+        <option name="containerName" value="jeecg-gateway" />
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="9999" />
+              <option name="hostPort" value="9999" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-nacos:172.17.0.1 --add-host=jeecg-boot-redis:172.17.0.1" />
+        <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-cloud-gateway/Dockerfile" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

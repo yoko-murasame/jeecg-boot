@@ -23,6 +23,12 @@
                     <artifactId>jeecg-system-cloud-api</artifactId>
                 </exclusion>
             </exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jeecgframework.boot</groupId>
+                    <artifactId>jeecg-boot-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- jeecg-system-biz依赖 -->
         <dependency>
@@ -36,8 +42,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- feign 熔断限流、分布式锁、xxljob示例 
+        <!-- 抽取bpm、online、quartz到单独模块 -->
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-bpm</artifactId>
+        </dependency>
+        <!-- feign 熔断限流、分布式锁、xxljob示例
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-cloud-test-more</artifactId>
@@ -64,12 +74,158 @@
 
     </dependencies>
 
+    <!-- ==========打包完整jar（对应使用镜像描述文件：Dockerfile）============ -->
+    <!-- <build> -->
+    <!--     <plugins> -->
+    <!--         <plugin> -->
+    <!--             <groupId>org.springframework.boot</groupId> -->
+    <!--             <artifactId>spring-boot-maven-plugin</artifactId> -->
+    <!--             <configuration> -->
+    <!--                 <includeSystemScope>true</includeSystemScope> -->
+    <!--             </configuration> -->
+    <!--         </plugin> -->
+    <!--     </plugins> -->
+    <!-- </build> -->
+    <!-- ==========打包完整jar（对应使用镜像描述文件：Dockerfile）============ -->
+
+    <!-- ==========打包分离jar（对应使用镜像描述文件：Dockerfile_Separate）========== -->
+    <!--运行：java -Dloader.path=lib,config -Dspring.profiles.active=yoko -jar main.jar-->
     <build>
         <plugins>
+            <!--该插件的作用是指定编译配置、做预处理，如Lombok、mapstruct等框架需要预处理代码-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.4.1.Final</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.22</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <!--该插件的作用是打包spring-boot的jar包-->
+            <!--如果遇到Crack失败问题，请在工程里搜索：org.apache.commons.lang.StringUtil这个类的所有引用全部改掉-->
+            <!--如果遇到Crack失败问题，请在工程里搜索：26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                    <!--分离Jar包-->
+                    <layout>ZIP</layout>
+                    <includes>
+                        <include>
+                            <groupId>nothing</groupId>
+                            <artifactId>nothing</artifactId>
+                        </include>
+                    </includes>
+                    <!--<excludes>-->
+                    <!--    <exclude>-->
+                    <!--        <groupId>org.springframework.boot</groupId>-->
+                    <!--        <artifactId>spring-boot-configuration-processor</artifactId>-->
+                    <!--    </exclude>-->
+                    <!--</excludes>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- 该插件的作用是复制依赖的jar包到指定的文件夹里 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- 该插件的作用是复制指定的文件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <!-- 复制配置文件 -->
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <!--复制资源文件到外部，注意这里先不做filtering处理，防止某些静态文件损坏-->
+                                <resource>
+                                    <filtering>false</filtering>
+                                    <directory>src/main/resources</directory>
+                                </resource>
+                                <!--仅针对配置文件filtering处理(占位符@@等)-->
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>*.xml</include>
+                                        <include>*.txt</include>
+                                        <include>*.yml</include>
+                                        <include>*.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/config</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
+        <resources>
+            <!--打包java路径下的静态文件-->
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.json</include>
+                    <include>**/*.ftl</include>
+                </includes>
+            </resource>
+            <!--注: 为了能在IDEA中跑起来，需要将所有yml配置文件打进jar包，filtering必须开启(处理占位符等操作)-->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.xml</include>
+                    <include>*.txt</include>
+                    <include>*.yml</include>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
+    <!-- ==========打包分离jar（对应使用镜像描述文件：Dockerfile_Separate）========== -->
 </project>

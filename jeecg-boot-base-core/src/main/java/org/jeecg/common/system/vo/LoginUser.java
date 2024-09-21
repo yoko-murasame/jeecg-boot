@@ -1,15 +1,14 @@
 package org.jeecg.common.system.vo;
 
-import java.util.Date;
-
-import org.jeecg.common.desensitization.annotation.SensitiveField;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecg.common.desensitization.annotation.SensitiveField;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -22,7 +21,9 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class LoginUser {
+public class LoginUser implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 登录人id
@@ -87,7 +88,7 @@ public class LoginUser {
 	 * 状态(1：正常 2：冻结 ）
 	 */
 	private Integer status;
-	
+
 	private Integer delFlag;
 	/**
      * 同步工作流引擎1同步0不同步

@@ -12,15 +12,25 @@
     <artifactId>jeecg-server-cloud</artifactId>
     <packaging>pom</packaging>
     <name>JEECG SERVER CLOUD</name>
-    
+
     <modules>
         <module>jeecg-cloud-gateway</module>
         <module>jeecg-cloud-nacos</module>
         <module>jeecg-system-cloud-start</module>
         <module>jeecg-demo-cloud-start</module>
-        
+        <module>jeecg-system-dubbo-start</module>
+        <module>jeecg-demo-dubbo-start</module>
+
         <!-- 监控和测试例子 -->
         <module>jeecg-visual</module>
     </modules>
+
+    <dependencies>
+        <!--修复bootstrap.yml不被读取问题，2.4.2后PropertyUtils的spring.cloud.bootstrap.enabled默认被关闭-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

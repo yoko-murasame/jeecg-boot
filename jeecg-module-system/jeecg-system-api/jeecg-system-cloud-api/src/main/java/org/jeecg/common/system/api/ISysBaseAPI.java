@@ -7,6 +7,7 @@ import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.system.api.factory.SysBaseAPIFallbackFactory;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -214,6 +215,14 @@ public interface ISysBaseAPI extends CommonAPI {
     public List<String> getRoleIdsByUsername(@RequestParam("username")String username);
 
     /**
+     * 22-1通过用户账号id查询角色Id集合
+     * @param userId
+     * @return
+     */
+    @GetMapping("/sys/api/getRoleIdsByUsername")
+    public List<String> getRoleIdsByUserId(@RequestParam("userId")String userId);
+
+    /**
      * 22通过部门编号查询部门id
      * @param orgCode
      * @return
@@ -226,7 +235,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * @return
      */
     @GetMapping("/sys/api/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart();
+    public List<SysDepartModel> getAllSysDepart(@RequestParam("id")String id, @RequestParam("delFlag")String delFlag);
 
     /**
      * 24查找父级部门
@@ -391,7 +400,8 @@ public interface ISysBaseAPI extends CommonAPI {
     String translateDict(@RequestParam("code") String code, @RequestParam("key") String key);
 
     @Override
-    String translateDictReverse(String code, String key);
+    @GetMapping("/sys/api/translateDictReverse")
+    String translateDictReverse(@RequestParam("code") String code, @RequestParam("key") String key);
 
     /**
      * 42查询数据权限
@@ -403,6 +413,16 @@ public interface ISysBaseAPI extends CommonAPI {
     @Override
     @GetMapping("/sys/api/queryPermissionDataRule")
     List<SysPermissionDataRuleModel> queryPermissionDataRule(@RequestParam("component") String component, @RequestParam("requestPath")String requestPath, @RequestParam("username") String username);
+
+    /**
+     * 42.1查询数据权限
+     * @param perms 授权标识，多个用逗号分隔
+     * @param username 用户姓名
+     * @return
+     */
+    @Override
+    @GetMapping("/sys/api/queryPermissionDataRuleByPerms")
+    List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username, @RequestParam("queryMode") QueryRuleEnum queryMode);
 
     /**
      * 43查询用户信息
@@ -585,4 +605,87 @@ public interface ISysBaseAPI extends CommonAPI {
 
     @GetMapping("/sendAppChatSocket")
     void sendAppChatSocket(@RequestParam(name="userId") String userId);
+
+    /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @param sysUserModel 用户登陆实体
+     */
+    @PostMapping("/sys/api/packageUserInfo")
+    JSONObject packageUserInfo(SysUserModel sysUserModel);
+
+    /**
+     * 添加部门
+     */
+    @PostMapping("/sys/api/addSysDepart")
+    SysDepartModel addSysDepart(@RequestBody SysDepartModel model);
+
+    @PostMapping("/sys/api/editSysDepart")
+    SysDepartModel editSysDepart(@RequestBody SysDepartModel model);
+
+    @PostMapping("/sys/api/deleteSysDepart")
+    SysDepartModel deleteSysDepart(@RequestBody SysDepartModel model);
+
+    /**
+     * 查询所有用户
+     */
+    @GetMapping("/sys/api/getAllSysUser")
+    List<SysUserModel> getAllSysUser(@RequestParam(required = false, value = "id") String id);
+
+    @PostMapping("/sys/api/addSysUser")
+    SysUserModel addSysUser(@RequestBody SysUserModel model,
+                            @RequestParam("roleIds") String roleIds,
+                            @RequestParam("departIds") String departIds);
+
+    @PostMapping("/sys/api/editSysUser")
+    SysUserModel editSysUser(@RequestBody SysUserModel model,
+                             @RequestParam("roleIds") String roleIds,
+                             @RequestParam("departIds") String departIds);
+
+    @PostMapping("/sys/api/deleteSysUser")
+    SysUserModel deleteSysUser(@RequestBody SysUserModel model);
+
+    /**
+     * 为用户设置默认的orgCode字段
+     */
+    @PostMapping("/sys/api/updateSysUserWithDefaultOrgCode")
+    void updateSysUserWithDefaultOrgCode();
+
+    /**
+     * 获取当前用户的所有权限标识
+     *
+     * @author Yoko
+     * @since 2024/8/16 上午11:00
+     * @param username 用户名
+     * @param userid 用户id
+     * @param permsLimitPrefix 权限前缀
+     * @return java.util.List<java.lang.String>
+     */
+    @GetMapping("/sys/api/queryCurrentUserPerms")
+    List<String> queryCurrentUserPerms(@RequestParam(value = "username", required = false)String username,
+                                       @RequestParam(value = "userid", required = false)String userid,
+                                       @RequestParam(value = "permsLimitPrefix", required = false)String permsLimitPrefix);
+
+    /**
+     * 获取指定角色下的所有用户
+     *
+     * @author Yoko
+     * @since 2024/8/20 10:05
+     * @param roleCode 角色编码
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/sys/api/getUserModelByRoleCodes")
+    List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode);
+
+    /**
+     * 获取指定用户名的所有用户
+     *
+     * @author Yoko
+     * @param usernames 用户名数组，逗号分隔
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/sys/api/getUserModelByUsername")
+    List<SysUserModel> getUserModelByUsername(@RequestParam(value = "usernames")String usernames);
+
 }

@@ -11,6 +11,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.config.TenantContext;
+import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
@@ -21,6 +22,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,10 +45,12 @@ public class ShiroRealm extends AuthorizingRealm {
     @Resource
     private RedisUtil redisUtil;
 
-    @Value("${spring.profiles.superToken}")
+    // FIXME 生产环境记得删除
+    @Value("${spring.profiles.superToken:}")
     private String superToken;
 
-    @Value("${spring.profiles.superUsername}")
+    // FIXME 生产环境记得删除
+    @Value("${spring.profiles.superUsername:admin}")
     private String superUsername;
 
     /**
@@ -68,9 +72,11 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         log.debug("===============Shiro权限认证开始============ [ roles、permissions]==========");
         String username = null;
+        String userId = null;
         if (principals != null) {
             LoginUser sysUser = (LoginUser) principals.getPrimaryPrincipal();
             username = sysUser.getUsername();
+            userId = sysUser.getId();
         }
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 
@@ -122,7 +128,7 @@ public class ShiroRealm extends AuthorizingRealm {
      * @param token
      */
     public LoginUser checkUserTokenIsEffect(String token) throws AuthenticationException {
-        if (token.equals(superToken)) {
+        if (StringUtils.hasText(superToken) && token.equals(superToken)) {
             return commonApi.getUserByName(superUsername);
         }
 
@@ -151,12 +157,35 @@ public class ShiroRealm extends AuthorizingRealm {
         String userTenantIds = loginUser.getRelTenantIds();
         if(oConvertUtils.isNotEmpty(userTenantIds)){
             String contextTenantId = TenantContext.getTenant();
+            log.debug("登录租户：" + contextTenantId);
+            log.debug("用户拥有那些租户：" + userTenantIds);
+             //登录用户无租户，前端header中租户ID值为 0
             String str ="0";
             if(oConvertUtils.isNotEmpty(contextTenantId) && !str.equals(contextTenantId)){
                 //update-begin-author:taoyan date:20211227 for: /issues/I4O14W 用户租户信息变更判断漏洞
                 String[] arr = userTenantIds.split(",");
                 if(!oConvertUtils.isIn(contextTenantId, arr)){
-                    throw new AuthenticationException("用户租户信息变更,请重新登陆!");
+                    boolean isAuthorization = false;
+                    //========================================================================
+                    // 查询用户信息（如果租户不匹配从数据库中重新查询一次用户信息）
+                    String loginUserKey = CacheConstant.SYS_USERS_CACHE + "::" + username;
+                    redisUtil.del(loginUserKey);
+                    LoginUser loginUserFromDb = commonApi.getUserByName(username);
+                    if (oConvertUtils.isNotEmpty(loginUserFromDb.getRelTenantIds())) {
+                        String[] newArray = loginUserFromDb.getRelTenantIds().split(",");
+                        if (oConvertUtils.isIn(contextTenantId, newArray)) {
+                            isAuthorization = true;
+                        }
+                    }
+                    //========================================================================
+
+                    //*********************************************
+                    if(!isAuthorization){
+                        log.info("租户异常——登录租户：" + contextTenantId);
+                        log.info("租户异常——用户拥有租户组：" + userTenantIds);
+                        throw new AuthenticationException("登录租户授权变更，请重新登陆!");
+                    }
+                    //*********************************************
                 }
                 //update-end-author:taoyan date:20211227 for: /issues/I4O14W 用户租户信息变更判断漏洞
             }
@@ -196,6 +225,12 @@ public class ShiroRealm extends AuthorizingRealm {
 //				redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME / 1000);
 //			}
             //update-end--Author:scott  Date:20191005   for：解决每次请求，都重写redis中 token缓存问题
+            return true;
+        }
+
+        // 判断是否时临时token
+        String tempToken = String.valueOf(redisUtil.get(CommonConstant.PREFIX_SSO_TEMP_TOKEN + token));
+        if (oConvertUtils.isNotEmpty(tempToken)) {
             return true;
         }
 

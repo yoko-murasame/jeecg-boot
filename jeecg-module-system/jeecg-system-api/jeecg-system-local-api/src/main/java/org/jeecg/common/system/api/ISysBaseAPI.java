@@ -178,6 +178,13 @@ public interface ISysBaseAPI extends CommonAPI {
     public List<String> getRoleIdsByUsername(String username);
 
     /**
+     * 22-1通过用户账号id查询角色Id集合
+     * @param userId
+     * @return
+     */
+    List<String> getRoleIdsByUserId(String userId);
+
+    /**
      * 23通过部门编号查询部门id
      * @param orgCode
      * @return
@@ -188,7 +195,7 @@ public interface ISysBaseAPI extends CommonAPI {
      * 24查询所有部门
      * @return
      */
-    public List<SysDepartModel> getAllSysDepart();
+    public List<SysDepartModel> getAllSysDepart(String id, String delFlag);
 
     /**
      * 25查找父级部门

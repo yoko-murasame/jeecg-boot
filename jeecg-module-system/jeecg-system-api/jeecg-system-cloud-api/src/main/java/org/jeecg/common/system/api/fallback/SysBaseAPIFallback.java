@@ -7,8 +7,10 @@ import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -138,13 +140,18 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<String> getRoleIdsByUserId(String userId) {
+        return null;
+    }
+
+    @Override
     public String getDepartIdsByOrgCode(String orgCode) {
         return null;
     }
 
     @Override
-    public List<SysDepartModel> getAllSysDepart() {
-        return null;
+    public List<SysDepartModel> getAllSysDepart(String id, String delFlag) {
+        return Collections.emptyList();
     }
 
     @Override
@@ -249,6 +256,11 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     }
 
     @Override
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(String perms, String username, QueryRuleEnum queryMode) {
+        return null;
+    }
+
+    @Override
     public SysUserCacheInfo getCacheUser(String username) {
         log.error("获取用户信息失败 {}", cause);
         return null;
@@ -282,6 +294,66 @@ public class SysBaseAPIFallback implements ISysBaseAPI {
     @Override
     public List<DictModel> translateDictFromTableByKeys(String table, String text, String code, String keys) {
         return null;
+    }
+
+    @Override
+    public JSONObject packageUserInfo(SysUserModel sysUserModel) {
+        return null;
+    }
+
+    @Override
+    public SysDepartModel addSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
+    public SysDepartModel editSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
+    public SysDepartModel deleteSysDepart(SysDepartModel model) {
+        return null;
+    }
+
+    @Override
+    public List<SysUserModel> getAllSysUser(String id) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public SysUserModel addSysUser(SysUserModel model, String roleIds, String departIds) {
+        return null;
+    }
+
+    @Override
+    public SysUserModel editSysUser(SysUserModel model, String roleIds, String departIds) {
+        return null;
+    }
+
+    @Override
+    public SysUserModel deleteSysUser(SysUserModel model) {
+        return null;
+    }
+
+    @Override
+    public void updateSysUserWithDefaultOrgCode() {
+
+    }
+
+    @Override
+    public List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<SysUserModel> getUserModelByRoleCodes(String roleCode) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<SysUserModel> getUserModelByUsername(String usernames) {
+        return Collections.emptyList();
     }
 
     @Override

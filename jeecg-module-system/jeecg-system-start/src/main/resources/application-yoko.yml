@@ -1,5 +1,5 @@
 server:
-  port: 8300
+  port: ${SERVER_PORT:8300}
   tomcat:
     max-swallow-size: -1
   error:
@@ -7,7 +7,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /main
+    context-path: ${SERVER_CONTEXT_PATH:/main}
   compression:
     enabled: true
     min-response-size: 1024
@@ -22,6 +22,17 @@ management:
     enabled-by-default: true
 
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    # flyway 的 clean 命令会删除指定 schema 下的所有 table, 生产务必禁掉。这个默认值是
+    # false 理论上作为默认配置是不科学的。
+    clean-disabled: true
+    # 如果数据库不是空表，需要设置成 true，否则启动报错
+    baseline-on-migrate: true
+    # 版本控制日志表，默认flyway_schema_history,不同系统建议修改数据
+    # table: flyway_schema_history
   servlet:
     multipart:
       max-file-size: 1024MB
@@ -131,7 +142,9 @@ spring:
   resource:
     static-locations: classpath:/static/,classpath:/public/
   autoconfigure:
-    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+    exclude:
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+      # - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
   datasource:
     druid:
       stat-view-servlet:
@@ -147,7 +160,7 @@ spring:
         # 初始化大小，最小，最大
         initial-size: 5
         min-idle: 5
-        maxActive: 20
+        maxActive: 1000
         # 配置获取连接等待超时的时间
         maxWait: 60000
         # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -162,16 +175,20 @@ spring:
         poolPreparedStatements: true
         maxPoolPreparedStatementPerConnectionSize: 20
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-        filters: stat,wall,slf4j
-        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+        # FIXME 如果flyway执行ddl更新语句失败，先关闭wall，执行完框架升级语句后建议开启wall
+        # 防火墙规则配置：https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter
+        filters: stat,wall,slf4j # stat,slf4j,wall
+        # 打开mergeSql功能；慢SQL记录
+        stat:
+          merge-sql: true
+          slow-sql-millis: 5000
       # 多数据源配置
       primary: master
       datasource:
         master:
-          url: jdbc:postgresql://127.0.0.1:54321/postgres?stringtype=unspecified
-          username: postgres
-          password: 123456
+          url: jdbc:postgresql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:54321}/${DATABASE_NAME:postgres}?stringtype=unspecified
+          username: ${DATABASE_USER:postgres}
+          password: ${DATABASE_PWD:123456}
           driver-class-name: org.postgresql.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -181,10 +198,10 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 11
-    host: 127.0.0.1
-    port: 63791
-    password: ''
+    database: ${REDIS_DB:11}
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:63791}
+    password: ${REDIS_PWD:''}
     lettuce:
       pool:
         max-active: 8   #最大连接数据库连接数,设 0 为没有限制
@@ -212,7 +229,7 @@ mybatis-plus:
   type-enums-package: org.jeecg.modules.**.enums
 #jeecg专用配置
 minidao:
-  base-package: org.jeecg.modules.jmreport.*
+  base-package: org.jeecg.modules.jmreport.*,org.jeecg.modules.drag.*
 jeecg:
   projectName: 'jeecg_yoko_branch'
   # 是否启用安全模式
@@ -220,8 +237,8 @@ jeecg:
   # 签名密钥串(前后端要一致，正式发布请自行修改)
   signatureSecret: dd05f1c54d63749eda95f9fa6d49v442a
   # 签名拦截接口
-  # signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
-  signUrls: /noFilter
+  signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
+  # signUrls: /noFilter
   #local、minio、alioss
   uploadType: local
   # 前端访问地址
@@ -249,7 +266,7 @@ jeecg:
     endpoint: oss-cn-beijing.aliyuncs.com
     bucketName: jeecgdev
     staticDomain: https://static.jeecg.com
-  # ElasticSearch 6设置
+  # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES
     cluster-nodes: 127.0.0.1:9200
@@ -261,7 +278,7 @@ jeecg:
     # 文件、图片上传方式，可选项：qiniu（七牛云）、system（跟随系统配置）
     upload-type: system
   # 在线预览文件服务器地址配置
-  file-view-domain: http://fileview.jeecg.com
+  file-view-domain: 127.0.0.1:8012
   # minio文件上传
   minio:
     minio_url: http://minio.jeecg.com
@@ -270,11 +287,14 @@ jeecg:
     bucketName: otatest
   #大屏报表参数设置
   jmreport:
-    mode: dev
-    #数据字典是否进行saas数据隔离，自己看自己的字典
-    saas: false
-    #必须校验方法
-    #verify_methods: remove,delete,save,add,update
+    #多租户模式，默认值为空(created:按照创建人隔离、tenant:按照租户隔离) (v1.6.2+ 新增)
+    saasMode:
+    # 平台上线安全配置(v1.6.2+ 新增)
+    firewall:
+      # 数据源安全 (开启后，不允许使用平台数据源、SQL解析加签并且不允许查询数据库)
+      dataSourceSafe: false
+      # 低代码开发模式（dev:开发模式，prod:发布模式—关闭在线报表设计功能，分配角色admin、lowdeveloper可以放开限制）
+      lowCodeMode: dev
   #xxl-job配置
   xxljob:
     enabled: false
@@ -300,6 +320,7 @@ cas:
 #Mybatis输出sql日志
 logging:
   level:
+    # org.flywaydb: debug
     org.springframework.scheduling.quartz.LocalDataSourceJobStore: off
     org.jeecg.modules.system.mapper: info
     org.jeecg.modules: debug
@@ -362,6 +383,7 @@ third-app:
       client-secret: ??
       agent-id: ??
 supermap:
+  enabled: false
   url: ??
   userName: ??
   password: ??

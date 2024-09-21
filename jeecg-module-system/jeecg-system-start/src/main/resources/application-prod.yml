@@ -22,6 +22,17 @@ management:
     enabled-by-default: false
 
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    # flyway 的 clean 命令会删除指定 schema 下的所有 table, 生产务必禁掉。这个默认值是
+    # false 理论上作为默认配置是不科学的。
+    clean-disabled: true
+    # 如果数据库不是空表，需要设置成 true，否则启动报错
+    baseline-on-migrate: true
+    # 版本控制日志表，默认flyway_schema_history,不同系统建议修改数据
+    # table: flyway_schema_history
   servlet:
     multipart:
       max-file-size: 1024MB
@@ -53,10 +64,10 @@ spring:
             instanceName: MyScheduler
             instanceId: AUTO
           jobStore:
-            useProperties: true
-            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            # driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
+            # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
             tablePrefix: QRTZ_
             isClustered: true
             misfireThreshold: 12000
@@ -75,17 +86,6 @@ spring:
     time-zone: GMT+8
   jpa:
     open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    properties:
-      hibernate:
-        temp:
-          use_jdbc_metadata_defaults: false
-  activiti:
-    check-process-definitions: false
-    #启用作业执行器
-    async-executor-activate: false
-    #启用异步执行器
-    job-executor-activate: false
   aop:
     proxy-target-class: true
   #配置freemarker
@@ -112,7 +112,9 @@ spring:
   resource:
     static-locations: classpath:/static/,classpath:/public/
   autoconfigure:
-    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+    exclude:
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+      # - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
   datasource:
     druid:
       stat-view-servlet:
@@ -143,9 +145,13 @@ spring:
         poolPreparedStatements: true
         maxPoolPreparedStatementPerConnectionSize: 20
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-        filters: stat,wall,slf4j
-        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+        # FIXME 如果flyway执行ddl更新语句失败，先关闭wall，执行完框架升级语句后建议开启wall
+        # 防火墙规则配置：https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter
+        filters: stat,wall,slf4j # stat,slf4j,wall
+        # 打开mergeSql功能；慢SQL记录
+        stat:
+          merge-sql: true
+          slow-sql-millis: 5000
       # 多数据源配置
       primary: master
       datasource:
@@ -193,7 +199,7 @@ mybatis-plus:
   type-enums-package: org.jeecg.modules.**.enums
 #jeecg专用配置
 minidao:
-  base-package: org.jeecg.modules.jmreport.*
+  base-package: org.jeecg.modules.jmreport.*,org.jeecg.modules.drag.*
 jeecg:
   projectName: 'index_sakuga'
   # 是否启用安全模式
@@ -201,13 +207,13 @@ jeecg:
   # 签名密钥串(前后端要一致，正式发布请自行修改)
   signatureSecret: dd05f1c54d63749eda95f9fa6d49v442a
   # 签名拦截接口
-  # signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
-  signUrls: /noFilter
+  signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
+  # signUrls: /noFilter
   #local、minio、alioss
   uploadType: alioss
   # 前端访问地址
   domainUrl:
-    pc: http://localhost:3300
+    pc: http://localhost:3100
     app: http://localhost:8051
   path:
     #文件上传根目录 设置
@@ -215,7 +221,7 @@ jeecg:
     #webapp文件路径
     webapp: /opt/webapp
   shiro:
-    excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/category/**,/visual/**,/map/**,/jmreport/bigscreen2/**
+    excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/category/**,/visual/**,/map/**,/jmreport/bigscreen2/**,/api/getUserInfo
     thirdSystem:
       - name: SysName1
         key: xq2#29wq.Iooquerrt
@@ -251,11 +257,14 @@ jeecg:
     bucketName: otatest
   #大屏报表参数设置
   jmreport:
-    mode: dev
-    #数据字典是否进行saas数据隔离，自己看自己的字典
-    saas: false
-    #必须校验方法
-    #verify_methods: remove,delete,save,add,update
+    #多租户模式，默认值为空(created:按照创建人隔离、tenant:按照租户隔离) (v1.6.2+ 新增)
+    saasMode: created
+    # 平台上线安全配置(v1.6.2+ 新增)
+    firewall:
+      # 数据源安全 (开启后，不允许使用平台数据源、SQL解析加签并且不允许查询数据库)
+      dataSourceSafe: true
+      # 低代码开发模式（dev:开发模式，prod:发布模式—关闭在线报表设计功能，分配角色admin、lowdeveloper可以放开限制）
+      lowCodeMode: prod
   #xxl-job配置
   xxljob:
     enabled: false
@@ -273,12 +282,15 @@ jeecg:
     password:
     type: STANDALONE
     enabled: true
+  # 默认查询构造器的文本匹配模式: LIKE,EQ,LEFT_LIKE,RIGHT_LIKE
+  queryRule: LIKE
 #cas单点登录
 cas:
   prefixUrl: http://cas.example.org:8443/cas
 #Mybatis输出sql日志
 logging:
   level:
+    # org.flywaydb: debug
     org.springframework.scheduling.quartz.LocalDataSourceJobStore: off
     org.jeecg.modules.system.mapper: info
     org.jeecg.modules: info
@@ -287,7 +299,7 @@ knife4j:
   #开启增强配置
   enable: false
   #开启生产环境屏蔽
-  production: false
+  production: true
   basic:
     enable: false
     username: jeecg
@@ -341,6 +353,7 @@ third-app:
       client-secret: ??
       agent-id: ??
 supermap:
+  enabled: false
   url: ??
   userName: ??
   password: ??

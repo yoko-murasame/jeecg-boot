@@ -13,6 +13,7 @@ import org.jeecg.common.constant.enums.RoleIndexConfigEnum;
 import org.jeecg.common.desensitization.annotation.SensitiveEncode;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.system.vo.SysUserCacheInfo;
+import org.jeecg.common.system.vo.SysUserModel;
 import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.common.util.UUIDGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService {
-	
+
 	@Autowired
 	private SysUserMapper userMapper;
 	@Autowired
@@ -125,8 +126,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	public SysUser getUserByName(String username) {
 		return userMapper.getUserByName(username);
 	}
-	
-	
+
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void addUserWithRole(SysUser user, String roles) {
@@ -187,7 +188,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 				roleIndex = list.get(0);
 			}
 		}
-		
+
 		//如果componentUrl为空，则返回空
 		if(oConvertUtils.isEmpty(roleIndex.getComponent())){
 			return null;
@@ -253,7 +254,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			info.setSysUserName(sysUser.getRealname());
 			info.setSysOrgCode(sysUser.getOrgCode());
 		}
-		
+
 		//多部门支持in查询
 		List<SysDepart> list = sysDepartMapper.queryUserDeparts(sysUser.getId());
 		List<String> sysMultiOrgCode = new ArrayList<String>();
@@ -269,7 +270,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			}
 		}
 		info.setSysMultiOrgCode(sysMultiOrgCode);
-		
+
 		return info;
 	}
 
@@ -341,6 +342,30 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		return userMapper.getUserByRoleId(page,roleId,username);
 	}
 
+	/**
+	 * 根据角色编码获取用户
+	 *
+	 * @author Yoko
+	 * @since 2024/8/20 09:57
+	 * @param roleCodes 角色编码
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByRoleCodes(List<String> roleCodes) {
+		return userMapper.getUserModelByRoleCode(roleCodes);
+	}
+
+	/**
+	 * 获取指定用户名的所有用户
+	 *
+	 * @author Yoko
+	 * @param usernames 用户名数组，逗号分隔
+	 * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+	 */
+	@Override
+	public List<SysUserModel> getUserModelByUsername(List<String> usernames) {
+		return userMapper.getUserModelByUsername(usernames);
+	}
 
 	@Override
 	@CacheEvict(value= {CacheConstant.SYS_USERS_CACHE}, key="#username")
@@ -611,4 +636,30 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		BeanUtils.copyProperties(sysUser, loginUser);
 		return loginUser;
 	}
+
+	/**
+	 * 为用户设置默认的orgCode字段
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	@CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+	public void updateSysUserWithDefaultOrgCode() {
+		userMapper.updateSysUserWithDefaultOrgCode();
+	}
+
+	/**
+	 * 获取当前用户的所有权限标识
+	 *
+	 * @author Yoko
+	 * @since 2024/8/16 上午11:00
+	 * @param username 用户名
+	 * @param userid 用户id
+	 * @param permsLimitPrefix 权限前缀
+	 * @return java.util.List<java.lang.String>
+	 */
+    @Override
+    public List<String> queryCurrentUserPerms(String username, String userid, String permsLimitPrefix) {
+		return userMapper.queryCurrentUserPerms(username, userid, permsLimitPrefix);
+    }
+
 }

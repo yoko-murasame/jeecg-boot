@@ -8,18 +8,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.system.vo.DictModel;
-import org.jeecg.common.system.vo.DictQuery;
-import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.ImportExcelUtil;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
 import org.jeecg.modules.system.entity.SysDict;
 import org.jeecg.modules.system.entity.SysDictItem;
 import org.jeecg.modules.system.model.SysDictTree;
@@ -38,6 +38,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -45,6 +46,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 /**
@@ -68,11 +71,19 @@ public class SysDictController {
 	public RedisTemplate<String, Object> redisTemplate;
 	@Autowired
 	private DictQueryBlackListHandler dictQueryBlackListHandler;
+	@Autowired
+	private RedisUtil redisUtil;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysDict>> queryPageList(SysDict sysDict,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
 		Result<IPage<SysDict>> result = new Result<IPage<SysDict>>();
+		//------------------------------------------------------------------------------------------------
+		//是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】
+		if(MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL){
+			sysDict.setTenantId(oConvertUtils.getInt(TenantContext.getTenant(),0));
+		}
+		//------------------------------------------------------------------------------------------------
 		QueryWrapper<SysDict> queryWrapper = QueryGenerator.initQueryWrapper(sysDict, req.getParameterMap());
 		Page<SysDict> page = new Page<SysDict>(pageNo, pageSize);
 		IPage<SysDict> pageList = sysDictService.page(page, queryWrapper);
@@ -166,6 +177,11 @@ public class SysDictController {
 		}
 		//update-end-author:taoyan date:20220317 for: VUEN-222【安全机制】字典接口、online报表、online图表等接口，加一些安全机制
 		try {
+			// 获取header中的sql筛选
+			String filterSql = request.getHeader(CommonConstant.X_FILTER_SQL);
+			if (dictCode.split(",").length == 3 && StringUtils.hasText(filterSql)) {
+				dictCode = dictCode + "," + filterSql;
+			}
 			List<DictModel> ls = sysDictService.getDictItems(dictCode);
 			if (ls == null) {
 				result.error500("字典Code格式不正确！");
@@ -191,9 +207,27 @@ public class SysDictController {
 	 */
 	@RequestMapping(value = "/loadDict/{dictCode}", method = RequestMethod.GET)
 	public Result<List<DictModel>> loadDict(@PathVariable("dictCode") String dictCode,
-			@RequestParam(name="keyword",required = false) String keyword,
-			@RequestParam(value = "sign",required = false) String sign,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize) {
+											@RequestParam(name="keyword",required = false) String keyword,
+											@RequestParam(value = "sign",required = false) String sign,
+											@RequestParam(value = "pageSize", required = false) Integer pageSize,
+											HttpServletRequest request) {
+
+		//update-begin-author:taoyan date:2023-5-22 for: /issues/4905 因为中括号(%5)的问题导致的 表单生成器字段配置时，选择关联字段，在进行高级配置时，无法加载数据库列表，提示 Sgin签名校验错误！ #4905 RouteToRequestUrlFilter
+		if(keyword!=null && keyword.indexOf("%5")>=0){
+			try {
+				keyword = URLDecoder.decode(keyword, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				log.error("下拉搜索关键字解码失败", e);
+			}
+		}
+		//update-end-author:taoyan date:2023-5-22 for: /issues/4905 因为中括号(%5)的问题导致的  表单生成器字段配置时，选择关联字段，在进行高级配置时，无法加载数据库列表，提示 Sgin签名校验错误！ #4905
+
+		// 如果传递的是展位符号#{}，从header获取
+		String filterSql = request.getHeader(CommonConstant.X_FILTER_SQL);
+		if (dictCode.split(",").length == 3 && StringUtils.hasText(filterSql)) {
+			dictCode = dictCode + "," + filterSql;
+		}
+
 		log.info(" 加载字典表数据,加载关键字: "+ keyword);
 		Result<List<DictModel>> result = new Result<List<DictModel>>();
 		//update-begin-author:taoyan date:20220317 for: VUEN-222【安全机制】字典接口、online报表、online图表等接口，加一些安全机制
@@ -232,14 +266,15 @@ public class SysDictController {
 			@PathVariable("dictCode") String dictCode,
 			@RequestParam(name = "keyword") String keyword,
 			@RequestParam(value = "sign", required = false) String sign,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize) {
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			HttpServletRequest request) {
 		// 首次查询查出来用户选中的值，并且不分页
-		Result<List<DictModel>> firstRes = this.loadDict(dictCode, keyword, sign, null);
+		Result<List<DictModel>> firstRes = this.loadDict(dictCode, keyword, sign, null, request);
 		if (!firstRes.isSuccess()) {
 			return firstRes;
 		}
 		// 然后再查询出第一页的数据
-		Result<List<DictModel>> result = this.loadDict(dictCode, "", sign, pageSize);
+		Result<List<DictModel>> result = this.loadDict(dictCode, "", sign, pageSize, request);
 		if (!result.isSuccess()) {
 			return result;
 		}
@@ -325,6 +360,11 @@ public class SysDictController {
 		// SQL注入漏洞 sign签名校验(表名,label字段,val字段,条件)
 		String dictCode = tbname+","+text+","+code+","+condition;
         SqlInjectionUtil.filterContent(dictCode);
+		//update-begin-author:scott date:20230723 for:【issues/5173】SQL注入
+		if(!dictQueryBlackListHandler.isPass(dictCode)){
+			return result.error500(dictQueryBlackListHandler.getError());
+		}
+		//update-end-author:scott date:20230723 for:【issues/5173】SQL注入
 		List<TreeSelectModel> ls = sysDictService.queryTreeList(query,tbname, text, code, pidField, pid,hasChildField,converIsLeafVal);
 		result.setSuccess(true);
 		result.setResult(ls);
@@ -364,7 +404,7 @@ public class SysDictController {
 	 * @param sysDict
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+    //@RequiresPermissions("system:dict:add")
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public Result<SysDict> add(@RequestBody SysDict sysDict) {
 		Result<SysDict> result = new Result<SysDict>();
@@ -385,7 +425,7 @@ public class SysDictController {
 	 * @param sysDict
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+    //@RequiresPermissions("system:dict:edit")
 	@RequestMapping(value = "/edit", method = { RequestMethod.PUT,RequestMethod.POST })
 	public Result<SysDict> edit(@RequestBody SysDict sysDict) {
 		Result<SysDict> result = new Result<SysDict>();
@@ -407,7 +447,7 @@ public class SysDictController {
 	 * @param id
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+    //@RequiresPermissions("system:dict:delete")
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	@CacheEvict(value={CacheConstant.SYS_DICT_CACHE, CacheConstant.SYS_ENABLE_DICT_CACHE}, allEntries=true)
 	public Result<SysDict> delete(@RequestParam(name="id",required=true) String id) {
@@ -426,7 +466,7 @@ public class SysDictController {
 	 * @param ids
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+    //@RequiresPermissions("system:dict:deleteBatch")
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	@CacheEvict(value= {CacheConstant.SYS_DICT_CACHE, CacheConstant.SYS_ENABLE_DICT_CACHE}, allEntries=true)
 	public Result<SysDict> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
@@ -448,22 +488,33 @@ public class SysDictController {
 	public Result<?> refleshCache() {
 		Result<?> result = new Result<SysDict>();
 		//清空字典缓存
-		Set keys = redisTemplate.keys(CacheConstant.SYS_DICT_CACHE + "*");
-		Set keys7 = redisTemplate.keys(CacheConstant.SYS_ENABLE_DICT_CACHE + "*");
-		Set keys2 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_CACHE + "*");
-		Set keys21 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE + "*");
-		Set keys3 = redisTemplate.keys(CacheConstant.SYS_DEPARTS_CACHE + "*");
-		Set keys4 = redisTemplate.keys(CacheConstant.SYS_DEPART_IDS_CACHE + "*");
-		Set keys5 = redisTemplate.keys( "jmreport:cache:dict*");
-		Set keys6 = redisTemplate.keys( "jmreport:cache:dictTable*");
-		redisTemplate.delete(keys);
-		redisTemplate.delete(keys2);
-		redisTemplate.delete(keys21);
-		redisTemplate.delete(keys3);
-		redisTemplate.delete(keys4);
-		redisTemplate.delete(keys5);
-		redisTemplate.delete(keys6);
-		redisTemplate.delete(keys7);
+//		Set keys = redisTemplate.keys(CacheConstant.SYS_DICT_CACHE + "*");
+//		Set keys7 = redisTemplate.keys(CacheConstant.SYS_ENABLE_DICT_CACHE + "*");
+//		Set keys2 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_CACHE + "*");
+//		Set keys21 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE + "*");
+//		Set keys3 = redisTemplate.keys(CacheConstant.SYS_DEPARTS_CACHE + "*");
+//		Set keys4 = redisTemplate.keys(CacheConstant.SYS_DEPART_IDS_CACHE + "*");
+//		Set keys5 = redisTemplate.keys( "jmreport:cache:dict*");
+//		Set keys6 = redisTemplate.keys( "jmreport:cache:dictTable*");
+//		redisTemplate.delete(keys);
+//		redisTemplate.delete(keys2);
+//		redisTemplate.delete(keys21);
+//		redisTemplate.delete(keys3);
+//		redisTemplate.delete(keys4);
+//		redisTemplate.delete(keys5);
+//		redisTemplate.delete(keys6);
+//		redisTemplate.delete(keys7);
+
+		//update-begin-author:liusq date:20230404 for:  [issue/4358]springCache中的清除缓存的操作使用了“keys”
+		redisUtil.removeAll(CacheConstant.SYS_DICT_CACHE);
+		redisUtil.removeAll(CacheConstant.SYS_ENABLE_DICT_CACHE);
+		redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_CACHE);
+		redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE);
+		redisUtil.removeAll(CacheConstant.SYS_DEPARTS_CACHE);
+		redisUtil.removeAll(CacheConstant.SYS_DEPART_IDS_CACHE);
+		redisUtil.removeAll("jmreport:cache:dict");
+		redisUtil.removeAll("jmreport:cache:dictTable");
+		//update-end-author:liusq date:20230404 for:  [issue/4358]springCache中的清除缓存的操作使用了“keys”
 		return result;
 	}
 
@@ -474,6 +525,13 @@ public class SysDictController {
 	 */
 	@RequestMapping(value = "/exportXls")
 	public ModelAndView exportXls(SysDict sysDict,HttpServletRequest request) {
+		//------------------------------------------------------------------------------------------------
+		//是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】
+		if(MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL){
+			sysDict.setTenantId(oConvertUtils.getInt(TenantContext.getTenant(), 0));
+		}
+		//------------------------------------------------------------------------------------------------
+
 		// Step.1 组装查询条件
 		QueryWrapper<SysDict> queryWrapper = QueryGenerator.initQueryWrapper(sysDict, request.getParameterMap());
 		//Step.2 AutoPoi 导出Excel
@@ -509,7 +567,7 @@ public class SysDictController {
 	 * @param
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+    //@RequiresPermissions("system:dict:importExcel")
 	@RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 	public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
  		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
@@ -637,6 +695,19 @@ public class SysDictController {
 			return Result.error("校验失败，sql解析异常！");
 		}
 		return Result.error("校验失败，sql解析异常！" + msg);
+	}
+
+	/**
+	 * 获取树形字典数据
+	 *
+	 * @author Yoko
+	 * @since 2024/8/12 下午4:18
+	 * @param queryForm 查询条件
+	 * @return org.jeecg.common.api.vo.Result<java.util.List < org.jeecg.common.system.vo.DictTreeModel>>
+	 */
+	@RequestMapping(value = "/treeDictItems", method = RequestMethod.POST)
+	public Result<List<DictTreeModel>> treeDictItems(@RequestBody DictTreeQuery queryForm) {
+		return Result.ok(sysDictService.treeDictItems(queryForm));
 	}
 
 }

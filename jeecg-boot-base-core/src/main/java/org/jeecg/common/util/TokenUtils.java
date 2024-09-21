@@ -1,16 +1,21 @@
 package org.jeecg.common.util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.constant.TenantConstant;
 import org.jeecg.common.desensitization.util.SensitiveInfoUtil;
 import org.jeecg.common.exception.JeecgBoot401Exception;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * @Author scott
@@ -27,11 +32,57 @@ public class TokenUtils {
      * @return
      */
     public static String getTokenByRequest(HttpServletRequest request) {
-        String token = request.getParameter("token");
+        String token = request.getParameter(CommonConstant.REQUEST_PARAM_NAME_FOR_TOKEN);
         if (token == null) {
-            token = request.getHeader("X-Access-Token");
+            token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+        }
+        if (StringUtils.isBlank(token)) {
+            token = (String) request.getAttribute(CommonConstant.REQUEST_ATTRIBUTE_NAME_FOR_TOKEN);
         }
         return token;
+    }
+
+    /**
+     * 获取 request 里传递的 token
+     * @return
+     */
+    public static String getTokenByRequest() {
+        String token = null;
+        try {
+            HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
+            token = TokenUtils.getTokenByRequest(request);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        return token;
+    }
+
+    /**
+     * 获取 request 里传递的 tenantId (租户ID)
+     *
+     * @param request
+     * @return
+     */
+    public static String getTenantIdByRequest(HttpServletRequest request) {
+        String tenantId = request.getParameter(TenantConstant.TENANT_ID);
+        if (tenantId == null) {
+            tenantId = oConvertUtils.getString(request.getHeader(CommonConstant.TENANT_ID));
+        }
+        return tenantId;
+    }
+
+    /**
+     * 获取 request 里传递的 lowAppId (低代码应用ID)
+     *
+     * @param request
+     * @return
+     */
+    public static String getLowAppIdByRequest(HttpServletRequest request) {
+        String lowAppId = request.getParameter(TenantConstant.FIELD_LOW_APP_ID);
+        if (lowAppId == null) {
+            lowAppId = oConvertUtils.getString(request.getHeader(TenantConstant.X_LOW_APP_ID));
+        }
+        return lowAppId;
     }
 
     /**
@@ -122,4 +173,47 @@ public class TokenUtils {
         }
         return loginUser;
     }
+
+    /**
+     * 开启临时令牌
+     *
+     * @author Yoko
+     * @since 2024/8/6 下午5:24
+     * @param redisUtil reids操作类
+     * @param tempTokenConsumer 临时token具体使用实现函数
+     * @param time token失效时间（单位：秒）
+     * @param username 指定token的用户名
+     */
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, long time, String username) {
+        String uuid = UUID.randomUUID().toString() + System.currentTimeMillis();
+        String token = JWT.create().withClaim("username", StringUtils.isNotBlank(username) ? username : uuid).sign(Algorithm.HMAC256(uuid));
+        String tempTokenKey = CommonConstant.PREFIX_SSO_TEMP_TOKEN + token;
+        LoginUser tempUser = new LoginUser();
+        tempUser.setId(uuid);
+        tempUser.setStatus(1);
+        tempUser.setUsername(StringUtils.isNotBlank(username) ? username : uuid);
+        tempUser.setPassword(uuid);
+        String loginUserKey = CacheConstant.SYS_USERS_CACHE + "::" + uuid;
+        // 临时token开始
+        redisUtil.set(tempTokenKey, token, time);
+        redisUtil.set(loginUserKey, tempUser, time);
+        // 在临时token中去调用特殊业务
+        tempTokenConsumer.accept(token);
+        // 临时token结束
+        redisUtil.removeAll(tempTokenKey);
+        redisUtil.removeAll(loginUserKey);
+    }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, long time) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, time, null);
+    }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer, String username) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, 60, username);
+    }
+
+    public static void doSomethingWithTempToken(RedisUtil redisUtil, Consumer<String> tempTokenConsumer) {
+        doSomethingWithTempToken(redisUtil, tempTokenConsumer, 60, null);
+    }
+
 }

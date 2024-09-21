@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.hyit.dao.test.TestOneMapper">
+    <sql id="listSql">
+        WITH filter_view AS (
+            SELECT * FROM test_one 
+        )
+        SELECT * FROM filter_view
+    </sql>
+    <select id="selectPageCustom" resultType="cn.com.hyit.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="page"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectListCustom" resultType="cn.com.hyit.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="list"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="selectOneCustom" resultType="cn.com.hyit.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+        </include>
+        <if test="ew != null and ew != ''">
+            ${ew.customSqlSegment}
+        </if> limit 1
+    </select>
+    <select id="selectByIdCustom" resultType="cn.com.hyit.entity.test.TestOne">
+        <include refid="listSql">
+            <property name="queryType" value="one"/>
+        </include>
+        WHERE id = #{id} limit 1
+    </select>
+</mapper>

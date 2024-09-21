@@ -6,6 +6,7 @@ import org.jeecg.common.api.dto.DataLogDTO;
 import org.jeecg.common.api.dto.OnlineAuthDTO;
 import org.jeecg.common.api.dto.message.*;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
 import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.modules.system.security.DictQueryBlackListHandler;
@@ -221,6 +222,16 @@ public class SystemApiController {
     }
 
     /**
+     * 通过用户账号Id查询角色Id集合
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getRoleIdsByUserId")
+    public List<String> getRoleIdsByUserId(@RequestParam("userId")String userId){
+        return sysBaseApi.getRoleIdsByUserId(userId);
+    }
+
+    /**
      * 通过部门编号查询部门id
      * @param orgCode
      * @return
@@ -228,15 +239,6 @@ public class SystemApiController {
     @GetMapping("/getDepartIdsByOrgCode")
     public String getDepartIdsByOrgCode(@RequestParam("orgCode")String orgCode){
         return sysBaseApi.getDepartIdsByOrgCode(orgCode);
-    }
-
-    /**
-     * 查询所有部门
-     * @return
-     */
-    @GetMapping("/getAllSysDepart")
-    public List<SysDepartModel> getAllSysDepart(){
-        return sysBaseApi.getAllSysDepart();
     }
 
     /**
@@ -424,6 +426,15 @@ public class SystemApiController {
     @GetMapping("/queryPermissionDataRule")
     public List<SysPermissionDataRuleModel> queryPermissionDataRule(@RequestParam("component") String component, @RequestParam("requestPath")String requestPath, @RequestParam("username") String username){
         return sysBaseApi.queryPermissionDataRule(component, requestPath, username);
+    }
+
+    /**
+     * 查询数据权限
+     * @return
+     */
+    @GetMapping("/queryPermissionDataRuleByPerms")
+    public List<SysPermissionDataRuleModel> queryPermissionDataRuleByPerms(@RequestParam("perms") String perms, @RequestParam("username") String username, @RequestParam("queryMode") QueryRuleEnum queryMode){
+        return sysBaseApi.queryPermissionDataRuleByPerms(perms, username, queryMode);
     }
 
     /**
@@ -746,6 +757,127 @@ public class SystemApiController {
         this.sysBaseApi.sendAppChatSocket(userId);
     }
 
+    /**
+     * 打包登录用户信息
+     *
+     * @author Yoko
+     * @since 2024/8/6 上午9:41
+     * @param sysUserModel 登录用户信息
+     * @return com.alibaba.fastjson.JSONObject
+     */
+    @PostMapping("/packageUserInfo")
+    public JSONObject packageUserInfo(@RequestBody SysUserModel sysUserModel){
+        return this.sysBaseApi.packageUserInfo(sysUserModel);
+    }
+
+    /**
+     * 查询所有部门
+     */
+    @GetMapping("/getAllSysDepart")
+    public List<SysDepartModel> getAllSysDepart(@RequestParam(required = false, value = "id") String id,
+                                                @RequestParam(required = false, value = "delFlag") String delFlag){
+        return sysBaseApi.getAllSysDepart(id, delFlag);
+    }
+
+    /**
+     * 添加部门
+     *
+     * @author Yoko
+     * @since 2024/8/6 上午10:25
+     * @param model 部门信息
+     * @return org.jeecg.common.system.vo.SysDepartModel
+     */
+    @PostMapping("/addSysDepart")
+    public SysDepartModel addSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.addSysDepart(model);
+    }
+
+    @PostMapping("/editSysDepart")
+    public SysDepartModel editSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.editSysDepart(model);
+    }
+
+    @PostMapping("/deleteSysDepart")
+    public SysDepartModel deleteSysDepart(@RequestBody SysDepartModel model) {
+        return sysBaseApi.deleteSysDepart(model);
+    }
+
+    /**
+     * 查询所有用户
+     */
+    @GetMapping("/getAllSysUser")
+    public List<SysUserModel> getAllSysUser(@RequestParam(required = false, value = "id")String id){
+        return sysBaseApi.getAllSysUser(id);
+    }
+
+    @PostMapping("/addSysUser")
+    public SysUserModel addSysUser(@RequestBody SysUserModel model,
+                                   @RequestParam("roleIds") String roleIds,
+                                   @RequestParam("departIds") String departIds) {
+        return sysBaseApi.addSysUser(model, roleIds, departIds);
+    }
+
+    @PostMapping("/editSysUser")
+    public SysUserModel editSysUser(@RequestBody SysUserModel model,
+                                    @RequestParam("roleIds") String roleIds,
+                                    @RequestParam("departIds") String departIds) {
+        return sysBaseApi.editSysUser(model, roleIds, departIds);
+    }
+
+    @PostMapping("/deleteSysUser")
+    public SysUserModel deleteSysUser(@RequestBody SysUserModel model) {
+        return sysBaseApi.deleteSysUser(model);
+    }
+
+    /**
+     * 为用户设置默认的orgCode字段
+     */
+    @PostMapping("/updateSysUserWithDefaultOrgCode")
+    public void updateSysUserWithDefaultOrgCode() {
+        sysBaseApi.updateSysUserWithDefaultOrgCode();
+    }
+
+    /**
+     * 获取当前用户的所有权限标识
+     *
+     * @author Yoko
+     * @since 2024/8/16 上午11:00
+     * @param username 用户名
+     * @param userid 用户id
+     * @param permsLimitPrefix 权限前缀
+     * @return java.util.List<java.lang.String>
+     */
+    @GetMapping("/queryCurrentUserPerms")
+    List<String> queryCurrentUserPerms(@RequestParam(value = "username", required = false)String username,
+                                       @RequestParam(value = "userid", required = false)String userid,
+                                       @RequestParam(value = "permsLimitPrefix", required = false)String permsLimitPrefix) {
+        return sysBaseApi.queryCurrentUserPerms(username, userid, permsLimitPrefix);
+    }
+
+    /**
+     * 获取指定角色下的所有用户
+     *
+     * @author Yoko
+     * @since 2024/8/20 10:05
+     * @param roleCode 角色编码
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/getUserModelByRoleCodes")
+    List<SysUserModel> getUserModelByRoleCodes(@RequestParam(value = "roleCode")String roleCode) {
+        return sysBaseApi.getUserModelByRoleCodes(roleCode);
+    }
+
+    /**
+     * 获取指定用户名的所有用户
+     *
+     * @author Yoko
+     * @param usernames 用户名数组，逗号分隔
+     * @return java.util.List<org.jeecg.common.system.vo.SysUserModel>
+     */
+    @GetMapping("/getUserModelByUsername")
+    List<SysUserModel> getUserModelByUsername(@RequestParam(value = "usernames")String usernames) {
+        return sysBaseApi.getUserModelByUsername(usernames);
+    }
 
     /**
      * VUEN-2584【issue】平台sql注入漏洞几个问题
@@ -763,5 +895,5 @@ public class SystemApiController {
         }
         return Result.error("校验失败，sql解析异常！" + msg);
     }
-    
+
 }

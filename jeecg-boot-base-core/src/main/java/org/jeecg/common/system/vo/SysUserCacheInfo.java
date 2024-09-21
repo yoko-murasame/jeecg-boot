@@ -1,25 +1,28 @@
 package org.jeecg.common.system.vo;
 
-import java.util.List;
-
 import org.jeecg.common.util.DateUtils;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Description: 用户缓存信息
  * @author: jeecg-boot
  */
-public class SysUserCacheInfo {
-	
+public class SysUserCacheInfo implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private String sysUserCode;
-	
+
 	private String sysUserName;
-	
+
 	private String sysOrgCode;
-	
+
 	private List<String> sysMultiOrgCode;
-	
+
 	private boolean oneDepart;
-	
+
 	public boolean isOneDepart() {
 		return oneDepart;
 	}

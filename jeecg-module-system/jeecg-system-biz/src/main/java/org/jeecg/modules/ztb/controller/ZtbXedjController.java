@@ -39,9 +39,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * @Description: 招投标-小额登记
+ * @Description: 招投标DEMO
  */
-@Api(tags = "招投标-小额登记")
+@Api(tags = "招投标DEMO")
 @RestController
 @RequestMapping("/ztb/ztbXedj")
 @Slf4j
@@ -58,8 +58,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param req
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-分页列表查询")
-    @ApiOperation(value = "招投标-小额登记-分页列表查询", notes = "招投标-小额登记-分页列表查询")
+    @AutoLog(value = "招投标DEMO-分页列表查询")
+    @ApiOperation(value = "招投标DEMO-分页列表查询", notes = "招投标DEMO-分页列表查询")
     @GetMapping(value = "/list")
     public Result<?> queryPageList(ZtbXedj ztbXedj,
                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -78,8 +78,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param ztbXedj
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-添加")
-    @ApiOperation(value = "招投标-小额登记-添加", notes = "招投标-小额登记-添加")
+    @AutoLog(value = "招投标DEMO-添加")
+    @ApiOperation(value = "招投标DEMO-添加", notes = "招投标DEMO-添加")
     @PostMapping(value = "/add")
     public Result<?> add(@RequestBody ZtbXedj ztbXedj) {
         ztbXedjService.save(ztbXedj);
@@ -92,8 +92,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param ztbXedj
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-编辑")
-    @ApiOperation(value = "招投标-小额登记-编辑", notes = "招投标-小额登记-编辑")
+    @AutoLog(value = "招投标DEMO-编辑")
+    @ApiOperation(value = "招投标DEMO-编辑", notes = "招投标DEMO-编辑")
     @PutMapping(value = "/edit")
     public Result<?> edit(@RequestBody ZtbXedj ztbXedj) {
         ztbXedjService.updateById(ztbXedj);
@@ -106,8 +106,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param id
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-通过id删除")
-    @ApiOperation(value = "招投标-小额登记-通过id删除", notes = "招投标-小额登记-通过id删除")
+    @AutoLog(value = "招投标DEMO-通过id删除")
+    @ApiOperation(value = "招投标DEMO-通过id删除", notes = "招投标DEMO-通过id删除")
     @DeleteMapping(value = "/delete")
     public Result<?> delete(@RequestParam(name = "id", required = true) String id) {
         ztbXedjService.removeById(id);
@@ -120,8 +120,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param ids
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-批量删除")
-    @ApiOperation(value = "招投标-小额登记-批量删除", notes = "招投标-小额登记-批量删除")
+    @AutoLog(value = "招投标DEMO-批量删除")
+    @ApiOperation(value = "招投标DEMO-批量删除", notes = "招投标DEMO-批量删除")
     @DeleteMapping(value = "/deleteBatch")
     public Result<?> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
         this.ztbXedjService.removeByIds(Arrays.asList(ids.split(",")));
@@ -134,8 +134,8 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
      * @param id
      * @return
      */
-    @AutoLog(value = "招投标-小额登记-通过id查询")
-    @ApiOperation(value = "招投标-小额登记-通过id查询", notes = "招投标-小额登记-通过id查询")
+    @AutoLog(value = "招投标DEMO-通过id查询")
+    @ApiOperation(value = "招投标DEMO-通过id查询", notes = "招投标DEMO-通过id查询")
     @GetMapping(value = "/queryById")
     public Result<?> queryById(@RequestParam(name = "id", required = true) String id) {
         ZtbXedj ztbXedj = ztbXedjService.getByIdCustom(id);
@@ -165,10 +165,10 @@ public class ZtbXedjController extends JeecgController<ZtbXedj, IZtbXedjService>
 
         // Step.3 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
-        mv.addObject(NormalExcelConstants.FILE_NAME, "招投标-小额登记"); // 此处设置的filename无效 ,前端会重更新设置一下
+        mv.addObject(NormalExcelConstants.FILE_NAME, "招投标DEMO"); // 此处设置的filename无效 ,前端会重更新设置一下
         mv.addObject(NormalExcelConstants.CLASS, ZtbXedj.class);
         ExportParams exportParams = new ExportParams();
-        exportParams.setSheetName("招投标-小额登记");
+        exportParams.setSheetName("招投标DEMO");
         mv.addObject(NormalExcelConstants.PARAMS, exportParams);
         mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
         return mv;

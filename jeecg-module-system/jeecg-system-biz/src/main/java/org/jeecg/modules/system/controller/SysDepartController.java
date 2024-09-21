@@ -45,7 +45,7 @@ import java.util.*;
  * <p>
  * 部门表 前端控制器
  * <p>
- * 
+ *
  * @Author: Steve @Since： 2019-01-22
  */
 @RestController
@@ -93,7 +93,7 @@ public class SysDepartController {
 
 	/**
 	 * 查询数据 查出所有部门,并以树结构数据格式响应给前端
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
@@ -168,11 +168,11 @@ public class SysDepartController {
 
 	/**
 	 * 添加新数据 添加用户新建的部门对象数据,并保存到数据库
-	 * 
+	 *
 	 * @param sysDepart
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresRoles({"admin"})
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> add(@RequestBody SysDepart sysDepart, HttpServletRequest request) {
@@ -194,11 +194,11 @@ public class SysDepartController {
 
 	/**
 	 * 编辑数据 编辑部门的部分数据,并保存到数据库
-	 * 
+	 *
 	 * @param sysDepart
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresRoles({"admin"})
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> edit(@RequestBody SysDepart sysDepart, HttpServletRequest request) {
@@ -220,13 +220,13 @@ public class SysDepartController {
 		}
 		return result;
 	}
-	
+
 	 /**
      *   通过id删除
     * @param id
     * @return
     */
-	//@RequiresRoles({"admin"})
+	@RequiresRoles({"admin"})
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
    public Result<SysDepart> delete(@RequestParam(name="id",required=true) String id) {
@@ -250,11 +250,11 @@ public class SysDepartController {
 
 	/**
 	 * 批量删除 根据前端请求的多个ID,对数据库执行删除相关部门数据的操作
-	 * 
+	 *
 	 * @param ids
 	 * @return
 	 */
-	//@RequiresRoles({"admin"})
+	@RequiresRoles({"admin"})
 	@RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
 	public Result<SysDepart> deleteBatch(@RequestParam(name = "ids", required = true) String ids) {
@@ -271,7 +271,7 @@ public class SysDepartController {
 
 	/**
 	 * 查询数据 添加或编辑页面对该方法发起请求,以树结构形式加载所有部门的名称,方便用户的操作
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(value = "/queryIdTree", method = RequestMethod.GET)
@@ -305,12 +305,12 @@ public class SysDepartController {
 		}
 		return result;
 	}
-	 
+
 	/**
 	 * <p>
 	 * 部门搜索功能方法,根据关键字模糊搜索相关部门
 	 * </p>
-	 * 
+	 *
 	 * @param keyWord
 	 * @return
 	 */
@@ -371,7 +371,7 @@ public class SysDepartController {
      * @param response
      * @return
      */
-    //@RequiresRoles({"admin"})
+    @RequiresRoles({"admin"})
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 	@CacheEvict(value= {CacheConstant.SYS_DEPARTS_CACHE,CacheConstant.SYS_DEPART_IDS_CACHE}, allEntries=true)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {

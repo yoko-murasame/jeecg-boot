@@ -7,8 +7,12 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.config.TenantContext;
+import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.constant.TenantConstant;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -24,6 +28,7 @@ import java.util.Properties;
 @Slf4j
 @Component
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }) })
+@ConditionalOnMissingClass("cn.com.hyit.config.MybatisFieldInterceptor")
 public class MybatisInterceptor implements Interceptor {
 
 	@Override
@@ -82,6 +87,36 @@ public class MybatisInterceptor implements Interceptor {
 							}
 						}
 					}
+
+					// 注入软删
+					if ("delFlag".equals(field.getName())) {
+						field.setAccessible(true);
+						Object delFlag = field.get(parameter);
+						field.setAccessible(false);
+						if (delFlag == null) {
+							// 设置正常状态
+							field.setAccessible(true);
+							field.set(parameter, CommonConstant.DEL_FLAG_0);
+							field.setAccessible(false);
+						}
+					}
+
+					//------------------------------------------------------------------------------------------------
+					//注入租户ID（是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】）
+					if(MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL) {
+						if (TenantConstant.TENANT_ID.equals(field.getName())) {
+							field.setAccessible(true);
+							Object localTenantId = field.get(parameter);
+							field.setAccessible(false);
+							if (localTenantId == null) {
+								field.setAccessible(true);
+								field.set(parameter, oConvertUtils.getInt(TenantContext.getTenant(),0));
+								field.setAccessible(false);
+							}
+						}
+					}
+					//------------------------------------------------------------------------------------------------
+
 				} catch (Exception e) {
 				}
 			}

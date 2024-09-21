@@ -1,0 +1,98 @@
+server:
+  port: <#noparse>${SERVER_PORT:8011}</#noparse>
+
+spring:
+  main:
+    # spring boot 2.6.x默认不允许循环依赖, dubbo的这个版本存在循环依赖
+    allow-circular-references: true
+  #开发环境配置
+  profiles:
+    active: <#noparse>@</#noparse>profile.name@
+    superToken: 3CCBE2987412C0EA62ACFC100A16D3F4
+    superUsername: admin
+  application:
+    name: ${entityPackage}-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: <#noparse>@</#noparse>config.server-addr@
+        namespace: <#noparse>${spring.cloud.nacos.config.namespace:public}</#noparse> # 服务命名空间
+        username: # nacos 用户名
+        password: # nacos 密码
+      config:
+        server-addr: <#noparse>${spring.cloud.nacos.discovery.server-addr}</#noparse>
+        file-extension: yaml
+        group: DEFAULT_GROUP # 会读取不同分组下的配置文件
+        username: <#noparse>${spring.cloud.nacos.discovery.username}</#noparse>
+        password: <#noparse>${spring.cloud.nacos.discovery.password}</#noparse>
+        context-path: nacos
+        # shared-configs: custom-<#noparse>${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}</#noparse>
+        namespace: # Nacos中命名空间的ID，可以用于区分开发环境
+  config:
+    import:
+      - optional:nacos:jeecg.yaml
+      - optional:nacos:jeecg-<#noparse>@</#noparse>profile.name@.yaml
+
+dubbo:
+  protocol: # name:采用的协议名称 port:-1代表自动选择端口，默认是：20880
+    port: <#noparse>${DUBBO_PORT:-1}</#noparse>
+    name: dubbo
+  scan: # dubbo服务路径
+    basePackages: ${tableVo.extendParams.bussiPackageNoLast}.**.provider.rpc
+  application:
+    qos-enable: false #关闭dubbo在线运维工具
+  registry:
+    address: nacos://<#noparse>${spring.cloud.nacos.discovery.server-addr}</#noparse>
+    parameters:
+      group: <#noparse>${spring.cloud.nacos.config.group:DEFAULT_GROUP}</#noparse>
+      namespace: <#noparse>${spring.cloud.nacos.config.namespace}</#noparse>
+  cloud:
+    subscribed-services: jeecg-system-dubbo #订阅的服务名称，默认为*订阅所有服务，多个以逗号隔开
+  consumer: # Dubbo 消费端配置
+    check: false
+    validation: true # 是否启用JSR303标准注解验证, 如果启用, 将对方法参数上的注解进行校验
+    version: 2.0.0 # 默认版本
+  # config-center:
+  #   #指定配置中心的namespace（配置文档中有说明）
+  #   namespace: jeecg # <#noparse>${spring.cloud.nacos.config.namespace:jeecg}</#noparse>
+  provider: # Dubbo 服务端配置
+    cluster: failfast # 集群方式,可选: failover/failfast/failsafe/failback/forking
+    retries: 0 # 远程服务调用重试次数, 不包括第一次调用, 不需要重试请设为0
+    timeout: 600000 # 远程服务调用超时时间(毫秒)
+    token: true # 令牌验证, 为空表示不开启, 如果为true, 表示随机生成动态令牌
+    dynamic: true # 服务是否动态注册, 如果设为false, 注册后将显示后disable状态, 需人工启用, 并且服务提供者停止时, 也不会自动取消册, 需人工禁用.
+    delay: -1 # 延迟注册服务时间(毫秒)- , 设为-1时, 表示延迟到Spring容器初始化完成时暴露服务
+    version: 2.0.0 # 服务版本
+    filter: -exception # 服务提供方远程调用过程拦截器名称, 多个名称用逗号分隔
+
+swagger:
+  title: Dubbo微服务-${entityPackage}接口文档
+
+# monitor config
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /metrics
+
+# mybatis config
+mybatis-plus:
+  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml,classpath*:mapper/**/*.xml
+  global-config:
+    db-config:
+      table-prefix:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# log
+logging:
+  level:
+    root: info
+    ${bussiPackage}.${entityPackage}.dao.*: debug

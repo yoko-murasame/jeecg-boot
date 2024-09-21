@@ -1,0 +1,57 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="jeecg-system-dubbo-start/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="jeecg:system-dubbo" />
+        <option name="containerName" value="jeecg-system-dubbo" />
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="DUBBO_IP_TO_BIND" />
+              <option name="value" value="" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="DUBBO_IP_TO_REGISTRY" />
+              <option name="value" value="192.168.240.72" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="DUBBO_PORT" />
+              <option name="value" value="20888" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="DUBBO_PORT_TO_BIND" />
+              <option name="value" value="" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="DUBBO_PORT_TO_REGISTRY" />
+              <option name="value" value="" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="20888" />
+              <option name="hostPort" value="20888" />
+            </DockerPortBindingImpl>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="8001" />
+              <option name="hostPort" value="8001" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-nacos:172.17.0.1 --add-host=jeecg-boot-sentinel:172.17.0.1 --add-host=jeecg-boot-mysql:172.17.0.1 --add-host=jeecg-boot-redis:172.17.0.1 --add-host=jeecg-boot-rabbitmq:172.17.0.1 --add-host=jeecg-boot-es:172.17.0.1 --add-host=jeecg-boot-xxljob:172.17.0.1" />
+        <option name="sourceFilePath" value="jeecg-server-cloud/jeecg-system-dubbo-start/Dockerfile" />
+        <option name="volumeBindings">
+          <list>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/opt/upFiles" />
+              <option name="hostPath" value="F:\opt\upFiles" />
+            </DockerVolumeBindingImpl>
+          </list>
+        </option>
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

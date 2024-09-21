@@ -11,7 +11,7 @@
 
     <artifactId>jeecg-visual</artifactId>
     <packaging>pom</packaging>
-    
+
     <modules>
         <!-- 微服务所需要的中间件 -->
         <module>jeecg-cloud-sentinel</module>
@@ -19,6 +19,7 @@
         <module>jeecg-cloud-xxljob</module>
         <!-- 微服务测试示例-->
         <module>jeecg-cloud-test</module>
+        <module>jeecg-cloud-dubbo-test</module>
     </modules>
 
 

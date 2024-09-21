@@ -14,7 +14,8 @@
 
     <modules>
         <module>jeecg-system-local-api</module>
-        <!--<module>jeecg-system-cloud-api</module>-->
+        <module>jeecg-system-cloud-api</module>
+        <module>jeecg-system-dubbo-api</module>
     </modules>
 
     <dependencies>

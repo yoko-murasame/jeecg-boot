@@ -1,0 +1,102 @@
+# 超图容器依赖打包 Dockerfile（支持x64、arm）
+# 防火墙：firewall-cmd --zone=public --add-port=8888/tcp --permanent && firewall-cmd --reload
+# 构建容器：docker build -t app-supermap-11.1.0 -f Dockerfile_SuperMap_11 .; docker save -o ./app-supermap-11.1.0 app-supermap-11.1.0
+# 第一次载入镜像：docker load -i app-supermap-11.1.0
+
+# 临时镜像,用于去掉ADD的大文件层(超图包3个G),最后只保留最终镜像
+FROM ubuntu:16.04 AS TMP_IMAGE
+MAINTAINER Yoko
+
+# 超图目录&JRE
+ENV SUPERMAP /supermap
+ENV SUPERMAP_TMP $SUPERMAP/tmp
+ENV SUPERMAP_SUPPORT $SUPERMAP/Support
+ENV SUPERMAP_BIN $SUPERMAP/Bin
+ENV SUPERMAP_JRE $SUPERMAP/jre
+# 超图依赖(完整包),需要不同架构的去下载不同的包即可:http://support.supermap.com.cn/DownloadCenter/ProductPlatform.aspx
+ADD supermap-iobjectsjava-11.1.0-linux64-all.tar.gz $SUPERMAP_TMP
+RUN mv $SUPERMAP_TMP/jre* $SUPERMAP_JRE && mv $SUPERMAP_TMP/Support $SUPERMAP_SUPPORT
+# RUN mv $SUPERMAP_TMP/Bin $SUPERMAP_BIN # 是否需要Bin内嵌看自己
+RUN tar -xvf $SUPERMAP_SUPPORT/aksusbd* -C $SUPERMAP_SUPPORT --strip-components=1
+RUN rm -rf $SUPERMAP_TMP && rm -rf $SUPERMAP_SUPPORT/*.tar
+
+# 多端构建模式,去除大文件依赖,也可以使用 docker build -t municipal-app-supermap . --squash 但需要开启docker的experimental功能
+FROM ubuntu:16.04
+WORKDIR /
+ENV SUPERMAP /supermap
+ENV SUPERMAP_TMP $SUPERMAP/tmp
+ENV SUPERMAP_SUPPORT $SUPERMAP/Support
+ENV SUPERMAP_BIN $SUPERMAP/Bin
+ENV SUPERMAP_JRE $SUPERMAP/jre
+ENV JAVA_HOME $SUPERMAP_JRE
+
+# 直接复制临时镜像内部文件
+COPY --from=TMP_IMAGE $SUPERMAP $SUPERMAP
+
+# 更换阿里源,依次安装相关依赖库(超图包缺失的)
+RUN sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list \
+    && sed -i s@/security.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list \
+    && apt-get clean && apt-get update \
+    && apt-get install -y libgomp1 \
+    && apt-get install -y libx11-dev \
+    && apt-get install -y libxext-dev \
+    && apt-get install -y libxrender-dev \
+    && apt-get install -y libxtst-dev \
+    && apt-get install -y libxinerama-dev \
+    && apt-get install -y libxrandr-dev \
+    && apt-get install -y tzdata \
+    && apt-get autoclean \
+    && apt-get autoremove -y \
+    && rm -rf /var/cache/apt/* \
+    && rm -rf /var/lib/apt/lists/*
+
+# 时区
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+# 文件目录
+RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
+
+# 设置字符集(防止应用日志乱码)
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+# 动态链接库
+ENV LD_LIBRARY_PATH $SUPERMAP_BIN:$LD_LIBRARY_PATH
+# 环境变量,超图的必须在最前面
+ENV PATH $SUPERMAP_BIN:$JAVA_HOME/bin:$PATH
+# 应用目录
+ENV APP /app
+# 应用入口
+ENV APP_NAME=main.jar
+# 依赖文件夹，设置为空时，不以配置分离式启动
+ENV APP_LIB_PATH=lib APP_CONFIG_PATH=config
+# 配置启用配置文件
+ENV APP_PROFILE_ACTIVE=prod APP_PORT=8888
+# 特殊JVM参数
+ENV APP_JVM_OPTION="-Djava.security.egd=file:/dev/./urandom -Xms2048m -Xmx2048m"
+
+# 暴露端口
+EXPOSE $APP_PORT/tcp
+# 应用-入口文件夹（必须）
+VOLUME $APP
+# 超图-依赖目录（必须）
+VOLUME $SUPERMAP_BIN
+# 超图-证书目录（必须）
+VOLUME /opt/SuperMap/License
+# 应用-本地文件上传目录（建议）
+VOLUME /opt/upFiles
+# 应用-本地webapp目录（可选）
+VOLUME /opt/webapp
+
+CMD echo "环境变量: ${PATH}" \
+    && echo "加载驱动: $SUPERMAP_SUPPORT" && cd $SUPERMAP_SUPPORT && ./dinst \
+    && echo "启动app: $APP" && cd $APP && ls . -al \
+    && if [ -n "$APP_LIB_PATH" ] && [ -n "$APP_CONFIG_PATH" ]; then \
+           java $APP_JVM_OPTION \
+                     -Dloader.path=$APP_LIB_PATH,$APP_CONFIG_PATH \
+                     -Dspring.profiles.active=$APP_PROFILE_ACTIVE \
+                     -Dserver.port=$APP_PORT \
+                     -jar $APP_NAME; \
+       else \
+           java $APP_JVM_OPTION \
+                    -Dspring.profiles.active=$APP_PROFILE_ACTIVE \
+                    -Dserver.port=$APP_PORT \
+                    -jar $APP_NAME; \
+       fi

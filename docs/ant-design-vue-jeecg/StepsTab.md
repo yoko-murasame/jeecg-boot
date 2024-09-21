@@ -43,6 +43,45 @@
 ## 使用
 
 ```vue
+<!--当前状态和分步按钮选项两个数据分离情况，具体使用请参考组件：ZtbXedjForm.vue-->
+<a-form-item class="step-form-item">
+  <steps-tab
+      ref="stepsTab"
+      :debug="false"
+      style="margin-bottom: 2vh"
+      :dict="stateDict"
+      v-decorator="['currentState', validatorRules.currentState]"
+      :current-tab-dict-text.sync="currentTabName"
+      :current-tab-dict-value.sync="currentTab"
+      :current-finish="currentFinish"
+      @update:hasPrev="e => $emit('update:hasPrev', e)"
+      @update:hasNext="e => $emit('update:hasNext', e)"
+      @stateChange="switchRequired"
+  ></steps-tab>
+</a-form-item>
+<!--当前状态和分步按钮选项两个数据分离情况，使用自定义字典，具体使用请参考组件：ZtbXedjForm.vue-->
+<a-form-item class="step-form-item">
+  <steps-tab
+      ref="stepsTab"
+      :debug="false"
+      :dict="true"
+      :dict-text="['基本信息', '预警等级', '短信']"
+      :dict-value="['1', '2', '3']"
+      v-decorator="['warningStatus']"
+      :current-finish="currentFinish"
+      :current-tab-dict-value.sync="currentTab"
+      @update:hasPrev="e => $emit('update:hasPrev', e)"
+      @update:hasNext="e => $emit('update:hasNext', e)"
+      @stateChange="switchRequired"
+  ></steps-tab>
+</a-form-item>
+```
+
+# 归档
+
+## 使用方式@20240824旧版本归档
+
+```vue
 <!--当前状态和分步按钮选项两个数据分离情况-->
 <steps-tab
   ref="stepsTab"
@@ -67,8 +106,6 @@
   @update:currentTabDictValue="e => form.setFieldsValue({'currentState': e})"
 ></steps-tab>
 ```
-
-# 归档
 
 ## 旧版本-使用dict的选中值作为v-model值
 

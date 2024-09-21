@@ -1,11 +1,8 @@
 package org.jeecg.modules.system.service.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -14,12 +11,14 @@ import org.jeecg.modules.system.entity.SysPermissionDataRule;
 import org.jeecg.modules.system.mapper.SysPermissionDataRuleMapper;
 import org.jeecg.modules.system.mapper.SysPermissionMapper;
 import org.jeecg.modules.system.service.ISysPermissionDataRuleService;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -60,8 +59,19 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 	@Override
 	public List<SysPermissionDataRule> queryPermissionDataRules(String username,String permissionId) {
 		List<String> idsList = this.baseMapper.queryDataRuleIds(username, permissionId);
+		return getSysPermissionDataRules(idsList);
+	}
+
+	@Override
+	public List<SysPermissionDataRule> queryPermissionDataRulesMulti(String username,List<String> permissionIds) {
+		List<String> idsList = this.baseMapper.queryDataRuleIdsMulti(username, permissionIds);
+		return getSysPermissionDataRules(idsList);
+	}
+
+	@Nullable
+	private List<SysPermissionDataRule> getSysPermissionDataRules(List<String> idsList) {
 		//update-begin--Author:scott  Date:20191119  for：数据权限失效问题处理--------------------
-		if(idsList==null || idsList.size()==0) {
+		if(idsList ==null || idsList.size()==0) {
 			return null;
 		}
 		//update-end--Author:scott  Date:20191119  for：数据权限失效问题处理--------------------
@@ -80,7 +90,7 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 		if(set.size()==0) {
 			return null;
 		}
-		return this.baseMapper.selectList(new QueryWrapper<SysPermissionDataRule>().in("id", set).eq("status",CommonConstant.STATUS_1));
+		return this.baseMapper.selectList(new QueryWrapper<SysPermissionDataRule>().in("id", set).eq("status", CommonConstant.STATUS_1));
 	}
 
 	@Override
@@ -111,7 +121,7 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 				}
 			}
 		}
-		
+
 	}
 
 }

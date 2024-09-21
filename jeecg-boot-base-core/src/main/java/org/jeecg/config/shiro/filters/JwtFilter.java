@@ -65,7 +65,10 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         String token = httpServletRequest.getHeader(CommonConstant.X_ACCESS_TOKEN);
         // update-begin--Author:lvdandan Date:20210105 for：JT-355 OA聊天添加token验证，获取token参数
         if (oConvertUtils.isEmpty(token)) {
-            token = httpServletRequest.getParameter("token");
+            token = httpServletRequest.getParameter(CommonConstant.REQUEST_ATTRIBUTE_NAME_FOR_TOKEN);
+        }
+        if (oConvertUtils.isEmpty(token)) {
+            token = (String) httpServletRequest.getAttribute(CommonConstant.REQUEST_ATTRIBUTE_NAME_FOR_TOKEN);
         }
         // update-end--Author:lvdandan Date:20210105 for：JT-355 OA聊天添加token验证，获取token参数
 

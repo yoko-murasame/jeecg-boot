@@ -1,6 +1,7 @@
 package org.jeecg.config.init;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IORuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -10,6 +11,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -60,7 +62,13 @@ public class CodeTemplateInitListener implements ApplicationListener<Application
             }
             if (!FileUtil.exist(createFilePath)) {
                 log.info("create file codeTemplate = " + createFilePath);
-                FileUtil.writeString(IOUtils.toString(url, StandardCharsets.UTF_8), createFilePath, "UTF-8");
+                try {
+                    FileUtil.writeString(IOUtils.toString(url, StandardCharsets.UTF_8), createFilePath, "UTF-8");
+                } catch (IORuntimeException e) {
+                    log.error("create file codeTemplate IORuntimeException = {}", createFilePath, e.getCause());
+                } catch (IOException e) {
+                    log.error("create file codeTemplate IOException = {}", createFilePath, e.getCause());
+                }
             }
         }
     }

@@ -1,0 +1,45 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ant-design-vue-jeecg/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="DockerForWindows">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="jeecg:app-nginx" />
+        <option name="containerName" value="jeecg-app-nginx" />
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="API_CONTEXT_PATH" />
+              <option name="value" value="main" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="API_PROXY_PASS" />
+              <option name="value" value="http://jeecg-boot-system:8300/main/" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="SUPERMAP_PROXY_PASS" />
+              <option name="value" value="http://192.168.1.234:8090/iserver/" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="80" />
+              <option name="hostPort" value="3301" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="commandLineOptions" value="--add-host=jeecg-boot-system:172.17.0.1" />
+        <option name="sourceFilePath" value="../ant-design-vue-jeecg/Dockerfile" />
+        <option name="volumeBindings">
+          <list>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/var/www/custom" />
+              <option name="hostPath" value="/home/app/nginx/html" />
+            </DockerVolumeBindingImpl>
+          </list>
+        </option>
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

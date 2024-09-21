@@ -1,5 +1,7 @@
 # [Yoko分支说明文档](docs/README.md)
 
+> Git拉不下来请先执行：`git config --system core.longpaths true`
+
 ![JEECG](https://jeecgos.oss-cn-beijing.aliyuncs.com/files/logov3.png "JeecgBoot低代码开发平台")
 
 

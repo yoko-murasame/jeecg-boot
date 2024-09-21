@@ -182,4 +182,63 @@
 			and username != #{username}
 		</if>
 	</select>
+
+	<update id="updateSysUserWithDefaultOrgCode">
+		WITH tmp AS (
+			select b.depart_name, b.org_code, c.username, c.realname, c.id
+			from sys_user_depart a
+					 join sys_depart b on a.dep_id = b.id
+					 join sys_user c on a.user_id = c.id
+		)
+		UPDATE sys_user SET org_code = tmp.org_code
+		FROM tmp
+		WHERE
+			sys_user.id = tmp.id
+		  AND sys_user.username IS NOT NULL
+		  AND sys_user.username != ''
+		  AND sys_user.org_code IS NULL
+		;
+    </update>
+
+	<select id="queryCurrentUserPerms" resultType="java.lang.String">
+		SELECT
+			e.perms
+		FROM sys_user a,
+			 sys_user_role b,
+			 sys_role c,
+			 sys_role_permission d,
+			 sys_permission e
+			<where>
+				<if test="username != null and username != ''">
+					AND a.username = #{username}
+				</if>
+				<if test="userid != null and userid != ''">
+					AND a.id = #{userid}
+				</if>
+				AND a.id = b.user_id
+				AND b.role_id = c.id
+				AND c.id = d.role_id
+				AND d.permission_id = e.id
+				<if test="permsLimitPrefix != null and permsLimitPrefix != ''">
+					AND e.perms LIKE CONCAT(#{permsLimitPrefix}::text, '%')
+				</if>
+			</where>
+	</select>
+
+	<select id="getUserModelByRoleCode" resultType="org.jeecg.common.system.vo.SysUserModel">
+		select * from sys_user where del_flag = 0 and id in
+		(select user_id from sys_user_role where role_id in (
+			select id from sys_role where role_code in
+			<foreach collection="roleCodes" item="code" open="(" close=")" separator=",">
+				#{code}
+			</foreach>
+			))
+	</select>
+
+	<select id="getUserModelByUsername" resultType="org.jeecg.common.system.vo.SysUserModel">
+		select * from sys_user where del_flag = 0 and username in
+		<foreach collection="usernames" item="username" open="(" close=")" separator=",">
+			#{username}
+		</foreach>
+	</select>
 </mapper>
