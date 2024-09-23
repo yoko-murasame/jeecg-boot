@@ -97,3 +97,9 @@ alter table ext_act_process_node_deploy
     add if not exists show_message_handle boolean;
 
 comment on column ext_act_process_node_deploy.show_message_handle is '是否显示处理意见框';
+
+-- 流程可循环发起扩展
+ALTER TABLE ext_act_process_form
+    ADD COLUMN circulate bool;
+
+COMMENT ON COLUMN ext_act_process_form.circulate IS '流程是否可以循环发起';
