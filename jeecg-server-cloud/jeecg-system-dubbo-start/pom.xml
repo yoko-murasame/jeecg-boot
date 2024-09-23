@@ -160,6 +160,10 @@
                                 <resource>
                                     <filtering>false</filtering>
                                     <directory>src/main/resources</directory>
+                                    <excludes>
+                                        <!-- flyway的sql文件，classpath下存在两份会报错，因此排除config下的 -->
+                                        <exclude>/**/*.sql</exclude>
+                                    </excludes>
                                 </resource>
                                 <!--仅针对配置文件filtering处理(占位符@@等)-->
                                 <resource>
