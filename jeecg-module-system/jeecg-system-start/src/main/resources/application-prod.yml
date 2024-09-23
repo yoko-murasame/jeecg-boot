@@ -198,10 +198,10 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: ${REDIS_DB:0}
-    host: ${REDIS_HOST:172.17.0.1}
-    port: ${REDIS_PORT:63791}
-    password: ${REDIS_PWD:'yoko@123'}
+    database: 0
+    host: 172.17.0.1
+    port: 63791
+    password: yoko@123
     lettuce:
       pool:
         max-active: 8   #最大连接数据库连接数,设 0 为没有限制
