@@ -7,7 +7,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /main
+    context-path: ${SERVER_CONTEXT_PATH:/main}
   compression:
     enabled: true
     min-response-size: 1024
@@ -60,14 +60,33 @@ spring:
     properties:
       org:
         quartz:
+          # 配置自定义的dataSource示例，这里用了Druid的数据连接池
+          # dataSource:
+          #   quartzDataSource:
+          #     # provider: hikaricp
+          #     # 自定义数据源找这个接口的实现：org.quartz.utils.ConnectionProvider
+          #     connectionProvider:
+          #       class: com.alibaba.druid.support.quartz.DruidQuartzConnectionProvider
+          #     # 自定义数据源的配置，参考：https://github.com/alibaba/druid/issues/2186
+          #     url: ${spring.datasource.dynamic.datasource.master.url}
+          #     username: ${spring.datasource.dynamic.datasource.master.username}
+          #     password: ${spring.datasource.dynamic.datasource.master.password}
+          #     validationQuery: SELECT 1
           scheduler:
             instanceName: MyScheduler
             instanceId: AUTO
           jobStore:
-            # https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
-            # class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # 如果使用下面这个类，在高版本Spring Boot（2.6.x）中，需要配置dataSource，低版本不需要（2.3.x）
+            # class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            # 配置自定义的dataSource，参考：https://github.com/alibaba/druid/issues/2186
+            # dataSource: quartzDataSource
+            useProperties: true
+            # 定时任务配置重启失效问题：https://stackoverflow.com/questions/73166153/spring-boot-quartz-not-starting-in-clustered-mode
+            # 上述问题实际上应该是由多数据源引起的，需要使用primary指定主数据源，当然换成JobStoreTX也可以解决
+            # 下面这个类，在高版本Spring Boot中，会自动加载Datasource的配置，所以不需要配置dataSource
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            # 更换quartz数据库方言，默认：org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
             misfireThreshold: 12000
@@ -86,6 +105,17 @@ spring:
     time-zone: GMT+8
   jpa:
     open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+  activiti:
+    check-process-definitions: false
+    #启用作业执行器
+    async-executor-activate: false
+    #启用异步执行器
+    job-executor-activate: false
   aop:
     proxy-target-class: true
   #配置freemarker
@@ -130,7 +160,7 @@ spring:
         # 初始化大小，最小，最大
         initial-size: 5
         min-idle: 5
-        maxActive: 20
+        maxActive: 1000
         # 配置获取连接等待超时的时间
         maxWait: 60000
         # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -168,8 +198,10 @@ spring:
           #driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
-    database: 0
-    host: 172.17.0.1
+    database: ${REDIS_DB:0}
+    host: ${REDIS_HOST:172.17.0.1}
+    port: ${REDIS_PORT:63791}
+    password: ${REDIS_PWD:'yoko@123'}
     lettuce:
       pool:
         max-active: 8   #最大连接数据库连接数,设 0 为没有限制
@@ -177,8 +209,6 @@ spring:
         max-wait: -1ms  #最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。
         min-idle: 0     #最小等待连接中的数量,设 0 为没有限制
       shutdown-timeout: 100ms
-    password: 'yoko@123'
-    port: 63791
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
@@ -258,7 +288,7 @@ jeecg:
   #大屏报表参数设置
   jmreport:
     #多租户模式，默认值为空(created:按照创建人隔离、tenant:按照租户隔离) (v1.6.2+ 新增)
-    saasMode: created
+    saasMode:
     # 平台上线安全配置(v1.6.2+ 新增)
     firewall:
       # 数据源安全 (开启后，不允许使用平台数据源、SQL解析加签并且不允许查询数据库)
