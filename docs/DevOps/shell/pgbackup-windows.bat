@@ -1,6 +1,8 @@
 echo Do backing...please waiting....
 @echo off
 
+echo 请注意脚本中行分隔符的印象，Linux是LF，Windows是CRLF！拿VS Code或者IDEA等工具可以直接修改！
+
 set KEEP_NUMBER=7
 set BACKUP_DIR=.
 set DB_NAME=postgres

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 请注意脚本中行分隔符的印象，Linux是LF，Windows是CRLF！拿VS Code或者IDEA等工具可以直接修改！
+
 #安装包路径 https://download.docker.com/linux/static/stable/x86_64/
 package_path="/home/package"
 #应用安装路径（默认docker的存储路径为/data/docker0）

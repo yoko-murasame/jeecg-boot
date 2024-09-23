@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 请注意脚本中行分隔符的印象，Linux是LF，Windows是CRLF！拿VS Code或者IDEA等工具可以直接修改！
+
 # 配置容器和镜像名称
 container_names=("oracle-12c")
 image_names=("oracle-12c")

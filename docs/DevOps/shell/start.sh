@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# 请注意脚本中行分隔符的印象，Linux是LF，Windows是CRLF！拿VS Code或者IDEA等工具可以直接修改！
+
 #启动 sh start.sh start
 #停止 sh start.sh stop
 #重启 sh start.sh restart

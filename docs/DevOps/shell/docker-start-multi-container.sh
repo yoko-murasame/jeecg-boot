@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 请注意脚本中行分隔符的印象，Linux是LF，Windows是CRLF！拿VS Code或者IDEA等工具可以直接修改！
+
 # 数据数据库目录
 PG_DATA=/home/postgres/pgdata14
 mkdir -p $PG_DATA
