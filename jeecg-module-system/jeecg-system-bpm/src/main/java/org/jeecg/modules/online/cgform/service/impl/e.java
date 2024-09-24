@@ -8,10 +8,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import freemarker.template.TemplateException;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.hibernate.HibernateException;
+import org.jeecg.common.api.BpmAPI;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.enums.CgformEnum;
+import org.jeecg.common.system.vo.SysOnlListDataModel;
+import org.jeecg.common.system.vo.SysOnlListQueryModel;
 import org.jeecg.common.util.*;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
 import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaInter;
@@ -50,8 +54,13 @@ import java.util.stream.Collectors;
 
 /* compiled from: OnlCgformHeadServiceImpl.java */
 @Service("onlCgformHeadServiceImpl")
+@DubboService(
+        interfaceClass = BpmAPI.class,
+        version = "${dubbo.provider.version:2.0.0}",
+        timeout = 3000
+)
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/service/impl/e.class */
-public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implements IOnlCgformHeadService {
+public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implements IOnlCgformHeadService, BpmAPI {
     private static final Logger a = LoggerFactory.getLogger(e.class);
     @Autowired
     private IOnlCgformFieldService fieldService;
@@ -1408,7 +1417,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
      * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
      */
     @Override
-    public OnlListDataModel getData(String code, Map<String, Object> queryParam) {
+    public OnlListDataModel getDataByCode(String code, Map<String, Object> queryParam) {
         // 查询实体
         OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
         onlListQueryModel.setCode(code);
@@ -1423,6 +1432,11 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         // 查询所有列
         onlListQueryModel.setQueryAllColumn("1");
         return this.getData(onlListQueryModel);
+    }
+
+    @Override
+    public SysOnlListDataModel getData(SysOnlListQueryModel onlListQueryModel) {
+        return this.getData((OnlListQueryModel) onlListQueryModel);
     }
 
     /**

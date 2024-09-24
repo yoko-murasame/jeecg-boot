@@ -124,7 +124,7 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
    * @param queryParam 查询参数，需要分页请传入：pageSize、pageNo
    * @return org.jeecg.modules.online.cgform.model.OnlListDataModel
    */
-  OnlListDataModel getData(String code, Map<String, Object> queryParam);
+  OnlListDataModel getDataByCode(String code, Map<String, Object> queryParam);
 
   /**
    * 获取Online列表数据
