@@ -12,6 +12,7 @@ import org.jeecg.modules.online.cgform.model.OnlListQueryModel;
 import org.jeecg.modules.online.cgform.model.a;
 import org.jeecg.modules.online.config.exception.BusinessException;
 import org.jeecg.modules.online.config.exception.DBException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -55,6 +56,9 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
   public abstract void saveDbTable2Online(String paramString);
 
   public abstract JSONObject queryFormItem(OnlCgformHead paramOnlCgformHead, String paramString);
+
+  @Transactional(rollbackFor = {Exception.class})
+  String saveManyFormData(String code, JSONObject formData) throws Exception;
 
   public abstract String saveManyFormData(String code, JSONObject json, String xAccessToken)
     throws DBException, BusinessException;

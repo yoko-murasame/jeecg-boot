@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import freemarker.template.TemplateException;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.shiro.util.StringUtils;
 import org.hibernate.HibernateException;
 import org.jeecg.common.api.BpmAPI;
 import org.jeecg.common.api.vo.Result;
@@ -45,6 +46,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -602,6 +604,14 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         }
     }
 
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
+    public String saveManyFormData(String code, JSONObject formData) throws Exception {
+        HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
+        String token = TokenUtils.getTokenByRequest(request);
+        return this.saveManyFormData(code, formData, token);
+    }
+
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
     public String saveManyFormData(String code, JSONObject formData, String xAccessToken) throws DBException, BusinessException {
@@ -655,23 +665,25 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         executeEnhanceSql("add", code, formData);
         executeEnhanceJava("add", "end", onlCgformHead2, formData);
         // 如果存在流程状态字段，则保存流程草稿到 ext_act_flow_data，实际上KForm表单中，新增时一般不会携带此字段，而是基于：保存+提交流程，两个步骤实现发起时提交
-        if (oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE)) || oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE.toUpperCase()))) {
-            try {
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.parseMediaType("application/json;charset=UTF-8"));
-                httpHeaders.set("Accept", "application/json;charset=UTF-8");
-                httpHeaders.set("X-Access-Token", xAccessToken);
-                JSONObject reqParam = new JSONObject();
-                reqParam.put("flowCode", "onl_" + onlCgformHead2.getTableName());
-                reqParam.put("id", formData.get("id"));
-                reqParam.put("formUrl", "modules/bpm/task/form/OnlineFormDetail");
-                reqParam.put("formUrlMobile", "online/OnlineDetailForm");
-                JSONObject reqRes = RestUtil.request(RestUtil.getBaseUrl() + "/act/process/extActProcess/saveMutilProcessDraft", HttpMethod.POST, httpHeaders, (JSONObject) null, reqParam, JSONObject.class).getBody();
-                if (reqRes != null) {
-                    a.info("保存流程草稿 dataId : " + reqRes.getString("result"));
+        if (StringUtils.hasText(xAccessToken)) {
+            if (oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE)) || oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE.toUpperCase()))) {
+                try {
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setContentType(MediaType.parseMediaType("application/json;charset=UTF-8"));
+                    httpHeaders.set("Accept", "application/json;charset=UTF-8");
+                    httpHeaders.set("X-Access-Token", xAccessToken);
+                    JSONObject reqParam = new JSONObject();
+                    reqParam.put("flowCode", "onl_" + onlCgformHead2.getTableName());
+                    reqParam.put("id", formData.get("id"));
+                    reqParam.put("formUrl", "modules/bpm/task/form/OnlineFormDetail");
+                    reqParam.put("formUrlMobile", "online/OnlineDetailForm");
+                    JSONObject reqRes = RestUtil.request(RestUtil.getBaseUrl() + "/act/process/extActProcess/saveMutilProcessDraft", HttpMethod.POST, httpHeaders, (JSONObject) null, reqParam, JSONObject.class).getBody();
+                    if (reqRes != null) {
+                        a.info("保存流程草稿 dataId : " + reqRes.getString("result"));
+                    }
+                } catch (Exception e) {
+                    a.error("保存流程草稿异常, " + e.getMessage(), e);
                 }
-            } catch (Exception e) {
-                a.error("保存流程草稿异常, " + e.getMessage(), e);
             }
         }
         return onlCgformHead2.getTableName();

@@ -1,5 +1,6 @@
 package org.jeecg.common.api;
 
+import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.system.vo.*;
 
 import java.util.Map;
@@ -29,5 +30,25 @@ public interface BpmAPI {
      * @return org.jeecg.common.system.vo.SysOnlListDataModel
      */
     SysOnlListDataModel getData(SysOnlListQueryModel onlListQueryModel);
+
+    /**
+     * 新增Online表单数据
+     *
+     * @author Yoko
+     * @param code 表单编码
+     * @param formData 表单数据
+     * @return java.lang.String 数据库表名
+     */
+    String saveManyFormData(String code, JSONObject formData) throws Exception;
+
+    /**
+     * 编辑Online表单数据
+     *
+     * @author Yoko
+     * @param code 表单编码
+     * @param formData 表单数据
+     * @return java.lang.String 数据库表名
+     */
+    String editManyFormData(String code, JSONObject formData) throws Exception;
 
 }
