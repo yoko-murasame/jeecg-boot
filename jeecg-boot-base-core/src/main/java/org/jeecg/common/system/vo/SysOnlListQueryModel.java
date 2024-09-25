@@ -1,7 +1,9 @@
 package org.jeecg.common.system.vo;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.serializer.NameFilter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,21 +35,53 @@ public class SysOnlListQueryModel {
     @ApiModelProperty(value = "树型查询时，父节点字段")
     private String pidField;
 
-    public void setParamsByObject(Object queryParam) {
-        String params = JSON.toJSONString(queryParam);
+    /**
+     * 基于Java对象设置搜索参数，对象字段名会强制转蛇形，会自动排除分页参数：pageSize、pageNo
+     */
+    public <T> void setParams(T t) {
+        this.setParamsByEntity(t);
+    }
+
+    /**
+     * 基于Java对象设置搜索参数，对象字段名会强制转蛇形，会自动排除分页参数：pageSize、pageNo
+     */
+    public void setParamsByEntity(Object queryEntity) {
+        // 强制转蛇形，SerializerFeature.PrettyFormat 用于美化输出（空格和换行）
+        String params = JSON.toJSONString(queryEntity, SnakeCaseFilter);
         this.setParams(JSON.parseObject(params, new TypeReference<Map<String, Object>>() {}));
     }
 
+    /**
+     * 直接设置搜索参数
+     */
     public void setParams(Map<String, Object> params) {
         this.params = params;
         this.setNeedPageVal(params.get("pageSize"));
     }
 
-    // jeecg作者自己协定的不分页值
+    /**
+     * jeecg作者自己协定的不分页值
+     */
     public void setNeedPageVal(Object pageSize) {
         int finalSize = pageSize == null ? 10 : Integer.parseInt(pageSize.toString());
         // this.isPage = (valueOf != -521);
         this.needPage = (pageSize != null) && (finalSize > 0);
     }
+
+    // FastJSON-数据转换成蛇形配置
+    public static final NameFilter SnakeCaseFilter = (object, name, value) -> {
+        // 排除分页参数
+        if ("pageSize".equals(name) || "pageNo".equals(name)) {
+            return name;
+        }
+        if ("page_size".equals(name)) {
+            return "pageSize";
+        }
+        if ("page_no".equals(name)) {
+            return "pageNo";
+        }
+        // 其他字段 SnakeCase 转换
+        return PropertyNamingStrategy.SnakeCase.translate(name);
+    };
 
 }

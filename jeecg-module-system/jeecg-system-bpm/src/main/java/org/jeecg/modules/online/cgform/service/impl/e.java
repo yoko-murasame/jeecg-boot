@@ -1421,7 +1421,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         // 查询实体
         OnlListQueryModel onlListQueryModel = new OnlListQueryModel();
         onlListQueryModel.setCode(code);
-        onlListQueryModel.setParams(queryParam);
+        onlListQueryModel.setParamsByEntity(queryParam);
         onlListQueryModel.setNeedList(Collections.singletonList("id"));
         // 排序，给默认创建时间降序
         Object column = queryParam.get("column");
