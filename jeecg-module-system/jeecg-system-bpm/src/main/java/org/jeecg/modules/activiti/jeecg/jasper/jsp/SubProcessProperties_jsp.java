@@ -110,12 +110,12 @@ public final class SubProcessProperties_jsp extends HttpJspBase implements JspSo
                     var8.write("\r\n\r\n\r\n\r\n");
                     String var12 = request.getContextPath();
                     //                 String var13 = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + var12;
-                    String var13 = var12;
+                    String contextPath = var12;
                     //                    String var13 = request.getScheme() + "://" + request.getServerName() + ":8989"  + var12;
                     String var14 = JMathUtil.defaultString(".jsp");
                     String var15 = request.getHeader("X_GATEWAY_BASE_PATH");
                     if (var15 != null && !var15.equals("")) {
-                        var13 = var15;
+                        contextPath = var15;
                     }
 
                     var8.write(13);
@@ -127,7 +127,7 @@ public final class SubProcessProperties_jsp extends HttpJspBase implements JspSo
                         var16.setPageContext(var11);
                         var16.setParent((Tag) null);
                         var16.setVar("webRoot");
-                        var16.setValue(var13);
+                        var16.setValue(contextPath);
                         int var18 = var16.doStartTag();
                         if (var16.doEndTag() == 5) {
                             return;
@@ -138,6 +138,8 @@ public final class SubProcessProperties_jsp extends HttpJspBase implements JspSo
                     } finally {
                         JspRuntimeLibrary.releaseTag(var16, this.b(), var17);
                     }
+
+                    String contextPathPre = "'" + contextPath + "' + ";
 
                     var8.write("\r\n<script type=\"text/javascript\">\r\nvar subProcess= workflow.getFigure(nodeid);\r\n\r\nvar windowapi;" +
                             "\r\ntry{\r\n\twindowapi = frameElement.api, \r\n\tW = windowapi.opener;\r\n}catch(e){}\r\n\r\n//属性表格定义\r\n rows = [\r\n    \r\n " +
@@ -170,7 +172,7 @@ public final class SubProcessProperties_jsp extends HttpJspBase implements JspSo
                             ".activiti_collection=$.trim($('#collection').val());\r\n\tsubProcess.activiti_elementVariable=$.trim($('#elementVariable').val()" +
                             ");\r\n\tsubProcess.completionCondition=$.trim($('#completionCondition').val());\r\n\ttip(\"保存成功!\");" +
                             "\r\n}\r\n\r\n//update--begin---author:scott   date:20191219    for:子流程支持多个参数配置----\r\n");
-                    var8.write("//配置主子流程传递参数\r\nfunction configSubParams(){\r\n   var url = '/act/designer/goSubParameterList';\r\n   $.dialog({content:" +
+                    var8.write("//配置主子流程传递参数\r\nfunction configSubParams(){\r\n   var url = " + contextPathPre + " '/act/designer/goSubParameterList';\r\n   $.dialog({content:" +
                             " 'url:'+url,\r\n\t   title: '子流程参数配置页面',\r\n\t   lock : true,\r\n\t   parent:windowapi,\r\n\t   width :'600px',\r\n\t   height " +
                             ":'450px',\r\n\t   left :'85%',\r\n\t   top :'65%',\r\n\t   data:{subParams: subProcess.insourceArray?subProcess.insourceArray" +
                             ".concat(subProcess.outsourceArray):null},\r\n\t   opacity : 0.4,\r\n\t   button : [ {name : '确定',callback : clickcallback,focus " +
