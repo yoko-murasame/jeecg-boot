@@ -30,12 +30,12 @@ public abstract interface IOnlCgformFieldService extends IService<OnlCgformField
 
   public abstract void deleteAutoList(String paramString1, String paramString2, String paramString3);
 
-  public abstract void saveFormData(String paramString1, String paramString2, JSONObject paramJSONObject, boolean paramBoolean);
+  public abstract void saveFormData(String code, String tableName, JSONObject formData, boolean isCrazy);
 
   // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
   void saveFormDataForCyclePlan(String code, String tbname, JSONObject json, boolean isCrazy);
 
-  public abstract void saveTreeFormData(String paramString1, String paramString2, JSONObject paramJSONObject, String paramString3, String paramString4);
+  public abstract void saveTreeFormData(String code, String tableName, JSONObject formData, String treeIdField, String treeParentIdField);
 
   public abstract void saveFormData(List<OnlCgformField> paramList, String paramString, JSONObject paramJSONObject);
 
@@ -45,9 +45,9 @@ public abstract interface IOnlCgformFieldService extends IService<OnlCgformField
 
   public abstract OnlCgformField queryFormFieldByTableNameAndField(String paramString1, String paramString2);
 
-  public abstract void editTreeFormData(String paramString1, String paramString2, JSONObject paramJSONObject, String paramString3, String paramString4);
+  public abstract void editTreeFormData(String code, String tableName, JSONObject formData, String treeIdField, String treeParentIdField);
 
-  public abstract void editFormData(String paramString1, String paramString2, JSONObject paramJSONObject, boolean paramBoolean);
+  public abstract void editFormData(String code, String tableName, JSONObject formData, boolean isCrazy);
 
   public abstract Map<String, Object> queryFormData(String paramString1, String paramString2, String paramString3);
 

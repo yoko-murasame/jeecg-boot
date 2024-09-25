@@ -534,14 +534,14 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public void saveFormData(String code, String tbname, JSONObject json, boolean isCrazy) {
+    public void saveFormData(String code, String tableName, JSONObject formData, boolean isCrazy) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
-        List list = list(lambdaQueryWrapper);
+        List<OnlCgformField> onlCgformFields = list(lambdaQueryWrapper);
         if (isCrazy) {
-            ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.c(tbname, list, json));
+            this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.c(tableName, onlCgformFields, formData));
         } else {
-            ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tbname, list, json));
+            this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tableName, onlCgformFields, formData));
         }
     }
 
@@ -561,22 +561,22 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public void saveTreeFormData(String code, String tbname, JSONObject json, String hasChildField, String pidField) {
+    public void saveTreeFormData(String code, String tableName, JSONObject formData, String treeIdField, String treeParentIdField) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
         List<OnlCgformField> list = list(lambdaQueryWrapper);
         for (OnlCgformField onlCgformField : list) {
-            if (hasChildField.equals(onlCgformField.getDbFieldName()) && onlCgformField.getIsShowForm().intValue() != 1) {
+            if (treeIdField.equals(onlCgformField.getDbFieldName()) && onlCgformField.getIsShowForm().intValue() != 1) {
                 onlCgformField.setIsShowForm(1);
-                json.put(hasChildField, b);
-            } else if (pidField.equals(onlCgformField.getDbFieldName()) && oConvertUtils.isEmpty(json.get(pidField))) {
+                formData.put(treeIdField, b);
+            } else if (treeParentIdField.equals(onlCgformField.getDbFieldName()) && oConvertUtils.isEmpty(formData.get(treeParentIdField))) {
                 onlCgformField.setIsShowForm(1);
-                json.put(pidField, b);
+                formData.put(treeParentIdField, b);
             }
         }
-        ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tbname, list, json));
-        if (!b.equals(json.getString(pidField))) {
-            ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + tbname + " set " + hasChildField + " = '1' where id = '" + json.getString(pidField) + org.jeecg.modules.online.cgform.d.b.sz);
+        this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tableName, list, formData));
+        if (!b.equals(formData.getString(treeParentIdField))) {
+            this.baseMapper.editFormData("update " + tableName + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.sz);
         }
     }
 
@@ -615,7 +615,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
 
                     // 删除原先的数据
                     this.baseMapper.deleteAutoList("delete from " + tbname + " where id = '" + id + "'");
-                    a.warn("重复id的数据，存在外键，已扩展外键字段，表名：{}，id={}，JSON={}", tbname, id, json.toJSONString());
+                    a.info("重复id的数据，存在外键，已扩展外键字段，表名：{}，id={}，JSON={}", tbname, id, json.toJSONString());
                 } else {
                     // 找不到外键字段，就跳过这个数据的保存
                     a.warn("重复id的数据，不存在外键，不允许保存，表名：{}，id={}，JSON={}", tbname, id, json.toJSONString());
@@ -630,40 +630,40 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public void editFormData(String code, String tbname, JSONObject json, boolean isCrazy) {
+    public void editFormData(String code, String tableName, JSONObject formData, boolean isCrazy) {
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
-        List list = list(lambdaQueryWrapper);
+        List<OnlCgformField> onlCgformFields = list(lambdaQueryWrapper);
         if (isCrazy) {
-            ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.d(tbname, list, json));
+            this.baseMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.d(tableName, onlCgformFields, formData));
         } else {
-            ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tbname, list, json));
+            this.baseMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tableName, onlCgformFields, formData));
         }
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
-    public void editTreeFormData(String code, String tbname, JSONObject json, String hasChildField, String pidField) {
-        String f = org.jeecg.modules.online.cgform.d.b.f(tbname);
-        String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + f + " where id = '" + json.getString("id") + org.jeecg.modules.online.cgform.d.b.sz)).get(pidField).toString();
+    public void editTreeFormData(String code, String tableName, JSONObject formData, String treeIdField, String treeParentIdField) {
+        String f = org.jeecg.modules.online.cgform.d.b.f(tableName);
+        String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + f + " where id = '" + formData.getString("id") + org.jeecg.modules.online.cgform.d.b.sz)).get(treeParentIdField).toString();
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
         List<OnlCgformField> list = list(lambdaQueryWrapper);
         for (OnlCgformField onlCgformField : list) {
-            if (pidField.equals(onlCgformField.getDbFieldName()) && oConvertUtils.isEmpty(json.get(pidField))) {
+            if (treeParentIdField.equals(onlCgformField.getDbFieldName()) && oConvertUtils.isEmpty(formData.get(treeParentIdField))) {
                 onlCgformField.setIsShowForm(1);
-                json.put(pidField, b);
+                formData.put(treeParentIdField, b);
             }
         }
-        ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tbname, list, json));
-        if (!obj.equals(json.getString(pidField))) {
+        ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tableName, list, formData));
+        if (!obj.equals(formData.getString(treeParentIdField))) {
             if (!b.equals(obj)) {
-                Integer queryCountBySql = ((OnlCgformFieldMapper) this.baseMapper).queryCountBySql("select count(*) from " + f + " where " + pidField + " = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
+                Integer queryCountBySql = ((OnlCgformFieldMapper) this.baseMapper).queryCountBySql("select count(*) from " + f + " where " + treeParentIdField + " = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
                 if (queryCountBySql == null || queryCountBySql.intValue() == 0) {
-                    ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + hasChildField + " = '0' where id = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
+                    ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '0' where id = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
                 }
             }
-            if (!b.equals(json.getString(pidField))) {
-                ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + hasChildField + " = '1' where id = '" + json.getString(pidField) + org.jeecg.modules.online.cgform.d.b.sz);
+            if (!b.equals(formData.getString(treeParentIdField))) {
+                ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.sz);
             }
         }
     }

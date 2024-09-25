@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.google.common.collect.Lists;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
@@ -314,24 +313,22 @@ public class OnlCgformApiController {
     )
     @OnlineAuth("form")
     @PostMapping({"/form/{code}"})
-    public Result<String> a(@PathVariable("code") String code, @RequestBody JSONObject var2, HttpServletRequest var3) {
-        Result var4 = new Result();
-
+    public Result<String> saveManyFormData(@PathVariable("code") String code, @RequestBody JSONObject formData, HttpServletRequest request) {
+        Result<String> result = new Result<>();
         try {
-            String var5 = CgformDB.a();
-            var2.put("id", var5);
-            String var6 = TokenUtils.getTokenByRequest(var3);
-            String var7 = this.onlCgformHeadService.saveManyFormData(code, var2, var6);
-            var4.setSuccess(true);
-            var4.setResult(var5);
-            var4.setOnlTable(var7);
-        } catch (Exception var8) {
-            a.error("OnlCgformApiController.formAdd()发生异常：", var8);
-            var4.setSuccess(false);
-            var4.setMessage("保存失败，" + CgformDB.a(var8));
+            String newId = CgformDB.a();
+            formData.put("id", newId);
+            String token = TokenUtils.getTokenByRequest(request);
+            String tableName = this.onlCgformHeadService.saveManyFormData(code, formData, token);
+            result.setSuccess(true);
+            result.setResult(newId);
+            result.setOnlTable(tableName);
+        } catch (Exception e) {
+            a.error("OnlCgformApiController.formAdd()发生异常：", e);
+            result.setSuccess(false);
+            result.setMessage("保存失败，" + CgformDB.a(e));
         }
-
-        return var4;
+        return result;
     }
 
     @AutoLog(
@@ -341,17 +338,17 @@ public class OnlCgformApiController {
     )
     @OnlineAuth("form")
     @PutMapping({"/form/{code}"})
-    public Result<?> a(@PathVariable("code") String var1, @RequestBody JSONObject var2) {
+    public Result<?> editManyFormData(@PathVariable("code") String code, @RequestBody JSONObject formData) {
         try {
-            String var3 = this.onlCgformHeadService.editManyFormData(var1, var2);
-            Result var4 = Result.ok("修改成功！");
-            var4.setOnlTable(var3);
-            String id = var2.getString("id");
-            var4.setResult(id);
-            return var4;
-        } catch (Exception var5) {
-            a.error("OnlCgformApiController.formEdit()发生异常：" + var5.getMessage(), var5);
-            return Result.error("修改失败，" + CgformDB.a(var5));
+            String tableName = this.onlCgformHeadService.editManyFormData(code, formData);
+            Result<String> result = Result.ok("修改成功！");
+            result.setOnlTable(tableName);
+            String id = formData.getString("id");
+            result.setResult(id);
+            return result;
+        } catch (Exception e) {
+            a.error("OnlCgformApiController.formEdit()发生异常：" + e.getMessage(), e);
+            return Result.error("修改失败，" + CgformDB.a(e));
         }
     }
 

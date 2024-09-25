@@ -604,25 +604,23 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
-    public String saveManyFormData(String code, JSONObject json, String xAccessToken) throws DBException, BusinessException {
-        JSONObject jSONObject=new JSONObject();
-        String[] split;
+    public String saveManyFormData(String code, JSONObject formData, String xAccessToken) throws DBException, BusinessException {
         OnlCgformHead onlCgformHead;
-        OnlCgformHead onlCgformHead2 = (OnlCgformHead) getById(code);
+        OnlCgformHead onlCgformHead2 = getById(code);
         if (onlCgformHead2 == null) {
             throw new DBException("数据库主表ID[" + code + "]不存在");
         }
-        executeEnhanceJava("add", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead2, json);
-        String f = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead2.getTableName());
-        if (onlCgformHead2.getTableType().intValue() == 2) {
+        executeEnhanceJava("add", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead2, formData);
+        String tableName = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead2.getTableName());
+        if (onlCgformHead2.getTableType() == 2) {
             String subTableStr = onlCgformHead2.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {
                 for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
-                    JSONArray jSONArray = json.getJSONArray(str);
-                    if (jSONArray != null && jSONArray.size() != 0 && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
-                            .selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
+                    JSONArray jSONArray = formData.getJSONArray(str);
+                    if (jSONArray != null && !jSONArray.isEmpty() && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
+                            .selectOne(new LambdaQueryWrapper<OnlCgformHead>()
                                     .eq(OnlCgformHead::getTableName, str))) != null) {
-                        List<OnlCgformField> list = this.fieldService.list((Wrapper) new LambdaQueryWrapper<OnlCgformField>()
+                        List<OnlCgformField> list = this.fieldService.list(new LambdaQueryWrapper<OnlCgformField>()
                                 .eq(OnlCgformField::getCgformHeadId, onlCgformHead.getId()));
                         String str2 = "";
                         String str3 = null;
@@ -630,11 +628,11 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                             if (!oConvertUtils.isEmpty(onlCgformField.getMainField())) {
                                 str2 = onlCgformField.getDbFieldName();
                                 String mainField = onlCgformField.getMainField();
-                                if (json.get(mainField.toLowerCase()) != null) {
-                                    str3 = json.getString(mainField.toLowerCase());
+                                if (formData.get(mainField.toLowerCase()) != null) {
+                                    str3 = formData.getString(mainField.toLowerCase());
                                 }
-                                if (json.get(mainField.toUpperCase()) != null) {
-                                    str3 = json.getString(mainField.toUpperCase());
+                                if (formData.get(mainField.toUpperCase()) != null) {
+                                    str3 = formData.getString(mainField.toUpperCase());
                                 }
                             }
                         }
@@ -650,25 +648,27 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             }
         }
         if ("Y".equals(onlCgformHead2.getIsTree())) {
-            this.fieldService.saveTreeFormData(code, f, json, onlCgformHead2.getTreeIdField(), onlCgformHead2.getTreeParentIdField());
+            this.fieldService.saveTreeFormData(code, tableName, formData, onlCgformHead2.getTreeIdField(), onlCgformHead2.getTreeParentIdField());
         } else {
-            this.fieldService.saveFormData(code, f, json, false);
+            this.fieldService.saveFormData(code, tableName, formData, false);
         }
-        executeEnhanceSql("add", code, json);
-        executeEnhanceJava("add", "end", onlCgformHead2, json);
-        if (oConvertUtils.isNotEmpty(json.get(org.jeecg.modules.online.cgform.d.b.sE)) || oConvertUtils.isNotEmpty(json.get(org.jeecg.modules.online.cgform.d.b.sE.toUpperCase()))) {
+        executeEnhanceSql("add", code, formData);
+        executeEnhanceJava("add", "end", onlCgformHead2, formData);
+        // 如果存在流程状态字段，则保存流程草稿到 ext_act_flow_data，实际上KForm表单中，新增时一般不会携带此字段，而是基于：保存+提交流程，两个步骤实现发起时提交
+        if (oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE)) || oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE.toUpperCase()))) {
             try {
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.parseMediaType("application/json;charset=UTF-8"));
                 httpHeaders.set("Accept", "application/json;charset=UTF-8");
                 httpHeaders.set("X-Access-Token", xAccessToken);
-                JSONObject jSONObject3 = new JSONObject();
-                jSONObject3.put("flowCode", "onl_" + onlCgformHead2.getTableName());
-                jSONObject3.put("id", json.get("id"));
-                jSONObject3.put("formUrl", "modules/bpm/task/form/OnlineFormDetail");
-                jSONObject3.put("formUrlMobile", "online/OnlineDetailForm");
-                if (((JSONObject) RestUtil.request(RestUtil.getBaseUrl() + "/act/process/extActProcess/saveMutilProcessDraft", HttpMethod.POST, httpHeaders, (JSONObject) null, jSONObject3, JSONObject.class).getBody()) != null) {
-                    a.info("保存流程草稿 dataId : " + jSONObject.getString("result"));
+                JSONObject reqParam = new JSONObject();
+                reqParam.put("flowCode", "onl_" + onlCgformHead2.getTableName());
+                reqParam.put("id", formData.get("id"));
+                reqParam.put("formUrl", "modules/bpm/task/form/OnlineFormDetail");
+                reqParam.put("formUrlMobile", "online/OnlineDetailForm");
+                JSONObject reqRes = RestUtil.request(RestUtil.getBaseUrl() + "/act/process/extActProcess/saveMutilProcessDraft", HttpMethod.POST, httpHeaders, (JSONObject) null, reqParam, JSONObject.class).getBody();
+                if (reqRes != null) {
+                    a.info("保存流程草稿 dataId : " + reqRes.getString("result"));
                 }
             } catch (Exception e) {
                 a.error("保存流程草稿异常, " + e.getMessage(), e);
@@ -792,7 +792,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
-    public String editManyFormData(String code, JSONObject json) throws DBException, BusinessException {
+    public String editManyFormData(String code, JSONObject formData) throws DBException, BusinessException {
         String[] split;
         OnlCgformHead onlCgformHead = (OnlCgformHead) getById(code);
         if (onlCgformHead == null) {
@@ -805,12 +805,12 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 throw new DBException("数据库主表ID[" + code + "]不存在");
             }
         }
-        executeEnhanceJava("edit", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, json);
+        executeEnhanceJava("edit", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, formData);
         String tableName = onlCgformHead.getTableName();
         if ("Y".equals(onlCgformHead.getIsTree())) {
-            this.fieldService.editTreeFormData(code, tableName, json, onlCgformHead.getTreeIdField(), onlCgformHead.getTreeParentIdField());
+            this.fieldService.editTreeFormData(code, tableName, formData, onlCgformHead.getTreeIdField(), onlCgformHead.getTreeParentIdField());
         } else {
-            this.fieldService.editFormData(code, tableName, json, false);
+            this.fieldService.editFormData(code, tableName, formData, false);
         }
         if (onlCgformHead.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead.getSubTableStr();
@@ -827,17 +827,17 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                             if (!oConvertUtils.isEmpty(onlCgformField.getMainField())) {
                                 str2 = onlCgformField.getDbFieldName();
                                 String mainField = onlCgformField.getMainField();
-                                if (json.get(mainField.toLowerCase()) != null) {
-                                    str3 = json.getString(mainField.toLowerCase());
+                                if (formData.get(mainField.toLowerCase()) != null) {
+                                    str3 = formData.getString(mainField.toLowerCase());
                                 }
-                                if (json.get(mainField.toUpperCase()) != null) {
-                                    str3 = json.getString(mainField.toUpperCase());
+                                if (formData.get(mainField.toUpperCase()) != null) {
+                                    str3 = formData.getString(mainField.toUpperCase());
                                 }
                             }
                         }
                         if (!oConvertUtils.isEmpty(str3)) {
                             this.fieldService.deleteAutoList(str, str2, str3);
-                            JSONArray jSONArray = json.getJSONArray(str);
+                            JSONArray jSONArray = formData.getJSONArray(str);
                             if (jSONArray != null && jSONArray.size() != 0) {
                                 for (int i = 0; i < jSONArray.size(); i++) {
                                     JSONObject jSONObject = jSONArray.getJSONObject(i);
@@ -852,8 +852,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 }
             }
         }
-        executeEnhanceJava("edit", "end", onlCgformHead, json);
-        executeEnhanceSql("edit", code, json);
+        executeEnhanceJava("edit", "end", onlCgformHead, formData);
+        executeEnhanceSql("edit", code, formData);
         return tableName;
     }
 

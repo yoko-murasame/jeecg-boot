@@ -681,7 +681,7 @@ public class b {
         return hashSet;
     }
 
-    public static Map<String, Object> a(String str, List<OnlCgformField> list, JSONObject jSONObject) {
+    public static Map<String, Object> a(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
         StringBuffer stringBuffer = new StringBuffer();
         StringBuffer stringBuffer2 = new StringBuffer();
         String str2 = "";
@@ -692,9 +692,9 @@ public class b {
         } catch (DBException e3) {
             e3.printStackTrace();
         }
-        HashMap hashMap = new HashMap();
-        boolean z2 = false;
-        String str3 = null;
+        HashMap<String, Object> hashMap = new HashMap<>();
+        boolean hasId = false;
+        String idValue = null;
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         // 来自流程服务中的调用时，不存在请求上下文
         if (loginUser == null) {
@@ -707,54 +707,56 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
-        Set<String> a2 = a(list);
-        for (OnlCgformField onlCgformField : list) {
+        Set<String> a2 = a(onlCgformFields);
+        for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online保存表单数据遇见空名称的字段------->>" + onlCgformField.getId());
             } else if ("id".equals(dbFieldName.toLowerCase())) {
-                z2 = true;
-                str3 = jSONObject.getString(dbFieldName);
+                hasId = true;
+                idValue = formData.getString(dbFieldName);
             } else {
-                a(onlCgformField, loginUser, jSONObject, su, st, sx);
+                a(onlCgformField, loginUser, formData, su, st, sx);
                 if (sE.equals(dbFieldName.toLowerCase())) {
                     stringBuffer.append(DOT_STRING + dbFieldName);
                     stringBuffer2.append(",'1'");
                 } else if (a2.contains(dbFieldName)) {
                     stringBuffer.append(DOT_STRING + dbFieldName);
-                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, formData, hashMap));
                 } else if (onlCgformField.getIsShowForm().intValue() == 1 || !oConvertUtils.isEmpty(onlCgformField.getMainField()) || !oConvertUtils.isEmpty(onlCgformField.getDbDefaultVal())) {
-                    if (jSONObject.get(dbFieldName) == null) {
+                    if (formData.get(dbFieldName) == null) {
                         if (!oConvertUtils.isEmpty(onlCgformField.getDbDefaultVal())) {
-                            jSONObject.put(dbFieldName, onlCgformField.getDbDefaultVal());
+                            formData.put(dbFieldName, onlCgformField.getDbDefaultVal());
                         }
                     }
-                    if ("".equals(jSONObject.get(dbFieldName))) {
+                    if ("".equals(formData.get(dbFieldName))) {
                         String dbType = onlCgformField.getDbType();
                         if (!k.isNumber(dbType) && !k.b(dbType)) {
                         }
                     }
                     stringBuffer.append(DOT_STRING + dbFieldName);
-                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, formData, hashMap));
                 }
             }
         }
-        if (z2) {
-            if (oConvertUtils.isEmpty(str3)) {
-                str3 = a();
+        if (hasId) {
+            if (oConvertUtils.isEmpty(idValue)) {
+                idValue = a();
             }
         } else {
-            str3 = a();
+            idValue = a();
         }
-        String str4 = "insert into " + f(str) + "(id" + stringBuffer.toString() + ") values(" + sz + str3 + sz + stringBuffer2.toString() + ")";
+        String str4 = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
         hashMap.put("execute_sql_string", str4);
         ay.info("--动态表单保存sql-->" + str4);
+        // 将新的id带回去
+        formData.put("id", idValue);
         return hashMap;
     }
 
-    public static Map<String, Object> b(String str, List<OnlCgformField> list, JSONObject jSONObject) {
+    public static Map<String, Object> b(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
         StringBuffer stringBuffer = new StringBuffer();
-        HashMap hashMap = new HashMap();
+        HashMap<String, Object> hashMap = new HashMap<>();
         String str2 = "";
         try {
             str2 = org.jeecg.modules.online.config.b.d.getDatabaseType();
@@ -775,44 +777,44 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online修改表单数据异常:系统未找到当前登陆用户信息");
         }
-        Set<String> a2 = a(list);
-        for (OnlCgformField onlCgformField : list) {
+        Set<String> a2 = a(onlCgformFields);
+        for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online修改表单数据遇见空名称的字段------->>" + onlCgformField.getId());
             } else {
                 // 直接处理空字符串到null
-                if (!org.springframework.util.StringUtils.hasText(jSONObject.getString(dbFieldName))) {
-                    jSONObject.put(dbFieldName, null);
+                if (!org.springframework.util.StringUtils.hasText(formData.getString(dbFieldName))) {
+                    formData.put(dbFieldName, null);
                 }
                 // update_by update_time sys_org_code跳过
                 if (st.equalsIgnoreCase(dbFieldName) || su.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
                     // a(onlCgformField, loginUser, jSONObject, su, st, sx);
-                    String orgCode = jSONObject.getString(sx);
+                    String orgCode = formData.getString(sx);
                     if (!org.springframework.util.StringUtils.hasText(orgCode)) {
-                        a(onlCgformField, loginUser, jSONObject, sx);
+                        a(onlCgformField, loginUser, formData, sx);
                     } else {
                         continue;
                     }
                 }
-                a(onlCgformField, loginUser, jSONObject, sw, sv);
-                if (a2.contains(dbFieldName) && jSONObject.get(dbFieldName) != null && !"".equals(jSONObject.getString(dbFieldName))) {
-                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
+                a(onlCgformField, loginUser, formData, sw, sv);
+                if (a2.contains(dbFieldName) && formData.get(dbFieldName) != null && !"".equals(formData.getString(dbFieldName))) {
+                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                 } else if (onlCgformField.getIsShowForm().intValue() == 1 && !"id".equals(dbFieldName)) {
-                    if ("".equals(jSONObject.get(dbFieldName))) {
+                    if ("".equals(formData.get(dbFieldName))) {
                         String dbType = onlCgformField.getDbType();
                         if (!k.isNumber(dbType) && !k.b(dbType)) {
                         }
                     }
                     if (!oConvertUtils.isNotEmpty(onlCgformField.getMainTable()) || !oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
-                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     } else {
                         // 无论是不是外键，都更新字段
-                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     }
                 } else {
                     // 无论是不是表单显示字段，都更新
-                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
+                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                 }
             }
         }
@@ -820,7 +822,7 @@ public class b {
         if (stringBuffer2.endsWith(DOT_STRING)) {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
-        String str3 = "update " + f(str) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + jSONObject.getString("id") + sz;
+        String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
         ay.info("--动态表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
@@ -1474,7 +1476,7 @@ public class b {
         return str;
     }
 
-    public static Map<String, Object> c(String str, List<OnlCgformField> list, JSONObject jSONObject) {
+    public static Map<String, Object> c(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
         StringBuffer stringBuffer = new StringBuffer();
         StringBuffer stringBuffer2 = new StringBuffer();
         String str2 = "";
@@ -1485,9 +1487,9 @@ public class b {
         } catch (DBException e3) {
             e3.printStackTrace();
         }
-        HashMap hashMap = new HashMap();
-        boolean z2 = false;
-        String str3 = null;
+        HashMap<String, Object> hashMap = new HashMap<>();
+        boolean hasId = false;
+        String idValue = null;
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         // 来自流程服务中的调用时，不存在请求上下文
         if (loginUser == null) {
@@ -1500,36 +1502,38 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
-        for (OnlCgformField onlCgformField : list) {
+        for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online保存表单数据遇见空名称的字段------->>" + onlCgformField.getId());
-            } else if (jSONObject.get(dbFieldName) != null || su.equalsIgnoreCase(dbFieldName) || st.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
-                a(onlCgformField, loginUser, jSONObject, su, st, sx);
-                if ("".equals(jSONObject.get(dbFieldName))) {
+            } else if (formData.get(dbFieldName) != null || su.equalsIgnoreCase(dbFieldName) || st.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
+                a(onlCgformField, loginUser, formData, su, st, sx);
+                if ("".equals(formData.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
                     if (!k.isNumber(dbType) && !k.b(dbType)) {
                     }
                 }
                 if ("id".equals(dbFieldName.toLowerCase())) {
-                    z2 = true;
-                    str3 = jSONObject.getString(dbFieldName);
+                    hasId = true;
+                    idValue = formData.getString(dbFieldName);
                 } else {
                     stringBuffer.append(DOT_STRING + dbFieldName);
-                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, jSONObject, hashMap));
+                    stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, formData, hashMap));
                 }
             }
         }
-        if (!z2 || oConvertUtils.isEmpty(str3)) {
-            str3 = a();
+        if (!hasId || oConvertUtils.isEmpty(idValue)) {
+            idValue = a();
         }
-        String str4 = "insert into " + f(str) + "(id" + stringBuffer.toString() + ") values(" + sz + str3 + sz + stringBuffer2.toString() + ")";
-        hashMap.put("execute_sql_string", str4);
-        ay.info("--表单设计器表单保存sql-->" + str4);
+        String insertSql = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
+        hashMap.put("execute_sql_string", insertSql);
+        ay.info("--表单设计器表单保存sql-->" + insertSql);
+        // 将新的id带回去
+        formData.put("id", idValue);
         return hashMap;
     }
 
-    public static Map<String, Object> d(String str, List<OnlCgformField> list, JSONObject jSONObject) {
+    public static Map<String, Object> d(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
         StringBuffer stringBuffer = new StringBuffer();
         HashMap hashMap = new HashMap();
         String str2 = "";
@@ -1552,25 +1556,25 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
-        for (OnlCgformField onlCgformField : list) {
+        for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online修改表单数据遇见空名称的字段------->>" + onlCgformField.getId());
-            } else if (!"id".equals(dbFieldName) && (jSONObject.get(dbFieldName) != null || sw.equalsIgnoreCase(dbFieldName) || sv.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName))) {
-                a(onlCgformField, loginUser, jSONObject, sw, sv, sx);
-                if ("".equals(jSONObject.get(dbFieldName))) {
+            } else if (!"id".equals(dbFieldName) && (formData.get(dbFieldName) != null || sw.equalsIgnoreCase(dbFieldName) || sv.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName))) {
+                a(onlCgformField, loginUser, formData, sw, sv, sx);
+                if ("".equals(formData.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
                     if (!k.isNumber(dbType) && !k.b(dbType)) {
                     }
                 }
-                stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, jSONObject, hashMap) + DOT_STRING);
+                stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
             }
         }
         String stringBuffer2 = stringBuffer.toString();
         if (stringBuffer2.endsWith(DOT_STRING)) {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
-        String str3 = "update " + f(str) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + jSONObject.getString("id") + sz;
+        String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
         ay.info("--表单设计器表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
