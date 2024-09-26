@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.online.auth.entity.OnlAuthData;
@@ -115,6 +116,7 @@ public class OnlCgformAuthController {
                 if (var5 != null) {
                     var4 = true;
                     var5.setStatus(1);
+                    var5.setAlias(var1.getAlias());
                     this.onlAuthPageService.updateById(var5);
                 }
             }

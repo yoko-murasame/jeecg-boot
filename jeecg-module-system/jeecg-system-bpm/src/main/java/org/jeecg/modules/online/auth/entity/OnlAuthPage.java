@@ -5,19 +5,19 @@
 
 package org.jeecg.modules.online.auth.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
 
+@Getter
 @TableName("onl_auth_page")
 @ApiModel(
         value = "onl_auth_page对象",
@@ -93,6 +93,10 @@ public class OnlAuthPage implements Serializable {
     @JsonIgnore
     private Date updateTime;
 
+    @ApiModelProperty("别名")
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
+    private String alias;
+
     public OnlAuthPage() {
     }
 
@@ -103,50 +107,6 @@ public class OnlAuthPage implements Serializable {
         this.control = control;
         this.page = page;
         this.status = 1;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getCgformId() {
-        return this.cgformId;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
-    public Integer getType() {
-        return this.type;
-    }
-
-    public Integer getControl() {
-        return this.control;
-    }
-
-    public Integer getPage() {
-        return this.page;
-    }
-
-    public Integer getStatus() {
-        return this.status;
-    }
-
-    public Date getCreateTime() {
-        return this.createTime;
-    }
-
-    public String getCreateBy() {
-        return this.createBy;
-    }
-
-    public String getUpdateBy() {
-        return this.updateBy;
-    }
-
-    public Date getUpdateTime() {
-        return this.updateTime;
     }
 
     public OnlAuthPage setId(String id) {
@@ -395,5 +355,10 @@ public class OnlAuthPage implements Serializable {
         Date var13 = this.getUpdateTime();
         var2 = var2 * 59 + (var13 == null ? 43 : var13.hashCode());
         return var2;
+    }
+
+    public OnlAuthPage setAlias(String alias) {
+        this.alias = alias;
+        return this;
     }
 }

@@ -39,3 +39,12 @@ alter table onl_cgform_field
     add if not exists scoped_slots_render_code varchar(1000);
 
 comment on column onl_cgform_field.scoped_slots_render_code is 'slot渲染Vue代码';
+
+
+
+comment on table onl_auth_page is 'onl_auth_page对象-按钮权限配置表';
+
+alter table onl_auth_page
+    add if not exists alias varchar(255);
+
+comment on column onl_auth_page.alias is '按钮别名';
