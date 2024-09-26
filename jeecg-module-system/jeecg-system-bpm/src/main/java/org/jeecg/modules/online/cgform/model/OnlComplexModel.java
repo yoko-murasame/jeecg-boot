@@ -48,4 +48,6 @@ public class OnlComplexModel implements Serializable {
     // 是否隐藏action按钮
     private Boolean hideActionButton;
 
+    // 按钮别名映射
+    private Map<String, String> buttonAlias;
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.constant.CommonConstant;
@@ -11,6 +12,7 @@ import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.online.auth.entity.OnlAuthPage;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
 import org.jeecg.modules.online.cgform.d.EnhanceJsUtil;
 import org.jeecg.modules.online.cgform.d.j;
@@ -49,8 +51,16 @@ public class OnlineServiceImpl implements IOnlineService {
     public OnlComplexModel queryOnlineConfig(OnlCgformHead head, String username) {
         JSONObject parseObject;
         String id = head.getId();
+        OnlComplexModel onlComplexModel = new OnlComplexModel();
         List<OnlCgformField> onlCgformFields = getCgformField(id);
+        // 查找没权限的需要隐藏的按钮code
         List<String> queryHideCode = this.onlAuthPageService.queryHideCode(id, true);
+        // 查找按钮别名
+        List<OnlAuthPage> authButtons = this.onlAuthPageService.list(Wrappers.lambdaQuery(OnlAuthPage.class).eq(OnlAuthPage::getCgformId, id));
+        Map<String, String> buttonAlias = authButtons.stream().filter(e -> StringUtils.isNotEmpty(e.getAlias()))
+                .collect(Collectors.toMap(OnlAuthPage::getCode, OnlAuthPage::getAlias));
+        onlComplexModel.setButtonAlias(buttonAlias);
+        // 字段描述
         List<OnlColumn> columns = new ArrayList<>();
         Map<String, List<DictModel>> dictOptions = new HashMap<>();
         List<HrefSlots> fieldHrefSlots = new ArrayList<>();
@@ -158,7 +168,6 @@ public class OnlineServiceImpl implements IOnlineService {
                 }
             }
         }
-        OnlComplexModel onlComplexModel = new OnlComplexModel();
         onlComplexModel.setCode(id);
         onlComplexModel.setTableType(head.getTableType());
         onlComplexModel.setFormTemplate(head.getFormTemplate());

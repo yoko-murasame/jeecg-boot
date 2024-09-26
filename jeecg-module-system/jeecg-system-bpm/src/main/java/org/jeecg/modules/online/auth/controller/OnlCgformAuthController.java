@@ -105,28 +105,33 @@ public class OnlCgformAuthController {
     }
 
     @PostMapping({"/authButton"})
-    public Result<OnlAuthPage> a(@RequestBody OnlAuthPage var1) {
+    public Result<OnlAuthPage> a(@RequestBody OnlAuthPage authPage) {
         Result var2 = new Result();
 
         try {
-            String var3 = var1.getId();
-            boolean var4 = false;
+            String var3 = authPage.getId();
+            boolean isEdit = false;
             if (oConvertUtils.isNotEmpty(var3)) {
-                OnlAuthPage var5 = (OnlAuthPage)this.onlAuthPageService.getById(var3);
-                if (var5 != null) {
-                    var4 = true;
-                    var5.setStatus(1);
-                    var5.setAlias(var1.getAlias());
-                    this.onlAuthPageService.updateById(var5);
+                OnlAuthPage newOne = (OnlAuthPage)this.onlAuthPageService.getById(var3);
+                if (newOne != null) {
+                    isEdit = true;
+                    newOne.setStatus(1);
+                    if (authPage.getStatus() != null) {
+                        newOne.setStatus(authPage.getStatus());
+                    }
+                    newOne.setAlias(authPage.getAlias());
+                    this.onlAuthPageService.updateById(newOne);
                 }
             }
 
-            if (!var4) {
-                var1.setStatus(1);
-                this.onlAuthPageService.save(var1);
+            if (!isEdit) {
+                if (authPage.getStatus() == null) {
+                    authPage.setStatus(1);
+                }
+                this.onlAuthPageService.save(authPage);
             }
 
-            var2.setResult(var1);
+            var2.setResult(authPage);
             var2.success("操作成功！");
         } catch (Exception var6) {
             logger.error(var6.getMessage(), var6);
