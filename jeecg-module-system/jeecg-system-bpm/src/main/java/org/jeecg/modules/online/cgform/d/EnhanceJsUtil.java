@@ -69,7 +69,7 @@ public class EnhanceJsUtil {
     }
 
     public static String a(String str, List<OnlCgformButton> list) {
-        a.info("最终的增强JS", str);
+        a.info("最终的增强JS: {}", str);
         return "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + str + "}";
     }
 
@@ -93,7 +93,7 @@ public class EnhanceJsUtil {
         String str2 = "function OnlineEnhanceJs(getAction,postAction,deleteAction){return {_getAction:getAction,_postAction:postAction,_deleteAction:deleteAction," + str + "}}";
         // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
         // String str2 = "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + str + "}";
-        a.info("最终的增强JS", str2);
+        a.info("最终的增强JS: {}", str2);
         return str2;
     }
 
@@ -101,7 +101,7 @@ public class EnhanceJsUtil {
         String str2 = "function OnlineEnhanceJs(getAction,postAction,deleteAction){return {_getAction:getAction,_postAction:postAction,_deleteAction:deleteAction," + c(str, list) + "}}";
         // FIXME 如果增强的类型是class对象，就不需要在各个方法中加逗号，但是改造后前端改动量很大，如bind指向会有很多问题
         // String str2 = "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + c(str, list) + "}";
-        a.info("最终的增强JS", str2);
+        a.info("最终的增强JS: {}", str2);
         return str2;
     }
 
@@ -119,7 +119,7 @@ public class EnhanceJsUtil {
             }
         }
         for (String str2 : strb.split(",")) {
-            if ("beforeAdd,afterAdd,mounted,created,show,loaded".indexOf(str2) >= 0) {
+            if ("beforeAdd,afterAdd,mounted,created,show,loaded".contains(str2)) {
                 a2 = a(str, str2, (String) null);
             } else {
                 a2 = a(str, str2);
