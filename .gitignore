@@ -12,3 +12,5 @@ rebel.xml
 /.fastRequest/
 *.drawio.bkp
 /*.log
+## 业务无用的
+/jeecg-server-cloud/**/*.jar
