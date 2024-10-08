@@ -1355,12 +1355,30 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 
 	@Override
 	public SysUserModel deleteSysUser(SysUserModel model) {
-		SysUser user = new SysUser();
-		BeanUtils.copyProperties(model, user);
-		QueryWrapper<SysUser> wrapper = QueryGenerator.initQueryWrapper(user, SpringContextUtils.getHttpServletRequest().getParameterMap());
-		List<String> ids = sysUserService.list(wrapper).stream().map(SysUser::getId).collect(Collectors.toList());
-		sysUserService.removeLogicDeleted(ids);
-		return model;
+		// 有用户名就直接删
+		if (StringUtils.isNotEmpty(model.getId())) {
+			List<String> ids = Arrays.asList(model.getId().trim().split(SymbolConstant.COMMA));
+			if (!ids.isEmpty()) {
+				// 先执行软删
+				sysUserService.deleteBatchUsers(model.getId());
+				// 再执行物理删、关联表删
+				sysUserService.removeLogicDeleted(ids);
+			}
+			return model;
+		} else {
+			// 根据条件先查找用户
+			SysUser user = new SysUser();
+			BeanUtils.copyProperties(model, user);
+			QueryWrapper<SysUser> wrapper = QueryGenerator.initQueryWrapper(user, SpringContextUtils.getHttpServletRequest().getParameterMap());
+			List<String> ids = sysUserService.list(wrapper).stream().map(SysUser::getId).collect(Collectors.toList());
+			if (!ids.isEmpty()) {
+				// 先执行软删
+				sysUserService.deleteBatchUsers(model.getId());
+				// 再执行物理删、关联表删
+				sysUserService.removeLogicDeleted(ids);
+			}
+			return model;
+		}
 	}
 
 	@Override
