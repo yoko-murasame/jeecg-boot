@@ -52,7 +52,7 @@ public interface ISysBpmAPI extends BpmAPI {
      * @return java.lang.String 数据库表名
      */
     @PostMapping("/sys/bpm/saveManyFormData")
-    String saveManyFormData(String code, JSONObject formData) throws Exception;
+    String saveManyFormData(@RequestParam String code, @RequestBody JSONObject formData) throws Exception;
 
     /**
      * 编辑Online表单数据
@@ -63,6 +63,6 @@ public interface ISysBpmAPI extends BpmAPI {
      * @return java.lang.String 数据库表名
      */
     @PostMapping("/sys/bpm/editManyFormData")
-    String editManyFormData(String code, JSONObject formData) throws Exception;
+    String editManyFormData(@RequestParam String code, @RequestBody JSONObject formData) throws Exception;
 
 }

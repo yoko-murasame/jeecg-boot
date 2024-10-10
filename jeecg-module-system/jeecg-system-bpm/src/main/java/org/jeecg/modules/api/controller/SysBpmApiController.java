@@ -58,7 +58,7 @@ public class SysBpmApiController {
      * @return java.lang.String 数据库表名
      */
     @PostMapping("/saveManyFormData")
-    String saveManyFormData(String code, JSONObject formData) {
+    String saveManyFormData(@RequestParam String code, @RequestBody JSONObject formData) {
         try {
             return onlCgformHeadService.saveManyFormData(code, formData);
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class SysBpmApiController {
      * @return java.lang.String 数据库表名
      */
     @PostMapping("/editManyFormData")
-    String editManyFormData(String code, JSONObject formData){
+    String editManyFormData(@RequestParam String code, @RequestBody JSONObject formData){
         try {
             return onlCgformHeadService.editManyFormData(code, formData);
         } catch (Exception e) {
