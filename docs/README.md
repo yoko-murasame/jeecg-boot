@@ -51,6 +51,7 @@
 
 * [Jeecg微服务Dubbo版本.md](jeecg-boot-3.4.3last/微服务/Jeecg微服务Dubbo版本.md)
 * [Jeecg微服务部署踩坑.md](jeecg-boot-3.4.3last/微服务/Jeecg微服务部署踩坑.md)
+* [XxlJob使用说明.md](jeecg-boot-3.4.3last/微服务/XxlJob使用说明.md)
 
 ## 扩展
 
