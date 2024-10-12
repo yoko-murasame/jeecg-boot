@@ -568,7 +568,7 @@
             <properties>
                 <!--当前环境-->
                 <profile.name>dev</profile.name>
-				<!--Nacos服务地址-->
+				<!--Nacos服务地址，如果使用https协议并代理了/nacos后必须写入完整地址：https://www.a.b.com:8848 -->
                 <config.server-addr>jeecg-boot-nacos:8848</config.server-addr>
 				<!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
 				<config.namespace></config.namespace>
@@ -598,7 +598,7 @@
             <properties>
                 <!--当前环境-->
                 <profile.name>test</profile.name>
-				<!--Nacos服务地址-->
+				<!--Nacos服务地址，如果使用https协议并代理了/nacos后必须写入完整地址：https://www.a.b.com:8848 -->
                 <config.server-addr>jeecg-boot-nacos:8848</config.server-addr>
 				<!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
 				<config.namespace></config.namespace>
@@ -616,7 +616,7 @@
             <properties>
                 <!--当前环境-->
                 <profile.name>prod</profile.name>
-				<!--Nacos服务地址-->
+				<!--Nacos服务地址，如果使用https协议并代理了/nacos后必须写入完整地址：https://www.a.b.com:8848 -->
                 <config.server-addr>jeecg-boot-nacos:8848</config.server-addr>
 				<!--Nacos配置中心命名空间,用于支持多环境.这里必须使用ID，不能使用名称,默认为空-->
 				<config.namespace></config.namespace>
