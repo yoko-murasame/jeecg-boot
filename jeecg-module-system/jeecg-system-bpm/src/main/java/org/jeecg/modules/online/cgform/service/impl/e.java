@@ -615,6 +615,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
     public String saveManyFormData(String code, JSONObject formData, String xAccessToken) throws DBException, BusinessException {
+        // formData必须强制转换成蛇形
+        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter));
         OnlCgformHead onlCgformHead;
         OnlCgformHead onlCgformHead2 = getById(code);
         if (onlCgformHead2 == null) {
@@ -805,6 +807,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
     public String editManyFormData(String code, JSONObject formData) throws DBException, BusinessException {
+        // formData必须强制转换成蛇形
+        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter));
         String[] split;
         OnlCgformHead onlCgformHead = (OnlCgformHead) getById(code);
         if (onlCgformHead == null) {
