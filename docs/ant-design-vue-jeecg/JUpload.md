@@ -14,7 +14,7 @@
   biz-path="上传的路径"
   text="按钮名称"
   file-type="all|image|file"
-  accept=".jpg, .jpeg, .png, .gif, .bmp, .svg, .tiff, .webp, image/*"
+  accept-type=".jpg, .jpeg, .png, .gif, .bmp, .svg, .tiff, .webp, image/*"
   split-char=","
   custom-upload-action="自定义上传地址,留空则使用默认接口"
   :do-compress="true"
