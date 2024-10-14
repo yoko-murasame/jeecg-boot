@@ -138,7 +138,7 @@ public class DateUtils extends PropertyEditorSupport {
         if (null != time) {
             date = new Date(time.getTime());
         }
-        return date2Str(date_sdf.get());
+        return date2Str(datetimeFormat.get());
     }
 
     /**

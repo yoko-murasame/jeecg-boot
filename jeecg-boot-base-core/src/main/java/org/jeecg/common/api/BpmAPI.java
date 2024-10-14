@@ -43,6 +43,8 @@ public interface BpmAPI {
 
     /**
      * 编辑Online表单数据
+     * FIXME 请注意Date类型的数据在JSONObject中会被转换成Long的timestamp，更新sql需要做兼容性改造
+     * FIXME 目前PostgreSQL已兼容Long类型的时间戳保存
      *
      * @author Yoko
      * @param code 表单编码

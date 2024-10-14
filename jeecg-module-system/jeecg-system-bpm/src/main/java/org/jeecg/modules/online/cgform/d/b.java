@@ -798,14 +798,19 @@ public class b {
                     }
                 }
                 a(onlCgformField, loginUser, formData, sw, sv);
+                // a2集合拿到表单显示的字段
                 if (a2.contains(dbFieldName) && formData.get(dbFieldName) != null && !"".equals(formData.getString(dbFieldName))) {
+                    // 组装“表单显示的字段”更新语句，这里只更新有值的字段
                     stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
-                } else if (onlCgformField.getIsShowForm().intValue() == 1 && !"id".equals(dbFieldName)) {
+                } else if (onlCgformField.getIsShowForm() == 1 && !"id".equals(dbFieldName)) {
+                    // 同样是处理“表单显示的字段”
                     if ("".equals(formData.get(dbFieldName))) {
-                        String dbType = onlCgformField.getDbType();
-                        if (!k.isNumber(dbType) && !k.b(dbType)) {
-                        }
+                        // String dbType = onlCgformField.getDbType();
+                        // if (!k.isNumber(dbType) && !k.b(dbType)) {
+                        // }
+                        ay.info("--------online修改表单数据遇见空字段------->>" + onlCgformField.getId());
                     }
+                    // 处理外键字段
                     if (!oConvertUtils.isNotEmpty(onlCgformField.getMainTable()) || !oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
                         stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     } else {
@@ -813,8 +818,11 @@ public class b {
                         stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     }
                 } else {
-                    // 无论是不是表单显示字段，都更新
-                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
+                    // FIXME 无论是不是表单显示字段，都更新，这里历史遗留问题，可以考虑下是否去掉这个逻辑
+                    // 排除create_time和create_by字段
+                    if (!"create_time".equalsIgnoreCase(dbFieldName) && !"create_by".equalsIgnoreCase(dbFieldName)) {
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
+                    }
                 }
             }
         }

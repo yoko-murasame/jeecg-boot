@@ -1,13 +1,17 @@
 package org.jeecg.modules.online.cgform.d;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.modules.online.cgform.entity.OnlCgformField;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Map;
 
 /* compiled from: OnlineDbHandler.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/k.class */
+@Slf4j
 public class k {
     public static final String a = "int";
     public static final String b = "Integer";
@@ -47,7 +51,16 @@ public class k {
             return "#{" + dbFieldName + ",jdbcType=BLOB}";
         } else if ("Date".equals(dbType)) {
             String string = jSONObject.getString(dbFieldName);
+            // 这里需要判断传入是否已经是时间戳，是的话先格式化成string
+            Object dateValue = jSONObject.get(dbFieldName);
+            if (dateValue instanceof Long) {
+                // 将时间戳转换为日期字符串
+                String dateStr = DateUtils.timestamptoStr(new Timestamp((Long) dateValue));
+                log.info("注意::jSONObject::字段::{}::由long值转换成字符串: {}", dbFieldName, dateStr);
+                string = dateStr;
+            }
             if ("ORACLE".equals(str)) {
+                // 日期类型
                 if (i.DATE.equals(fieldShowType)) {
                     map.put(dbFieldName, string.length() > 10 ? string.substring(0, 10) : string);
                     return "to_date(#{" + dbFieldName + "},'yyyy-MM-dd')";
@@ -55,6 +68,7 @@ public class k {
                 map.put(dbFieldName, string.length() == 10 ? jSONObject.getString(dbFieldName) + " 00:00:00" : string);
                 return "to_date(#{" + dbFieldName + "},'yyyy-MM-dd HH24:mi:ss')";
             } else if ("POSTGRESQL".equals(str)) {
+                // 日期类型
                 if (i.DATE.equals(fieldShowType)) {
                     map.put(dbFieldName, string.length() > 10 ? string.substring(0, 10) : string);
                     return "CAST(#{" + dbFieldName + "} as TIMESTAMP)";
