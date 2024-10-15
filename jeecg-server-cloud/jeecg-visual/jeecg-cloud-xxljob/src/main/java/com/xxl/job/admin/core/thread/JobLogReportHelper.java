@@ -70,9 +70,9 @@ public class JobLogReportHelper {
 
                             Map<String, Object> triggerCountMap = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().findLogReport(todayFrom, todayTo);
                             if (triggerCountMap!=null && triggerCountMap.size()>0) {
-                                int triggerDayCount = triggerCountMap.containsKey("triggerDayCount")?Integer.valueOf(String.valueOf(triggerCountMap.get("triggerDayCount"))):0;
-                                int triggerDayCountRunning = triggerCountMap.containsKey("triggerDayCountRunning")?Integer.valueOf(String.valueOf(triggerCountMap.get("triggerDayCountRunning"))):0;
-                                int triggerDayCountSuc = triggerCountMap.containsKey("triggerDayCountSuc")?Integer.valueOf(String.valueOf(triggerCountMap.get("triggerDayCountSuc"))):0;
+                                int triggerDayCount = triggerCountMap.containsKey("trigger_day_count")?Integer.valueOf(String.valueOf(triggerCountMap.get("trigger_day_count"))):0;
+                                int triggerDayCountRunning = triggerCountMap.containsKey("trigger_day_count_running")?Integer.valueOf(String.valueOf(triggerCountMap.get("trigger_day_count_running"))):0;
+                                int triggerDayCountSuc = triggerCountMap.containsKey("trigger_day_count_suc")?Integer.valueOf(String.valueOf(triggerCountMap.get("trigger_day_count_suc"))):0;
                                 int triggerDayCountFail = triggerDayCount - triggerDayCountRunning - triggerDayCountSuc;
 
                                 xxlJobLogReport.setRunningCount(triggerDayCountRunning);

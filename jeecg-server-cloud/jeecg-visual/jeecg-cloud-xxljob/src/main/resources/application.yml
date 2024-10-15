@@ -3,3 +3,7 @@ spring:
     name: xxl-job
   profiles:
     active: pg
+logging:
+  level:
+    root: info
+    com.xxl.job: info
