@@ -57,8 +57,10 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
 
   public abstract JSONObject queryFormItem(OnlCgformHead paramOnlCgformHead, String paramString);
 
+  String saveManyFormDataByJavaBean(String code, Object entity) throws Exception;
+
   @Transactional(rollbackFor = {Exception.class})
-  String saveManyFormData(String code, JSONObject formData) throws Exception;
+  String saveManyFormData(String code, JSONObject javaBean) throws Exception;
 
   public abstract String saveManyFormData(String code, JSONObject json, String xAccessToken)
     throws DBException, BusinessException;
@@ -71,6 +73,8 @@ public abstract interface IOnlCgformHeadService extends IService<OnlCgformHead>
 
   public abstract Map<String, Object> querySubFormData(String table, String mainId)
     throws DBException;
+
+  public abstract String editManyFormDataByJavaBean(String code, Object javaBean) throws Exception;
 
   public abstract String editManyFormData(String code, JSONObject json)
     throws DBException, BusinessException;

@@ -3,9 +3,11 @@ package org.jeecg.modules.online.cgform.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import freemarker.template.TemplateException;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -40,6 +42,7 @@ import org.jeecgframework.codegenerate.generate.pojo.onetomany.SubTableVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -80,6 +83,9 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     private org.jeecg.modules.online.config.a.b dataBaseConfig;
     @Autowired
     private IOnlAuthPageService onlAuthPageService;
+    @Qualifier("objectMapper")
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
@@ -606,17 +612,29 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
+    public String saveManyFormDataByJavaBean(String code, Object javaBean) throws Exception {
+        HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
+        String token = TokenUtils.getTokenByRequest(request);
+        // formData必须强制转换成蛇形
+        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        return this.saveManyFormData(code, formData, token);
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
     public String saveManyFormData(String code, JSONObject formData) throws Exception {
         HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
         String token = TokenUtils.getTokenByRequest(request);
+        // formData必须强制转换成蛇形
+        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         return this.saveManyFormData(code, formData, token);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
     public String saveManyFormData(String code, JSONObject formData, String xAccessToken) throws DBException, BusinessException {
-        // formData必须强制转换成蛇形
-        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter));
+        // FIXME formData必须强制转换成蛇形，这里默认不处理，可以调用saveManyFormDataByJavaBean替代
+        // formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         OnlCgformHead onlCgformHead;
         OnlCgformHead onlCgformHead2 = getById(code);
         if (onlCgformHead2 == null) {
@@ -804,11 +822,19 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         return queryFormData;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public String editManyFormDataByJavaBean(String code, Object javaBean) throws Exception {
+        // formData必须强制转换成蛇形
+        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        return this.editManyFormData(code, formData);
+    }
+
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     @Transactional(rollbackFor = {Exception.class})
     public String editManyFormData(String code, JSONObject formData) throws DBException, BusinessException {
-        // formData必须强制转换成蛇形
-        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter));
+        // FIXME formData必须强制转换成蛇形，这里默认不处理，可以调用editManyFormDataByJavaBean替代
+        // formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         String[] split;
         OnlCgformHead onlCgformHead = (OnlCgformHead) getById(code);
         if (onlCgformHead == null) {

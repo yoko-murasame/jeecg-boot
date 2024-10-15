@@ -4,7 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.system.api.ISysBpmAPI;
-import org.jeecg.common.system.vo.*;
+import org.jeecg.common.system.vo.SysOnlListDataModel;
+import org.jeecg.common.system.vo.SysOnlListQueryModel;
 
 import java.util.Map;
 
@@ -30,8 +31,20 @@ public class SysBpmAPIFallback implements ISysBpmAPI {
     }
 
     @Override
+    public String saveManyFormDataByJavaBean(String code, Object javaBean) throws Exception {
+        log.error("Online表单数据新增失败 {}", cause);
+        return "";
+    }
+
+    @Override
     public String saveManyFormData(String code, JSONObject formData) throws Exception {
         log.error("Online表单数据新增失败 {}", cause);
+        return "";
+    }
+
+    @Override
+    public String editManyFormDataByJavaBean(String code, Object javaBean) throws Exception {
+        log.error("Online表单数据编辑失败 {}", cause);
         return "";
     }
 

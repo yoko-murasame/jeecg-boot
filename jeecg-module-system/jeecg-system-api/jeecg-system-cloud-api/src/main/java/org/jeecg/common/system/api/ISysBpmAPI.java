@@ -4,11 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.api.BpmAPI;
 import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.system.api.fallback.SysBpmAPIFallback;
-import org.jeecg.common.system.vo.*;
+import org.jeecg.common.system.vo.SysOnlListDataModel;
+import org.jeecg.common.system.vo.SysOnlListQueryModel;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -48,11 +51,33 @@ public interface ISysBpmAPI extends BpmAPI {
      *
      * @author Yoko
      * @param code 表单编码
+     * @param javaBean JavaBean实体
+     * @return java.lang.String 数据库表名
+     */
+    @PostMapping("/sys/bpm/saveManyFormDataByJavaBean")
+    String saveManyFormDataByJavaBean(@RequestParam String code, @RequestBody Object javaBean) throws Exception;
+
+    /**
+     * 新增Online表单数据
+     *
+     * @author Yoko
+     * @param code 表单编码
      * @param formData 表单数据
      * @return java.lang.String 数据库表名
      */
     @PostMapping("/sys/bpm/saveManyFormData")
     String saveManyFormData(@RequestParam String code, @RequestBody JSONObject formData) throws Exception;
+
+    /**
+     * 编辑Online表单数据
+     *
+     * @author Yoko
+     * @param code 表单编码
+     * @param javaBean JavaBean实体
+     * @return java.lang.String 数据库表名
+     */
+    @PostMapping("/sys/bpm/editManyFormDataByJavaBean")
+    String editManyFormDataByJavaBean(@RequestParam String code, @RequestBody Object javaBean) throws Exception;
 
     /**
      * 编辑Online表单数据
