@@ -25,7 +25,19 @@ public class SysBpmAPIFallback implements ISysBpmAPI {
     }
 
     @Override
+    public SysOnlListDataModel getDataByCode(String code, Map<String, Object> queryParam, String token) {
+        log.error("Online列表数据查询失败 {}", cause);
+        return null;
+    }
+
+    @Override
     public SysOnlListDataModel getData(SysOnlListQueryModel onlListQueryModel) {
+        log.error("Online列表数据查询失败 {}", cause);
+        return null;
+    }
+
+    @Override
+    public SysOnlListDataModel getData(SysOnlListQueryModel onlListQueryModel, String token) {
         log.error("Online列表数据查询失败 {}", cause);
         return null;
     }
@@ -37,7 +49,19 @@ public class SysBpmAPIFallback implements ISysBpmAPI {
     }
 
     @Override
+    public String saveManyFormDataByJavaBean(String code, Object javaBean, String token) throws Exception {
+        log.error("Online表单数据新增失败 {}", cause);
+        return "";
+    }
+
+    @Override
     public String saveManyFormData(String code, JSONObject formData) throws Exception {
+        log.error("Online表单数据新增失败 {}", cause);
+        return "";
+    }
+
+    @Override
+    public String saveManyFormData(String code, JSONObject formData, String token) throws Exception {
         log.error("Online表单数据新增失败 {}", cause);
         return "";
     }
@@ -49,7 +73,19 @@ public class SysBpmAPIFallback implements ISysBpmAPI {
     }
 
     @Override
+    public String editManyFormDataByJavaBean(String code, Object javaBean, String token) throws Exception {
+        log.error("Online表单数据编辑失败 {}", cause);
+        return "";
+    }
+
+    @Override
     public String editManyFormData(String code, JSONObject formData) throws Exception {
+        log.error("Online表单数据编辑失败 {}", cause);
+        return "";
+    }
+
+    @Override
+    public String editManyFormData(String code, JSONObject formData, String token) throws Exception {
         log.error("Online表单数据编辑失败 {}", cause);
         return "";
     }
