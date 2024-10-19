@@ -55,10 +55,10 @@ public class OnlineServiceImpl implements IOnlineService {
         List<OnlCgformField> onlCgformFields = getCgformField(id);
         // 查找没权限的需要隐藏的按钮code
         List<String> queryHideCode = this.onlAuthPageService.queryHideCode(id, true);
-        // 查找按钮别名
+        // 查找按钮别名，如果有重复，用早的值
         List<OnlAuthPage> authButtons = this.onlAuthPageService.list(Wrappers.lambdaQuery(OnlAuthPage.class).eq(OnlAuthPage::getCgformId, id));
         Map<String, String> buttonAlias = authButtons.stream().filter(e -> StringUtils.isNotEmpty(e.getAlias()))
-                .collect(Collectors.toMap(OnlAuthPage::getCode, OnlAuthPage::getAlias));
+                .collect(Collectors.toMap(OnlAuthPage::getCode, OnlAuthPage::getAlias, (a, b) -> a));
         onlComplexModel.setButtonAlias(buttonAlias);
         // 字段描述
         List<OnlColumn> columns = new ArrayList<>();
