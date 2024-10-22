@@ -870,7 +870,7 @@ public class CgformDB {
 
                 String var17 = "insert into " + getTableName(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
                 var6.put("execute_sql_string", var17);
-                ay.info("--动态表单保存sql-->" + var17);
+                ay.debug("--动态表单保存sql-->" + var17);
                 return var6;
             }
         }
@@ -930,7 +930,7 @@ public class CgformDB {
                 }
 
                 String var15 = "update " + getTableName(var0) + " set " + var14 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
-                ay.info("--动态表单编辑sql-->" + var15);
+                ay.debug("--动态表单编辑sql-->" + var15);
                 var4.put("execute_sql_string", var15);
                 return var4;
             }
@@ -1461,7 +1461,7 @@ public class CgformDB {
     }
 
     public static String d(String var0) {
-        ay.info("最终的增强JS", var0);
+        ay.debug("最终的增强JS", var0);
         return "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + var0 + "}";
     }
 
@@ -1816,7 +1816,7 @@ public class CgformDB {
 
                 String var16 = "insert into " + getTableName(var0) + "(" + "id" + var3.toString() + ") values(" + "'" + var8 + "'" + var4.toString() + ")";
                 var6.put("execute_sql_string", var16);
-                ay.info("--表单设计器表单保存sql-->" + var16);
+                ay.debug("--表单设计器表单保存sql-->" + var16);
                 return var6;
             }
         }
@@ -1868,7 +1868,7 @@ public class CgformDB {
                 }
 
                 String var14 = "update " + getTableName(var0) + " set " + var13 + " where  " + "id" + "=" + "'" + var2.getString("id") + "'";
-                ay.info("--表单设计器表单编辑sql-->" + var14);
+                ay.debug("--表单设计器表单编辑sql-->" + var14);
                 var4.put("execute_sql_string", var14);
                 return var4;
             }

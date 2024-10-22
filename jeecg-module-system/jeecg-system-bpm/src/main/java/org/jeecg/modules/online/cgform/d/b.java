@@ -748,7 +748,7 @@ public class b {
         }
         String str4 = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
         hashMap.put("execute_sql_string", str4);
-        ay.info("--动态表单保存sql-->" + str4);
+        ay.debug("--动态表单保存sql-->" + str4);
         // 将新的id带回去
         formData.put("id", idValue);
         return hashMap;
@@ -831,7 +831,7 @@ public class b {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
         String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
-        ay.info("--动态表单编辑sql-->" + str3);
+        ay.debug("--动态表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
     }
@@ -1252,7 +1252,7 @@ public class b {
     }
 
     public static String d(String str) {
-        ay.info("最终的增强JS", str);
+        ay.debug("最终的增强JS", str);
         return "class OnlineEnhanceJs{constructor(getAction,postAction,deleteAction){this._getAction=getAction;this._postAction=postAction;this._deleteAction=deleteAction;}" + str + "}";
     }
 
@@ -1535,7 +1535,7 @@ public class b {
         }
         String insertSql = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
         hashMap.put("execute_sql_string", insertSql);
-        ay.info("--表单设计器表单保存sql-->" + insertSql);
+        ay.debug("--表单设计器表单保存sql-->" + insertSql);
         // 将新的id带回去
         formData.put("id", idValue);
         return hashMap;
@@ -1583,7 +1583,7 @@ public class b {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
         String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
-        ay.info("--表单设计器表单编辑sql-->" + str3);
+        ay.debug("--表单设计器表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
     }
