@@ -12,6 +12,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.aspect.annotation.OnlineAuth;
 import org.jeecg.common.aspect.annotation.PermissionData;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.enums.ModuleType;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DictModel;
@@ -131,10 +132,17 @@ public class OnlCgformApiController {
             onlComplexModel.setIsDesForm(onlCgformHead.getIsDesForm());
             onlComplexModel.setDesFormCode(onlCgformHead.getDesFormCode());
             //查询流程配置
-            ExtActProcessForm extActProcessForm= extActProcessFormService.getOne(new LambdaQueryWrapper<ExtActProcessForm>()
+            List<ExtActProcessForm> extActProcessForms = extActProcessFormService.list(new LambdaQueryWrapper<ExtActProcessForm>()
                     .eq(ExtActProcessForm::getFormTableName,onlCgformHead.getTableName()));
-            if(extActProcessForm!=null){
-                onlComplexModel.setBpmCirculate(extActProcessForm.getCirculate());
+            if(extActProcessForms != null && !extActProcessForms.isEmpty()){
+                // 多个流程关联时，看是否为设计器表单
+                if (extActProcessForms.size() > 1 && Objects.equals(CommonConstant.YN_YES_STR, onlCgformHead.getIsDesForm())) {
+                    extActProcessForms.stream().filter(ext -> ext.getRelationCode().startsWith(CommonConstant.FLOW_CODE_PREFIX_DESFORM)).findFirst().ifPresent(ext -> {
+                        onlComplexModel.setBpmCirculate(ext.getCirculate());
+                    });
+                } else {
+                    onlComplexModel.setBpmCirculate(extActProcessForms.get(0).getCirculate());
+                }
             } else {
                 onlComplexModel.setBpmCirculate(false);
             }

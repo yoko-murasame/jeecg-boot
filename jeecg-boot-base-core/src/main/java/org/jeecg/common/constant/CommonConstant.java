@@ -642,4 +642,25 @@ public interface CommonConstant {
      * 是否标识-否
      */
     Integer YN_NO = 0;
+
+    /**
+     * 是否标识-是
+     */
+    String YN_YES_STR = "Y";
+
+    /**
+     * 是否标识-否
+     */
+    String YN_NO_STR = "N";
+
+    /**
+     * 流程CODE前缀-online表单
+     */
+    String FLOW_CODE_PREFIX_ONL = "onl_";
+
+    /**
+     * 流程CODE前缀-kForm表单设计器
+     */
+    String FLOW_CODE_PREFIX_DESFORM = "desform_";
+
 }
