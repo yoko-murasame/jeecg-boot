@@ -160,6 +160,10 @@ public class ExtActProcessNodeController {
         String BPM_FORM_TYPE = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.t);
         // 如果组件类型是KForm，默认给KForm的组件
         if (Objects.equals(BPM_FORM_TYPE, CommonConstant.DESIGN_FORM_TYPE_SUB + "")) {
+            if (!Objects.equals(BPM_FORM_CONTENT_URL, CommonConstant.KFORM_DESIGN_MODULE)) {
+                // 更新流程变量
+                this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.o, CommonConstant.KFORM_DESIGN_MODULE);
+            }
             BPM_FORM_CONTENT_URL = CommonConstant.KFORM_DESIGN_MODULE;
         }
 
@@ -246,27 +250,40 @@ public class ExtActProcessNodeController {
     }
 
     @GetMapping({"/getHisProcessNodeInfo"})
-    public Result<Map<String, Object>> e(@RequestParam(name = "procInstId",required = true) String var1) {
-        Result var2 = new Result();
-        String var3 = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.o, var1);
-        String var4 = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.p, var1);
-        String var5 = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.l, var1);
-        String var6 = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.h, var1);
-        HashMap var7 = new HashMap();
-        var7.put(org.jeecg.modules.extbpm.process.common.a.l, var5);
-        var7.put(org.jeecg.modules.extbpm.process.common.a.h, var6);
-        HashMap var8 = new HashMap();
-        var8.put("formUrl", var3);
-        var8.put("formUrlMobile", var4);
-        var8.put("taskId", "");
-        var8.put("taskDefKey", "");
-        var8.put("dataId", var5);
-        var8.put("tableName", var6);
-        var8.put("permissionList", new ArrayList());
-        var8.put("records", var7);
-        var2.setResult(var8);
-        var2.setSuccess(true);
-        return var2;
+    public Result<Map<String, Object>> e(@RequestParam(name = "procInstId") String var1) {
+        Result<Map<String, Object>> result = new Result<>();
+        String formUrl = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.o, var1);
+        String formType = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.t, var1);
+        // 如果组件类型是KForm，默认给KForm的组件
+        if (Objects.equals(formType, CommonConstant.DESIGN_FORM_TYPE_SUB + "")) {
+            if (!Objects.equals(formUrl, CommonConstant.KFORM_DESIGN_MODULE)) {
+                // 更新流程变量
+                this.runtimeService.setVariable(var1, org.jeecg.modules.extbpm.process.common.a.o, CommonConstant.KFORM_DESIGN_MODULE);
+            }
+            formUrl = CommonConstant.KFORM_DESIGN_MODULE;
+        }
+
+        String formUrlMobile = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.p, var1);
+        String dataId = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.l, var1);
+        String tableName = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.h, var1);
+        Map<String, Object> records = new HashMap<>();
+        records.put(org.jeecg.modules.extbpm.process.common.a.l, dataId);
+        records.put(org.jeecg.modules.extbpm.process.common.a.h, tableName);
+        HashMap<String, Object> vars = new HashMap<>();
+        vars.put("formType", formType);
+        vars.put("formUrl", formUrl);
+        vars.put("formUrlMobile", formUrlMobile);
+        vars.put("taskId", "");
+        vars.put("taskDefKey", "");
+        vars.put("dataId", dataId);
+        vars.put("tableName", tableName);
+        vars.put("permissionList", new ArrayList<>());
+        vars.put("records", records);
+        // 提供给前端一个变量标识这个是查询历史或者抄送流程
+        vars.put("ccOrHis", true);
+        result.setResult(vars);
+        result.setSuccess(true);
+        return result;
     }
 
     @GetMapping({"/getBizProcessNodeInfo"})
