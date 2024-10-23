@@ -22,6 +22,7 @@ import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.bpm.service.ActivitiService;
+import org.jeecg.modules.extbpm.process.common.WorkFlowGlobals;
 import org.jeecg.modules.extbpm.process.entity.ExtActFlowData;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcessNode;
 import org.jeecg.modules.extbpm.process.entity.ExtActProcessNodeDeployment;
@@ -159,7 +160,7 @@ public class ExtActProcessNodeController {
         String BPM_FORM_CONTENT_URL_MOBILE = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.p);
         String BPM_FORM_TYPE = (String)variables.get(org.jeecg.modules.extbpm.process.common.a.t);
         // 如果组件类型是KForm，默认给KForm的组件
-        if (Objects.equals(BPM_FORM_TYPE, CommonConstant.DESIGN_FORM_TYPE_SUB + "")) {
+        if (Objects.equals(BPM_FORM_TYPE, WorkFlowGlobals.BPM_FORM_TYPE_2)) {
             if (!Objects.equals(BPM_FORM_CONTENT_URL, CommonConstant.KFORM_DESIGN_MODULE)) {
                 // 更新流程变量
                 this.runtimeService.setVariable(processInstanceId, org.jeecg.modules.extbpm.process.common.a.o, CommonConstant.KFORM_DESIGN_MODULE);
@@ -255,7 +256,7 @@ public class ExtActProcessNodeController {
         String formUrl = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.o, var1);
         String formType = this.activitiService.getHisVarinst(org.jeecg.modules.extbpm.process.common.a.t, var1);
         // 如果组件类型是KForm，默认给KForm的组件
-        if (Objects.equals(formType, CommonConstant.DESIGN_FORM_TYPE_SUB + "")) {
+        if (Objects.equals(formType, WorkFlowGlobals.BPM_FORM_TYPE_2)) {
             if (!Objects.equals(formUrl, CommonConstant.KFORM_DESIGN_MODULE)) {
                 // 更新流程变量
                 this.runtimeService.setVariable(var1, org.jeecg.modules.extbpm.process.common.a.o, CommonConstant.KFORM_DESIGN_MODULE);

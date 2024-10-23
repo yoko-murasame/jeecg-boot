@@ -84,7 +84,7 @@ public final class WorkFlowGlobals {
 	 */
 	public static String BPM_FORM_TYPE = "BPM_FORM_TYPE";
 	/**
-	 * BPM 业务表单类型 表单类型：1:Online表单,2:自定义表单,3:自定义开发
+	 * BPM 业务表单类型 表单类型：1:Online表单,2:自定义表单(KForm表单),3:自定义开发
 	 */
 	public static String BPM_FORM_TYPE_1 = "1";
 	public static String BPM_FORM_TYPE_2 = "2";

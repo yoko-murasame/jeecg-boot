@@ -33,6 +33,7 @@ import org.jeecg.modules.bpm.d.a.k;
 import org.jeecg.modules.bpm.dto.ActHiActinstDTO;
 import org.jeecg.modules.bpm.dto.ProcessHisDTO;
 import org.jeecg.modules.bpm.service.ActivitiService;
+import org.jeecg.modules.extbpm.process.common.WorkFlowGlobals;
 import org.jeecg.modules.extbpm.process.entity.*;
 import org.jeecg.modules.extbpm.process.exception.BpmException;
 import org.jeecg.modules.extbpm.process.mapper.ExtActProcessMapper;
@@ -344,6 +345,13 @@ public class BpmCommonService {
                     processVariables.put(org.jeecg.modules.extbpm.process.common.a.n, designFormData.getId());
                     // 流程变量 BPM_DES_FORM_CODE
                     processVariables.put(org.jeecg.modules.extbpm.process.common.a.m, designFormData.getDesformCode());
+                }
+
+                // 是否是设计器表单
+                if (flowCode.startsWith(CommonConstant.FLOW_CODE_PREFIX_DESFORM)) {
+                    // KForm设计器表单，修改几个变量
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.o, CommonConstant.KFORM_DESIGN_MODULE);
+                    processVariables.put(org.jeecg.modules.extbpm.process.common.a.t, WorkFlowGlobals.BPM_FORM_TYPE_2);
                 }
 
                 // 流程变量 BPM_FORM_KEY
