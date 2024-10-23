@@ -14,6 +14,15 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 # 文件目录
 RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
 
+# 字体(解决流程图部署乱码,请设置好字体目录位置)
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk update && apk --no-cache --purge -U upgrade
+RUN apk add --no-cache --purge -uU ttf-dejavu fontconfig && rm -rf /var/cache/apk/* && mkdir -p /usr/share/fonts/new/
+# 字体直接打入包中
+COPY fonts/*.ttf /usr/share/fonts/new/
+RUN fc-cache
+# 或者字体挂载出来
+# VOLUME /usr/share/fonts/new/
+
 # 设置字符集(防止应用日志乱码)
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # 应用目录
@@ -37,6 +46,7 @@ VOLUME /opt/upFiles
 # VOLUME /opt/webapp
 
 CMD echo "环境变量: ${PATH}" \
+    && echo "中文字体:" && fc-list :lang=zh \
     && echo "启动app: $APP" && cd $APP && ls . -al \
     && if [ -n "$APP_LIB_PATH" ] && [ -n "$APP_CONFIG_PATH" ]; then \
            java $APP_JVM_OPTION \

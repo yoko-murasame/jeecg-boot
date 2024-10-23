@@ -28,7 +28,7 @@ image_names=(
   "redis:latest"
   "kuluseky/postgres-zhparser-postgis:14" # 可选标签 12 13 14
   "nginx:latest"
-  # "kuluseky/app-separate:jdk8x86" # 可选标签 jdk8x86 jdk11x86
+  # "kuluseky/app-separate:jdk8x86_zh_font" # 可选标签 jdk8x86 jdk11x86
   # "kuluseky/app-supermap:1110jdk8x86" # 可选标签 1110jdk8x86(iObjects 11i JDK8 X86平台)
 )
 
