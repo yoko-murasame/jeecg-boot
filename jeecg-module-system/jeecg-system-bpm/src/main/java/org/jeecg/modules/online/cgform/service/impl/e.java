@@ -20,6 +20,7 @@ import org.jeecg.common.constant.enums.CgformEnum;
 import org.jeecg.common.system.vo.SysOnlListDataModel;
 import org.jeecg.common.system.vo.SysOnlListQueryModel;
 import org.jeecg.common.util.*;
+import org.jeecg.common.util.yoko.FastJsonUtils;
 import org.jeecg.modules.online.auth.service.IOnlAuthPageService;
 import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaInter;
 import org.jeecg.modules.online.cgform.enhance.CgformEnhanceJavaListInter;
@@ -616,7 +617,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
         String token = TokenUtils.getTokenByRequest(request);
         // formData必须强制转换成蛇形
-        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, FastJsonUtils.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         return this.saveManyFormData(code, formData, token);
     }
 
@@ -626,7 +627,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         HttpServletRequest request = SpringContextUtils.getHttpServletRequest();
         String token = TokenUtils.getTokenByRequest(request);
         // formData必须强制转换成蛇形
-        formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        formData = JSON.parseObject(JSON.toJSONString(formData, FastJsonUtils.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         return this.saveManyFormData(code, formData, token);
     }
 
@@ -634,7 +635,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     @Transactional(rollbackFor = {Exception.class})
     public String saveManyFormData(String code, JSONObject formData, String xAccessToken) throws DBException, BusinessException {
         // FIXME formData必须强制转换成蛇形，这里默认不处理，可以调用saveManyFormDataByJavaBean替代
-        // formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        // formData = JSON.parseObject(JSON.toJSONString(formData, FastJsonUtils.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         OnlCgformHead onlCgformHead;
         OnlCgformHead onlCgformHead2 = getById(code);
         if (onlCgformHead2 == null) {
@@ -826,7 +827,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     @Transactional(rollbackFor = {Exception.class})
     public String editManyFormDataByJavaBean(String code, Object javaBean) throws Exception {
         // formData必须强制转换成蛇形
-        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        JSONObject formData = JSON.parseObject(JSON.toJSONString(javaBean, FastJsonUtils.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         return this.editManyFormData(code, formData);
     }
 
@@ -834,7 +835,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
     @Transactional(rollbackFor = {Exception.class})
     public String editManyFormData(String code, JSONObject formData) throws DBException, BusinessException {
         // FIXME formData必须强制转换成蛇形，这里默认不处理，可以调用editManyFormDataByJavaBean替代
-        // formData = JSON.parseObject(JSON.toJSONString(formData, SysOnlListQueryModel.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
+        // formData = JSON.parseObject(JSON.toJSONString(formData, FastJsonUtils.SnakeCaseFilter, SerializerFeature.WriteDateUseDateFormat));
         String[] split;
         OnlCgformHead onlCgformHead = (OnlCgformHead) getById(code);
         if (onlCgformHead == null) {

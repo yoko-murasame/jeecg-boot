@@ -1,15 +1,15 @@
 package org.jeecg.common.system.vo;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.serializer.NameFilter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.jeecg.common.util.yoko.FastJsonUtils.SnakeCaseFilter;
 
 /**
  * Online列表查询实体model
@@ -67,21 +67,5 @@ public class SysOnlListQueryModel {
         // this.isPage = (valueOf != -521);
         this.needPage = (pageSize != null) && (finalSize > 0);
     }
-
-    // FastJSON-数据转换成蛇形配置
-    public static final NameFilter SnakeCaseFilter = (object, name, value) -> {
-        // 排除分页参数
-        if ("pageSize".equals(name) || "pageNo".equals(name)) {
-            return name;
-        }
-        if ("page_size".equals(name)) {
-            return "pageSize";
-        }
-        if ("page_no".equals(name)) {
-            return "pageNo";
-        }
-        // 其他字段 SnakeCase 转换
-        return PropertyNamingStrategy.SnakeCase.translate(name);
-    };
 
 }
