@@ -541,7 +541,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (isCrazy) {
             this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.c(tableName, onlCgformFields, formData));
         } else {
-            this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tableName, onlCgformFields, formData));
+            this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.generateInsertSql(tableName, onlCgformFields, formData));
         }
     }
 
@@ -574,7 +574,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 formData.put(treeParentIdField, b);
             }
         }
-        this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tableName, list, formData));
+        this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.generateInsertSql(tableName, list, formData));
         if (!b.equals(formData.getString(treeParentIdField))) {
             this.baseMapper.editFormData("update " + tableName + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.sz);
         }
@@ -625,7 +625,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         }
 
         // 保存数据
-        Map<String, Object> sql = org.jeecg.modules.online.cgform.d.b.a(tbname, fieldList, json);
+        Map<String, Object> sql = org.jeecg.modules.online.cgform.d.b.generateInsertSql(tbname, fieldList, json);
         ((OnlCgformFieldMapper) this.baseMapper).executeInsertSQL(sql);
     }
 
@@ -637,7 +637,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (isCrazy) {
             this.baseMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.d(tableName, onlCgformFields, formData));
         } else {
-            this.baseMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tableName, onlCgformFields, formData));
+            this.baseMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.generateUpdateSql(tableName, onlCgformFields, formData));
         }
     }
 
@@ -654,7 +654,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 formData.put(treeParentIdField, b);
             }
         }
-        ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tableName, list, formData));
+        ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.generateUpdateSql(tableName, list, formData));
         if (!obj.equals(formData.getString(treeParentIdField))) {
             if (!b.equals(obj)) {
                 Integer queryCountBySql = ((OnlCgformFieldMapper) this.baseMapper).queryCountBySql("select count(*) from " + f + " where " + treeParentIdField + " = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);

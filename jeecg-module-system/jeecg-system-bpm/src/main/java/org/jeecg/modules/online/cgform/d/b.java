@@ -46,6 +46,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.jeecg.common.constant.CommonConstant.ONLINE_FORM_DATA_FORCE_UPDATE_NULL_VALUE;
+
 /* compiled from: CgformUtil.java */
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/d/b.class */
 public class b {
@@ -69,17 +71,18 @@ public class b {
     public static final String OR = " or ";
     public static final String sr = "Y";
     public static final String ss = "$";
-    public static final String st = "CREATE_TIME";
-    public static final String su = "CREATE_BY";
-    public static final String sv = "UPDATE_TIME";
-    public static final String sw = "UPDATE_BY";
-    public static final String sx = "SYS_ORG_CODE";
+    public static final String DEL_FLAG = "DEL_FLAG";
+    public static final String CREATE_TIME = "CREATE_TIME";
+    public static final String CREATE_BY = "CREATE_BY";
+    public static final String UPDATE_TIME = "UPDATE_TIME";
+    public static final String UPDATE_BY = "UPDATE_BY";
+    public static final String SYS_ORG_CODE = "SYS_ORG_CODE";
     public static final int sy = 2;
     public static final String sz = "'";
     public static final String sA = "N";
     public static final String DOT_STRING = ",";
     public static final String single = "single";
-    public static final String sD = "id";
+    public static final String ID = "id";
     public static final String sE = "bpm_status";
     public static final String sF = "1";
     public static final String sG = "force";
@@ -658,12 +661,13 @@ public class b {
         return JsonschemaUtil.getSubJsonSchema(str, arrayList, arrayList2);
     }
 
-    public static Set<String> a(List<OnlCgformField> list) {
+    public static Set<String> handleDictTextFieldSet(List<OnlCgformField> list) {
         String dictText;
-        HashSet hashSet = new HashSet();
+        HashSet<String> hashSet = new HashSet<>();
+        // 找出两个组件的字段文本显示字段
         for (OnlCgformField onlCgformField : list) {
             if (POPUP.equals(onlCgformField.getFieldShowType()) && (dictText = onlCgformField.getDictText()) != null && !dictText.equals("")) {
-                hashSet.addAll((Collection) Arrays.stream(dictText.split(DOT_STRING)).collect(Collectors.toSet()));
+                hashSet.addAll(Arrays.stream(dictText.split(DOT_STRING)).collect(Collectors.toSet()));
             }
             if (CAT_TREE.equals(onlCgformField.getFieldShowType())) {
                 String dictText2 = onlCgformField.getDictText();
@@ -674,14 +678,14 @@ public class b {
         }
         for (OnlCgformField onlCgformField2 : list) {
             String dbFieldName = onlCgformField2.getDbFieldName();
-            if (onlCgformField2.getIsShowForm().intValue() == 1 && hashSet.contains(dbFieldName)) {
+            if (onlCgformField2.getIsShowForm() == 1 && hashSet.contains(dbFieldName)) {
                 hashSet.remove(dbFieldName);
             }
         }
         return hashSet;
     }
 
-    public static Map<String, Object> a(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
+    public static Map<String, Object> generateInsertSql(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
         StringBuffer stringBuffer = new StringBuffer();
         StringBuffer stringBuffer2 = new StringBuffer();
         String str2 = "";
@@ -707,7 +711,7 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online保存表单数据异常:系统未找到当前登陆用户信息");
         }
-        Set<String> a2 = a(onlCgformFields);
+        Set<String> dictTextFieldSet = handleDictTextFieldSet(onlCgformFields);
         for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
@@ -716,11 +720,11 @@ public class b {
                 hasId = true;
                 idValue = formData.getString(dbFieldName);
             } else {
-                a(onlCgformField, loginUser, formData, su, st, sx);
+                a(onlCgformField, loginUser, formData, CREATE_BY, CREATE_TIME, SYS_ORG_CODE);
                 if (sE.equals(dbFieldName.toLowerCase())) {
                     stringBuffer.append(DOT_STRING + dbFieldName);
                     stringBuffer2.append(",'1'");
-                } else if (a2.contains(dbFieldName)) {
+                } else if (dictTextFieldSet.contains(dbFieldName)) {
                     stringBuffer.append(DOT_STRING + dbFieldName);
                     stringBuffer2.append(DOT_STRING + k.a(str2, onlCgformField, formData, hashMap));
                 } else if (onlCgformField.getIsShowForm().intValue() == 1 || !oConvertUtils.isEmpty(onlCgformField.getMainField()) || !oConvertUtils.isEmpty(onlCgformField.getDbDefaultVal())) {
@@ -754,16 +758,16 @@ public class b {
         return hashMap;
     }
 
-    public static Map<String, Object> b(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
-        StringBuffer stringBuffer = new StringBuffer();
+    public static Map<String, Object> generateUpdateSql(String tableName, List<OnlCgformField> onlCgformFields, JSONObject formData) {
+        StringBuilder stringBuffer = new StringBuilder();
         HashMap<String, Object> hashMap = new HashMap<>();
         String str2 = "";
+        // 提供一个特殊变量，强制更新null值 TODO 改造成字段的配置项，特殊字段特殊控制
+        boolean forceUpdateNullValue = Optional.ofNullable(formData.getBoolean(ONLINE_FORM_DATA_FORCE_UPDATE_NULL_VALUE)).orElse(true);
         try {
             str2 = org.jeecg.modules.online.config.b.d.getDatabaseType();
-        } catch (SQLException e2) {
-            e2.printStackTrace();
-        } catch (DBException e3) {
-            e3.printStackTrace();
+        } catch (SQLException | DBException e2) {
+            ay.error("获取数据库类型失败", e2);
         }
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         // 来自流程服务中的调用时，不存在请求上下文
@@ -777,63 +781,74 @@ public class b {
         if (loginUser == null) {
             throw new JeecgBootException("online修改表单数据异常:系统未找到当前登陆用户信息");
         }
-        Set<String> a2 = a(onlCgformFields);
+        Set<String> dictTextFieldSet = handleDictTextFieldSet(onlCgformFields);
         for (OnlCgformField onlCgformField : onlCgformFields) {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online修改表单数据遇见空名称的字段------->>" + onlCgformField.getId());
             } else {
                 // 直接处理空字符串到null
-                if (!org.springframework.util.StringUtils.hasText(formData.getString(dbFieldName))) {
+                if (oConvertUtils.isEmpty(formData.getString(dbFieldName))) {
                     formData.put(dbFieldName, null);
                 }
-                // update_by update_time sys_org_code跳过
-                if (st.equalsIgnoreCase(dbFieldName) || su.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
-                    // a(onlCgformField, loginUser, jSONObject, su, st, sx);
-                    String orgCode = formData.getString(sx);
-                    if (!org.springframework.util.StringUtils.hasText(orgCode)) {
-                        a(onlCgformField, loginUser, formData, sx);
-                    } else {
+                // 忽略的字段，没有值时，去修复值
+                if (isIgnoredField(dbFieldName)) {
+                    if (oConvertUtils.isEmpty(formData.getString(CREATE_BY))) {
+                        a(onlCgformField, loginUser, formData, CREATE_BY);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                         continue;
                     }
+                    if (oConvertUtils.isEmpty(formData.getString(CREATE_TIME))) {
+                        a(onlCgformField, loginUser, formData, CREATE_TIME);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
+                        continue;
+                    }
+                    if (oConvertUtils.isEmpty(formData.getString(SYS_ORG_CODE))) {
+                        a(onlCgformField, loginUser, formData, SYS_ORG_CODE);
+                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
+                        continue;
+                    }
+                    continue;
                 }
-                a(onlCgformField, loginUser, formData, sw, sv);
-                // a2集合拿到表单显示的字段
-                if (a2.contains(dbFieldName) && formData.get(dbFieldName) != null && !"".equals(formData.getString(dbFieldName))) {
-                    // 组装“表单显示的字段”更新语句，这里只更新有值的字段
-                    stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
-                } else if (onlCgformField.getIsShowForm() == 1 && !"id".equals(dbFieldName)) {
-                    // 同样是处理“表单显示的字段”
-                    if ("".equals(formData.get(dbFieldName))) {
-                        // String dbType = onlCgformField.getDbType();
-                        // if (!k.isNumber(dbType) && !k.b(dbType)) {
-                        // }
-                        ay.info("--------online修改表单数据遇见空字段------->>" + onlCgformField.getId());
-                    }
-                    // 处理外键字段
-                    if (!oConvertUtils.isNotEmpty(onlCgformField.getMainTable()) || !oConvertUtils.isNotEmpty(onlCgformField.getMainField())) {
-                        stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
-                    } else {
-                        // 无论是不是外键，都更新字段
+                // 填充更新人和更新时间
+                a(onlCgformField, loginUser, formData, UPDATE_BY, UPDATE_TIME);
+                // a2是拿到所有表单显示的字段的集合
+                // 是否有值
+                boolean hasValue = formData.get(dbFieldName) != null && !"".equalsIgnoreCase(formData.getString(dbFieldName));
+                // 表单显示
+                if (dictTextFieldSet.contains(dbFieldName) || onlCgformField.getIsShowForm() == 1) {
+                    if (forceUpdateNullValue || hasValue) {
                         stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     }
-                } else {
-                    // FIXME 无论是不是表单显示字段，都更新，这里历史遗留问题，可以考虑下是否去掉这个逻辑
-                    // 排除create_time和create_by字段
-                    if (!"create_time".equalsIgnoreCase(dbFieldName) && !"create_by".equalsIgnoreCase(dbFieldName)) {
+                }
+                // 表单不显示，就不更新
+                else {
+                    // 软删字段，存在值时就更新
+                    if (DEL_FLAG.equalsIgnoreCase(dbFieldName) && hasValue) {
                         stringBuffer.append(dbFieldName + EQ + k.a(str2, onlCgformField, formData, hashMap) + DOT_STRING);
                     }
                 }
             }
         }
-        String stringBuffer2 = stringBuffer.toString();
-        if (stringBuffer2.endsWith(DOT_STRING)) {
-            stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
+        String updateColumnSql = stringBuffer.toString();
+        if (updateColumnSql.endsWith(DOT_STRING)) {
+            updateColumnSql = updateColumnSql.substring(0, updateColumnSql.length() - 1);
         }
-        String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
-        ay.debug("--动态表单编辑sql-->" + str3);
-        hashMap.put("execute_sql_string", str3);
+        String updateSql = "update " + f(tableName) + " set " + updateColumnSql + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
+        ay.debug("--动态表单编辑sql-->" + updateSql);
+        hashMap.put("execute_sql_string", updateSql);
         return hashMap;
+    }
+
+    // 判断是否是排除字段
+    public static boolean isIgnoredField(String dbFieldName) {
+        String[] strArr = new String[]{ID, CREATE_TIME, CREATE_BY, SYS_ORG_CODE, ""};
+        for (String s : strArr) {
+            if (s.equalsIgnoreCase(dbFieldName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String a(String str, List<OnlCgformField> list, String str2) {
@@ -906,28 +921,28 @@ public class b {
                     boolean z3 = true;
                     switch (str.hashCode()) {
                         case -909973894:
-                            if (str.equals(su)) {
+                            if (str.equals(CREATE_BY)) {
                                 z3 = false;
                                 jSONObject.put(dbFieldName, loginUser.getUsername());
                                 break;
                             }
                             break;
                         case -99751974:
-                            if (str.equals(sx)) {
+                            if (str.equals(SYS_ORG_CODE)) {
                                 z3 = true;
                                 jSONObject.put(dbFieldName, loginUser.getOrgCode());
                                 break;
                             }
                             break;
                         case 837427085:
-                            if (str.equals(sw)) {
+                            if (str.equals(UPDATE_BY)) {
                                 z3 = true;
                                 jSONObject.put(dbFieldName, loginUser.getUsername());
                                 break;
                             }
                             break;
                         case 1609067651:
-                            if (str.equals(sv)) {
+                            if (str.equals(UPDATE_TIME)) {
                                 z3 = true;
                                 onlCgformField.setFieldShowType("datetime");
                                 jSONObject.put(dbFieldName, DateUtils.formatDateTime());
@@ -935,7 +950,7 @@ public class b {
                             }
                             break;
                         case 1688939568:
-                            if (str.equals(st)) {
+                            if (str.equals(CREATE_TIME)) {
                                 z3 = true;
                                 onlCgformField.setFieldShowType("datetime");
                                 jSONObject.put(dbFieldName, DateUtils.formatDateTime());
@@ -1514,8 +1529,8 @@ public class b {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online保存表单数据遇见空名称的字段------->>" + onlCgformField.getId());
-            } else if (formData.get(dbFieldName) != null || su.equalsIgnoreCase(dbFieldName) || st.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName)) {
-                a(onlCgformField, loginUser, formData, su, st, sx);
+            } else if (formData.get(dbFieldName) != null || CREATE_BY.equalsIgnoreCase(dbFieldName) || CREATE_TIME.equalsIgnoreCase(dbFieldName) || SYS_ORG_CODE.equalsIgnoreCase(dbFieldName)) {
+                a(onlCgformField, loginUser, formData, CREATE_BY, CREATE_TIME, SYS_ORG_CODE);
                 if ("".equals(formData.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
                     if (!k.isNumber(dbType) && !k.b(dbType)) {
@@ -1568,8 +1583,8 @@ public class b {
             String dbFieldName = onlCgformField.getDbFieldName();
             if (null == dbFieldName) {
                 ay.info("--------online修改表单数据遇见空名称的字段------->>" + onlCgformField.getId());
-            } else if (!"id".equals(dbFieldName) && (formData.get(dbFieldName) != null || sw.equalsIgnoreCase(dbFieldName) || sv.equalsIgnoreCase(dbFieldName) || sx.equalsIgnoreCase(dbFieldName))) {
-                a(onlCgformField, loginUser, formData, sw, sv, sx);
+            } else if (!"id".equals(dbFieldName) && (formData.get(dbFieldName) != null || UPDATE_BY.equalsIgnoreCase(dbFieldName) || UPDATE_TIME.equalsIgnoreCase(dbFieldName) || SYS_ORG_CODE.equalsIgnoreCase(dbFieldName))) {
+                a(onlCgformField, loginUser, formData, UPDATE_BY, UPDATE_TIME, SYS_ORG_CODE);
                 if ("".equals(formData.get(dbFieldName))) {
                     String dbType = onlCgformField.getDbType();
                     if (!k.isNumber(dbType) && !k.b(dbType)) {

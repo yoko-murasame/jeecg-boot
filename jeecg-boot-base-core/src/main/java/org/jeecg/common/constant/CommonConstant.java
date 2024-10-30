@@ -663,4 +663,9 @@ public interface CommonConstant {
      */
     String FLOW_CODE_PREFIX_DESFORM = "desform_";
 
+    /**
+     * Online表单更新数据时强制更新null值字段，默认为true
+     */
+    String ONLINE_FORM_DATA_FORCE_UPDATE_NULL_VALUE = "forceUpdateNullValue";
+
 }

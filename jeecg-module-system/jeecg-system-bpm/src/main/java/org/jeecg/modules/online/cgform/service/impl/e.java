@@ -855,6 +855,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         } else {
             this.fieldService.editFormData(code, tableName, formData, false);
         }
+        // 保存子表数据
         if (onlCgformHead.getTableType().intValue() == 2) {
             String subTableStr = onlCgformHead.getSubTableStr();
             if (oConvertUtils.isNotEmpty(subTableStr)) {

@@ -69,9 +69,9 @@ public class g implements IOnlCgformSqlService {
         int executeEnhanceJava = this.onlCgformHeadService.executeEnhanceJava(org.jeecg.modules.online.cgform.d.b.af, org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, parseObject);
         String tableName = onlCgformHead.getTableName();
         if (1 == executeEnhanceJava) {
-            onlCgformFieldMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.a(tableName, list, parseObject));
+            onlCgformFieldMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.generateInsertSql(tableName, list, parseObject));
         } else if (2 == executeEnhanceJava) {
-            onlCgformFieldMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.b(tableName, list, parseObject));
+            onlCgformFieldMapper.executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.generateUpdateSql(tableName, list, parseObject));
         } else {
             if (0 == executeEnhanceJava) {
             }
