@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.*;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
@@ -62,6 +63,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController("actTaskController")
 @RequestMapping({"/act/task"})
 public class ActTaskController {
@@ -155,14 +157,19 @@ public class ActTaskController {
         Result<Map<String, Object>> result = new Result<>();
         Task task = this.activitiService.getTask(taskId);
         HashMap<String, Object> data = new HashMap<>();
-        List outTransitions = this.activitiService.getOutTransitions(taskId);
-        if (outTransitions.size() == 1) {
-            // 两个参数：nextnode、Transition
-            Map trac = (Map) outTransitions.get(0);
-            // 在没有配置文本时，才给默认值
-            if (StringUtils.isEmpty((String) trac.get("Transition"))) {
-                trac.put("Transition", "确认提交");
+        List<Map<String, String>> outTransitions = Collections.emptyList();
+        try {
+            outTransitions = this.activitiService.getOutTransitions(taskId);
+            if (outTransitions.size() == 1) {
+                // 两个参数：nextnode、Transition
+                Map<String, String> trac = (Map<String, String>) outTransitions.get(0);
+                // 在没有配置文本时，才给默认值
+                if (StringUtils.isEmpty((String) trac.get("Transition"))) {
+                    trac.put("Transition", "确认提交");
+                }
             }
+        } catch (Exception ignore) {
+            // log.info("获取任务流转信息失败，原因：" + ignore.getMessage());
         }
         data.put("transitionList", outTransitions);
         data.put("nextCodeCount", outTransitions == null ? 0 : outTransitions.size());
