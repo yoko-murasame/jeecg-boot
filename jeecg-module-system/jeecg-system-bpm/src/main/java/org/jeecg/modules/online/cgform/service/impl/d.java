@@ -11,6 +11,7 @@ import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.CommonAPI;
 import org.jeecg.common.aspect.DictAspect;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.util.JeecgDataAutorUtils;
 import org.jeecg.common.system.util.JwtUtil;
@@ -29,6 +30,7 @@ import org.jeecg.modules.online.cgform.model.OnlListDataModel;
 import org.jeecg.modules.online.cgform.model.OnlListQueryModel;
 import org.jeecg.modules.online.cgform.model.TreeModel;
 import org.jeecg.modules.online.cgform.service.IOnlCgformFieldService;
+import org.jeecg.modules.online.config.exception.DBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -147,19 +150,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE).append(whereCondition);
         }
         // 组装ORDER BY
-        Object column = params.get("column");
-        if (column != null) {
-            String columnString = column.toString();
-            String order = params.get("order").toString();
-            if (hasDbField(columnString, allFields)) {
-                stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY).append(oConvertUtils.camelToUnderline(columnString));
-                if (org.jeecg.modules.online.cgform.d.b.ASC.equals(order)) {
-                    stringBuffer.append(" asc");
-                } else {
-                    stringBuffer.append(" desc");
-                }
-            }
-        }
+        handleOrderBy(params, allFields, stringBuffer);
         // 检查sql注入（这里会影响online列表getData的查询）
         // SqlInjectionUtil.filterContent(stringBuffer.toString());
         int valueOf = params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString());
@@ -190,6 +181,62 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         }
         resultMap.setDictOptions(dictOptions);
         return resultMap;
+    }
+
+    private void handleOrderBy(Map<String, Object> params, List<OnlCgformField> allFields, StringBuffer stringBuffer) {
+        Object column = params.get("column");
+        Object nullsOrder = params.get("nullsOrder");
+        if (column != null) {
+            String columnString = column.toString();
+            String order = params.get("order").toString();
+            // 改造成支持多列排序
+            String[] sorterColumns = columnString.split(SymbolConstant.COMMA);
+            List<String> orders = Arrays.asList(order.split(SymbolConstant.COMMA));
+            boolean hasAddOrderBy = false;
+            int effectColumnNum = 0;
+            for (int i = 0, splitLength = sorterColumns.length; i < splitLength; i++) {
+                String subColumn = sorterColumns[i];
+                if (!hasDbField(subColumn, allFields)) {
+                    continue;
+                }
+                // 添加orderBy
+                if (!hasAddOrderBy) {
+                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.ORDERBY);
+                    hasAddOrderBy = true;
+                }
+                stringBuffer.append(oConvertUtils.camelToUnderline(subColumn));
+                String subOrder = Optional.ofNullable(orders.get(i)).orElse(org.jeecg.modules.online.cgform.d.b.ASC);
+                if (org.jeecg.modules.online.cgform.d.b.ASC.equals(subOrder)) {
+                    stringBuffer.append(" asc");
+                } else {
+                    stringBuffer.append(" desc");
+                }
+                // 添加nullsOrder
+                if (nullsOrder != null) {
+                    String databaseType = "";
+                    try {
+                        databaseType = org.jeecg.modules.online.config.b.d.getDatabaseType();
+                    } catch (SQLException | DBException e) {
+                        log.error("数据库类型获取失败", e);
+                    }
+                    // 先支持postgres数据库
+                    if ("POSTGRESQL".equalsIgnoreCase(databaseType)) {
+                        stringBuffer.append(" NULLS ");
+                        if ("first".equalsIgnoreCase(nullsOrder.toString())) {
+                            stringBuffer.append("FIRST");
+                        }
+                        if ("last".equalsIgnoreCase(nullsOrder.toString())) {
+                            stringBuffer.append("LAST");
+                        }
+                    }
+                }
+                effectColumnNum++;
+                // 多列排序时，需要添加逗号
+                if (effectColumnNum > 0 && i < sorterColumns.length - 1) {
+                    stringBuffer.append(SymbolConstant.COMMA);
+                }
+            }
+        }
     }
 
     /**
