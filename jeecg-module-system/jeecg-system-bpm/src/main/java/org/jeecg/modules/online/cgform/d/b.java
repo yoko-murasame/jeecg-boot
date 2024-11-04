@@ -177,7 +177,7 @@ public class b {
     }
 
     public static String a(List<OnlCgformField> list, Map<String, Object> map, List<String> list2) {
-        return assembleQuery(list, map, list2, (List<SysPermissionDataRuleModel>) null);
+        return assembleQuery(list, map, list2, null);
     }
 
     // 组装查询条件
@@ -187,10 +187,8 @@ public class b {
         String databaseType = "";
         try {
             databaseType = org.jeecg.modules.online.config.b.d.getDatabaseType();
-        } catch (SQLException e2) {
-            e2.printStackTrace();
-        } catch (DBException e3) {
-            e3.printStackTrace();
+        } catch (SQLException | DBException e2) {
+            ay.error("数据库类型获取失败", e2);
         }
         Map<String, List<SysPermissionDataRuleModel>> rulesMap = QueryGenerator.getRulesMap(ruleModels);
 
@@ -216,18 +214,18 @@ public class b {
                 onlCgformField.setIsQuery(1);
                 onlCgformField.setQueryMode(single);
             }
-            if (1 == onlCgformField.getIsQuery().intValue()) {
+            if (1 == onlCgformField.getIsQuery()) {
                 if (single.equals(onlCgformField.getQueryMode())) {
                     Object obj = map.get(dbFieldName);
                     if (obj != null) {
                         if ("list_multi".equals(onlCgformField.getFieldShowType())) {
                             String[] split = obj.toString().split(DOT_STRING);
                             String str4 = "";
-                            for (int i2 = 0; i2 < split.length; i2++) {
+                            for (String s : split) {
                                 if (oConvertUtils.isNotEmpty(str4)) {
-                                    str = str4 + OR + dbFieldName + LIKE + "'%" + split[i2] + ",%'" + OR + dbFieldName + LIKE + "'%," + split[i2] + "%'";
+                                    str = str4 + OR + dbFieldName + LIKE + "'%" + s + ",%'" + OR + dbFieldName + LIKE + "'%," + s + "%'";
                                 } else {
-                                    str = dbFieldName + LIKE + "'%" + split[i2] + ",%'" + OR + dbFieldName + LIKE + "'%," + split[i2] + "%'";
+                                    str = dbFieldName + LIKE + "'%" + s + ",%'" + OR + dbFieldName + LIKE + "'%," + s + "%'";
                                 }
                                 str4 = str;
                             }
@@ -235,11 +233,19 @@ public class b {
                         }
                         if (POPUP.equals(onlCgformField.getFieldShowType())) {
                             finalSqlCondition.append(" AND (" + b(dbFieldName, obj.toString()) + ")");
-                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().contains(i.DATE)) {
                             finalSqlCondition.append(AND + dbFieldName + EQ + a(obj.toString()));
                         } else {
-                            // FIXME 主要是这里调用了默认的构造入口
-                            finalSqlCondition.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, !k.isNumber(dbType)));
+                            // FIXME 调用了默认的条件构造器入口
+                            // 判断是否是数值类型 @bugfix 20241104 修复数值类型条件传入空值时，条件构造异常
+                            if (k.isNumber(dbType)) {
+                                // 数值类型时，必须有值才往下处理
+                                if (StringUtils.isNotEmpty(obj.toString())) {
+                                    finalSqlCondition.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, false));
+                                }
+                            } else {
+                                finalSqlCondition.append(AND + QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", obj, true));
+                            }
                         }
                     }
                 } else {
@@ -247,22 +253,22 @@ public class b {
                     if (obj2 != null) {
                         finalSqlCondition.append(AND + dbFieldName + GE);
                         if (k.isNumber(dbType)) {
-                            finalSqlCondition.append(obj2.toString());
-                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            finalSqlCondition.append(obj2);
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().contains(i.DATE)) {
                             finalSqlCondition.append(a(obj2.toString()));
                         } else {
-                            finalSqlCondition.append(sz + obj2.toString() + sz);
+                            finalSqlCondition.append(sz + obj2 + sz);
                         }
                     }
                     Object obj3 = map.get(dbFieldName + "_end");
                     if (obj3 != null) {
                         finalSqlCondition.append(AND + dbFieldName + LE);
                         if (k.isNumber(dbType)) {
-                            finalSqlCondition.append(obj3.toString());
-                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().indexOf(i.DATE) >= 0) {
+                            finalSqlCondition.append(obj3);
+                        } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().contains(i.DATE)) {
                             finalSqlCondition.append(a(obj3.toString()));
                         } else {
-                            finalSqlCondition.append(sz + obj3.toString() + sz);
+                            finalSqlCondition.append(sz + obj3 + sz);
                         }
                     }
                 }
