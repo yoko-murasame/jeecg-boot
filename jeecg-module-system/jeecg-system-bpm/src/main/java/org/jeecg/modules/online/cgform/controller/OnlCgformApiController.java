@@ -324,7 +324,11 @@ public class OnlCgformApiController {
     public Result<String> saveManyFormData(@PathVariable("code") String code, @RequestBody JSONObject formData, HttpServletRequest request) {
         Result<String> result = new Result<>();
         try {
-            String newId = CgformDB.a();
+            // 如果已经指定了新的id就不再生成了
+            String newId = formData.getString("id");
+            if (!StringUtils.hasText(newId)) {
+                newId =  CgformDB.a();
+            }
             formData.put("id", newId);
             String token = TokenUtils.getTokenByRequest(request);
             String tableName = this.onlCgformHeadService.saveManyFormData(code, formData, token);
