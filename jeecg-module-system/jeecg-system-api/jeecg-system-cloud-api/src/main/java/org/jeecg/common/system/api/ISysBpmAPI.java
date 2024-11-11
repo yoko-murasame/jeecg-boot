@@ -7,6 +7,7 @@ import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.system.api.fallback.SysBpmAPIFallback;
 import org.jeecg.common.system.vo.SysOnlListDataModel;
 import org.jeecg.common.system.vo.SysOnlListQueryModel;
+import org.jeecg.config.TempTokenFeignConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ import java.util.Map;
  * 流程、Online相关API
  */
 @Component
-@FeignClient(contextId = "sysBpmRemoteApi", value = ServiceNameConstants.SERVICE_SYSTEM, fallbackFactory = SysBpmAPIFallback.class)
+@FeignClient(contextId = "sysBpmRemoteApi", value = ServiceNameConstants.SERVICE_SYSTEM, fallbackFactory = SysBpmAPIFallback.class, configuration = TempTokenFeignConfig.class)
 @ConditionalOnMissingClass("org.jeecg.modules.online.cgform.service.impl.e")
 public interface ISysBpmAPI extends BpmAPI {
 

@@ -9,6 +9,7 @@ import org.jeecg.common.constant.ServiceNameConstants;
 import org.jeecg.common.system.api.factory.SysBaseAPIFallbackFactory;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.*;
+import org.jeecg.config.TempTokenFeignConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import java.util.Set;
  * @author: jeecg-boot
  */
 @Component
-@FeignClient(contextId = "sysBaseRemoteApi", value = ServiceNameConstants.SERVICE_SYSTEM, fallbackFactory = SysBaseAPIFallbackFactory.class)
+@FeignClient(contextId = "sysBaseRemoteApi", value = ServiceNameConstants.SERVICE_SYSTEM, fallbackFactory = SysBaseAPIFallbackFactory.class, configuration = TempTokenFeignConfig.class)
 @ConditionalOnMissingClass("org.jeecg.modules.system.service.impl.SysBaseApiImpl")
 public interface ISysBaseAPI extends CommonAPI {
 
