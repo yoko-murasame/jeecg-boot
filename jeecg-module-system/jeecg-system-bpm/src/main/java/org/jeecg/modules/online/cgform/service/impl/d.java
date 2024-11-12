@@ -156,8 +156,8 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         int valueOf = params.get("pageSize") == null ? 10 : Integer.parseInt(params.get("pageSize").toString());
         // System.out.println(stringBuffer);
         if (!needPage) {
-            List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
             a.debug("---Online查询sql 不分页 :>>" + stringBuffer);
+            List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
             if (queryListBySql == null || queryListBySql.isEmpty()) {
                 resultMap.setTotal(0);
                 resultMap.setFieldList(queryAvailableFields);
