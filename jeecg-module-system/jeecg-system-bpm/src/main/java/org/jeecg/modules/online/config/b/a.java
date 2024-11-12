@@ -57,6 +57,8 @@ public class a {
                 return this.columnName.equals(aVar.getColumnName()) && this.isNullable.equals(aVar.isNullable);
             } else if (this.columnType.contains("double") || this.columnType.contains("float") || this.columnType.contains("int")) {
                 // 针对普通数值类型的精确判断（不需要校验实际位数）
+                // return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable);
+                // pg的这个默认值 fieldDefault 老项目没有
                 return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable) && judgeEqual(this.fieldDefault, aVar.getFieldDefault());
             }else {
                 return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable) && this.columnSize == aVar.getColumnSize() && judgeEqual(this.fieldDefault, aVar.getFieldDefault());
