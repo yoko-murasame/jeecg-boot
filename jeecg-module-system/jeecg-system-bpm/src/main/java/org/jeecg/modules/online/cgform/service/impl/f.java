@@ -34,7 +34,7 @@ public class f extends ServiceImpl<OnlCgformIndexMapper, OnlCgformIndex> impleme
                 if (!CommonConstant.DEL_FLAG_1.equals(onlCgformIndex.getDelFlag()) && "N".equals(onlCgformIndex.getIsDbSynch())) {
                     String indexName = onlCgformIndex.getIndexName();
                     String indexField = onlCgformIndex.getIndexField();
-                    String str2 = org.jeecg.modules.online.cgform.d.b.sH.equals(onlCgformIndex.getIndexType()) ? " index " : onlCgformIndex.getIndexType() + " index ";
+                    String str2 = org.jeecg.modules.online.cgform.d.b.NORMAL.equals(onlCgformIndex.getIndexType()) ? " index " : onlCgformIndex.getIndexType() + " index ";
                     boolean z = true;
                     switch (databaseType.hashCode()) {
                         case -1955532418:

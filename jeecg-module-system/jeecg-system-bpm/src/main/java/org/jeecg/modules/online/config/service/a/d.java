@@ -151,7 +151,7 @@ public class d implements DbTableHandleI {
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String getCommentSql(org.jeecg.modules.online.config.b.a columnMeta) {
-        return "COMMENT ON COLUMN " + columnMeta.getTableName() + "." + columnMeta.getColumnName() + " IS '" + columnMeta.getComment() + org.jeecg.modules.online.cgform.d.b.sz;
+        return "COMMENT ON COLUMN " + columnMeta.getTableName() + "." + columnMeta.getColumnName() + " IS '" + columnMeta.getComment() + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
@@ -161,6 +161,6 @@ public class d implements DbTableHandleI {
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String countIndex(String indexName, String tableName) {
-        return "SELECT count(*) FROM pg_indexes WHERE indexname = '" + indexName + "' and tablename = '" + tableName + org.jeecg.modules.online.cgform.d.b.sz;
+        return "SELECT count(*) FROM pg_indexes WHERE indexname = '" + indexName + "' and tablename = '" + tableName + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 }

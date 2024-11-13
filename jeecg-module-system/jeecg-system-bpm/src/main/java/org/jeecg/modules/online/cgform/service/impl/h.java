@@ -46,7 +46,7 @@ public class h implements IOnlineBaseAPI {
                     OnlCgformHead onlCgformHead2 = (OnlCgformHead) this.onlCgformHeadMapper.selectOne( new LambdaQueryWrapper<OnlCgformHead>()
                             .eq(OnlCgformHead::getTableName, str));
                     String themeTemplate = onlCgformHead2.getThemeTemplate();
-                    if (onlCgformHead2 != null && ("innerTable".equals(themeTemplate) || org.jeecg.modules.online.cgform.d.b.am.equals(themeTemplate))) {
+                    if (onlCgformHead2 != null && ("innerTable".equals(themeTemplate) || org.jeecg.modules.online.cgform.d.b.ERP.equals(themeTemplate))) {
                         code = "/" + onlCgformHead2.getId();
                     }
                 }

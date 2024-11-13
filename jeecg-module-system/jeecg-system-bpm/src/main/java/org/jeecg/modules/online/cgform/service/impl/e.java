@@ -111,7 +111,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             onlCgformIndex.setCgformHeadId(replace);
         }
         head.setIsDbSynch("N");
-        head.setQueryMode(org.jeecg.modules.online.cgform.d.b.single);
+        head.setQueryMode(org.jeecg.modules.online.cgform.d.b.SINGLE);
         head.setTableVersion(1);
         head.setCopyType(0);
         if (head.getTableType().intValue() == 3 && head.getTabOrderNum() == null) {
@@ -255,7 +255,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         aVar.setContent(onlCgformHead.getTableTxt());
         aVar.setColumns(list);
         aVar.setDbConfig(this.dataBaseConfig);
-        if (org.jeecg.modules.online.cgform.d.b.sH.equals(synMethod)) {
+        if (org.jeecg.modules.online.cgform.d.b.NORMAL.equals(synMethod)) {
             long currentTimeMillis = System.currentTimeMillis();
             boolean booleanValue = org.jeecg.modules.online.config.b.d.a(tableName).booleanValue();
             a.info("==判断表是否存在消耗时间" + (System.currentTimeMillis() - currentTimeMillis) + "毫秒");
@@ -290,7 +290,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 // 不存在时直接新增
                 org.jeecg.modules.online.config.b.c.a(aVar);
             }
-        } else if (org.jeecg.modules.online.cgform.d.b.sG.equals(synMethod)) {
+        } else if (org.jeecg.modules.online.cgform.d.b.FORCE.equals(synMethod)) {
             ((OnlCgformHeadMapper) this.baseMapper).executeDDL(org.jeecg.modules.online.config.b.d.getTableHandle().dropTableSQL(tableName));
             org.jeecg.modules.online.config.b.c.a(aVar);
         }
@@ -401,7 +401,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (isListButton) {
             lambdaQueryWrapper.in(OnlCgformButton::getButtonStyle, new Object[]{"link", "button"});
         } else {
-            lambdaQueryWrapper.eq(OnlCgformButton::getButtonStyle, org.jeecg.modules.online.cgform.d.b.form);
+            lambdaQueryWrapper.eq(OnlCgformButton::getButtonStyle, org.jeecg.modules.online.cgform.d.b.FORM);
         }
         lambdaQueryWrapper.orderByAsc(OnlCgformButton::getOrderNum);
         return this.onlCgformButtonMapper.selectList(lambdaQueryWrapper);
@@ -438,7 +438,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setCopyType(0);
         onlCgformHead.setIsDesForm("N");
         onlCgformHead.setScroll(1);
-        onlCgformHead.setThemeTemplate(org.jeecg.modules.online.cgform.d.b.sH);
+        onlCgformHead.setThemeTemplate(org.jeecg.modules.online.cgform.d.b.NORMAL);
         onlCgformHead.setViewTable(false);
         onlCgformHead.setHideActionButton(false);
         String generate = UUIDGenerator.generate();
@@ -465,7 +465,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 onlCgformField.setFieldMustInput("0");
                 onlCgformField.setIsShowList(1);
                 onlCgformField.setOrderNum(Integer.valueOf(i + 1));
-                onlCgformField.setQueryMode(org.jeecg.modules.online.cgform.d.b.single);
+                onlCgformField.setQueryMode(org.jeecg.modules.online.cgform.d.b.SINGLE);
                 onlCgformField.setDbLength(Integer.valueOf(oConvertUtils.getInt(columnVo.getPrecision())));
                 onlCgformField.setFieldLength(120);
                 onlCgformField.setDbPointLength(Integer.valueOf(oConvertUtils.getInt(columnVo.getScale())));
@@ -641,7 +641,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         if (onlCgformHead2 == null) {
             throw new DBException("数据库主表ID[" + code + "]不存在");
         }
-        executeEnhanceJava("add", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead2, formData);
+        executeEnhanceJava("add", org.jeecg.modules.online.cgform.d.b.START, onlCgformHead2, formData);
         String tableName = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead2.getTableName());
         if (onlCgformHead2.getTableType() == 2) {
             String subTableStr = onlCgformHead2.getSubTableStr();
@@ -687,7 +687,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         executeEnhanceJava("add", "end", onlCgformHead2, formData);
         // 如果存在流程状态字段，则保存流程草稿到 ext_act_flow_data，实际上KForm表单中，新增时一般不会携带此字段，而是基于：保存+提交流程，两个步骤实现发起时提交
         if (StringUtils.hasText(xAccessToken)) {
-            if (oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE)) || oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.sE.toUpperCase()))) {
+            if (oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.BPM_STATUS)) || oConvertUtils.isNotEmpty(formData.get(org.jeecg.modules.online.cgform.d.b.BPM_STATUS.toUpperCase()))) {
                 try {
                     HttpHeaders httpHeaders = new HttpHeaders();
                     httpHeaders.setContentType(MediaType.parseMediaType("application/json;charset=UTF-8"));
@@ -848,7 +848,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                 throw new DBException("数据库主表ID[" + code + "]不存在");
             }
         }
-        executeEnhanceJava("edit", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, formData);
+        executeEnhanceJava("edit", org.jeecg.modules.online.cgform.d.b.START, onlCgformHead, formData);
         String tableName = onlCgformHead.getTableName();
         if ("Y".equals(onlCgformHead.getIsTree())) {
             this.fieldService.editTreeFormData(code, tableName, formData, onlCgformHead.getTreeIdField(), onlCgformHead.getTreeParentIdField());
@@ -917,7 +917,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
     public void executeEnhanceExport(OnlCgformHead head, List<Map<String, Object>> dataList) throws BusinessException {
-        executeEnhanceList(head, org.jeecg.modules.online.cgform.d.b.ag, dataList);
+        executeEnhanceList(head, org.jeecg.modules.online.cgform.d.b.EXPORT, dataList);
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformHeadService
@@ -981,7 +981,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             throw new BusinessException("未找到表配置信息");
         }
         JSONObject parseObject = JSONObject.parseObject(JSON.toJSONString(((OnlCgformHeadMapper) this.baseMapper).queryOneByTableNameAndId(org.jeecg.modules.online.cgform.d.b.f(onlCgformHead.getTableName()), dataId)));
-        executeEnhanceJava(buttonCode, org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, parseObject);
+        executeEnhanceJava(buttonCode, org.jeecg.modules.online.cgform.d.b.START, onlCgformHead, parseObject);
         executeEnhanceSql(buttonCode, formId, parseObject);
         executeEnhanceJava(buttonCode, "end", onlCgformHead, parseObject);
     }
@@ -1016,7 +1016,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             throw new BusinessException("未找到数据信息");
         }
         JSONObject parseObject = JSONObject.parseObject(JSON.toJSONString(org.jeecg.modules.online.cgform.d.b.b(queryOneByTableNameAndId)));
-        executeEnhanceJava("delete", org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, parseObject);
+        executeEnhanceJava("delete", org.jeecg.modules.online.cgform.d.b.START, onlCgformHead, parseObject);
         updateParentNode(onlCgformHead, dataId);
         if (onlCgformHead.getTableType().intValue() == 2) {
             this.fieldService.deleteAutoListMainAndSub(onlCgformHead, dataId);
@@ -1223,7 +1223,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
             } else {
                 columnVo.setNullable("Y");
             }
-            if (org.jeecg.modules.online.cgform.d.b.sI.equals(onlCgformField2.getFieldShowType())) {
+            if (org.jeecg.modules.online.cgform.d.b.SWITCH.equals(onlCgformField2.getFieldShowType())) {
                 columnVo.setDictField(onlCgformField2.getFieldExtendJson());
             }
             columnVo.setSort("1".equals(onlCgformField2.getSortFlag()) ? "Y" : "N");
@@ -1275,7 +1275,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         }
         if (onlCgformHead2.getTableType().intValue() == 2 && (subTableStr = onlCgformHead2.getSubTableStr()) != null) {
             for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
-                String string = json.getString(org.jeecg.modules.online.cgform.d.b.ae + str);
+                String string = json.getString(org.jeecg.modules.online.cgform.d.b.SUB_TABLE_DESIGN + str);
                 if (!oConvertUtils.isEmpty(string) && (parseArray = JSONArray.parseArray(URLDecoder.decode(string, "UTF-8"))) != null && parseArray.size() != 0 && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne(new LambdaQueryWrapper<OnlCgformHead>()
                         .eq(OnlCgformHead::getTableName, str))) != null) {
                     List<OnlCgformField> list = this.fieldService.list(new LambdaQueryWrapper<OnlCgformField>()
@@ -1327,7 +1327,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                     }
                     if (!oConvertUtils.isEmpty(str3)) {
                         this.fieldService.deleteAutoList(str, str2, str3);
-                        String string = json.getString(org.jeecg.modules.online.cgform.d.b.ae + str);
+                        String string = json.getString(org.jeecg.modules.online.cgform.d.b.SUB_TABLE_DESIGN + str);
                         if (!oConvertUtils.isEmpty(string) && (parseArray = JSONArray.parseArray(URLDecoder.decode(string, "UTF-8"))) != null && parseArray.size() != 0) {
                             for (int i = 0; i < parseArray.size(); i++) {
                                 JSONObject jSONObject = parseArray.getJSONObject(i);

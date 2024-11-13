@@ -66,7 +66,7 @@ public class g implements IOnlCgformSqlService {
 
     private void a(String str, OnlCgformHead onlCgformHead, List<OnlCgformField> list, OnlCgformFieldMapper onlCgformFieldMapper) throws BusinessException {
         JSONObject parseObject = JSONObject.parseObject(str);
-        int executeEnhanceJava = this.onlCgformHeadService.executeEnhanceJava(org.jeecg.modules.online.cgform.d.b.af, org.jeecg.modules.online.cgform.d.b.al, onlCgformHead, parseObject);
+        int executeEnhanceJava = this.onlCgformHeadService.executeEnhanceJava(org.jeecg.modules.online.cgform.d.b.IMPORT, org.jeecg.modules.online.cgform.d.b.START, onlCgformHead, parseObject);
         String tableName = onlCgformHead.getTableName();
         if (1 == executeEnhanceJava) {
             onlCgformFieldMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.generateInsertSql(tableName, list, parseObject));

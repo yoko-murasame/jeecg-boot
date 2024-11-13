@@ -285,11 +285,11 @@ public class c {
     }
 
     private String d(String str, String str2) {
-        return "update onl_cgform_field set DB_FIELD_NAME_OLD = '" + str + "' where ID ='" + str2 + org.jeecg.modules.online.cgform.d.b.sz;
+        return "update onl_cgform_field set DB_FIELD_NAME_OLD = '" + str + "' where ID ='" + str2 + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 
     private int a(String str, String str2, Session session) {
-        return session.createSQLQuery("update onl_cgform_field set DB_FIELD_NAME_OLD= '" + str + "' where ID ='" + str2 + org.jeecg.modules.online.cgform.d.b.sz).executeUpdate();
+        return session.createSQLQuery("update onl_cgform_field set DB_FIELD_NAME_OLD= '" + str + "' where ID ='" + str2 + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE).executeUpdate();
     }
 
     private static String c(String str) {
@@ -297,8 +297,8 @@ public class c {
             try {
                 Double.valueOf(str);
             } catch (Exception e) {
-                if (!str.startsWith(org.jeecg.modules.online.cgform.d.b.sz) || !str.endsWith(org.jeecg.modules.online.cgform.d.b.sz)) {
-                    str = org.jeecg.modules.online.cgform.d.b.sz + str + org.jeecg.modules.online.cgform.d.b.sz;
+                if (!str.startsWith(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE) || !str.endsWith(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE)) {
+                    str = org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE + str + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
                 }
             }
         }

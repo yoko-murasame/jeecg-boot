@@ -122,7 +122,7 @@ public class e implements DbTableHandleI {
         stringBuffer.append("', N'SCHEMA', N'dbo', N'TABLE', N'");
         stringBuffer.append(columnMeta.getTableName());
         stringBuffer.append("', N'COLUMN', N'");
-        stringBuffer.append(columnMeta.getColumnName() + org.jeecg.modules.online.cgform.d.b.sz);
+        stringBuffer.append(columnMeta.getColumnName() + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
         return stringBuffer.toString();
     }
 
@@ -138,6 +138,6 @@ public class e implements DbTableHandleI {
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String countIndex(String indexName, String tableName) {
-        return "SELECT count(*) FROM sys.indexes WHERE object_id=OBJECT_ID('" + tableName + "') and NAME= '" + indexName + org.jeecg.modules.online.cgform.d.b.sz;
+        return "SELECT count(*) FROM sys.indexes WHERE object_id=OBJECT_ID('" + tableName + "') and NAME= '" + indexName + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 }

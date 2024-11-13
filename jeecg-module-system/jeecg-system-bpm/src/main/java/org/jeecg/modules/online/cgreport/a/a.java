@@ -111,7 +111,7 @@ public class a {
             HashMap hashMap2 = new HashMap(3);
             hashMap2.put("title", onlCgreportItem.getFieldTxt());
             hashMap2.put("dataIndex", onlCgreportItem.getFieldName());
-            hashMap2.put("align", org.jeecg.modules.online.cgform.d.b.aw);
+            hashMap2.put("align", org.jeecg.modules.online.cgform.d.b.CENTER);
             hashMap2.put("sorter", "true");
             arrayList.add(hashMap2);
             String dictCode = onlCgreportItem.getDictCode();

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /* loaded from: hibernate-common-ol-5.4.74(2).jar:org/jeecg/modules/online/cgform/converter/b/j.class */
 public class j extends org.jeecg.modules.online.cgform.converter.aa.b {
     public j(OnlCgformField onlCgformField) {
-        this.b = ((ISysBaseAPI) SpringContextUtils.getBean(ISysBaseAPI.class)).queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.sQ, org.jeecg.modules.online.cgform.d.b.sR, org.jeecg.modules.online.cgform.d.b.S);
+        this.b = ((ISysBaseAPI) SpringContextUtils.getBean(ISysBaseAPI.class)).queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.SYS_USER, org.jeecg.modules.online.cgform.d.b.REALNAME, org.jeecg.modules.online.cgform.d.b.USERNAME);
         this.a = onlCgformField.getDbFieldName();
     }
 

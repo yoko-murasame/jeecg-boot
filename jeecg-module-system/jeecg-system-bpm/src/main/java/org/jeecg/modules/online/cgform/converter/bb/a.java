@@ -20,7 +20,7 @@ public class a extends org.jeecg.modules.online.cgform.converter.aa.a {
     }
 
     public a(OnlCgformField onlCgformField) {
-        super(org.jeecg.modules.online.cgform.d.b.sW, "ID", org.jeecg.modules.online.cgform.d.b.sX);
+        super(org.jeecg.modules.online.cgform.d.b.SYS_CATEGORY, "ID", org.jeecg.modules.online.cgform.d.b.NAME);
         this.treeText = onlCgformField.getDictText();
         this.field = onlCgformField.getDbFieldName();
     }

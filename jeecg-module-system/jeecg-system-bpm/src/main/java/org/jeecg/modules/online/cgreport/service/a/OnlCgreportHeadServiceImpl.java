@@ -81,7 +81,7 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
                 }
                 String str3 = "${" + onlCgreportParam.getParamName() + "}";
                 if (sql.indexOf(str3) > 0) {
-                    if (str2 != null && str2.startsWith(org.jeecg.modules.online.cgform.d.b.sz) && str2.endsWith(org.jeecg.modules.online.cgform.d.b.sz)) {
+                    if (str2 != null && str2.startsWith(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE) && str2.endsWith(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE)) {
                         str2 = str2.substring(1, str2.length() - 1);
                     }
                     sql = sql.replace(str3, str2);
@@ -375,7 +375,7 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
             jSONObject.put("title", onlCgreportItem.getFieldTxt());
             jSONObject.put("dataIndex", onlCgreportItem.getFieldName());
             jSONObject.put("fieldType", onlCgreportItem.getFieldType());
-            jSONObject.put("align", org.jeecg.modules.online.cgform.d.b.aw);
+            jSONObject.put("align", org.jeecg.modules.online.cgform.d.b.CENTER);
             jSONObject.put("sorter", "true");
             jSONObject.put("isTotal", onlCgreportItem.getIsTotal());
             jSONObject.put("groupTitle", onlCgreportItem.getGroupTitle());
@@ -435,7 +435,7 @@ public class OnlCgreportHeadServiceImpl extends ServiceImpl<OnlCgreportHeadMappe
                             arrayList.add(string);
                         }
                     }
-                    str = str + "WHERE temp.value IN (" + (org.jeecg.modules.online.cgform.d.b.sz + StringUtils.join(arrayList, "','") + org.jeecg.modules.online.cgform.d.b.sz) + ")";
+                    str = str + "WHERE temp.value IN (" + (org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE + StringUtils.join(arrayList, "','") + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE) + ")";
                 }
                 List<Map<?, ?>> executeSelete = ((OnlCgreportHeadMapper) getBaseMapper()).executeSelete(str);
                 if (executeSelete != null && executeSelete.size() != 0) {

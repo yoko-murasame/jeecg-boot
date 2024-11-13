@@ -107,7 +107,7 @@ public class a implements DbTableHandleI {
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String getCommentSql(org.jeecg.modules.online.config.b.a columnMeta) {
-        return "COMMENT ON COLUMN " + columnMeta.getTableName() + "." + columnMeta.getColumnName() + " IS '" + columnMeta.getComment() + org.jeecg.modules.online.cgform.d.b.sz;
+        return "COMMENT ON COLUMN " + columnMeta.getTableName() + "." + columnMeta.getColumnName() + " IS '" + columnMeta.getComment() + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI

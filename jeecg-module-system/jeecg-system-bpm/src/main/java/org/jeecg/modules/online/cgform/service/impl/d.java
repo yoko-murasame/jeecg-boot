@@ -568,7 +568,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         if (queryOwnerAuth != null && queryOwnerAuth.size() > 0) {
             JeecgDataAutorUtils.installUserInfo(this.commonAPI.getCacheUser(loginUser.getUsername()));
         }
-        stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(list2, hashMap, list, queryOwnerAuth) + "and id='" + str + org.jeecg.modules.online.cgform.d.b.sz);
+        stringBuffer.append(org.jeecg.modules.online.cgform.d.b.WHERE_1_1 + org.jeecg.modules.online.cgform.d.b.assembleQuery(list2, hashMap, list, queryOwnerAuth) + "and id='" + str + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
         List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql(stringBuffer.toString());
         if (queryListBySql != null && queryListBySql.size() > 0) {
             Map<String, Object> map = queryListBySql.get(0);
@@ -623,7 +623,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         }
         this.baseMapper.executeInsertSQL(org.jeecg.modules.online.cgform.d.b.generateInsertSql(tableName, list, formData));
         if (!b.equals(formData.getString(treeParentIdField))) {
-            this.baseMapper.editFormData("update " + tableName + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.sz);
+            this.baseMapper.editFormData("update " + tableName + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
         }
     }
 
@@ -691,7 +691,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     @Override // org.jeecg.modules.online.cgform.service.IOnlCgformFieldService
     public void editTreeFormData(String code, String tableName, JSONObject formData, String treeIdField, String treeParentIdField) {
         String f = org.jeecg.modules.online.cgform.d.b.f(tableName);
-        String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + f + " where id = '" + formData.getString("id") + org.jeecg.modules.online.cgform.d.b.sz)).get(treeParentIdField).toString();
+        String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + f + " where id = '" + formData.getString("id") + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE)).get(treeParentIdField).toString();
         LambdaQueryWrapper<OnlCgformField> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper.eq(OnlCgformField::getCgformHeadId, code);
         List<OnlCgformField> list = list(lambdaQueryWrapper);
@@ -704,13 +704,13 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         ((OnlCgformFieldMapper) this.baseMapper).executeUpdatetSQL(org.jeecg.modules.online.cgform.d.b.generateUpdateSql(tableName, list, formData));
         if (!obj.equals(formData.getString(treeParentIdField))) {
             if (!b.equals(obj)) {
-                Integer queryCountBySql = ((OnlCgformFieldMapper) this.baseMapper).queryCountBySql("select count(*) from " + f + " where " + treeParentIdField + " = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
+                Integer queryCountBySql = ((OnlCgformFieldMapper) this.baseMapper).queryCountBySql("select count(*) from " + f + " where " + treeParentIdField + " = '" + obj + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
                 if (queryCountBySql == null || queryCountBySql.intValue() == 0) {
-                    ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '0' where id = '" + obj + org.jeecg.modules.online.cgform.d.b.sz);
+                    ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '0' where id = '" + obj + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
                 }
             }
             if (!b.equals(formData.getString(treeParentIdField))) {
-                ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.sz);
+                ((OnlCgformFieldMapper) this.baseMapper).editFormData("update " + f + " set " + treeIdField + " = '1' where id = '" + formData.getString(treeParentIdField) + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
             }
         }
     }
@@ -797,7 +797,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             StringBuffer stringBuffer = new StringBuffer();
             for (String str : split) {
                 if (str != null && !"".equals(str)) {
-                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.sz + str + "',");
+                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE + str + "',");
                 }
             }
             String stringBuffer2 = stringBuffer.toString();
@@ -821,7 +821,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
             StringBuffer stringBuffer = new StringBuffer();
             for (String str : split) {
                 if (str != null && !"".equals(str)) {
-                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.sz + str + "',");
+                    stringBuffer.append(org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE + str + "',");
                 }
             }
             String stringBuffer2 = stringBuffer.toString();
@@ -852,7 +852,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 hashMap.put("defValue", onlCgformField.getQueryDefVal());
                 if (org.jeecg.modules.online.cgform.d.b.CAT_TREE.equals(onlCgformField.getFieldShowType())) {
                     hashMap.put("pcode", onlCgformField.getQueryDictField());
-                } else if (org.jeecg.modules.online.cgform.d.b.sN.equals(onlCgformField.getFieldShowType())) {
+                } else if (org.jeecg.modules.online.cgform.d.b.SEL_TREE.equals(onlCgformField.getFieldShowType())) {
                     String[] split = onlCgformField.getQueryDictText().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
                     hashMap.put("dict", onlCgformField.getQueryDictTable() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + split[2] + org.jeecg.modules.online.cgform.d.b.DOT_STRING + split[0]);
                     hashMap.put("pidField", split[1]);
@@ -867,7 +867,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
                 hashMap.put("view", onlCgformField.getFieldShowType());
                 if (org.jeecg.modules.online.cgform.d.b.CAT_TREE.equals(onlCgformField.getFieldShowType())) {
                     hashMap.put("pcode", onlCgformField.getDictField());
-                } else if (org.jeecg.modules.online.cgform.d.b.sN.equals(onlCgformField.getFieldShowType())) {
+                } else if (org.jeecg.modules.online.cgform.d.b.SEL_TREE.equals(onlCgformField.getFieldShowType())) {
                     String[] split2 = onlCgformField.getDictText().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
                     hashMap.put("dict", onlCgformField.getDictTable() + org.jeecg.modules.online.cgform.d.b.DOT_STRING + split2[2] + org.jeecg.modules.online.cgform.d.b.DOT_STRING + split2[0]);
                     hashMap.put("pidField", split2[1]);
@@ -1174,7 +1174,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
         String[] split = ids.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
         for (String str : split) {
             if (str != null) {
-                String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + org.jeecg.modules.online.cgform.d.b.f(tableName) + " where id = '" + str + org.jeecg.modules.online.cgform.d.b.sz)).get(treeParentIdField).toString();
+                String obj = org.jeecg.modules.online.cgform.d.b.b(((OnlCgformFieldMapper) this.baseMapper).queryFormData("select * from " + org.jeecg.modules.online.cgform.d.b.f(tableName) + " where id = '" + str + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE)).get(treeParentIdField).toString();
                 List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql("select * from " + org.jeecg.modules.online.cgform.d.b.f(tableName) + " where " + treeParentIdField + "= '" + obj + "' and id not in(" + ids + ")");
                 if ((queryListBySql == null || queryListBySql.size() == 0) && !Arrays.asList(split).contains(obj) && !stringBuffer.toString().contains(obj)) {
                     stringBuffer.append(obj).append(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
@@ -1197,7 +1197,7 @@ public class d extends ServiceImpl<OnlCgformFieldMapper, OnlCgformField> impleme
     }
 
     private StringBuffer a(String str, String str2, String str3, StringBuffer stringBuffer) {
-        List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql("select * from " + org.jeecg.modules.online.cgform.d.b.f(str3) + " where " + str2 + "= '" + str + org.jeecg.modules.online.cgform.d.b.sz);
+        List<Map<String, Object>> queryListBySql = this.onlCgformFieldMapper.queryListBySql("select * from " + org.jeecg.modules.online.cgform.d.b.f(str3) + " where " + str2 + "= '" + str + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE);
         if (queryListBySql != null && queryListBySql.size() > 0) {
             for (Map<String, Object> map : queryListBySql) {
                 Map<String, Object> b2 = org.jeecg.modules.online.cgform.d.b.b(map);

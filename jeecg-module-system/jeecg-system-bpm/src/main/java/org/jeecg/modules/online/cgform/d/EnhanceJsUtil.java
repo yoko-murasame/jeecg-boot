@@ -113,7 +113,7 @@ public class EnhanceJsUtil {
                 String buttonCode = onlCgformButton.getButtonCode();
                 if ("link".equals(onlCgformButton.getButtonStyle())) {
                     str = a(str, buttonCode);
-                } else if ("button".equals(onlCgformButton.getButtonStyle()) || b.form.equals(onlCgformButton.getButtonStyle())) {
+                } else if ("button".equals(onlCgformButton.getButtonStyle()) || b.FORM.equals(onlCgformButton.getButtonStyle())) {
                     str = a(str, buttonCode, (String) null);
                 }
             }

@@ -105,18 +105,18 @@ public class OnlineServiceImpl implements IOnlineService {
                         onlColumn.setCustomRender(dbFieldName);
                     }
                 }
-                if (org.jeecg.modules.online.cgform.d.b.sI.equals(fieldShowType)) {
+                if (org.jeecg.modules.online.cgform.d.b.SWITCH.equals(fieldShowType)) {
                     dictOptions.put(dbFieldName, org.jeecg.modules.online.cgform.d.b.a(onlCgformField));
                     onlColumn.setCustomRender(dbFieldName);
                 }
-                if (org.jeecg.modules.online.cgform.d.b.sP.equals(fieldShowType)) {
+                if (org.jeecg.modules.online.cgform.d.b.LINK_DOWN.equals(fieldShowType)) {
                     org.jeecg.modules.online.cgform.a.a aVar = JSONObject.parseObject(onlCgformField.getDictTable(), org.jeecg.modules.online.cgform.a.a.class);
                     dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(aVar.getTable(), aVar.getTxt(), aVar.getKey()));
                     onlColumn.setCustomRender(dbFieldName);
                     columns.add(onlColumn);
                     getCgformField(onlCgformFields, arrayList4, columns, dbFieldName, aVar.getLinkField());
                 }
-                if (org.jeecg.modules.online.cgform.d.b.sN.equals(fieldShowType)) {
+                if (org.jeecg.modules.online.cgform.d.b.SEL_TREE.equals(fieldShowType)) {
                     String[] split = onlCgformField.getDictText().split(org.jeecg.modules.online.cgform.d.b.DOT_STRING);
                     dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), split[2], split[0]));
                     onlColumn.setCustomRender(dbFieldName);
@@ -124,7 +124,7 @@ public class OnlineServiceImpl implements IOnlineService {
                 if (org.jeecg.modules.online.cgform.d.b.CAT_TREE.equals(fieldShowType)) {
                     String dictText = onlCgformField.getDictText();
                     if (oConvertUtils.isEmpty(dictText)) {
-                        dictOptions.put(dbFieldName, this.sysBaseAPI.queryFilterTableDictInfo(org.jeecg.modules.online.cgform.d.b.sW, org.jeecg.modules.online.cgform.d.b.sX, "ID", org.jeecg.modules.online.cgform.d.b.e(onlCgformField.getDictField())));
+                        dictOptions.put(dbFieldName, this.sysBaseAPI.queryFilterTableDictInfo(org.jeecg.modules.online.cgform.d.b.SYS_CATEGORY, org.jeecg.modules.online.cgform.d.b.NAME, "ID", org.jeecg.modules.online.cgform.d.b.e(onlCgformField.getDictField())));
                         onlColumn.setCustomRender(dbFieldName);
                     } else {
                         onlColumn.setCustomRender("_replace_text_" + dictText);
@@ -135,7 +135,7 @@ public class OnlineServiceImpl implements IOnlineService {
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 if ("sel_user".equals(onlCgformField.getFieldShowType())) {
-                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.sQ, org.jeecg.modules.online.cgform.d.b.sR, org.jeecg.modules.online.cgform.d.b.S));
+                    dictOptions.put(dbFieldName, this.sysBaseAPI.queryTableDictItemsByCode(org.jeecg.modules.online.cgform.d.b.SYS_USER, org.jeecg.modules.online.cgform.d.b.REALNAME, org.jeecg.modules.online.cgform.d.b.USERNAME));
                     onlColumn.setCustomRender(dbFieldName);
                 }
                 // 设置自定义scopedSlots插槽
@@ -156,14 +156,14 @@ public class OnlineServiceImpl implements IOnlineService {
                 String fieldExtendJson = onlCgformField.getFieldExtendJson();
                 if ("1".equals(onlCgformField.getSortFlag())) {
                     onlColumn.setSorter(true);
-                    if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.orderRule) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.orderRule) != null) {
-                        onlColumn.setSorterType(oConvertUtils.getString(parseObject.get(org.jeecg.modules.online.cgform.d.b.orderRule)).toString());
+                    if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.ORDER_RULE) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.ORDER_RULE) != null) {
+                        onlColumn.setSorterType(oConvertUtils.getString(parseObject.get(org.jeecg.modules.online.cgform.d.b.ORDER_RULE)).toString());
                     }
                 }
-                if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.ax) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.ax) != null) {
-                    onlColumn.setShowLength(oConvertUtils.getInt(parseObject.get(org.jeecg.modules.online.cgform.d.b.ax)).intValue());
+                if (org.jeecg.modules.online.cgform.d.c.b(fieldExtendJson) && fieldExtendJson.indexOf(org.jeecg.modules.online.cgform.d.b.SHOW_LENGTH) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(org.jeecg.modules.online.cgform.d.b.SHOW_LENGTH) != null) {
+                    onlColumn.setShowLength(oConvertUtils.getInt(parseObject.get(org.jeecg.modules.online.cgform.d.b.SHOW_LENGTH)).intValue());
                 }
-                if (!org.jeecg.modules.online.cgform.d.b.sP.equals(fieldShowType)) {
+                if (!org.jeecg.modules.online.cgform.d.b.LINK_DOWN.equals(fieldShowType)) {
                     columns.add(onlColumn);
                 }
             }
@@ -190,7 +190,7 @@ public class OnlineServiceImpl implements IOnlineService {
             }
         }
         onlComplexModel.setCgButtonList(cgButtonList);
-        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(id, org.jeecg.modules.online.cgform.d.b.aj);
+        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(id, org.jeecg.modules.online.cgform.d.b.LIST);
         if (queryEnhanceJs != null && oConvertUtils.isNotEmpty(queryEnhanceJs.getCgJs())) {
             onlComplexModel.setEnhanceJs(EnhanceJsUtil.b(queryEnhanceJs.getCgJs(), queryButtonList));
         }
@@ -272,7 +272,7 @@ public class OnlineServiceImpl implements IOnlineService {
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
     public JSONObject queryOnlineFormObj(OnlCgformHead head, String username) {
-        return queryOnlineFormObj(head, this.onlCgformHeadService.queryEnhanceJs(head.getId(), org.jeecg.modules.online.cgform.d.b.form));
+        return queryOnlineFormObj(head, this.onlCgformHeadService.queryEnhanceJs(head.getId(), org.jeecg.modules.online.cgform.d.b.FORM));
     }
 
     @Override // org.jeecg.modules.online.cgform.service.IOnlineService
@@ -351,7 +351,7 @@ public class OnlineServiceImpl implements IOnlineService {
 
     private JSONObject getCgformField(OnlCgformHead onlCgformHead) {
         List<String> queryFormDisabledCode;
-        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(onlCgformHead.getId(), org.jeecg.modules.online.cgform.d.b.form);
+        OnlCgformEnhanceJs queryEnhanceJs = this.onlCgformHeadService.queryEnhanceJs(onlCgformHead.getId(), org.jeecg.modules.online.cgform.d.b.FORM);
         JSONObject queryOnlineFormObj = queryOnlineFormObj(onlCgformHead, queryEnhanceJs);
         queryOnlineFormObj.put("formTemplate", onlCgformHead.getFormTemplate());
         if (onlCgformHead.getTableType().intValue() == 2) {

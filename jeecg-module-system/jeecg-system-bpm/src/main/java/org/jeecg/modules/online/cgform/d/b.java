@@ -77,61 +77,61 @@ public class b {
     public static final String UPDATE_TIME = "UPDATE_TIME";
     public static final String UPDATE_BY = "UPDATE_BY";
     public static final String SYS_ORG_CODE = "SYS_ORG_CODE";
-    public static final int sy = 2;
-    public static final String sz = "'";
-    public static final String sA = "N";
+    public static final int FLAG_INT_2 = 2;
+    public static final String SINGLE_QUOTE = "'";
+    public static final String FLAG_N = "N";
     public static final String DOT_STRING = ",";
-    public static final String single = "single";
+    public static final String SINGLE = "single";
     public static final String ID = "id";
-    public static final String sE = "bpm_status";
-    public static final String sF = "1";
-    public static final String sG = "force";
-    public static final String sH = "normal";
-    public static final String sI = "switch";
+    public static final String BPM_STATUS = "bpm_status";
+    public static final String FLAG_STR_1 = "1";
+    public static final String FORCE = "force";
+    public static final String NORMAL = "normal";
+    public static final String SWITCH = "switch";
     public static final String POPUP = "popup";
-    public static final String sK = "sel_search";
-    public static final String sL = "image";
-    public static final String sM = "file";
-    public static final String sN = "sel_tree";
+    public static final String SEL_SEARCH = "sel_search";
+    public static final String IMAGE = "image";
+    public static final String FILE = "file";
+    public static final String SEL_TREE = "sel_tree";
     public static final String CAT_TREE = "cat_tree";
-    public static final String sP = "link_down";
-    public static final String sQ = "SYS_USER";
-    public static final String sR = "REALNAME";
-    public static final String S = "USERNAME";
-    public static final String sT = "SYS_DEPART";
-    public static final String sU = "DEPART_NAME";
-    public static final String sV = "ID";
-    public static final String sW = "SYS_CATEGORY";
-    public static final String sX = "NAME";
-    public static final String sY = "CODE";
+    public static final String LINK_DOWN = "link_down";
+    public static final String SYS_USER = "SYS_USER";
+    public static final String REALNAME = "REALNAME";
+    public static final String USERNAME = "USERNAME";
+    public static final String SYS_DEPART = "SYS_DEPART";
+    public static final String DEPART_NAME = "DEPART_NAME";
+    public static final String ID_UPPER = "ID";
+    public static final String SYS_CATEGORY = "SYS_CATEGORY";
+    public static final String NAME = "NAME";
+    public static final String CODE = "CODE";
     public static final String sZ = "ID";
-    public static final String aa = "PID";
-    public static final String ab = "HAS_CHILD";
-    public static final String ac = "popupMulti";
+    public static final String PID = "PID";
+    public static final String HAS_CHILD = "HAS_CHILD";
+    public static final String POPUP_MULTI = "popupMulti";
     public static final String ad = "sel_search";
-    public static final String ae = "sub-table-design_";
-    public static final String af = "import";
-    public static final String ag = "export";
-    public static final String ah = "query";
-    public static final String form = "form";
-    public static final String aj = "list";
+    public static final String SUB_TABLE_DESIGN = "sub-table-design_";
+    public static final String IMPORT = "import";
+    public static final String EXPORT = "export";
+    public static final String QUERY = "query";
+    public static final String FORM = "form";
+    public static final String LIST = "list";
     public static final String ak = "1";
-    public static final String al = "start";
-    public static final String am = "erp";
-    public static final String an = "exportSingleOnly";
-    public static final String ao = "isSingleTableImport";
-    public static final String foreignKeys = "foreignKeys";
-    public static final int aq = 1;
+    public static final String START = "start";
+    public static final String ERP = "erp";
+    public static final String EXPORT_SINGLE_ONLY = "exportSingleOnly";
+    public static final String IS_SINGLE_TABLE_IMPORT = "isSingleTableImport";
+    public static final String FOREIGN_KEYS = "foreignKeys";
+    public static final int FLAG_INT_1 = 1;
     public static final int ar = 2;
-    public static final int as = 0;
+    public static final int FLAG_INT_0 = 0;
     public static final int at = 1;
     public static final String au = "1";
     public static final String av = "id";
-    public static final String aw = "center";
-    public static final String ax = "showLength";
-    public static final String orderRule = "orderRule";
-    private static final String az = "beforeAdd,beforeEdit,afterAdd,afterEdit,beforeDelete,afterDelete,mounted,created";
-    private static String aA;
+    public static final String CENTER = "center";
+    public static final String SHOW_LENGTH = "showLength";
+    public static final String ORDER_RULE = "orderRule";
+    private static final String HOOK_NAMES = "beforeAdd,beforeEdit,afterAdd,afterEdit,beforeDelete,afterDelete,mounted,created";
+    private static String dataBaseType;
 
     public static void assembleSelect(String str, List<OnlCgformField> list, StringBuffer stringBuffer) {
         if (list == null || list.size() == 0) {
@@ -170,7 +170,7 @@ public class b {
     }
 
     public static boolean c(String str) {
-        if (aj.equals(str) || "radio".equals(str) || "checkbox".equals(str) || "list_multi".equals(str)) {
+        if (LIST.equals(str) || "radio".equals(str) || "checkbox".equals(str) || "list_multi".equals(str)) {
             return true;
         }
         return false;
@@ -208,14 +208,14 @@ public class b {
             }
             if (needList != null && needList.contains(dbFieldName)) {
                 onlCgformField.setIsQuery(1);
-                onlCgformField.setQueryMode(single);
+                onlCgformField.setQueryMode(SINGLE);
             }
             if (oConvertUtils.isNotEmpty(onlCgformField.getMainField()) && oConvertUtils.isNotEmpty(onlCgformField.getMainTable())) {
                 onlCgformField.setIsQuery(1);
-                onlCgformField.setQueryMode(single);
+                onlCgformField.setQueryMode(SINGLE);
             }
             if (1 == onlCgformField.getIsQuery()) {
-                if (single.equals(onlCgformField.getQueryMode())) {
+                if (SINGLE.equals(onlCgformField.getQueryMode())) {
                     Object obj = map.get(dbFieldName);
                     if (obj != null) {
                         if ("list_multi".equals(onlCgformField.getFieldShowType())) {
@@ -257,7 +257,7 @@ public class b {
                         } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().contains(i.DATE)) {
                             finalSqlCondition.append(a(obj2.toString()));
                         } else {
-                            finalSqlCondition.append(sz + obj2 + sz);
+                            finalSqlCondition.append(SINGLE_QUOTE + obj2 + SINGLE_QUOTE);
                         }
                     }
                     Object obj3 = map.get(dbFieldName + "_end");
@@ -268,7 +268,7 @@ public class b {
                         } else if ("ORACLE".equals(databaseType) && dbType.toLowerCase().contains(i.DATE)) {
                             finalSqlCondition.append(a(obj3.toString()));
                         } else {
-                            finalSqlCondition.append(sz + obj3 + sz);
+                            finalSqlCondition.append(SINGLE_QUOTE + obj3 + SINGLE_QUOTE);
                         }
                     }
                 }
@@ -359,7 +359,7 @@ public class b {
 
     private static void a(StringBuilder sb, QueryRuleEnum queryRuleEnum, String str, String str2, String str3) {
         if (i.DATE.equals(str3) && "ORACLE".equalsIgnoreCase(getDatabseType())) {
-            String replace = str2.replace(sz, "");
+            String replace = str2.replace(SINGLE_QUOTE, "");
             if (replace.length() == 10) {
                 str2 = b(replace);
             } else {
@@ -397,13 +397,13 @@ public class b {
                 sb.append(")");
                 return;
             case 7:
-                sb.append(LIKE).append("N").append(sz).append("%").append(str).append("%").append(sz);
+                sb.append(LIKE).append("N").append(SINGLE_QUOTE).append("%").append(str).append("%").append(SINGLE_QUOTE);
                 return;
             case 8:
-                sb.append(LIKE).append("N").append(sz).append("%").append(str).append(sz);
+                sb.append(LIKE).append("N").append(SINGLE_QUOTE).append("%").append(str).append(SINGLE_QUOTE);
                 return;
             case 9:
-                sb.append(LIKE).append("N").append(sz).append(str).append("%").append(sz);
+                sb.append(LIKE).append("N").append(SINGLE_QUOTE).append(str).append("%").append(SINGLE_QUOTE);
                 return;
             case 10:
             default:
@@ -468,12 +468,12 @@ public class b {
             return str2;
         }
         if (i.DATE.equals(str)) {
-            return sz + str2 + sz;
+            return SINGLE_QUOTE + str2 + SINGLE_QUOTE;
         }
         if ("SQLSERVER".equals(getDatabseType())) {
-            return "N'" + str2 + sz;
+            return "N'" + str2 + SINGLE_QUOTE;
         }
-        return sz + str2 + sz;
+        return SINGLE_QUOTE + str2 + SINGLE_QUOTE;
     }
 
     public static Map<String, Object> a(HttpServletRequest httpServletRequest) {
@@ -531,7 +531,7 @@ public class b {
                     arrayList.add(dbFieldName);
                 }
                 String fieldShowType = onlCgformField.getFieldShowType();
-                if (sI.equals(fieldShowType)) {
+                if (SWITCH.equals(fieldShowType)) {
                     stringProperty = (new SwitchProperty(dbFieldName, dbFieldTxt, onlCgformField.getFieldExtendJson()));
                 } else if (c(fieldShowType)) {
                     ArrayList arrayList4 = new ArrayList();
@@ -565,18 +565,18 @@ public class b {
                     String fieldExtendJson = onlCgformField.getFieldExtendJson();
                     if (fieldExtendJson != null && !fieldExtendJson.equals("")) {
                         JSONObject parseObject = JSONObject.parseObject(fieldExtendJson);
-                        if (parseObject.containsKey(ac)) {
-                            popupProperty.setPopupMulti(parseObject.getBoolean(ac));
+                        if (parseObject.containsKey(POPUP_MULTI)) {
+                            popupProperty.setPopupMulti(parseObject.getBoolean(POPUP_MULTI));
                         }
                     }
                     stringProperty = popupProperty;
                 } else if ("sel_search".equals(fieldShowType)) {
                     stringProperty = new DictProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable(), onlCgformField.getDictField(), onlCgformField.getDictText());
-                } else if (sP.equals(fieldShowType)) {
+                } else if (LINK_DOWN.equals(fieldShowType)) {
                     LinkDownProperty linkDownProperty = new LinkDownProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable());
                     a((LinkDownProperty) linkDownProperty, list, (List<String>) arrayList3);
                     stringProperty = linkDownProperty;
-                } else if (sN.equals(fieldShowType)) {
+                } else if (SEL_TREE.equals(fieldShowType)) {
                     String[] split2 = onlCgformField.getDictText().split(DOT_STRING);
                     TreeSelectProperty treeSelectProperty = new TreeSelectProperty(dbFieldName, dbFieldTxt, onlCgformField.getDictTable() + DOT_STRING + split2[2] + DOT_STRING + split2[0], split2[1], onlCgformField.getDictField());
                     if (split2.length > 3) {
@@ -727,7 +727,7 @@ public class b {
                 idValue = formData.getString(dbFieldName);
             } else {
                 a(onlCgformField, loginUser, formData, CREATE_BY, CREATE_TIME, SYS_ORG_CODE);
-                if (sE.equals(dbFieldName.toLowerCase())) {
+                if (BPM_STATUS.equals(dbFieldName.toLowerCase())) {
                     stringBuffer.append(DOT_STRING + dbFieldName);
                     stringBuffer2.append(",'1'");
                 } else if (dictTextFieldSet.contains(dbFieldName)) {
@@ -756,7 +756,7 @@ public class b {
         } else {
             idValue = a();
         }
-        String str4 = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
+        String str4 = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + SINGLE_QUOTE + idValue + SINGLE_QUOTE + stringBuffer2.toString() + ")";
         hashMap.put("execute_sql_string", str4);
         ay.debug("--动态表单保存sql-->" + str4);
         // 将新的id带回去
@@ -840,7 +840,7 @@ public class b {
         if (updateColumnSql.endsWith(DOT_STRING)) {
             updateColumnSql = updateColumnSql.substring(0, updateColumnSql.length() - 1);
         }
-        String updateSql = "update " + f(tableName) + " set " + updateColumnSql + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
+        String updateSql = "update " + f(tableName) + " set " + updateColumnSql + WHERE + "id" + EQ + SINGLE_QUOTE + formData.getString("id") + SINGLE_QUOTE;
         ay.debug("--动态表单编辑sql-->" + updateSql);
         hashMap.put("execute_sql_string", updateSql);
         return hashMap;
@@ -880,7 +880,7 @@ public class b {
             JSONObject parseObject;
             String fieldExtendJson=list.get(i2).getFieldExtendJson();
             if(StringUtils.isNotEmpty(fieldExtendJson)){
-                if(fieldExtendJson.indexOf(b.orderRule) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(b.orderRule) != null){
+                if(fieldExtendJson.indexOf(b.ORDER_RULE) > 0 && (parseObject = JSON.parseObject(fieldExtendJson)) != null && parseObject.get(b.ORDER_RULE) != null){
                    String orderTyep= parseObject.get("orderRule").toString();
                    if(orderStr.indexOf(ORDERBY)==-1) {
                        orderStr.append(ORDERBY);
@@ -899,7 +899,7 @@ public class b {
         // stringBuffer.append(FROM + f(str) + WHERE_1_1 + AND + str2 + " like " + sz + "%" + str3 + "%" + sz);
         // 去除 WHERE 1=1
         if (StringUtils.isNotBlank(str3)) {
-            stringBuffer.append(FROM + f(str) + WHERE + str2 + " like " + sz + "%" + str3 + "%" + sz);
+            stringBuffer.append(FROM + f(str) + WHERE + str2 + " like " + SINGLE_QUOTE + "%" + str3 + "%" + SINGLE_QUOTE);
         } else {
             stringBuffer.append(FROM + f(str));
         }
@@ -1018,7 +1018,7 @@ public class b {
                 }
             }
             if (onlCgformField.getIsQuery().intValue() == 1) {
-                if (single.equals(onlCgformField.getQueryMode())) {
+                if (SINGLE.equals(onlCgformField.getQueryMode())) {
                     if (map.get(dbFieldName) != null) {
                         String singleQueryConditionSql2 = QueryGenerator.getSingleQueryConditionSql(dbFieldName, "", map.get(dbFieldName), !k.isNumber(dbType));
                         if (!"".equals(singleQueryConditionSql2)) {
@@ -1032,7 +1032,7 @@ public class b {
                         if (k.isNumber(dbType)) {
                             stringBuffer.append(obj.toString());
                         } else {
-                            stringBuffer.append(sz + obj.toString() + sz);
+                            stringBuffer.append(SINGLE_QUOTE + obj.toString() + SINGLE_QUOTE);
                         }
                     }
                     Object obj2 = map.get(dbFieldName + "_end");
@@ -1041,7 +1041,7 @@ public class b {
                         if (k.isNumber(dbType)) {
                             stringBuffer.append(obj2.toString());
                         } else {
-                            stringBuffer.append(sz + obj2.toString() + sz);
+                            stringBuffer.append(SINGLE_QUOTE + obj2.toString() + SINGLE_QUOTE);
                         }
                     }
                 }
@@ -1157,7 +1157,7 @@ public class b {
             return a(str, z2);
         }
         if (z2) {
-            return sz + QueryGenerator.converRuleValue(str) + sz;
+            return SINGLE_QUOTE + QueryGenerator.converRuleValue(str) + SINGLE_QUOTE;
         }
         return QueryGenerator.converRuleValue(str);
     }
@@ -1171,7 +1171,7 @@ public class b {
         for (String str2 : split) {
             if (str2 != null && str2.length() != 0) {
                 if (z2) {
-                    arrayList.add(sz + str2 + sz);
+                    arrayList.add(SINGLE_QUOTE + str2 + SINGLE_QUOTE);
                 } else {
                     arrayList.add(str2);
                 }
@@ -1204,7 +1204,7 @@ public class b {
     public static String c(String str, List<OnlCgformButton> list) {
         String[] split;
         String d2 = d(str, list);
-        for (String str2 : az.split(DOT_STRING)) {
+        for (String str2 : HOOK_NAMES.split(DOT_STRING)) {
             if ("beforeAdd,afterAdd,mounted,created".indexOf(str2) >= 0) {
                 Matcher matcher = Pattern.compile("(" + str2 + "\\s*\\(\\)\\s*\\{)").matcher(d2);
                 if (matcher.find()) {
@@ -1291,7 +1291,7 @@ public class b {
                             str = str.replace(matcher2.group(0), buttonCode + "(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;");
                         }
                     }
-                } else if ("button".equals(onlCgformButton.getButtonStyle()) || form.equals(onlCgformButton.getButtonStyle())) {
+                } else if ("button".equals(onlCgformButton.getButtonStyle()) || FORM.equals(onlCgformButton.getButtonStyle())) {
                     Matcher matcher3 = Pattern.compile("(" + buttonCode + "\\s*\\(\\)\\s*\\{)").matcher(str);
                     if (matcher3.find()) {
                         str = str.replace(matcher3.group(0), buttonCode + "(that){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;");
@@ -1331,7 +1331,7 @@ public class b {
                     jSONObject.put("responseName", "message");
                     jSONObject.put("token", true);
                 }
-                if (c2.equals(sI)) {
+                if (c2.equals(SWITCH)) {
                     jSONObject.put("type", "checkbox");
                     JSONArray jSONArray2 = new JSONArray();
                     if (oConvertUtils.isEmpty(onlCgformField.getFieldExtendJson())) {
@@ -1367,7 +1367,7 @@ public class b {
                 jSONObject.put("scopedSlotsRenderCode", onlCgformField.getScopedSlotsRenderCode());
                 jSONObject.put("placeholder", "请输入" + onlCgformField.getDbFieldTxt());
                 jSONObject.put("validateRules", b(onlCgformField));
-                if (aj.equals(onlCgformField.getFieldShowType()) || "radio".equals(onlCgformField.getFieldShowType()) || "checkbox_meta".equals(onlCgformField.getFieldShowType()) || "list_multi".equals(onlCgformField.getFieldShowType()) || "sel_search".equals(onlCgformField.getFieldShowType())) {
+                if (LIST.equals(onlCgformField.getFieldShowType()) || "radio".equals(onlCgformField.getFieldShowType()) || "checkbox_meta".equals(onlCgformField.getFieldShowType()) || "list_multi".equals(onlCgformField.getFieldShowType()) || "sel_search".equals(onlCgformField.getFieldShowType())) {
                     Collection arrayList2 = new ArrayList();
                     if (oConvertUtils.isNotEmpty(onlCgformField.getDictTable())) {
                         arrayList2 = iSysBaseAPI.queryTableDictItemsByCode(onlCgformField.getDictTable(), onlCgformField.getDictText(), onlCgformField.getDictField());
@@ -1554,7 +1554,7 @@ public class b {
         if (!hasId || oConvertUtils.isEmpty(idValue)) {
             idValue = a();
         }
-        String insertSql = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + sz + idValue + sz + stringBuffer2.toString() + ")";
+        String insertSql = "insert into " + f(tableName) + "(id" + stringBuffer.toString() + ") values(" + SINGLE_QUOTE + idValue + SINGLE_QUOTE + stringBuffer2.toString() + ")";
         hashMap.put("execute_sql_string", insertSql);
         ay.debug("--表单设计器表单保存sql-->" + insertSql);
         // 将新的id带回去
@@ -1603,7 +1603,7 @@ public class b {
         if (stringBuffer2.endsWith(DOT_STRING)) {
             stringBuffer2 = stringBuffer2.substring(0, stringBuffer2.length() - 1);
         }
-        String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + sz + formData.getString("id") + sz;
+        String str3 = "update " + f(tableName) + " set " + stringBuffer2 + WHERE + "id" + EQ + SINGLE_QUOTE + formData.getString("id") + SINGLE_QUOTE;
         ay.debug("--表单设计器表单编辑sql-->" + str3);
         hashMap.put("execute_sql_string", str3);
         return hashMap;
@@ -1611,7 +1611,7 @@ public class b {
 
     public static Map<String, Object> a(String str, String str2, String str3) {
         HashMap hashMap = new HashMap();
-        String str4 = "update " + f(str) + " set " + str2 + EQ + sz + 0 + sz + WHERE + "id" + EQ + sz + str3 + sz;
+        String str4 = "update " + f(str) + " set " + str2 + EQ + SINGLE_QUOTE + 0 + SINGLE_QUOTE + WHERE + "id" + EQ + SINGLE_QUOTE + str3 + SINGLE_QUOTE;
         ay.info("--修改树节点状态：为无子节点sql-->" + str4);
         hashMap.put("execute_sql_string", str4);
         return hashMap;
@@ -1621,7 +1621,7 @@ public class b {
         if (str == null || "".equals(str) || "0".equals(str)) {
             return "";
         }
-        return "CODE like '" + str + "%" + sz;
+        return "CODE like '" + str + "%" + SINGLE_QUOTE;
     }
 
     public static String f(String str) {
@@ -1714,11 +1714,11 @@ public class b {
         if ("checkbox".equals(onlCgformField.getFieldShowType())) {
             return "checkbox";
         }
-        if (aj.equals(onlCgformField.getFieldShowType())) {
+        if (LIST.equals(onlCgformField.getFieldShowType())) {
             return "select";
         }
-        if (sI.equals(onlCgformField.getFieldShowType())) {
-            return sI;
+        if (SWITCH.equals(onlCgformField.getFieldShowType())) {
+            return SWITCH;
         }
         if ("sel_user".equals(onlCgformField.getFieldShowType())) {
             return "sel_user";
@@ -1742,15 +1742,15 @@ public class b {
     }
 
     private static String getDatabseType() {
-        if (oConvertUtils.isNotEmpty(aA)) {
-            return aA;
+        if (oConvertUtils.isNotEmpty(dataBaseType)) {
+            return dataBaseType;
         }
         try {
-            aA = org.jeecg.modules.online.config.b.d.getDatabaseType();
-            return aA;
+            dataBaseType = org.jeecg.modules.online.config.b.d.getDatabaseType();
+            return dataBaseType;
         } catch (Exception e2) {
             e2.printStackTrace();
-            return aA;
+            return dataBaseType;
         }
     }
 
@@ -1776,7 +1776,7 @@ public class b {
             if ("SQLSERVER".equals(getDatabseType())) {
                 str4 = str4 + "N";
             }
-            str3 = str4 + "'%" + split[i2] + "%" + sz;
+            str3 = str4 + "'%" + split[i2] + "%" + SINGLE_QUOTE;
         }
         ay.info(" POPUP fieldSql: " + str3);
         return str3;

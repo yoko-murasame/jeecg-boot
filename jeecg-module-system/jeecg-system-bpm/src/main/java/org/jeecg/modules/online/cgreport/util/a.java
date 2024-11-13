@@ -32,7 +32,7 @@ public class a {
         String str = (String) map.get(org.jeecg.modules.online.cgreport.b.a.o);
         String str2 = (String) map.get(org.jeecg.modules.online.cgreport.b.a.r);
         String str3 = (String) map.get(org.jeecg.modules.online.cgreport.b.a.q);
-        if (!b.single.equals(str2)) {
+        if (!b.SINGLE.equals(str2)) {
             if ("group".equals(str2)) {
                 String parameter = httpServletRequest.getParameter(str.toLowerCase() + "_begin");
                 String parameter2 = httpServletRequest.getParameter(str.toLowerCase() + "_end");
@@ -175,7 +175,7 @@ public class a {
                                 stringBuffer.append(b.b(obj.toString()));
                             }
                         } else {
-                            stringBuffer.append(b.sz + obj.toString() + b.sz);
+                            stringBuffer.append(b.SINGLE_QUOTE + obj.toString() + b.SINGLE_QUOTE);
                         }
                     }
                     Object obj2 = map.get(fieldName + "_end");
@@ -190,7 +190,7 @@ public class a {
                                 stringBuffer.append(b.b(obj2.toString()));
                             }
                         } else {
-                            stringBuffer.append(b.sz + obj2.toString() + b.sz);
+                            stringBuffer.append(b.SINGLE_QUOTE + obj2.toString() + b.SINGLE_QUOTE);
                         }
                     }
                 } else {

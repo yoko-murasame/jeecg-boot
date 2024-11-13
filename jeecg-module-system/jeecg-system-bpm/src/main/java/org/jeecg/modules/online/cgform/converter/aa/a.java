@@ -1,8 +1,6 @@
 package org.jeecg.modules.online.cgform.converter.aa;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DictModel;
 import org.jeecg.common.util.SpringContextUtils;
@@ -38,7 +36,7 @@ public class a implements FieldCommentConverter {
     public String converterToVal(String txt) {
         String str;
         if (oConvertUtils.isNotEmpty(txt)) {
-            String str2 = this.text + "= '" + txt + org.jeecg.modules.online.cgform.d.b.sz;
+            String str2 = this.text + "= '" + txt + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
             int indexOf = this.table.indexOf("where");
             if (indexOf > 0) {
                 str = this.table.substring(0, indexOf).trim();
@@ -59,7 +57,7 @@ public class a implements FieldCommentConverter {
     public String converterToTxt(String val) {
         String str;
         if (oConvertUtils.isNotEmpty(val)) {
-            String str2 = this.code + "= '" + val + org.jeecg.modules.online.cgform.d.b.sz;
+            String str2 = this.code + "= '" + val + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
             int indexOf = this.table.indexOf("where");
             if (indexOf > 0) {
                 str = this.table.substring(0, indexOf).trim();

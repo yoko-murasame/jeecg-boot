@@ -36,12 +36,12 @@ public class OnlCgreportItemServiceImpl extends ServiceImpl<OnlCgreportItemMappe
                     hashMap.put("view", "search");
                     hashMap.put("sql", dictCode);
                 } else {
-                    hashMap.put("view", org.jeecg.modules.online.cgform.d.b.aj);
+                    hashMap.put("view", org.jeecg.modules.online.cgform.d.b.LIST);
                 }
             } else {
                 hashMap.put("view", onlCgreportItem.getFieldType().toLowerCase());
             }
-            hashMap.put("mode", oConvertUtils.isEmpty(onlCgreportItem.getSearchMode()) ? org.jeecg.modules.online.cgform.d.b.single : onlCgreportItem.getSearchMode());
+            hashMap.put("mode", oConvertUtils.isEmpty(onlCgreportItem.getSearchMode()) ? org.jeecg.modules.online.cgform.d.b.SINGLE : onlCgreportItem.getSearchMode());
             hashMap.put("field", onlCgreportItem.getFieldName());
             i++;
             if (i > 2) {

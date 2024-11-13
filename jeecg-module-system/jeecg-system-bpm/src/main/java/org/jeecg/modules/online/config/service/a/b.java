@@ -125,6 +125,6 @@ public class b implements DbTableHandleI {
 
     @Override // org.jeecg.modules.online.config.service.DbTableHandleI
     public String countIndex(String indexName, String tableName) {
-        return "select COUNT(*) from information_schema.statistics where table_name = '" + tableName + "'  AND index_name = '" + indexName + org.jeecg.modules.online.cgform.d.b.sz;
+        return "select COUNT(*) from information_schema.statistics where table_name = '" + tableName + "'  AND index_name = '" + indexName + org.jeecg.modules.online.cgform.d.b.SINGLE_QUOTE;
     }
 }
