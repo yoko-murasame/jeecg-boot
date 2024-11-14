@@ -122,7 +122,7 @@ docker exec -it postgre-13 pg_restore --verbose --schema-only -h 127.0.0.1 -p 54
 -- 仅恢复数据（注意原先表的数据不会被清除，测过了）
 docker exec -it postgre-13 pg_restore --verbose --data-only -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb_slim.dump
 
--- 恢复结构和数据（注意原先表的数据不会被清除，测过了）
+-- 恢复结构和数据（注意原先表的数据不会被清除，测过了）--clean 预先使用drop语句清理表；--create 指的是自动创建备份时的数据库，这时指定-d需和备份时的数据库名称一致
 docker exec -it postgre-13 pg_restore --verbose --if-exists --clean --create -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb epc_busdb_slim.dump
 
 -- 从一无所有恢复
@@ -130,8 +130,14 @@ docker cp ./epc_busdb.dump postgre-13:/epc_busdb.dump
 docker exec -it postgre-13 pg_restore --verbose -h 127.0.0.1 -p 5432 -U postgres -W -d epc_busdb /epc_busdb.dump
 docker exec postgre-13 rm /epc_busdb.dump
 
--- 导入单表并直接指定密码
-docker exec -it postgre-13 bash -c "PGPASSWORD=123456 pg_restore -t table_xxx --verbose -h 127.0.0.1 -p 5432 -U postgres  -d epc_busdb /epc_busdb.dump"
+-- 导入指定表并直接指定密码
+#  -n 指定schema；
+#  -t 指定表，多个表需要多次指定；
+#  --data-only 只导入数据，注意旧数据不会被清空，这个参数一般在表被视图锁住时使用，这时需要先清空数据；
+#  --clean 会使用drop先删表，然后重新创建表；
+#  --if-exists 会检查是否存在表；
+#  --create 指的是数据库的创建，这里指定表没啥关系；
+docker exec -it postgre-13 bash -c "PGPASSWORD=123456 pg_restore --clean --if-exists -n public -t table_1 -t table_2 -t table_3 --verbose -h 127.0.0.1 -p 5432 -U postgres  -d epc_busdb /epc_busdb.dump"
 
 # 补充：如果导出的PG备份SQL文件怎么还原？通过psql导入，在cmd中执行下面命令：最后的 '<' 可以换成 '-f'
 docker exec -it <新容器> psql -h <主机名> -p <端口号> -U <用户名> -W -d <目标数据库名称> < ./backup.sql
