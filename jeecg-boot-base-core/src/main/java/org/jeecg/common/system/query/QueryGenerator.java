@@ -133,6 +133,12 @@ public class QueryGenerator {
 		long start = System.currentTimeMillis();
 		QueryWrapper<T> queryWrapper = new QueryWrapper<T>();
 		installMplus(queryWrapper, searchObj, parameterMap);
+		// 注意：为条件构造器注入实体后，逻辑删除的处理器，会默认把实体对象内部的其余业务字段（带有参数值的）自动处理成=查询，导致查询异常
+		// queryWrapper.setEntity(searchObj);
+		// 因此仅需注入实体类
+		if (null == queryWrapper.getEntityClass()) {
+			queryWrapper.setEntityClass((Class<T>) searchObj.getClass());
+		}
 		log.debug("---查询条件构造器初始化完成,耗时:"+(System.currentTimeMillis()-start)+"毫秒----");
 		return queryWrapper;
 	}
