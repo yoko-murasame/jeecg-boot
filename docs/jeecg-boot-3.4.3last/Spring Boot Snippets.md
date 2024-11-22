@@ -398,3 +398,215 @@ public class ProjectAuthAspect {
 
 ```
 
+## 获取方法的sFunction
+
+**工具类**
+
+```java
+    /**
+     * 缓存SFunction
+     */
+    private static final Map<String, SFunction> functionMap = new HashMap<>();
+
+    /**
+     * 可序列化
+     */
+    private static final int FLAG_SERIALIZABLE = 1;
+
+    /**
+     * 获取与实体类字段对应的 SFunction 对象。
+     * @param entityClass 实体类的 Class 对象。
+     * @param fieldName 实体类中的字段名。
+     * @return 返回找到的 SFunction 对象。
+     */
+    public static SFunction getSFunction(Class<?> entityClass, String fieldName) {
+        // 检查缓存中是否已经有了对应的 SFunction 对象。
+        if (functionMap.containsKey(entityClass.getName() + fieldName)) {
+            return functionMap.get(entityClass.getName() + fieldName);
+        }
+        // 获取实体类中名为 fieldName 的字段。
+        Field field = ReflectUtil.getField(entityClass, fieldName);
+        if (field == null) {
+            //如果字段不存在，使用 ExceptionUtils 抛出一个异常，指出实体类中没有找到该字段。
+            throw ExceptionUtils.mpe("This class %s is not have field %s ", entityClass.getName(), fieldName);
+        }
+        SFunction<T, ?> func = null;
+        // 获取 MethodHandles.Lookup 实例，用于反射操作。
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        // 定义方法类型，表示实体类的实例方法，该方法返回字段的类型。
+        MethodType methodType = MethodType.methodType(field.getType(), entityClass);
+        // 用于存储 LambdaMetafactory 创建的 CallSite 对象。
+        final CallSite site;
+        // 构造标准的 Java getter 方法名。
+        String getFunName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        try {
+            // 使用 LambdaMetafactory 创建一个动态的 SFunction 实例。
+            site = LambdaMetafactory.altMetafactory(
+                    lookup,
+                    "invoke",
+                    MethodType.methodType(SFunction.class),
+                    methodType,
+                    lookup.findVirtual(entityClass, getFunName, MethodType.methodType(field.getType())),
+                    methodType,
+                    FLAG_SERIALIZABLE
+            );
+            // 使用 CallSite 来获取 SFunction 实例。
+            func = (SFunction) site.getTarget().invokeExact();
+            // 将生成的 SFunction 实例存储到缓存中。
+            functionMap.put(entityClass.getName() + field.getName(), func);
+            return func;
+        } catch (Throwable e) {
+            // 如果在创建 SFunction 过程中发生异常，抛出异常，指出实体类中没有找到对应的 getter 方法。
+            throw ExceptionUtils.mpe("This class %s is not have method %s ", entityClass.getName(), getFunName);
+        }
+    }
+```
+
+**网上搜到的**
+
+https://blog.csdn.net/m0_59084856/article/details/138450913
+https://blog.csdn.net/m0_59084856/article/details/138452088
+https://gitee.com/baomidou/mybatis-plus-advance/blob/master/src/main/java/com/baomidou/mybatisplus/advance/injector/FuntionTools.java
+
+使用：
+
+```java
+//Person类中必须包含"name"字段.
+SFunction sFunction = getSFunction(Person.class, "name");
+```
+
+代码：
+
+```java
+/**
+     * 获取与实体类字段对应的 SFunction 对象。
+     * @param entityClass 实体类的 Class 对象。
+     * @param fieldName 实体类中的字段名。
+     * @return 返回找到的 SFunction 对象。
+     */
+    public static SFunction getSFunction(Class<?> entityClass, String fieldName) {
+        // 检查缓存中是否已经有了对应的 SFunction 对象。
+        if (functionMap.containsKey(entityClass.getName() + fieldName)) {
+            return functionMap.get(entityClass.getName() + fieldName);
+        }
+        // 获取实体类中名为 fieldName 的字段。
+        Field field = getDeclaredField(entityClass, fieldName);
+        if (field == null) {
+            //如果字段不存在，使用 ExceptionUtils 抛出一个异常，指出实体类中没有找到该字段。
+            throw ExceptionUtils.mpe("This class %s is not have field %s ", entityClass.getName(), fieldName);
+        }
+        SFunction func = null;
+        // 获取 MethodHandles.Lookup 实例，用于反射操作。
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        // 定义方法类型，表示实体类的实例方法，该方法返回字段的类型。
+        MethodType methodType = MethodType.methodType(field.getType(), entityClass);
+        // 用于存储 LambdaMetafactory 创建的 CallSite 对象。
+        final CallSite site;
+        // 构造标准的 Java getter 方法名。
+        String getFunName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        try {
+            // 使用 LambdaMetafactory 创建一个动态的 SFunction 实例。
+            site = LambdaMetafactory.altMetafactory(
+                    lookup,
+                    "invoke",
+                    MethodType.methodType(SFunction.class),
+                    methodType,
+                    lookup.findVirtual(entityClass, getFunName, MethodType.methodType(field.getType())),
+                    methodType,
+                    FLAG_SERIALIZABLE
+            );
+            // 使用 CallSite 来获取 SFunction 实例。
+            func = (SFunction) site.getTarget().invokeExact();
+            // 将生成的 SFunction 实例存储到缓存中。
+            functionMap.put(entityClass.getName() + field.getName(), func);
+            return func;
+        } catch (Throwable e) {
+            // 如果在创建 SFunction 过程中发生异常，抛出异常，指出实体类中没有找到对应的 getter 方法。
+            throw ExceptionUtils.mpe("This class %s is not have method %s ", entityClass.getName(), getFunName);
+        }
+    }
+
+    /**
+     * 递归获取类中声明的字段，包括私有字段。
+     * @param clazz 要检查的类。
+     * @param fieldName 要查找的字段名。
+     * @return 返回找到的 Field 对象，如果没有找到则返回 null。
+     */
+    public static Field getDeclaredField(Class<?> clazz, String fieldName) {
+        Field field = null;
+        // 遍历类及其父类，直到到达 Object 类。
+        for (; clazz != Object.class; clazz = clazz.getSuperclass()) {
+            try {
+                // 尝试获取声明的字段。
+                field = clazz.getDeclaredField(fieldName);
+                // 如果找到字段，返回该字段。
+                return field;
+            } catch (NoSuchFieldException e) {
+                // 如果没有找到字段，继续查找父类。
+                // 这里不处理异常，让其继续执行循环。
+            }
+        }
+        // 如果没有找到字段，返回 null。
+        return null;
+    }
+
+```
+
+**可能没啥用的版本**
+
+```java
+
+/**
+ * 设置组织数据权限-查询构造器
+ *
+ * @author Yoko
+ * @since 2024/11/21 20:28
+ * @param wrapper 查询构造器
+ * @param parameter 参数对象
+ * @return com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<T>
+ */
+public static <T> Wrapper<T> setGroupFilterForWrapper(Wrapper<T> wrapper, T parameter) {
+  if (wrapper == null || parameter == null) {
+    return null;
+  }
+  Field[] fields = oConvertUtils.getAllFields(parameter);
+  for (Field field : fields) {
+    if (field.isAnnotationPresent(GroupField.class)) {
+      String groupValue = getGroupValue(field);
+      if (StringUtils.hasText(groupValue)) {
+        String dbFieldName = field.getAnnotation(GroupField.class).dbFieldName();
+        if (field.isAnnotationPresent(TableField.class)) {
+          dbFieldName = field.getAnnotation(TableField.class).value();
+        }
+        // 都没配置时，默认蛇形字段命名
+        if (!StringUtils.hasText(dbFieldName)) {
+          dbFieldName = StrUtil.toUnderlineCase(field.getName());
+        }
+        // TODO 右模糊可配置（有无必要？）
+        if (wrapper instanceof QueryWrapper) {
+          ((QueryWrapper<T>) wrapper).likeRight(dbFieldName, groupValue);
+        }
+        if (wrapper instanceof LambdaQueryWrapper) {
+          ((LambdaQueryWrapper<T>) wrapper).like(getFieldLambda(field.getName()), groupValue);
+        }
+        log.info("注入类：{}，注入字段：{}，注入组织code值：{}", parameter.getClass().getName(), dbFieldName, groupValue);
+      }
+    }
+  }
+  return wrapper;
+}
+
+// 动态获取字段的 Lambda 表达式
+private static <T> SFunction<T, ?> getFieldLambda(String fieldName) {
+    return (root) -> {
+        try {
+            Field field = root.getClass().getDeclaredField(fieldName);
+            return (SFunction<T, ?>) field.get(root);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("无法获取字段", e);
+        }
+    };
+}
+
+```
+
