@@ -114,6 +114,16 @@ class a {
 
 ### 切面、手动事务
 
+**execute表达式**
+
+https://developer.aliyun.com/article/928976
+
+![execution表达式](./assets/Spring Boot Snippets-1732333993597.png)
+
+![spring aop execution表达式](./assets/Spring Boot Snippets-1732333843209.png)
+
+**代码示例**
+
 ```java
 package org.jeecg.modules.onemap.project.aop;
 
