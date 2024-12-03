@@ -5,11 +5,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.RepeatSubmit;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.Md5Util;
 import org.jeecg.common.util.RedisUtil;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * AOP防重复提交
@@ -35,7 +36,7 @@ public class RepeatSubmitAspect {
 
     @Around("@annotation(repeatSubmit)")
     public Object around(ProceedingJoinPoint joinPoint, RepeatSubmit repeatSubmit) throws Throwable {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         String serviceId = repeatSubmit.serviceId();
         boolean res = false;
 
@@ -54,8 +55,9 @@ public class RepeatSubmitAspect {
         res = redisUtil.tryLock(key, "", repeatSubmit.lockTime());
 
         if (!res) {
-            log.error("请求重复提交");
-            return null;
+            // log.error("请求重复提交");
+            // return null;
+            return Result.error("请勿重复提交，请稍后再试！");
         }
 
         return joinPoint.proceed();
