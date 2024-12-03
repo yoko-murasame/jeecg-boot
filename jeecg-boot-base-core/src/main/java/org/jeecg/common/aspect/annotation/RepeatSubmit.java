@@ -5,6 +5,7 @@ import java.lang.annotation.*;
 
 /**
  * 接口放重复提交注解
+ * PS：不支持文件类型的POST请求
  *
  * @author Yoko
  * @since 2024/12/3 15:01
