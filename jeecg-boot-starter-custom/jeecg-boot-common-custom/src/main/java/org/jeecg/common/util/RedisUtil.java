@@ -390,4 +390,16 @@ public class RedisUtil {
         }
 
     }
+
+    public Boolean tryLock(String key, String value, long expireTime) {
+        try {
+            //SET命令返回OK ，则证明获取锁成功
+            Boolean ret = this.redisTemplate.opsForValue().setIfAbsent(key, value, expireTime, TimeUnit.SECONDS);
+            return ret;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
