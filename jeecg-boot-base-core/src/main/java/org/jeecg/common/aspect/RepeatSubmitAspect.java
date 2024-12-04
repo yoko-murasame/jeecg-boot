@@ -130,7 +130,7 @@ public class RepeatSubmitAspect {
             if (StringUtils.isEmpty(ip) || CommonConstant.UNKNOWN.equalsIgnoreCase(ip)) {
                 ip = request.getHeader("Proxy-Client-IP");
             }
-            if (StringUtils.isEmpty(ip) || ip.length() == 0 ||CommonConstant.UNKNOWN.equalsIgnoreCase(ip)) {
+            if (StringUtils.isEmpty(ip) || ip.isEmpty() ||CommonConstant.UNKNOWN.equalsIgnoreCase(ip)) {
                 ip = request.getHeader("WL-Proxy-Client-IP");
             }
             if (StringUtils.isEmpty(ip) || CommonConstant.UNKNOWN.equalsIgnoreCase(ip)) {
@@ -147,7 +147,7 @@ public class RepeatSubmitAspect {
         }
 
        // 使用代理，则获取第一个IP地址
-       if(StringUtils.isEmpty(ip) && ip.length() > 15) {
+       if(StringUtils.isNotBlank(ip) && ip.length() > 15) {
 			if(ip.indexOf(",") > 0) {
 				ip = ip.substring(0, ip.indexOf(","));
 			}
