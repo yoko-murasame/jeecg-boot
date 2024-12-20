@@ -2125,15 +2125,15 @@ public class JexfmBA {
 
     public static ResourceBundle a() {
         PropertyResourceBundle var0 = null;
-        String var2 = System.getProperty("user.dir") + File.separator + "config" + File.separator + h.e();
-
-        try {
-            BufferedInputStream var1 = new BufferedInputStream(new FileInputStream(var2));
-            var0 = new PropertyResourceBundle(var1);
-            var1.close();
-        } catch (FileNotFoundException var4) {
-        } catch (IOException var5) {
-        }
+        // String var2 = System.getProperty("user.dir") + File.separator + "config" + File.separator + h.e();
+        //
+        // try {
+        //     BufferedInputStream var1 = new BufferedInputStream(new FileInputStream(var2));
+        //     var0 = new PropertyResourceBundle(var1);
+        //     var1.close();
+        // } catch (FileNotFoundException var4) {
+        // } catch (IOException var5) {
+        // }
 
         return var0;
     }
