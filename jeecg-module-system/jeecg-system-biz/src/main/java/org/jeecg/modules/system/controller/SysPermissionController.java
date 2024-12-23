@@ -279,6 +279,15 @@ public class SysPermissionController {
 			}
 			//update-end-author:taoyan date:20200211 for: TASK #3368 【路由缓存】首页的缓存设置有问题，需要根据后台的路由配置来实现是否缓存
 
+			//添加online路由
+			//update-begin-author:Yoko date:20241223 for: 如果角色授权没配置选中“在线开发”菜单，则隐藏
+			if(!PermissionDataUtil.hasOnlinePage(metaList)){
+				SysPermission onlineMenu = sysPermissionService.list(new LambdaQueryWrapper<SysPermission>().eq(SysPermission::getUrl,"/online")).get(0);
+				onlineMenu.setHidden(true);
+				metaList.add(onlineMenu);
+			}
+			//update-begin-author:Yoko date:20241223 for: TASK #3368 【路由缓存】首页的缓存设置有问题，需要根据后台的路由配置来实现是否缓存
+
 			//update-begin--Author:zyf Date:20220425  for:自定义首页地址 LOWCOD-1578
 			String version = request.getHeader(CommonConstant.VERSION);
 			//update-begin---author:liusq ---date:2022-06-29  for：接口返回值修改，同步修改这里的判断逻辑-----------

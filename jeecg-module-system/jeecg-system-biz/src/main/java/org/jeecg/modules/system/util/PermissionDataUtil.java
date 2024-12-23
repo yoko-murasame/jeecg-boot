@@ -30,7 +30,7 @@ public class PermissionDataUtil {
 
 	/**
 	 * 智能处理错误数据，简化用户失误操作
-	 * 
+	 *
 	 * @param permission
 	 */
 	public static SysPermission intelligentProcessData(SysPermission permission) {
@@ -55,7 +55,7 @@ public class PermissionDataUtil {
 			}
 			permission.setComponent(component);
 		}
-		
+
 		// 请求URL
 		if (oConvertUtils.isNotEmpty(permission.getUrl())) {
 			String url = permission.getUrl();
@@ -67,7 +67,7 @@ public class PermissionDataUtil {
 			}
 			permission.setUrl(url);
 		}
-		
+
 		// 一级菜单默认组件
 		if (0 == permission.getMenuType() && oConvertUtils.isEmpty(permission.getComponent())) {
 			// 一级菜单默认组件
@@ -75,7 +75,7 @@ public class PermissionDataUtil {
 		}
 		return permission;
 	}
-	
+
 	/**
 	 * 如果没有index页面 需要new 一个放到list中
 	 * @param metaList
@@ -108,5 +108,21 @@ public class PermissionDataUtil {
 		}
 		return hasIndexMenu;
 	}
-	
+
+	/**
+	 * 判断是否有online在线开发权限
+	 * @param metaList
+	 * @return
+	 */
+	public static boolean hasOnlinePage(List<SysPermission> metaList){
+		boolean hasIndexMenu = false;
+		for (SysPermission sysPermission : metaList) {
+			if("/online".equals(sysPermission.getUrl())) {
+				hasIndexMenu = true;
+				break;
+			}
+		}
+		return hasIndexMenu;
+	}
+
 }
