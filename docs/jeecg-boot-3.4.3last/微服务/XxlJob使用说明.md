@@ -88,3 +88,27 @@ http://jeecg-boot-xxljob:9080/xxl-job-admin
 
 ![XxlJob使用说明-1728559330875.png](./assets/XxlJob使用说明-1728559330875.png)
 
+
+### 问题记录：执行器管理中，在各个配置正确的情况下，自动注册的机器地址一直没值
+
+查看过源码，发现`com.xxl.job.admin.core.thread.JobRegistryMonitorHelper`类中，会定时扫描判断超时注册机器（默认90s），
+这时候需要去确认数据库服务器的时钟了，如果和应用服务器的时间差距大于90s，将一直标记为超时节点，从而被自动剔除。
+
+因此解决方式是同步应用服务器和数据库服务器的系统时间：
+
+```shell
+# 手动修改时间
+date -s  完整日期时间（YYYY-MM-DD hh:mm[:ss]）
+# 将时间写入bios避免重启失效
+hwclock -w
+
+# 如果有网络 https://www.cnblogs.com/suiyueshentou/p/7798340.html
+#安装ntp服务命令：
+apt-get install ntp  或者 yum install ntp
+ntpdate 210.72.145.44
+
+# 修改时区
+date -R
+tzselect
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
