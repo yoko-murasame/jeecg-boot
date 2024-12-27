@@ -59,7 +59,12 @@ public class a {
                 // 针对普通数值类型的精确判断（不需要校验实际位数）
                 // return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable);
                 // pg的这个默认值 fieldDefault 老项目没有
-                return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable) && judgeEqual(this.fieldDefault, aVar.getFieldDefault());
+                boolean flag = this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable);
+                // 忽略软删类型的默认值校验
+                if (this.columnName.equalsIgnoreCase("del_flag")) {
+                    return flag;
+                }
+                return flag && judgeEqual(this.fieldDefault, aVar.getFieldDefault());
             }else {
                 return this.columnType.equals(aVar.getColunmType()) && this.isNullable.equals(aVar.isNullable) && this.columnSize == aVar.getColumnSize() && judgeEqual(this.fieldDefault, aVar.getFieldDefault());
             }
