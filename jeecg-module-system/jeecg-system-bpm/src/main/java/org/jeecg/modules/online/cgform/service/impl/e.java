@@ -644,11 +644,13 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         executeEnhanceJava("add", org.jeecg.modules.online.cgform.d.b.START, onlCgformHead2, formData);
         String tableName = org.jeecg.modules.online.cgform.d.b.f(onlCgformHead2.getTableName());
         if (onlCgformHead2.getTableType() == 2) {
-            String subTableStr = onlCgformHead2.getSubTableStr();
-            if (oConvertUtils.isNotEmpty(subTableStr)) {
-                for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
-                    JSONArray jSONArray = formData.getJSONArray(str);
-                    if (jSONArray != null && !jSONArray.isEmpty() && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
+            String subTableName = onlCgformHead2.getSubTableStr();
+            // 和前端新子表组件协商的字段，使用新子表组件后，保存主表表数据会无视携带的全量子表数据
+            String newSubTable = Optional.ofNullable(formData.getString("newSubTable")).orElse(formData.getString("new_sub_table"));
+            if (oConvertUtils.isNotEmpty(subTableName) && oConvertUtils.isEmpty(newSubTable)) {
+                for (String str : subTableName.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
+                    JSONArray subTableData = formData.getJSONArray(str);
+                    if (subTableData != null && !subTableData.isEmpty() && (onlCgformHead = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper)
                             .selectOne(new LambdaQueryWrapper<OnlCgformHead>()
                                     .eq(OnlCgformHead::getTableName, str))) != null) {
                         List<OnlCgformField> list = this.fieldService.list(new LambdaQueryWrapper<OnlCgformField>()
@@ -667,8 +669,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
                                 }
                             }
                         }
-                        for (int i = 0; i < jSONArray.size(); i++) {
-                            JSONObject jSONObject2 = jSONArray.getJSONObject(i);
+                        for (int i = 0; i < subTableData.size(); i++) {
+                            JSONObject jSONObject2 = subTableData.getJSONObject(i);
                             if (str3 != null) {
                                 jSONObject2.put(str2, str3);
                             }
@@ -857,8 +859,10 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         }
         // 保存子表数据
         if (onlCgformHead.getTableType().intValue() == 2) {
+            // 和前端新子表组件协商的字段，使用新子表组件后，保存主表表数据会无视携带的全量子表数据
+            String newSubTable = Optional.ofNullable(formData.getString("newSubTable")).orElse(formData.getString("new_sub_table"));
             String subTableStr = onlCgformHead.getSubTableStr();
-            if (oConvertUtils.isNotEmpty(subTableStr)) {
+            if (oConvertUtils.isNotEmpty(subTableStr) && oConvertUtils.isEmpty(newSubTable)) {
                 for (String str : subTableStr.split(org.jeecg.modules.online.cgform.d.b.DOT_STRING)) {
                     OnlCgformHead onlCgformHead2 = (OnlCgformHead) ((OnlCgformHeadMapper) this.baseMapper).selectOne((Wrapper) new LambdaQueryWrapper<OnlCgformHead>()
                             .eq(OnlCgformHead::getTableName, str));
