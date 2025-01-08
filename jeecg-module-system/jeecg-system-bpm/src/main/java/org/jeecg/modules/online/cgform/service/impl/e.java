@@ -126,6 +126,9 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         // 是否隐藏action按钮
         head.setHideActionButton(false);
 
+        // 是否隐藏action按钮
+        head.setActionColumnFixed("");
+
         super.save(head);
         this.fieldService.saveBatch(fields);
         this.indexService.saveBatch(indexs);
@@ -441,6 +444,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setThemeTemplate(org.jeecg.modules.online.cgform.d.b.NORMAL);
         onlCgformHead.setViewTable(false);
         onlCgformHead.setHideActionButton(false);
+        onlCgformHead.setActionColumnFixed("");
         String generate = UUIDGenerator.generate();
         onlCgformHead.setId(generate);
         ArrayList arrayList = new ArrayList();
@@ -1396,6 +1400,8 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         onlCgformHead.setViewTable(physicTable.getViewTable());
         // 是否隐藏action按钮
         onlCgformHead.setHideActionButton(physicTable.getHideActionButton());
+        // 操作列固定位置
+        onlCgformHead.setActionColumnFixed(physicTable.getActionColumnFixed());
 
         for (OnlCgformField onlCgformField : this.fieldService.list(new LambdaQueryWrapper<OnlCgformField>()
                 .eq(OnlCgformField::getCgformHeadId, id))) {

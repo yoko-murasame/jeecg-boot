@@ -99,4 +99,9 @@ public class OnlCgformHead implements Serializable {
      */
     private Boolean hideActionButton;
 
+    /**
+     * 操作列固定位置
+     */
+    private String actionColumnFixed;
+
 }

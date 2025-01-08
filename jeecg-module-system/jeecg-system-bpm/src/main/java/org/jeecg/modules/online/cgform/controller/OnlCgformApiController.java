@@ -154,6 +154,8 @@ public class OnlCgformApiController {
             onlComplexModel.setViewTable(onlCgformHead.getViewTable());
             // 是否隐藏action按钮
             onlComplexModel.setHideActionButton(onlCgformHead.getHideActionButton());
+            // 操作列固定位置
+            onlComplexModel.setActionColumnFixed(onlCgformHead.getActionColumnFixed());
 
             result.setResult(onlComplexModel);
             result.setOnlTable(onlCgformHead.getTableName());
