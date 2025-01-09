@@ -8,8 +8,8 @@
 FROM anapsix/alpine-java:8_server-jre_unlimited
 WORKDIR /
 
-# 时区
-# RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+# 通过清华镜像源安装tzdata解决时区问题
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && apk add --no-cache tzdata
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 # 文件目录
 RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
