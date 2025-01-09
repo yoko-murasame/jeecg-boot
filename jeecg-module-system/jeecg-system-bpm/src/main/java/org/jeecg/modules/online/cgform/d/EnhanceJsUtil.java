@@ -111,7 +111,7 @@ public class EnhanceJsUtil {
         if (list != null) {
             for (OnlCgformButton onlCgformButton : list) {
                 String buttonCode = onlCgformButton.getButtonCode();
-                if ("link".equals(onlCgformButton.getButtonStyle())) {
+                if ("link".equals(onlCgformButton.getButtonStyle()) || "link-pre".equals(onlCgformButton.getButtonStyle()) || "link-after".equals(onlCgformButton.getButtonStyle())) {
                     str = a(str, buttonCode);
                 } else if ("button".equals(onlCgformButton.getButtonStyle()) || b.FORM.equals(onlCgformButton.getButtonStyle())) {
                     str = a(str, buttonCode, (String) null);

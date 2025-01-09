@@ -1281,7 +1281,7 @@ public class b {
         if (list != null) {
             for (OnlCgformButton onlCgformButton : list) {
                 String buttonCode = onlCgformButton.getButtonCode();
-                if ("link".equals(onlCgformButton.getButtonStyle())) {
+                if ("link".equals(onlCgformButton.getButtonStyle())  || "link-pre".equals(onlCgformButton.getButtonStyle()) || "link-after".equals(onlCgformButton.getButtonStyle())) {
                     Matcher matcher = Pattern.compile("(" + buttonCode + "\\s*\\(row\\)\\s*\\{)").matcher(str);
                     if (matcher.find()) {
                         str = str.replace(matcher.group(0), buttonCode + "(that,row){const getAction=this._getAction,postAction=this._postAction,deleteAction=this._deleteAction;");

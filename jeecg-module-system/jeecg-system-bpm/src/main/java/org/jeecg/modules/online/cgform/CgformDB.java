@@ -1475,7 +1475,7 @@ public class CgformDB {
                     String var4 = var3.getButtonCode();
                     Pattern var5;
                     Matcher var6;
-                    if ("link".equals(var3.getButtonStyle())) {
+                    if ("link".equals(var3.getButtonStyle()) || "link-pre".equals(var3.getButtonStyle()) || "link-after".equals(var3.getButtonStyle())) {
                         var5 = Pattern.compile("(" + var4 + "\\s*\\(row\\)\\s*\\{)");
                         var6 = var5.matcher(var0);
                         if (var6.find()) {

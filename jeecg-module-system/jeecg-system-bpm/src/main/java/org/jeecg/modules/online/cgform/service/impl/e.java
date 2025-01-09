@@ -402,7 +402,7 @@ public class e extends ServiceImpl<OnlCgformHeadMapper, OnlCgformHead> implement
         lambdaQueryWrapper.eq(OnlCgformButton::getButtonStatus, "1");
         lambdaQueryWrapper.eq(OnlCgformButton::getCgformHeadId, code);
         if (isListButton) {
-            lambdaQueryWrapper.in(OnlCgformButton::getButtonStyle, new Object[]{"link", "button"});
+            lambdaQueryWrapper.in(OnlCgformButton::getButtonStyle, new Object[]{"link", "link-pre", "link-after", "button"});
         } else {
             lambdaQueryWrapper.eq(OnlCgformButton::getButtonStyle, org.jeecg.modules.online.cgform.d.b.FORM);
         }
