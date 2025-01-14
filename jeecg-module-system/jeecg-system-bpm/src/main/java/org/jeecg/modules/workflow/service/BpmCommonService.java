@@ -24,6 +24,7 @@ import org.jeecg.common.api.dto.message.BusTemplateMessageDTO;
 import org.jeecg.common.api.dto.message.TemplateDTO;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.util.JwtUtil;
@@ -780,7 +781,7 @@ public class BpmCommonService {
                 extActFlowDataService.updateById(flowData);
                 String formTableName = flowData.getFormTableName();
                 String bpmStatusField = flowData.getBpmStatusField();
-                if (StringUtils.isEmpty(bpmStatusField)) {
+                if (!StringUtils.hasText(bpmStatusField)) {
                     bpmStatusField = "bpm_status";
                 }
                 extActProcessMapper.updateBpmStatusById(formTableName, id, bpmStatusField, "1");
@@ -898,109 +899,89 @@ public class BpmCommonService {
     public List<ProcessHisDTO> processHistoryList(String processInstId) {
 
         List<ProcessHisDTO> processHisDTOS = new ArrayList<>();
-        List var6 = this.activitiService.getActHiActinstStartAndEnd(processInstId);
-        List var7 =
-                ((HistoricTaskInstanceQuery) this.historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstId)).list();
-        String var8 = this.activitiService.getProcessStartUserId(processInstId);
-        String var9 = "";
-        List var10 = this.activitiService.getProcessEndUserId(processInstId);
-        Map var11;
-        if (var10 != null) {
-            var11 = (Map) var10.get(0);
-            if (var11 != null) {
-                var9 = var11.get("ASSIGNEE_") == null ? "" : (String) var11.get("ASSIGNEE_");
+        List<ActHiActinstDTO> actHiActinstStartAndEnd = this.activitiService.getActHiActinstStartAndEnd(processInstId);
+        List<HistoricTaskInstance> historicTaskInstances = this.historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstId).list();
+        String processStartUserId = this.activitiService.getProcessStartUserId(processInstId);
+        String assignee = "";
+        List<Map<String, Object>> processEndUserId = this.activitiService.getProcessEndUserId(processInstId);
+        if (processEndUserId != null) {
+            Map<String, Object> endUserMap = processEndUserId.get(0);
+            if (endUserMap != null) {
+                assignee = endUserMap.get("ASSIGNEE_") == null ? "" : (String) endUserMap.get("ASSIGNEE_");
             }
         }
 
-        var11 = null;
-        Iterator var12 = var6.iterator();
-
-        ActHiActinstDTO var13;
-        String var14;
-        String var15;
-        LoginUser var16;
-        ProcessHisDTO var18;
-        while (var12.hasNext()) {
-            var13 = (ActHiActinstDTO) var12.next();
-            if ("startEvent".equals(var13.getActType())) {
-                var14 = var13.getStartTime() == null ? "" : DateUtils.formatDate(var13.getStartTime(), "yyyy-MM-dd " +
+        for (ActHiActinstDTO actHiActinstDTO : actHiActinstStartAndEnd) {
+            if ("startEvent".equals(actHiActinstDTO.getActType())) {
+                String startTime = actHiActinstDTO.getStartTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getStartTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
-                var15 = var13.getEndTime() == null ? "" : DateUtils.formatDate(var13.getEndTime(), "yyyy-MM-dd " +
+                String endTime = actHiActinstDTO.getEndTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getEndTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
-                var18 = new ProcessHisDTO();
-                var18.setId(org.jeecg.modules.extbpm.process.common.a.i);
-                var18.setName(var13.getActId());
-                var18.setProcessInstanceId(var13.getExecutionId());
-                var18.setStartTime(var14);
-                var18.setEndTime(var15);
-                var18.setAssignee(var8);
-                if (oConvertUtils.isNotEmpty(var18.getAssignee())) {
-                    var16 = this.sysBaseAPI.getUserByName(var18.getAssignee());
-                    var18.setAssigneeName(var16 != null ? var16.getRealname() : var18.getAssignee());
+                ProcessHisDTO processHisDTO = new ProcessHisDTO();
+                processHisDTO.setId(org.jeecg.modules.extbpm.process.common.a.i);
+                processHisDTO.setName(actHiActinstDTO.getActId());
+                processHisDTO.setProcessInstanceId(actHiActinstDTO.getExecutionId());
+                processHisDTO.setStartTime(startTime);
+                processHisDTO.setEndTime(endTime);
+                processHisDTO.setAssignee(processStartUserId);
+                if (oConvertUtils.isNotEmpty(processHisDTO.getAssignee())) {
+                    LoginUser loginUser = this.sysBaseAPI.getUserByName(processHisDTO.getAssignee());
+                    processHisDTO.setAssigneeName(loginUser != null ? loginUser.getRealname() : processHisDTO.getAssignee());
                 }
-
-                var18.setDeleteReason("已完成");
-                processHisDTOS.add(var18);
+                processHisDTO.setDeleteReason("已完成");
+                processHisDTOS.add(processHisDTO);
             }
         }
 
-        var12 = var7.iterator();
-
-        while (var12.hasNext()) {
-            HistoricTaskInstance var19 = (HistoricTaskInstance) var12.next();
-            var14 = "";
-            if ("completed".equals(var19.getDeleteReason())) {
-                var14 = "已完成";
-                if (var19.getDescription() != null && var19.getDescription().indexOf("委托") != -1) {
-                    var14 = var19.getDescription() + "【" + var14 + "】";
+        for (HistoricTaskInstance historicTaskInstance : historicTaskInstances) {
+            String deleteReason = "";
+            if ("completed".equals(historicTaskInstance.getDeleteReason())) {
+                deleteReason = "已完成";
+                if (historicTaskInstance.getDescription() != null && historicTaskInstance.getDescription().contains("委托")) {
+                    deleteReason = historicTaskInstance.getDescription() + "【" + deleteReason + "】";
                 }
             } else {
-                var14 = var19.getDeleteReason();
+                deleteReason = historicTaskInstance.getDeleteReason();
             }
-
-            var15 = var19.getStartTime() == null ? "" : DateUtils.formatDate(var19.getStartTime(), "yyyy-MM-dd " +
+            String startTime = historicTaskInstance.getStartTime() == null ? "" : DateUtils.formatDate(historicTaskInstance.getStartTime(), "yyyy-MM-dd " +
                     "HH:mm:ss");
-            String var20 = var19.getEndTime() == null ? "" : DateUtils.formatDate(var19.getEndTime(), "yyyy-MM-dd " +
+            String endTime = historicTaskInstance.getEndTime() == null ? "" : DateUtils.formatDate(historicTaskInstance.getEndTime(), "yyyy-MM-dd " +
                     "HH:mm:ss");
-            var18 = new ProcessHisDTO();
-            var18.setId(var19.getId());
-            var18.setName(var19.getName());
-            var18.setProcessInstanceId(var19.getProcessInstanceId());
-            var18.setStartTime(var15);
-            var18.setEndTime(var20);
-            var18.setAssignee(var19.getAssignee());
-            if (oConvertUtils.isNotEmpty(var18.getAssignee())) {
-                LoginUser var17 = this.sysBaseAPI.getUserByName(var18.getAssignee());
-                var18.setAssigneeName(var17 != null ? var17.getRealname() : var18.getAssignee());
+            ProcessHisDTO processHisDTO = new ProcessHisDTO();
+            processHisDTO.setId(historicTaskInstance.getId());
+            processHisDTO.setName(historicTaskInstance.getName());
+            processHisDTO.setProcessInstanceId(historicTaskInstance.getProcessInstanceId());
+            processHisDTO.setStartTime(startTime);
+            processHisDTO.setEndTime(endTime);
+            processHisDTO.setAssignee(historicTaskInstance.getAssignee());
+            if (oConvertUtils.isNotEmpty(processHisDTO.getAssignee())) {
+                LoginUser loginUser = this.sysBaseAPI.getUserByName(processHisDTO.getAssignee());
+                processHisDTO.setAssigneeName(loginUser != null ? loginUser.getRealname() : processHisDTO.getAssignee());
             }
-
-            var18.setDeleteReason(var14);
-            processHisDTOS.add(var18);
+            processHisDTO.setDeleteReason(deleteReason);
+            processHisDTOS.add(processHisDTO);
         }
 
-        var12 = var6.iterator();
-
-        while (var12.hasNext()) {
-            var13 = (ActHiActinstDTO) var12.next();
-            if ("endEvent".equals(var13.getActType())) {
-                var14 = var13.getStartTime() == null ? "" : DateUtils.formatDate(var13.getStartTime(), "yyyy-MM-dd " +
+        for (ActHiActinstDTO actHiActinstDTO : actHiActinstStartAndEnd) {
+            if ("endEvent".equals(actHiActinstDTO.getActType())) {
+                String startTime = actHiActinstDTO.getStartTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getStartTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
-                var15 = var13.getEndTime() == null ? "" : DateUtils.formatDate(var13.getEndTime(), "yyyy-MM-dd " +
+                String endTime = actHiActinstDTO.getEndTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getEndTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
-                var18 = new ProcessHisDTO();
-                var18.setId(org.jeecg.modules.extbpm.process.common.a.i);
-                var18.setName(var13.getActId());
-                var18.setProcessInstanceId(var13.getExecutionId());
-                var18.setStartTime(var14);
-                var18.setEndTime(var15);
-                var18.setAssignee(var9);
-                if (oConvertUtils.isNotEmpty(var18.getAssignee())) {
-                    var16 = this.sysBaseAPI.getUserByName(var18.getAssignee());
-                    var18.setAssigneeName(var16 != null ? var16.getRealname() : var18.getAssignee());
+                ProcessHisDTO processHisDTO = new ProcessHisDTO();
+                // processHisDTO.setId(org.jeecg.modules.extbpm.process.common.a.i);
+                processHisDTO.setId("end");
+                processHisDTO.setName(actHiActinstDTO.getActId());
+                processHisDTO.setProcessInstanceId(actHiActinstDTO.getExecutionId());
+                processHisDTO.setStartTime(startTime);
+                processHisDTO.setEndTime(endTime);
+                processHisDTO.setAssignee(assignee);
+                if (oConvertUtils.isNotEmpty(processHisDTO.getAssignee())) {
+                    LoginUser loginUser = this.sysBaseAPI.getUserByName(processHisDTO.getAssignee());
+                    processHisDTO.setAssigneeName(loginUser != null ? loginUser.getRealname() : processHisDTO.getAssignee());
                 }
-
-                var18.setDeleteReason("已完成");
-                processHisDTOS.add(var18);
+                processHisDTO.setDeleteReason("已完成");
+                processHisDTOS.add(processHisDTO);
             }
         }
 
@@ -1021,62 +1002,52 @@ public class BpmCommonService {
     public Map<String, Object> getNodePositionInfo(String processInstanceId) {
 
         Map<String, Object> result = new HashMap<>();
-        List historicTaskInstances =
-                ((HistoricTaskInstanceQuery) this.historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId)).list();
-        ArrayList var6 = new ArrayList();
-        org.jeecg.modules.bpm.dto.TaskDTO var7 = null;
-        ExtActBpmLog var8 = null;
+        List<HistoricTaskInstance> historicTaskInstances = this.historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId).list();
+        List<org.jeecg.modules.bpm.dto.TaskDTO> taskDTOS = new ArrayList<>();
+        org.jeecg.modules.bpm.dto.TaskDTO taskDTO;
 
-        List var13;
-        for (Iterator var9 = historicTaskInstances.iterator(); var9.hasNext(); var6.add(var7)) {
-            HistoricTaskInstance var10 = (HistoricTaskInstance) var9.next();
-            var7 = new org.jeecg.modules.bpm.dto.TaskDTO();
-            var7.setId(var10.getId());
-            var7.setTaskId(var10.getTaskDefinitionKey());
-            var7.setTaskBeginTime(var10.getStartTime());
-            var7.setTaskEndTime(var10.getEndTime());
-            var7.setTaskAssigneeId(var10.getAssignee());
-            var7.setTaskDueTime(var10.getDurationInMillis());
-            var7.setTaskName(var10.getName());
-            if (StringUtils.hasText(var10.getAssignee())) {
-                LoginUser var11 = this.sysBaseAPI.getUserByName(var10.getAssignee());
-                if (var11 != null) {
-                    var7.setTaskAssigneeName(var11.getRealname());
+        for (Iterator<HistoricTaskInstance> iterator = historicTaskInstances.iterator(); iterator.hasNext(); taskDTOS.add(taskDTO)) {
+            HistoricTaskInstance historicTaskInstance = iterator.next();
+            taskDTO = new org.jeecg.modules.bpm.dto.TaskDTO();
+            taskDTO.setId(historicTaskInstance.getId());
+            taskDTO.setTaskId(historicTaskInstance.getTaskDefinitionKey());
+            taskDTO.setTaskBeginTime(historicTaskInstance.getStartTime());
+            taskDTO.setTaskEndTime(historicTaskInstance.getEndTime());
+            taskDTO.setTaskAssigneeId(historicTaskInstance.getAssignee());
+            taskDTO.setTaskDueTime(historicTaskInstance.getDurationInMillis());
+            taskDTO.setTaskName(historicTaskInstance.getName());
+            if (StringUtils.hasText(historicTaskInstance.getAssignee())) {
+                LoginUser loginUser = this.sysBaseAPI.getUserByName(historicTaskInstance.getAssignee());
+                if (loginUser != null) {
+                    taskDTO.setTaskAssigneeName(loginUser.getRealname());
                 }
             }
-
-            LambdaQueryWrapper<ExtActBpmLog> var12 = new LambdaQueryWrapper<>();
-            var12.eq(ExtActBpmLog::getTaskId, var10.getId());
-            var13 = this.extActBpmLogService.list(var12);
-            if (var13 != null && var13.size() > 0) {
-                var8 = (ExtActBpmLog) var13.get(0);
-                var7.setRemarks(var8.getRemarks());
+            LambdaQueryWrapper<ExtActBpmLog> queryWrapper = new LambdaQueryWrapper<ExtActBpmLog>().eq(ExtActBpmLog::getTaskId, historicTaskInstance.getId());
+            List<ExtActBpmLog> extActBpmLogs = this.extActBpmLogService.list(queryWrapper);
+            if (extActBpmLogs != null && !extActBpmLogs.isEmpty()) {
+                taskDTO.setRemarks(extActBpmLogs.get(0).getRemarks());
             }
         }
 
-        result.put("hisTasks", var6);
-        k var17 = new k(processInstanceId);
-        ProcessEngine var18 = ProcessEngines.getDefaultProcessEngine();
-        List var19 = (List) var18.getManagementService().executeCommand(var17);
-        ArrayList var20 = new ArrayList();
-        var13 = null;
-        Iterator var14 = var19.iterator();
+        result.put("hisTasks", taskDTOS);
+        k nodes = new k(processInstanceId);
+        ProcessEngine defaultProcessEngine = ProcessEngines.getDefaultProcessEngine();
+        List<ActivityImpl> activityList = (List<ActivityImpl>) defaultProcessEngine.getManagementService().executeCommand(nodes);
+        List<Map<String, Object>> positionList = new ArrayList<>();
 
-        while (var14.hasNext()) {
-            ActivityImpl var15 = (ActivityImpl) var14.next();
-            HashMap var21 = new HashMap();
-            var21.put("x", var15.getX());
-            var21.put("y", var15.getY());
-            var21.put("width", var15.getWidth());
-            var21.put("height", var15.getHeight());
-            var21.put("id", var15.getId());
-            String var16 =
-                    var15.getX() + "," + var15.getY() + "," + (var15.getX() + var15.getWidth()) + "," + (var15.getY() + var15.getHeight());
-            var21.put("coords", var16);
-            var20.add(var21);
+        for (ActivityImpl activity : activityList) {
+            Map<String, Object> hashMap = new HashMap<>();
+            hashMap.put("x", activity.getX());
+            hashMap.put("y", activity.getY());
+            hashMap.put("width", activity.getWidth());
+            hashMap.put("height", activity.getHeight());
+            hashMap.put("id", activity.getId());
+            String coords = activity.getX() + "," + activity.getY() + "," + (activity.getX() + activity.getWidth()) + "," + (activity.getY() + activity.getHeight());
+            hashMap.put("coords", coords);
+            positionList.add(hashMap);
         }
 
-        result.put("positionList", var20);
+        result.put("positionList", positionList);
         return result;
     }
 
@@ -1100,7 +1071,7 @@ public class BpmCommonService {
         // 先找到关联的流程实例id
         String processInstanceId = new LambdaQueryChainWrapper<>(extActFlowDataService.getBaseMapper())
                 .eq(ExtActFlowData::getFormDataId, id)
-                .oneOpt().get().getProcessInstId();
+                .oneOpt().map(ExtActFlowData::getProcessInstId).orElseThrow(() -> new JeecgBootException("未找到关联流程实例id，业务id：" + id));
 
         List<ProcessHisDTO> historyList = new ArrayList<ProcessHisDTO>();
 
@@ -1110,9 +1081,7 @@ public class BpmCommonService {
                 ((HistoricTaskInstanceQuery) this.historyService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId)).list();
 
         // 处理起始节点
-        Iterator<ActHiActinstDTO> beginIterator = actHiActinstStartAndEnd.iterator();
-        while (beginIterator.hasNext()) {
-            ActHiActinstDTO actHiActinstDTO = beginIterator.next();
+        for (ActHiActinstDTO actHiActinstDTO : actHiActinstStartAndEnd) {
             if ("startEvent".equals(actHiActinstDTO.getActType())) {
                 String startTime = actHiActinstDTO.getStartTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getStartTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
@@ -1137,9 +1106,7 @@ public class BpmCommonService {
         }
 
         // 处理中间节点
-        Iterator<HistoricTaskInstance> historicTaskInstanceIterator = historicTaskInstances.iterator();
-        while (historicTaskInstanceIterator.hasNext()) {
-            HistoricTaskInstance historicTaskInstance = historicTaskInstanceIterator.next();
+        for (HistoricTaskInstance historicTaskInstance : historicTaskInstances) {
             String deleteReason = "";
             if ("completed".equals(historicTaskInstance.getDeleteReason())) {
                 deleteReason = "已完成";
@@ -1173,16 +1140,15 @@ public class BpmCommonService {
         }
 
         // 处理末尾节点
-        Iterator<ActHiActinstDTO> endIterator = actHiActinstStartAndEnd.iterator();
-        while (endIterator.hasNext()) {
-            ActHiActinstDTO actHiActinstDTO = (ActHiActinstDTO) endIterator.next();
+        for (ActHiActinstDTO actHiActinstDTO : actHiActinstStartAndEnd) {
             if ("endEvent".equals(actHiActinstDTO.getActType())) {
                 String startTime = actHiActinstDTO.getStartTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getStartTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
                 String endTime = actHiActinstDTO.getEndTime() == null ? "" : DateUtils.formatDate(actHiActinstDTO.getEndTime(), "yyyy-MM-dd " +
                         "HH:mm:ss");
                 ProcessHisDTO processHisDTO = new ProcessHisDTO();
-                processHisDTO.setId(org.jeecg.modules.extbpm.process.common.a.i);
+                // processHisDTO.setId(org.jeecg.modules.extbpm.process.common.a.i);
+                processHisDTO.setId("end");
                 processHisDTO.setName(actHiActinstDTO.getActId());
                 processHisDTO.setName("结束");
                 processHisDTO.setProcessInstanceId(actHiActinstDTO.getExecutionId());
