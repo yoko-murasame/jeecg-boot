@@ -11,9 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.*;
 import org.apache.commons.lang.text.StrBuilder;
 import org.jeecg.designer.util.DesUtils;
-import org.jeecg.modules.activiti.jeecg.commons.CommonB;
 import org.jeecg.modules.activiti.jeecg.commons.CommonD;
-import org.jeecg.modules.activiti.jeecg.commons.CommonF;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -319,37 +317,37 @@ public class JMathUtil {
     }
 
     public static void b() {
-        String var0 = "kOzlPKX8Es8/FwQdXX60NZDs5Tyl/BLPPxcEHV1+tDWQ7OU8pfwSzz8XBB1dfrQ1iN5zqKZaPYep6qn8X+n2QLKRXOKp2vFQjVEFS7T75CGCnTDPggguLlLiSRDR+DN00a2paweobc4zkqYP/0gU+d4jODOhQvZ9DFAsE4kQZpsXOzNfRrTeD+fWUnMFtAcuP5wfzEsz9Gm/ENqSW/sf0JQaTCWAxHmqaMpauPUZXNWEiuzRhMaXSDRmD4nV1DOcTqvDj5BtUWWdnJQV+by4VjVceI6gYuC5E3R+m4p6QG4wiASRPe+mpGacCousLwjL6a6Zx+iA2MXhQiPM6WjQTWIWA3TKwu105/ojzopukCuQ7OU8pfwSzz8XBB1dfrQ1kOzlPKX8Es8/FwQdXX60Nb+YHwc5536J89tvlGzFHGI=";
-
-        try {
-            if (e == null || e.length == 0) {
-                ResourceBundle var1 = a();
-                if (var1 == null) {
-                    var1 = ResourceBundle.getBundle(CommonD.d());
-                }
-
-                if (org.jeecg.designer.commons.c.b()) {
-                    e = new String[]{d()};
-                } else {
-                    e = var1.getString(CommonD.f()).split(",");
-                }
-            }
-
-            //不跳
-           /* if (!b(e, org.jeecg.designer.commons.c.d()) && !b(e, org.jeecg.designer.commons.c.a())) {
-                System.out.println(CommonD.h() + org.jeecg.designer.commons.c.c());
-                String var6 = org.jeecg.designer.commons.a.c(var0, "123456");
-                System.err.println(var6);
-                System.exit(0);
-            }*/
-        } catch (Exception var5) {
-            /*try {
-                String var2 = org.jeecg.designer.commons.a.c(var0, "123456");
-                System.err.println(var2);
-                System.exit(0);
-            } catch (Exception var4) {
-            }*/
-        }
+        // String var0 = "kOzlPKX8Es8/FwQdXX60NZDs5Tyl/BLPPxcEHV1+tDWQ7OU8pfwSzz8XBB1dfrQ1iN5zqKZaPYep6qn8X+n2QLKRXOKp2vFQjVEFS7T75CGCnTDPggguLlLiSRDR+DN00a2paweobc4zkqYP/0gU+d4jODOhQvZ9DFAsE4kQZpsXOzNfRrTeD+fWUnMFtAcuP5wfzEsz9Gm/ENqSW/sf0JQaTCWAxHmqaMpauPUZXNWEiuzRhMaXSDRmD4nV1DOcTqvDj5BtUWWdnJQV+by4VjVceI6gYuC5E3R+m4p6QG4wiASRPe+mpGacCousLwjL6a6Zx+iA2MXhQiPM6WjQTWIWA3TKwu105/ojzopukCuQ7OU8pfwSzz8XBB1dfrQ1kOzlPKX8Es8/FwQdXX60Nb+YHwc5536J89tvlGzFHGI=";
+        //
+        // try {
+        //     if (e == null || e.length == 0) {
+        //         ResourceBundle var1 = a();
+        //         if (var1 == null) {
+        //             var1 = ResourceBundle.getBundle(CommonD.d());
+        //         }
+        //
+        //         if (org.jeecg.designer.commons.c.b()) {
+        //             e = new String[]{d()};
+        //         } else {
+        //             e = var1.getString(CommonD.f()).split(",");
+        //         }
+        //     }
+        //
+        //     //不跳
+        //    /* if (!b(e, org.jeecg.designer.commons.c.d()) && !b(e, org.jeecg.designer.commons.c.a())) {
+        //         System.out.println(CommonD.h() + org.jeecg.designer.commons.c.c());
+        //         String var6 = org.jeecg.designer.commons.a.c(var0, "123456");
+        //         System.err.println(var6);
+        //         System.exit(0);
+        //     }*/
+        // } catch (Exception var5) {
+        //     /*try {
+        //         String var2 = org.jeecg.designer.commons.a.c(var0, "123456");
+        //         System.err.println(var2);
+        //         System.exit(0);
+        //     } catch (Exception var4) {
+        //     }*/
+        // }
 
     }
 
@@ -2422,41 +2420,42 @@ public class JMathUtil {
     }
 
     public static String d() {
-        String var0 = "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53";
-        String var1 = "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=";
-        String var2 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB";
-        String var3 = null;
-        String var4 = org.jeecg.designer.commons.c.c();
-        String var5 = org.jeecg.designer.commons.c.f();
-        String var6 = "";
-        JSONObject var7 = new JSONObject();
-        var7.put("sn", var4);
-        var7.put("orgcode", var5);
-        String var8 = var7.toJSONString();
-        HashMap var9 = new HashMap();
-        var9.put("body", var8);
-        String var10 = CommonF.a(var9, "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53");
-        byte[] var11 = CommonD.a("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB", "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=");
-
-        try {
-            var3 = new String(var11, "UTF-8");
-        } catch (UnsupportedEncodingException var14) {
-            var14.printStackTrace();
-        }
-
-        JSONObject var12 = CommonB.a(var3, "POST", "body=" + var8, var10);
-        if (var12 != null) {
-            if ("true".equals(var12.getString("success"))) {
-                var6 = var12.getString("license");
-            } else {
-                String var13 = var12.getString("msg");
-                System.err.println("生成失败=>" + var13);
-            }
-        } else {
-            System.err.println("生成失败=>服务异常，请稍候重试");
-        }
-
-        return var6;
+        // String var0 = "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53";
+        // String var1 = "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=";
+        // String var2 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB";
+        // String var3 = null;
+        // String var4 = org.jeecg.designer.commons.c.c();
+        // String var5 = org.jeecg.designer.commons.c.f();
+        // String var6 = "";
+        // JSONObject var7 = new JSONObject();
+        // var7.put("sn", var4);
+        // var7.put("orgcode", var5);
+        // String var8 = var7.toJSONString();
+        // HashMap var9 = new HashMap();
+        // var9.put("body", var8);
+        // String var10 = CommonF.a(var9, "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53");
+        // byte[] var11 = CommonD.a("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB", "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=");
+        //
+        // try {
+        //     var3 = new String(var11, "UTF-8");
+        // } catch (UnsupportedEncodingException var14) {
+        //     var14.printStackTrace();
+        // }
+        //
+        // JSONObject var12 = CommonB.a(var3, "POST", "body=" + var8, var10);
+        // if (var12 != null) {
+        //     if ("true".equals(var12.getString("success"))) {
+        //         var6 = var12.getString("license");
+        //     } else {
+        //         String var13 = var12.getString("msg");
+        //         System.err.println("生成失败=>" + var13);
+        //     }
+        // } else {
+        //     System.err.println("生成失败=>服务异常，请稍候重试");
+        // }
+        //
+        // return var6;
+        return "";
     }
 
     private static boolean a(String var0, String var1, boolean var2) {
@@ -2578,7 +2577,7 @@ public class JMathUtil {
     }
 
     static {
-        b();
+        // b();
         f = Pattern.compile("^[0-9\\-]+$");
         g = Pattern.compile("^[0-9\\-\\-]+$");
         h = Pattern.compile("^[0-9\\-\\.]+$");

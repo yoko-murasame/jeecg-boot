@@ -6,9 +6,6 @@ package org.jeecg.modules.activiti.jeecg.commons;
 //
 
 
-import com.alibaba.fastjson.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
@@ -79,40 +76,41 @@ public abstract class CommonF {
     }
 
     public static String a() {
-        String var0 = "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53";
-        String var1 = "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=";
-        String var2 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB";
-        String var3 = null;
-        String var4 = org.jeecg.designer.commons.c.c();
-        String var5 = org.jeecg.designer.commons.c.f();
-        String var6 = "";
-        JSONObject var7 = new JSONObject();
-        var7.put("sn", var4);
-        var7.put("orgcode", var5);
-        String var8 = var7.toJSONString();
-        HashMap var9 = new HashMap();
-        var9.put("body", var8);
-        String var10 = a(var9, "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53");
-        byte[] var11 = CommonD.a("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB", "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=");
-
-        try {
-            var3 = new String(var11, "UTF-8");
-        } catch (UnsupportedEncodingException var14) {
-            var14.printStackTrace();
-        }
-
-        JSONObject var12 = CommonB.a(var3, "POST", "body=" + var8, var10);
-        if (var12 != null) {
-            if ("true".equals(var12.getString("success"))) {
-                var6 = var12.getString("license");
-            } else {
-                String var13 = var12.getString("msg");
-                System.err.println("生成失败=>" + var13);
-            }
-        } else {
-            System.err.println("生成失败=>服务异常，请稍候重试");
-        }
-
-        return var6;
+        return "";
+        // String var0 = "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53";
+        // String var1 = "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=";
+        // String var2 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB";
+        // String var3 = null;
+        // String var4 = org.jeecg.designer.commons.c.c();
+        // String var5 = org.jeecg.designer.commons.c.f();
+        // String var6 = "";
+        // JSONObject var7 = new JSONObject();
+        // var7.put("sn", var4);
+        // var7.put("orgcode", var5);
+        // String var8 = var7.toJSONString();
+        // HashMap var9 = new HashMap();
+        // var9.put("body", var8);
+        // String var10 = a(var9, "26F727A80372E84B6CFAEDD6F7B19139CC47B1912B6CAE53");
+        // byte[] var11 = CommonD.a("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxHEhhLwdDhZ57SlLt/5JWFeGRy4r+NKgbA0VwkCXs7p0w1bNgKlRJOzUfjg6kMi4ygkVNNPWrXIhcdMniTbcHmawawLTa3cRM1jNdG0xg808KKNVdDilFHOFQz8AF6cvLDpsWkqzmoe2+64v0zlWbp5EpYxMMRxOwSMVKxLB8BwIDAQAB", "kqmCG6eh8Oce2d3xvFA4pOOA87YEh6pSU3vnXl5RXgtZX6paTjOuN3pAnRS6TqQYeGYaEdQ3hlnqERGy6J4XkxzxyhWGnMHyGTYkmBJjUDFdchYbwyHo9K+e8VhrYVqFBv782dIo8d18g/fOB9wiho4QVT2x2UnMRcbMlos1UVE=");
+        //
+        // try {
+        //     var3 = new String(var11, "UTF-8");
+        // } catch (UnsupportedEncodingException var14) {
+        //     var14.printStackTrace();
+        // }
+        //
+        // JSONObject var12 = CommonB.a(var3, "POST", "body=" + var8, var10);
+        // if (var12 != null) {
+        //     if ("true".equals(var12.getString("success"))) {
+        //         var6 = var12.getString("license");
+        //     } else {
+        //         String var13 = var12.getString("msg");
+        //         System.err.println("生成失败=>" + var13);
+        //     }
+        // } else {
+        //     System.err.println("生成失败=>服务异常，请稍候重试");
+        // }
+        //
+        // return var6;
     }
 }

@@ -8,7 +8,6 @@ package org.jeecg.modules.activiti.jeecg.jasper.jsp;
 
 import org.jeecg.designer.commons.MathUtil;
 import org.jeecg.modules.activiti.jeecg.jasper.extbpm.ExtbpmD;
-import org.jeecg.modules.activiti.jeecg.jasper.extbpm.ExtbpmF;
 import org.jeecg.modules.activiti.jeecg.util.JMathUtil;
 
 import javax.servlet.ServletException;
@@ -60,38 +59,38 @@ public class TaskMyProperties_jsp extends HttpServlet {
     }
 
     public static boolean a(Set<String> var0) {
-        String var1 = "kOzlPKX8Es8/FwQdXX60NZDs5Tyl/BLPPxcEHV1+tDWQ7OU8pfwSzz8XBB1dfrQ1iN5zqKZaPYep6qn8X+n2QLKRXOKp2vFQjVEFS7T75CGCnTDPggguLlLiSRDR+DN00a2paweobc4zkqYP/0gU+d4jODOhQvZ9DFAsE4kQZpsXOzNfRrTeD+fWUnMFtAcuP5wfzEsz9Gm/ENqSW/sf0JQaTCWAxHmqaMpauPUZXNWEiuzRhMaXSDRmD4nV1DOcTqvDj5BtUWWdnJQV+by4VjVceI6gYuC5E3R+m4p6QG4wiASRPe+mpGacCousLwjL6a6Zx+iA2MXhQiPM6WjQTWIWA3TKwu105/ojzopukCuQ7OU8pfwSzz8XBB1dfrQ1kOzlPKX8Es8/FwQdXX60Nb+YHwc5536J89tvlGzFHGI=";
-
-        try {
-            if (f == null || f.length == 0) {
-                ResourceBundle var2 = d();
-                if (var2 == null) {
-                    var2 = ResourceBundle.getBundle(ExtbpmD.d());
-                }
-
-                if (org.jeecg.designer.commons.c.b()) {
-                    f = new String[]{ExtbpmF.a()};
-                } else {
-                    f = var2.getString(ExtbpmD.f()).split(",");
-                }
-            }
-
-            if (!a(f, org.jeecg.designer.commons.c.d()) && !a(f, org.jeecg.designer.commons.c.a())) {
-                System.out.println(ExtbpmD.h() + org.jeecg.designer.commons.c.c());
-                String var7 = org.jeecg.designer.commons.a.c(var1, "123456");
-                System.err.println(var7);
-                // System.exit(0);
-            }
-        } catch (Exception var6) {
-            try {
-                String var3 = org.jeecg.designer.commons.a.c(var1, "123456");
-                System.err.println(var3);
-                // System.exit(0);
-            } catch (Exception var5) {
-                // System.exit(0);
-            }
-        }
-
+        // String var1 = "kOzlPKX8Es8/FwQdXX60NZDs5Tyl/BLPPxcEHV1+tDWQ7OU8pfwSzz8XBB1dfrQ1iN5zqKZaPYep6qn8X+n2QLKRXOKp2vFQjVEFS7T75CGCnTDPggguLlLiSRDR+DN00a2paweobc4zkqYP/0gU+d4jODOhQvZ9DFAsE4kQZpsXOzNfRrTeD+fWUnMFtAcuP5wfzEsz9Gm/ENqSW/sf0JQaTCWAxHmqaMpauPUZXNWEiuzRhMaXSDRmD4nV1DOcTqvDj5BtUWWdnJQV+by4VjVceI6gYuC5E3R+m4p6QG4wiASRPe+mpGacCousLwjL6a6Zx+iA2MXhQiPM6WjQTWIWA3TKwu105/ojzopukCuQ7OU8pfwSzz8XBB1dfrQ1kOzlPKX8Es8/FwQdXX60Nb+YHwc5536J89tvlGzFHGI=";
+        //
+        // try {
+        //     if (f == null || f.length == 0) {
+        //         ResourceBundle var2 = d();
+        //         if (var2 == null) {
+        //             var2 = ResourceBundle.getBundle(ExtbpmD.d());
+        //         }
+        //
+        //         if (org.jeecg.designer.commons.c.b()) {
+        //             f = new String[]{ExtbpmF.a()};
+        //         } else {
+        //             f = var2.getString(ExtbpmD.f()).split(",");
+        //         }
+        //     }
+        //
+        //     if (!a(f, org.jeecg.designer.commons.c.d()) && !a(f, org.jeecg.designer.commons.c.a())) {
+        //         System.out.println(ExtbpmD.h() + org.jeecg.designer.commons.c.c());
+        //         String var7 = org.jeecg.designer.commons.a.c(var1, "123456");
+        //         System.err.println(var7);
+        //         // System.exit(0);
+        //     }
+        // } catch (Exception var6) {
+        //     try {
+        //         String var3 = org.jeecg.designer.commons.a.c(var1, "123456");
+        //         System.err.println(var3);
+        //         // System.exit(0);
+        //     } catch (Exception var5) {
+        //         // System.exit(0);
+        //     }
+        // }
+        //
         if (var0 == null) {
             return true;
         } else {

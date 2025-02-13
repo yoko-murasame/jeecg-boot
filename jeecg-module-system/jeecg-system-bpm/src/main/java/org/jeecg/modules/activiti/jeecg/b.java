@@ -203,6 +203,6 @@ public class b {
     }
 
     static {
-        JMathUtil.b();
+        // JMathUtil.b();
     }
 }
