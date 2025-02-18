@@ -1,0 +1,87 @@
+# Spring Boot容器打包 Dockerfile
+# 防火墙：firewall-cmd --zone=public --add-port=8888/tcp --permanent && firewall-cmd --reload
+# 构建容器：docker build -t kuluseky/jdk8-base:v1 -f Dockerfile_jdk8_base .; docker save -o ./jdk8-base-v1 kuluseky/jdk8-base:v1
+# 第一次载入镜像：docker load -i jdk8-base-v1
+# 这个是基础父镜像，别的镜像引用：FROM kuluseky/jdk8-base:v1
+# 子镜像基于该父镜像可覆盖配置：ENV、EXPOSE、VOLUME等配置，然后编译使用
+# 子镜启动：docker run -di --name container-name --restart=unless-stopped -p 9999:8888 -v /application/app:/app -v /application/upFiles:/opt/upFiles image-name
+
+
+FROM anapsix/alpine-java:8_server-jre_unlimited
+
+
+# 通过镜像源安装tzdata修正容器时区问题
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache tzdata
+# 时区（无论是否安装tzdata，JDK时区设置下面软链接后，都会更正，但是tzdata不安装会让容器时区不生效）
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+
+# 字体(解决流程图部署乱码,请设置好字体目录位置)
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk update && apk --no-cache --purge -U upgrade
+RUN apk add --no-cache --purge -uU ttf-dejavu fontconfig && rm -rf /var/cache/apk/* && mkdir -p /usr/share/fonts/new/
+# 字体直接打入包中
+COPY ./fonts/*.ttf /usr/share/fonts/new/
+RUN fc-cache
+# 或者字体挂载出来
+# VOLUME /usr/share/fonts/new/
+
+
+# 动态链接库
+RUN mkdir -p /LD_LIBRARY
+ENV LD_LIBRARY_PATH /LD_LIBRARY:/opt/jdk1.8.0_202/jre/lib/amd64:/opt/jdk1.8.0_202/jre/lib/amd64/server
+# 拷贝so链接库
+# COPY so/* /LD_LIBRARY/
+# 或者把动态链接库挂载出来
+# VOLUME /LD_LIBRARY
+
+
+# 设置字符集(防止应用日志乱码)
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+# 应用目录
+ENV APP /app
+# 切换默认工作目录
+WORKDIR $APP
+
+
+## 下面变量供子镜像覆盖
+# 应用入口
+ONBUILD ENV APP_NAME=main.jar
+# 配置端口
+ONBUILD ENV APP_PORT=8888
+# 配置启用配置文件
+ONBUILD ENV APP_PROFILE_ACTIVE=prod
+# 依赖文件夹，实际目录都不为空时，将以分离式jar启动
+ONBUILD ENV APP_LIB_PATH=lib APP_CONFIG_PATH=config
+# 附加启动JVM参数
+ONBUILD ENV APP_JVM_OPTION="-Dfile.encoding=utf-8 -Djava.security.egd=file:/dev/./urandom -Xms1024m -Xmx2048m"
+# 附件上传目录
+ONBUILD RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
+
+
+# 暴露端口
+# ONBUILD EXPOSE $APP_PORT/tcp
+# 应用-入口文件夹（必须）
+# ONBUILD VOLUME $APP
+# 应用-本地文件上传目录（建议）
+# ONBUILD VOLUME /opt/upFiles
+# 应用-本地webapp目录（可选）
+# ONBUILD VOLUME /opt/webapp
+
+
+CMD echo "环境变量: ${PATH}" \
+    && echo "中文字体:" && fc-cache && fc-list :lang=zh \
+    && echo "启动app: $APP" && cd $APP && ls . -al \
+    && if [ -d "$APP/$APP_LIB_PATH" ] && [ -d "$APP/$APP_CONFIG_PATH" ]; then \
+           echo "分离jar模式启动:"; \
+           java $APP_JVM_OPTION \
+                     -Dloader.path=$APP_LIB_PATH,$APP_CONFIG_PATH \
+                     -Dspring.profiles.active=$APP_PROFILE_ACTIVE \
+                     -Dserver.port=$APP_PORT \
+                     -jar $APP_NAME; \
+       else \
+           echo "单独jar模式启动:"; \
+           java $APP_JVM_OPTION \
+                    -Dspring.profiles.active=$APP_PROFILE_ACTIVE \
+                    -Dserver.port=$APP_PORT \
+                    -jar $APP_NAME; \
+       fi
