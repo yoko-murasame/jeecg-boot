@@ -84,7 +84,13 @@
     <!--                 <includeSystemScope>true</includeSystemScope> -->
     <!--             </configuration> -->
     <!--         </plugin> -->
-    <!--     </plugins> -->
+    <!--     </plugins>-->
+    <!--     <resources>-->
+    <!--         <resource>-->
+    <!--             <directory>src/main/resources</directory>-->
+    <!--             <filtering>true</filtering>-->
+    <!--         </resource>-->
+    <!--     </resources>-->
     <!-- </build> -->
     <!-- ==========打包完整jar（对应使用镜像描述文件：Dockerfile）============ -->
 
