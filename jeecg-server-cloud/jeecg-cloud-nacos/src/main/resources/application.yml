@@ -3,7 +3,7 @@ server:
     contextPath: /nacos
   tomcat:
     accesslog:
-      enabled: true
+      enabled: false
       pattern: '%h %l %u %t "%r" %s %b %D %{User-Agent}i %{Request-Source}i'
     basedir: ''
 spring:
