@@ -1,6 +1,12 @@
 server:
   port: 9999
-
+# reactor.netty.http.client.PrematureCloseException: Connection prematurely closed BEFORE response解决方案
+# 参考：https://blog.csdn.net/rickiyeat/article/details/107900585
+# 1.将获取连接策略由默认的FIFO变更为LIFO，因为LIFO能够确保获取的连接最大概率是最近刚被用过的，也就是热点连接始终是热点连接，而始终用不到的连接就可以被回收掉，LRU的思想
+reactor:
+  netty:
+    pool:
+      leasingStrategy: lifo
 spring:
   application:
     name: jeecg-gateway
@@ -26,6 +32,10 @@ spring:
       username: @config.username@
       password: @config.password@
     gateway:
+      # 2.设置gateway的超时时间，设置为10s
+      httpclient:
+        pool:
+          maxIdleTime: 10000
       discovery:
         locator:
           enabled: true
