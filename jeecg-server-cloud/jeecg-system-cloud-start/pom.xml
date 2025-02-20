@@ -74,27 +74,7 @@
 
     </dependencies>
 
-    <!-- ==========打包完整jar（对应使用镜像描述文件：Dockerfile）============ -->
-    <!-- <build> -->
-    <!--     <plugins> -->
-    <!--         <plugin> -->
-    <!--             <groupId>org.springframework.boot</groupId> -->
-    <!--             <artifactId>spring-boot-maven-plugin</artifactId> -->
-    <!--             <configuration> -->
-    <!--                 <includeSystemScope>true</includeSystemScope> -->
-    <!--             </configuration> -->
-    <!--         </plugin> -->
-    <!--     </plugins>-->
-    <!--     <resources>-->
-    <!--         <resource>-->
-    <!--             <directory>src/main/resources</directory>-->
-    <!--             <filtering>true</filtering>-->
-    <!--         </resource>-->
-    <!--     </resources>-->
-    <!-- </build> -->
-    <!-- ==========打包完整jar（对应使用镜像描述文件：Dockerfile）============ -->
-
-    <!-- ==========打包分离jar（对应使用镜像描述文件：Dockerfile_Separate）========== -->
+    <!-- ==========打包分离jar========== -->
     <!--运行：java -Dloader.path=lib,config -Dspring.profiles.active=yoko -jar main.jar-->
     <build>
         <plugins>
@@ -237,5 +217,36 @@
             </resource>
         </resources>
     </build>
-    <!-- ==========打包分离jar（对应使用镜像描述文件：Dockerfile_Separate）========== -->
+    <!-- ==========打包分离jar========== -->
+
+    <!-- ==========打包完整jar============ -->
+    <!--<build>-->
+    <!--    <plugins>-->
+    <!--        <plugin>-->
+    <!--            <groupId>org.springframework.boot</groupId>-->
+    <!--            <artifactId>spring-boot-maven-plugin</artifactId>-->
+    <!--            <configuration>-->
+    <!--                <includeSystemScope>true</includeSystemScope>-->
+    <!--            </configuration>-->
+    <!--        </plugin>-->
+    <!--    </plugins>-->
+    <!--    <resources>-->
+    <!--        &lt;!&ndash;打包java路径下的静态文件&ndash;&gt;-->
+    <!--        <resource>-->
+    <!--            <directory>src/main/java</directory>-->
+    <!--            <filtering>false</filtering>-->
+    <!--            <includes>-->
+    <!--                <include>**/*.xml</include>-->
+    <!--                <include>**/*.json</include>-->
+    <!--                <include>**/*.ftl</include>-->
+    <!--            </includes>-->
+    <!--        </resource>-->
+    <!--        <resource>-->
+    <!--            <directory>src/main/resources</directory>-->
+    <!--            <filtering>true</filtering>-->
+    <!--        </resource>-->
+    <!--    </resources>-->
+    <!--</build>-->
+    <!-- ==========打包完整jar============ -->
+
 </project>
