@@ -1,8 +1,8 @@
 # Spring Boot容器打包 Dockerfile
 # 防火墙：firewall-cmd --zone=public --add-port=8888/tcp --permanent && firewall-cmd --reload
-# 构建容器：docker build -t kuluseky/jdk8-base:v1 -f Dockerfile_jdk8_base .; docker save -o ./jdk8-base-v1 kuluseky/jdk8-base:v1
-# 第一次载入镜像：docker load -i jdk8-base-v1
-# 这个是基础父镜像，别的镜像引用：FROM kuluseky/jdk8-base:v1
+# 构建容器：docker build -t kuluseky/alpine-java-zh:8_server-jre_unlimited -f Dockerfile_alpine_java8_zh .; docker save -o ./alpine-java-zh-8_server-jre_unlimited kuluseky/alpine-java-zh:8_server-jre_unlimited
+# 第一次载入镜像：docker load -i alpine-java-zh-8_server-jre_unlimited
+# 这个是基础父镜像，别的镜像引用：FROM kuluseky/alpine-java-zh:8_server-jre_unlimited
 # 子镜像基于该父镜像可覆盖配置：ENV、EXPOSE、VOLUME等配置，然后编译使用
 # 子镜启动：docker run -di --name container-name --restart=unless-stopped -p 9999:8888 -v /application/app:/app -v /application/upFiles:/opt/upFiles image-name
 
@@ -48,8 +48,8 @@ WORKDIR $APP
 ONBUILD ENV APP_NAME=main.jar
 # 配置端口
 ONBUILD ENV APP_PORT=8888
-# 配置启用配置文件
-ONBUILD ENV APP_PROFILE_ACTIVE=prod
+# 配置启用配置文件：prod、dev、test
+ONBUILD ENV APP_PROFILE_ACTIVE=""
 # 依赖文件夹，实际目录都不为空时，将以分离式jar启动
 ONBUILD ENV APP_LIB_PATH=lib APP_CONFIG_PATH=config
 # 附加启动JVM参数
@@ -70,7 +70,10 @@ ONBUILD RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
 
 CMD echo "环境变量: ${PATH}" \
     && echo "中文字体:" && fc-cache && fc-list :lang=zh \
-    && echo "启动app: $APP" && cd $APP && ls . -al \
+    && echo "启动APP: $APP" && cd $APP && ls . -al \
+    && echo "启动JAR: $APP_NAME" \
+    && echo "启动端口: $APP_PORT" \
+    && echo "附加JVM参数: $APP_JVM_OPTION" \
     && if [ -d "$APP/$APP_LIB_PATH" ] && [ -d "$APP/$APP_CONFIG_PATH" ]; then \
            echo "分离jar模式启动:"; \
            java $APP_JVM_OPTION \

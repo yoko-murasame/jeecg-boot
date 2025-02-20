@@ -1,14 +1,3 @@
-# JDK8中文环境基础容器
-
-1. 基于 anapsix/alpine-java:8_server-jre_unlimited
-2. 安装tzdata修正容器时区问题
-3. 安装中文字体黑体
-4. 添加/LD_LIBRARY动态链接库（子镜像往该目录添加文件即可）
-5. 支持单体jar、分离jar启动
-
-子镜像Dockerfile示例：
-
-```dockerfile
 FROM kuluseky/alpine-java-zh:8_server-jre_unlimited
 
 # 动态链接库
@@ -40,5 +29,3 @@ ADD ./target/$APP_NAME ./
 
 # 提示需暴露端口
 EXPOSE $APP_PORT
-
-```
