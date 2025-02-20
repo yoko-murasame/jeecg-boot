@@ -1,34 +1,30 @@
-FROM anapsix/alpine-java:8_server-jre_unlimited
+FROM kuluseky/alpine-java-zh:8_server-jre_unlimited
 
-MAINTAINER jeecgos@163.com
-
-# 通过镜像源安装tzdata修正容器时区问题
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache tzdata
-# 时区（无论是否安装tzdata，JDK时区设置下面软链接后，都会更正，但是tzdata不安装会让容器时区不生效）
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-# 字体(解决流程图部署乱码,请设置好字体目录位置)
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk update && apk --no-cache --purge -U upgrade
-RUN apk add --no-cache --purge -uU ttf-dejavu fontconfig && rm -rf /var/cache/apk/* && mkdir -p /usr/share/fonts/new/
-# 字体直接打入包中
-COPY fonts/*.ttf /usr/share/fonts/new/
-RUN fc-cache
-# 或者字体挂载出来
-# VOLUME /usr/share/fonts/new/
-
-# 文件目录
-RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
-
-RUN mkdir -p /opt/upFiles && mkdir -p /jeecg-demo-dubbo
-
-WORKDIR /jeecg-demo-dubbo
-
-ENV SERVER_PORT 8002
-
+# 配置变量-启动jar包名称
+ENV APP_NAME=jeecg-demo-dubbo-start-3.4.3.jar
+# 配置变量-指定加载配置
+ENV APP_PROFILE_ACTIVE=""
+# 配置变量-指定端口
+ENV APP_PORT=8002
 ENV DUBBO_PORT 20881
 
-EXPOSE ${SERVER_PORT} ${DUBBO_PORRT}
+# （可选）配置变量-依赖文件夹，实际目录都不为空时，将以分离式jar启动
+# ENV APP_LIB_PATH=lib APP_CONFIG_PATH=config
+# （可选）配置变量-附加启动JVM参数（以下为默认参数）
+# ENV APP_JVM_OPTION="-Dfile.encoding=utf-8 -Djava.security.egd=file:/dev/./urandom -Xms1024m -Xmx2048m"
 
-ADD ./target/jeecg-demo-dubbo-start-3.4.3.jar ./
+# （可选）分离式jar启动-挂载整个app目录（/app）
+# VOLUME $APP
+# （可选）分离式jar启动-挂载外部lib（/app/lib）
+# VOLUME $APP/$APP_LIB_PATH
+# （可选）分离式jar启动-挂载外部config（/app/config）
+# VOLUME $APP/$APP_CONFIG_PATH
+# （可选）挂载附件目录
+# VOLUME /opt/upFiles
 
-CMD sleep 1;pwd;ls -al;echo $PATH;java -version;java -Dfile.encoding=utf-8 -Djava.security.egd=file:/dev/./urandom -jar jeecg-demo-dubbo-start-3.4.3.jar
+# 复制jar包
+ADD ./target/$APP_NAME ./
+
+# 提示需暴露端口
+EXPOSE $APP_PORT
+EXPOSE ${DUBBO_PORRT}

@@ -1,36 +1,34 @@
-FROM anapsix/alpine-java:8_server-jre_unlimited
+FROM kuluseky/alpine-java-zh:8_server-jre_unlimited
 
-MAINTAINER jeecgos@163.com
+# 动态链接库
+# COPY ./so/* /LD_LIBRARY/
 
-# 通过镜像源安装tzdata修正容器时区问题
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache tzdata
-# 时区（无论是否安装tzdata，JDK时区设置下面软链接后，都会更正，但是tzdata不安装会让容器时区不生效）
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+# 配置变量-启动jar包名称
+ENV APP_NAME=main.jar
+# 配置变量-指定加载配置：prod、dev、test
+ENV APP_PROFILE_ACTIVE=""
+# 配置变量-指定端口
+ENV APP_PORT=8080
 
-# 字体(解决流程图部署乱码,请设置好字体目录位置)
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk update && apk --no-cache --purge -U upgrade
-RUN apk add --no-cache --purge -uU ttf-dejavu fontconfig && rm -rf /var/cache/apk/* && mkdir -p /usr/share/fonts/new/
-# 字体直接打入包中
-COPY fonts/*.ttf /usr/share/fonts/new/
-RUN fc-cache
-# 或者字体挂载出来
-# VOLUME /usr/share/fonts/new/
+# （可选）配置变量-依赖文件夹，实际目录都不为空时，将以分离式jar启动
+# ENV APP_LIB_PATH=lib APP_CONFIG_PATH=config
+# （可选）配置变量-附加启动JVM参数（以下为默认参数）
+# ENV APP_JVM_OPTION="-Dfile.encoding=utf-8 -Djava.security.egd=file:/dev/./urandom -Xms1024m -Xmx2048m"
 
-# 文件目录
-RUN mkdir -p /opt/upFiles && mkdir -p /opt/webapp
+# （可选）分离式jar启动-挂载整个app目录（/app）
+# VOLUME $APP
+# （可选）分离式jar启动-挂载外部lib（/app/lib）
+# VOLUME $APP/$APP_LIB_PATH
+# （可选）分离式jar启动-挂载外部config（/app/config）
+# VOLUME $APP/$APP_CONFIG_PATH
+# （可选）挂载附件目录
+# VOLUME /opt/upFiles
 
-WORKDIR /jeecg-boot
+# 复制jar包
+ADD ./target/$APP_NAME ./
 
-# 端口
-ENV PORT 8080
-# 激活配置
-ENV PROFILE prod
-# 暴露端口
-EXPOSE $PORT/tcp
-# 应用-本地文件上传目录（建议）
-VOLUME /opt/upFiles
-# 应用-本地webapp目录（可选）
-# VOLUME /opt/webapp
+# 提示需暴露端口
+EXPOSE $APP_PORT
 
 # 数据库配置
 ENV DATABASE_HOST 172.17.0.1
@@ -44,10 +42,3 @@ ENV REDIS_HOST 172.17.0.1
 ENV REDIS_PORT 63791
 # ENV REDIS_DB 11
 # ENV REDIS_PWD ''
-
-#ADD ./src/main/resources/jeecg ./config/jeecg
-COPY ./target/lib ./lib
-COPY ./target/config ./config
-ADD ./target/main.jar ./
-
-CMD sleep 1;java -Dserver.port=$PORT -Dspring.profiles.active=$PROFILE -Dloader.path=lib,config -Djava.security.egd=file:/dev/./urandom -jar main.jar
