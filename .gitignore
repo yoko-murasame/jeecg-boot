@@ -14,6 +14,3 @@ rebel.xml
 /*.log
 ## 业务无用的
 /jeecg-server-cloud/**/*.jar
-/jeecg-module-system/jeecg-system-start/fonts/simsun.ttf
-/jeecg-server-cloud/jeecg-system-dubbo-start/fonts/simsun.ttf
-/jeecg-server-cloud/jeecg-system-cloud-start/fonts/simsun.ttf
